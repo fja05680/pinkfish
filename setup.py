@@ -7,7 +7,7 @@ setup(
     author='Farrell Aultman',
     author_email='fja0568@gmail.com',
     url='http://github.com/fja0568/pinkfish',
-    packages=['itable'],
+    packages=['pinkfish'],
     include_package_data=True,
     license='MIT',
     classifiers=[
@@ -26,6 +26,7 @@ setup(
     install_requires=[
         'numpy',
         'pandas',
+        'matplotlib',
     ],
     extras_require={
         'talib':  ["talib"],
