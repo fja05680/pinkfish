@@ -33,7 +33,7 @@ def fetch_timeseries(symbol, dir_name='data', use_cache=True):
     if not os.path.exists(dir_name):
         os.makedirs(dir_name)    
 
-    timeseries_cache = os.path.join(dir_name, symbol + '.' + '.csv')
+    timeseries_cache = os.path.join(dir_name, symbol + '.csv')
     
     if os.path.isfile(timeseries_cache) and use_cache:
         pass
