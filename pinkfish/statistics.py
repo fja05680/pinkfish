@@ -249,8 +249,14 @@ def max_closed_out_drawdown(close):
     dd['start_date'] = close[close == dd['peak']].index[0].strftime('%Y-%m-%d')
     dd['end_date'] = idx.strftime('%Y-%m-%d')
     close = close[close.index > idx]
-    dd['recovery_date'] = \
-        close[close > dd['peak']].index[0].strftime('%Y-%m-%d')
+    
+    rd_mask = close > dd['peak']
+    if rd_mask.any():
+        dd['recovery_date'] = \
+            close[rd_mask].index[0].strftime('%Y-%m-%d')
+    else:
+        dd['recovery_date'] = 'Not Recovered Yet'
+
     return dd
 
 def max_intra_day_drawdown(high, low):
@@ -267,7 +273,11 @@ def max_intra_day_drawdown(high, low):
     dd['start_date'] = high[high == dd['peak']].index[0].strftime('%Y-%m-%d')
     dd['end_date'] = idx.strftime('%Y-%m-%d')
     high = high[high.index > idx]
-    dd['recovery_date'] = high[high > dd['peak']].index[0].strftime('%Y-%m-%d')
+    
+    rd_mask = high > dd['peak']
+    if rd_mask.any():
+        dd['recovery_date'] = \
+            high[rd_mask].index[0].strftime('%Y-%m-%d')
     return dd
 
 def _windowed_view(x, window_size):
@@ -443,7 +453,7 @@ def stats(ts, tlog, dbal, start, end, capital):
     stats['avg_pct_gain_per_trade'] = avg_pct_gain_per_trade(tlog)
     stats['largest_pct_winning_trade'] = largest_pct_winning_trade(tlog)
     stats['largest_pct_losing_trade'] = largest_pct_losing_trade(tlog)
-    
+
     # STREAKS
     stats['max_consecutive_winning_trades'] = \
         max_consecutive_winning_trades(tlog)

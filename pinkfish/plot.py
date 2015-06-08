@@ -19,9 +19,9 @@ def plot_equity_curve(strategy, benchmark=None):
         Both arguements are daily balance. """
     fig = plt.figure()
     axes = fig.add_subplot(111, ylabel='Portfolio value in $')
-    strategy['close'].plot(ax=axes, label='strategy')
+    axes.plot(strategy['close'], label='strategy')
     if benchmark is not None:
-        benchmark['close'].plot(ax=axes, label='benchmark')
+        axes.plot(benchmark['close'], label='benchmark')
     plt.legend(loc='best')
 
 def plot_trades(strategy, benchmark=None):
@@ -36,7 +36,8 @@ def plot_trades(strategy, benchmark=None):
 
     fig = plt.figure()
     axes = fig.add_subplot(111, ylabel='Portfolio value in $')
-    benchmark['close'].plot(ax=axes, label=label)
+    axes.plot(benchmark.index, benchmark['close'], label=label)
+    
     #buy
     buy = benchmark[strategy['state'] == pf.TradeState.OPEN]
     axes.plot(buy.index, buy['close'], '^', markersize=10, color='k')

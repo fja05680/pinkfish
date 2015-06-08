@@ -49,11 +49,10 @@ def _adj_prices(ts):
     """
     Back adjust prices relative to adj_close for dividends and splits
     """
-    ts.is_copy = False  # prevents SettingWithCopyWarning
-    ts['open'] = ts['open'] * ts['close'] / ts['adj_close']
-    ts['high'] = ts['high'] * ts['close'] / ts['adj_close']
-    ts['low'] = ts['low'] * ts['close'] / ts['adj_close']
-    ts['close'] = ts['close'] * ts['close'] / ts['adj_close']
+    ts['open'] = ts['open'] * ts['adj_close'] / ts['close'] 
+    ts['high'] = ts['high'] * ts['adj_close'] / ts['close']
+    ts['low'] = ts['low'] * ts['adj_close'] / ts['close']
+    ts['close'] = ts['close'] * ts['adj_close'] / ts['close']
     return ts
 
 def select_tradeperiod(ts, start, end, use_adj=False, pad=True):
@@ -62,13 +61,15 @@ def select_tradeperiod(ts, start, end, use_adj=False, pad=True):
     back date a year to allow time for long term indicators,
     e.g. 200sma is become valid
     """
+    if use_adj:
+        _adj_prices(ts)
+        
     if start < ts.index[0]: start = ts.index[0]
     if end > ts.index[-1]: end = ts.index[-1]
     if pad:    
         ts = ts[start - datetime.timedelta(365):end]
     else:
         ts = ts[start:end]
-    if use_adj:
-        ts = _adj_prices(ts)
+
     return ts
 
