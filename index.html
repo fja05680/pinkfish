@@ -46,16 +46,23 @@ Simple, I couldn't find a python backtesting library that I allowed me to backte
 <h2>
 <a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h2>
 
-<p>Below is what it takes to get Pinkfish working on (x)ubuntu 14.04:</p>
+<p>This is how I got pinkfish working on xubuntu 14.04:</p>
 
 <pre><code>sudo apt-get update
+sudo apt-get update
 sudo apt-get upgrade
-sudo apt-get install build-essential
 
+sudo apt-get install build-essential
+sudo apt-get install git
+sudo apt-get install python-pip
+sudo apt-get install python-dev
+sudo apt-get install libfreetype6-dev
+sudo pip install six --upgrade
+
+sudo pip install numpy
+sudo pip install python-dateutil
+sudo pip install matplotlib
 sudo pip install pandas
-*sudo pip install numpy
-*sudo pip install python-dateutil
-*sudo pip install matplotlib
 
 (http://mrjbq7.github.io/ta-lib/install.html)
 cd ~/Downloads
@@ -68,13 +75,21 @@ sudo make install
 sudo pip install TA-Lib
 
 sudo apt-get install ipython-notebook
+#if you want to read the notebook v4 format
+#sudo pip install ipython --upgrade
+#sudo pip install jsonschema
 
 #install itable from github
+mkdir ~/src
+cd ~/src
 git clone https://github.com/mgymrek/itable.git
+cd itable
 python setup.py install
 
 #install pinkfish from github
+cd ~/src
 git clone https://github.com/fja05680/pinkfish.git
+cd pinkfish
 python setup.py install
 
 *already installed on xUbuntu 14.04
