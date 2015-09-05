@@ -46,9 +46,38 @@ Simple, I couldn't find a python backtesting library that I allowed me to backte
 <h2>
 <a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h2>
 
-<p>You can install pinkfish using pip:</p>
+<p>Below is what it takes to get Pinkfish working on (x)ubuntu 14.04:</p>
 
-<pre><code>sudo pip install pinkfish
+<pre><code>sudo apt-get update
+sudo apt-get upgrade
+sudo apt-get install build-essential
+
+sudo pip install pandas
+*sudo pip install numpy
+*sudo pip install python-dateutil
+*sudo pip install matplotlib
+
+(http://mrjbq7.github.io/ta-lib/install.html)
+cd ~/Downloads
+sudo wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz
+tar -xzvf ta-lib-0.4.0-src.tar.gz
+cd ta-lib
+./configure --prefix=/usr
+make
+sudo make install
+sudo pip install TA-Lib
+
+sudo apt-get install ipython-notebook
+
+#install itable from github
+git clone https://github.com/mgymrek/itable.git
+python setup.py install
+
+#install pinkfish from github
+git clone https://github.com/fja05680/pinkfish.git
+python setup.py install
+
+*already installed on xUbuntu 14.04
 </code></pre>
 
 <h2>
@@ -67,7 +96,6 @@ Simple, I couldn't find a python backtesting library that I allowed me to backte
 
     </section>
 
-  
+
   </body>
 </html>
-
