@@ -45,8 +45,8 @@ class Benchmark():
                 self.start = self._ts.index[i]
                 self._end = self._ts.index[-1]
 
+            # buy
             if self._tlog.num_open_trades() == 0:
-                # buy
 
                 # calculate shares
                 shares, cash = self._tlog.calc_shares(cash, close)
@@ -59,9 +59,9 @@ class Benchmark():
                 # record daily balance
                 self._dbal.append(date, high, low, close, shares, cash,
                                   pf.TradeState.OPEN)
-
+            
+            # sell 
             elif (i == len(self._ts.index) - 1):
-                # sell
 
                 # enter sell in trade log
                 idx = self._tlog.exit_trade(date, close)
@@ -75,10 +75,12 @@ class Benchmark():
 
                 # update cash
                 cash = self._tlog.calc_cash(cash, close, shares)
+                
+                # update shares
+                shares = 0
 
+            # hold            
             else:
-                #hold
-
                 self._dbal.append(date, high, low, close, shares,
                                   cash, pf.TradeState.HOLD)
 

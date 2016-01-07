@@ -26,7 +26,7 @@ class TradeLog():
     def calc_shares(self, cash, price):
         """ calculate shares and remaining cash before entry """
         shares = int(cash / price)
-        cash = cash - shares * price
+        cash = cash - shares*price
         return shares, cash
 
     def calc_cash(self, cash, price, shares):
@@ -89,7 +89,7 @@ class TradeLog():
         return self._tlog
 
 class TradeState:
-    OPEN, CLOSE, HOLD, CASH = range(0, 4)
+    OPEN, HOLD, CLOSE = range(0, 3)
 
 class DailyBal:
     """ Log for daily balance """
@@ -103,15 +103,13 @@ class DailyBal:
             # date, high, low, close, cash, state
             t = (date, close*shares + cash, close*shares + cash,
                  close*shares + cash, shares, cash, state)
-        elif state == TradeState.CLOSE:
-            t = (date, high*shares + cash, low*shares + cash,
-                 close*shares + cash, shares, cash, state)
         elif state == TradeState.HOLD:
             t = (date, high*shares + cash, low*shares + cash,
                  close*shares + cash, shares, cash, state)
-        elif state == TradeState.CASH:
-            t = (date, cash, cash, cash,
-                 shares, cash, state)
+        elif state == TradeState.CLOSE:
+            t = (date, high*shares + cash, low*shares + cash,
+                 close*shares + cash, shares, cash, state)
+
         return t
 
     def append(self, date, high, low, close, shares, cash, state):
