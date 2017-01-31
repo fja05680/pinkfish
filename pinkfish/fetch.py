@@ -15,6 +15,7 @@ import pandas as pd
 from pandas.io.data import DataReader
 import datetime
 import os
+import pinkfish as pf
 
 def _adj_column_names(ts):
     """
@@ -30,6 +31,15 @@ def fetch_timeseries(symbol, dir_name='data', use_cache=True):
     Read time series data. Use cached version if it exists and
     use_cache is True, otherwise retrive, cache, then read.
     """
+    base_dir = ''
+    try:
+        conf = pf.read_config()
+        base_dir = conf['base_dir']
+    except:
+        pass
+    finally:
+        dir_name = os.path.join(base_dir, dir_name)
+        
     if not os.path.exists(dir_name):
         os.makedirs(dir_name)    
 
