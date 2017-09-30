@@ -54,10 +54,10 @@ def beginning_balance(capital):
     return capital
 
 def ending_balance(dbal):
-    return dbal.irow(-1)['close']
+    return dbal.iloc[-1]["close"]
 
 def total_net_profit(tlog):
-    return tlog.irow(-1)['cumul_total']
+    return tlog.iloc[-1]["cumul_total"]
 
 def gross_profit(tlog):
     return tlog[tlog['pl_cash'] > 0].sum()['pl_cash']
