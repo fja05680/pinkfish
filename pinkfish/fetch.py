@@ -12,7 +12,7 @@ from __future__ import absolute_import
 
 # Other imports
 import pandas as pd
-from pandas.io.data import DataReader
+import pandas_datareader.data as pdr
 import datetime
 import os
 import pinkfish as pf
@@ -48,7 +48,7 @@ def fetch_timeseries(symbol, dir_name='data', use_cache=True):
     if os.path.isfile(timeseries_cache) and use_cache:
         pass
     else:
-        ts = DataReader(symbol, 'yahoo', start=datetime.datetime(1900, 1, 1))
+        ts = pdr.DataReader(symbol, 'yahoo', start=datetime.datetime(1900, 1, 1))
         ts.to_csv(timeseries_cache, encoding='utf-8')
     
     ts = pd.read_csv(timeseries_cache, index_col='Date', parse_dates=True)
@@ -83,3 +83,9 @@ def select_tradeperiod(ts, start, end, use_adj=False, pad=True):
 
     return ts
 
+def main():
+    # test the fetch function
+    print(fetch_timeseries("KO"))
+    
+if __name__ == "__main__":
+    main()
