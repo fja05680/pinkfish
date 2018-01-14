@@ -54,10 +54,10 @@ def beginning_balance(capital):
     return capital
 
 def ending_balance(dbal):
-    return dbal.iloc[-1]["close"]
+    return dbal.iloc[-1]['close']
 
 def total_net_profit(tlog):
-    return tlog.iloc[-1]["cumul_total"]
+    return tlog.iloc[-1]['cumul_total']
 
 def gross_profit(tlog):
     return tlog[tlog['pl_cash'] > 0].sum()['pl_cash']
@@ -237,7 +237,7 @@ def avg_bars_losing_trades(ts, tlog):
 
 def max_closed_out_drawdown(close):
     """ only compare each point to the previous running peak O(N) """
-    running_max = pd.expanding_max(close)
+    running_max = pd.Series(close).expanding(min_periods=1).max()
     cur_dd = (close - running_max) / running_max * 100
     dd_max = min(0, cur_dd.min())
     idx = cur_dd.idxmin()
@@ -261,7 +261,7 @@ def max_closed_out_drawdown(close):
 
 def max_intra_day_drawdown(high, low):
     """ only compare each point to the previous running peak O(N) """
-    running_max = pd.expanding_max(high)
+    running_max = pd.Series(high).expanding(min_periods=1).max()
     cur_dd = (low - running_max) / running_max * 100
     dd_max = min(0, cur_dd.min())
     idx = cur_dd.idxmin()
