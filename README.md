@@ -16,13 +16,9 @@ Some of the key features of pinkfish:
  - create spreadsheets within ipython by utilizing pandas dataframes and itable formatting
 
 ## Installation
-You can install pinkfish using pip:
-```
-sudo pip install pinkfish
-```
+Follow the installation instructions located at:
+http://fja05680.github.io/pinkfish/
 
 ## Examples
  - spreadsheet - make a read only spreadsheet within ipython
  - golden-cross - an example illustrating the classic long term trading algorithm
-
-
