@@ -46,10 +46,9 @@ Simple, I couldn't find a python backtesting library that I allowed me to backte
 <h2>
 <a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h2>
 
-<p>This is how I got pinkfish working on xubuntu 14.04:</p>
+<p>This is how I got pinkfish working on xubuntu 16.04:</p>
 
 <pre><code>sudo apt-get update
-sudo apt-get update
 sudo apt-get upgrade
 
 sudo apt-get install build-essential
@@ -57,12 +56,14 @@ sudo apt-get install git
 sudo apt-get install python-pip
 sudo apt-get install python-dev
 sudo apt-get install libfreetype6-dev
-sudo pip install six --upgrade
 
-sudo pip install numpy
-sudo pip install python-dateutil
-sudo pip install matplotlib
-sudo pip install pandas
+sudo -H pip install --upgrade pip
+sudo -H pip install six --upgrade
+sudo -H pip install numpy
+sudo -H pip install python-dateutil
+sudo -H pip install matplotlib
+sudo -H pip install pandas
+sudo -H pip install pandas-datareader
 
 (http://mrjbq7.github.io/ta-lib/install.html)
 cd ~/Downloads
@@ -72,28 +73,28 @@ cd ta-lib
 ./configure --prefix=/usr
 make
 sudo make install
-sudo pip install TA-Lib
+sudo -H pip install TA-Lib
 
 sudo apt-get install ipython-notebook
 #if you want to read the notebook v4 format
 #sudo pip install ipython --upgrade
 #sudo pip install jsonschema
 
+#if you want to run unit tests
+sudo apt install python-tk
+
 #install itable from github
 mkdir ~/src
 cd ~/src
 git clone https://github.com/mgymrek/itable.git
 cd itable
-python setup.py install
+sudo python setup.py install
 
 #install pinkfish from github
 cd ~/src
 git clone https://github.com/fja05680/pinkfish.git
 cd pinkfish
-python setup.py install
-
-*already installed on xUbuntu 14.04
-</code></pre>
+sudo python setup.py install</code></pre>
 
 <h2>
 <a id="examples" class="anchor" href="#examples" aria-hidden="true"><span class="octicon octicon-link"></span></a>Examples</h2>
