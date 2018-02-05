@@ -249,7 +249,7 @@ def max_closed_out_drawdown(close):
     dd['start_date'] = close[close == dd['peak']].index[0].strftime('%Y-%m-%d')
     dd['end_date'] = idx.strftime('%Y-%m-%d')
     close = close[close.index > idx]
-    
+
     rd_mask = close > dd['peak']
     if rd_mask.any():
         dd['recovery_date'] = \
@@ -273,7 +273,7 @@ def max_intra_day_drawdown(high, low):
     dd['start_date'] = high[high == dd['peak']].index[0].strftime('%Y-%m-%d')
     dd['end_date'] = idx.strftime('%Y-%m-%d')
     high = high[high.index > idx]
-    
+
     rd_mask = high > dd['peak']
     if rd_mask.any():
         dd['recovery_date'] = \
@@ -409,7 +409,7 @@ def stats(ts, tlog, dbal, start, end, capital):
     """
 
     stats = pd.Series()
-    
+
     # OVERALL RESULTS
     stats['start'] = start.strftime('%Y-%m-%d')
     stats['end'] = end.strftime('%Y-%m-%d')
@@ -483,7 +483,7 @@ def stats(ts, tlog, dbal, start, end, capital):
     dd = rolling_max_dd(dbal['close'], TRADING_DAYS_PER_WEEK)
     stats['avg_weekly_closed_out_drawdown'] = np.average(dd)
     stats['max_weekly_closed_out_drawdown'] = min(dd)
-    
+
     # RUNUP
     ru = rolling_max_ru(dbal['close'], TRADING_DAYS_PER_YEAR)
     stats['avg_yearly_closed_out_runup'] = np.average(ru)
@@ -547,7 +547,7 @@ def summary2(stats, benchmark_stats, *metrics):
     for metric in metrics:
         index.append(metric)
         data.append((stats[metric], benchmark_stats[metric]))
-    
+
     df = pd.DataFrame(data, columns=columns, index=index)
     return df
 

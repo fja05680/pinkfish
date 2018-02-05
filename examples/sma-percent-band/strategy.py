@@ -35,13 +35,14 @@ class Strategy():
 
     def _algo(self):
         """ Algo:
-            1. The SPY is closes above its upper band, buy
+            1. The SPY closes above its upper band, buy
             2. If the SPY closes below its lower band, sell your long position.
         """
-        
+
         cash = self._capital
         shares = 0
         start_flag = True
+        end_flag = False
         stop_loss = 0
 
         for i in range(len(self._ts.index)):
@@ -53,6 +54,7 @@ class Strategy():
             sma = self._ts['sma'][i]
             upper_band = sma + sma * self._percent_band
             lower_band = sma - sma * self._percent_band
+            end_flag = True if (i == len(self._ts.index) - 1) else False
 
             if pd.isnull(sma) or self._ts.index[i] < self._start:
                 continue
@@ -64,7 +66,7 @@ class Strategy():
 
             # buy
             if self._tlog.num_open_trades() == 0:
-                if close > upper_band:
+                if close > upper_band and not end_flag:
 
                     # calculate shares to buy and remaining cash
                     shares, cash = self._tlog.calc_shares(cash, close)
@@ -85,7 +87,7 @@ class Strategy():
             # sell
             elif close < lower_band or \
                 (low < stop_loss) or \
-                (i == len(self._ts.index) - 1):
+                end_flag:
 
                 # enter sell in trade log
                 idx = self._tlog.exit_trade(date, close)
@@ -111,11 +113,11 @@ class Strategy():
         self._ts = pf.fetch_timeseries(self._symbol)
         self._ts = pf.select_tradeperiod(self._ts, self._start,
                                          self._end, use_adj=False)
-        
+
         # Add technical indicator:  day sma
         sma = SMA(self._ts, timeperiod=self._sma_period)
         self._ts['sma'] = sma          
-        
+
         self._tlog = pf.TradeLog()
         self._dbal = pf.DailyBal()
 
@@ -134,7 +136,7 @@ class Strategy():
                          self._start, self._end, self._capital)
         return stats
 
-        
+
 def summary(strategies, *metrics):
     """ Stores stats summary in a DataFrame.
         stats() must be called before calling this function """

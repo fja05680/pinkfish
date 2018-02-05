@@ -29,6 +29,7 @@ class Benchmark():
         cash = self._capital
         shares = 0
         start_flag = True
+        end_flag = False
 
         for i in range(len(self._ts.index)):
 
@@ -36,13 +37,14 @@ class Benchmark():
             high = self._ts['high'][i]
             low = self._ts['low'][i]
             close = self._ts['close'][i]
+            end_flag = True if (i == len(self._ts.index) - 1) else False
 
             if self._ts.index[i] < self._start:
                 continue
             elif start_flag:
                 start_flag = False
                 # set start and end
-                self.start = self._ts.index[i]
+                self._start = self._ts.index[i]
                 self._end = self._ts.index[-1]
 
             # buy
@@ -59,9 +61,9 @@ class Benchmark():
                 # record daily balance
                 self._dbal.append(date, high, low, close, shares, cash,
                                   pf.TradeState.OPEN)
-            
+
             # sell 
-            elif (i == len(self._ts.index) - 1):
+            elif end_flag:
 
                 # enter sell in trade log
                 idx = self._tlog.exit_trade(date, close)
@@ -79,7 +81,7 @@ class Benchmark():
                 # update shares
                 shares = 0
 
-            # hold            
+            # hold
             else:
                 self._dbal.append(date, high, low, close, shares,
                                   cash, pf.TradeState.HOLD)

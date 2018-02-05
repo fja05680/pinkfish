@@ -35,13 +35,14 @@ class Strategy():
     def _algo(self):
         """ Algo:
             1. The SPY is above its 200-day moving average
-            2. The SPY closes at a 7-day low, buy.
-            3. If the SPY closes at a 7-day high, sell your long position.
+            2. The SPY closes at a X-day low, buy.
+            3. If the SPY closes at a X-day high, sell your long position.
         """
         
         cash = self._capital
         shares = 0
         start_flag = True
+        end_flag = False
         stop_loss = 0
 
         for i in range(len(self._ts.index)):
@@ -53,6 +54,7 @@ class Strategy():
             sma200 = self._ts['sma200'][i]
             period_high = self._ts['period_high'][i]
             period_low = self._ts['period_low'][i]
+            end_flag = True if (i == len(self._ts.index) - 1) else False
 
             if pd.isnull(sma200) or self._ts.index[i] < self._start:
                 continue
@@ -64,7 +66,7 @@ class Strategy():
 
             # buy
             if self._tlog.num_open_trades() == 0:
-                if close > sma200 and close == period_low:
+                if close > sma200 and close == period_low and not end_flag:
 
                     # calculate shares to buy and remaining cash
                     shares, cash = self._tlog.calc_shares(cash, close)
@@ -75,7 +77,7 @@ class Strategy():
 
                     # record daily balance
                     self._dbal.append(date, high, low, close, shares, cash, pf.TradeState.OPEN)
-            
+
                     # set stop loss
                     stop_loss = 0*close
                 else:
@@ -85,7 +87,7 @@ class Strategy():
             # sell
             elif (close == period_high) or \
                 (low < stop_loss) or \
-                (i == len(self._ts.index) - 1):
+                end_flag:
 
                 # enter sell in trade log
                 idx = self._tlog.exit_trade(date, close)
@@ -96,10 +98,10 @@ class Strategy():
 
                 # record daily balance
                 self._dbal.append(date, high, low, close, shares, cash, pf.TradeState.CLOSE)   
-            
+
                 # update cash
                 cash = self._tlog.calc_cash(cash, close, shares)
-            
+
                 # update shares
                 shares = 0
 
@@ -111,16 +113,16 @@ class Strategy():
         self._ts = pf.fetch_timeseries(self._symbol)
         self._ts = pf.select_tradeperiod(self._ts, self._start,
                                          self._end, use_adj=False)
-        
+
         # Add technical indicator: 200 day sma
         sma200 = SMA(self._ts, timeperiod=200)
         self._ts['sma200'] = sma200
-        
+
         # Add technical indicator: X day high, and X day low
-        period_high = pd.rolling_max(self._ts.close, self._period)
-        period_low = pd.rolling_min(self._ts.close, self._period)
+        period_high = pd.Series(self._ts.close).rolling(self._period).max()
+        period_low = pd.Series(self._ts.close).rolling(self._period).min()
         self._ts['period_high'] = period_high
-        self._ts['period_low'] = period_low                
+        self._ts['period_low'] = period_low
         
         self._tlog = pf.TradeLog()
         self._dbal = pf.DailyBal()
@@ -135,12 +137,11 @@ class Strategy():
 
     def stats(self):
         tlog, dbal = self.get_logs()
-        
+
         stats = pf.stats(self._ts, tlog, dbal,
                          self._start, self._end, self._capital)
         return stats
 
-        
 def summary(strategies, *metrics):
     """ Stores stats summary in a DataFrame.
         stats() must be called before calling this function """
@@ -154,7 +155,7 @@ def summary(strategies, *metrics):
 
     df = pd.DataFrame(data, columns=columns, index=index)
     return df
-    
+
 def plot_bar_graph(df, metric):
     """ Plot Bar Graph: Strategy
         stats() must be called before calling this function """
@@ -164,5 +165,4 @@ def plot_bar_graph(df, metric):
     axes = fig.add_subplot(111, ylabel=metric)
     df.plot(kind='bar', ax=axes, legend=False)
     axes.set_xticklabels(df.index, rotation=0)
-        
 

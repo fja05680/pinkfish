@@ -35,13 +35,15 @@ class Strategy():
 
     def _algo(self):
         """ Algo:
-            1. The SPY is closes above its upper band or 200ma, buy
-            2. If the SPY closes below its lower band and 200ma, sell your long position.
+            1. The SPY closes above its upper band or sma50>sma200, buy
+            2. If the SPY closes below its lower band and sma50<sma200,
+               sell your long position.
         """
-        
+
         cash = self._capital
         shares = 0
         start_flag = True
+        end_flag = False
         stop_loss = 0
 
         for i in range(len(self._ts.index)):
@@ -55,6 +57,7 @@ class Strategy():
             sma200 = self._ts['sma200'][i]
             upper_band = sma + sma * self._percent_band
             lower_band = sma - sma * self._percent_band
+            end_flag = True if (i == len(self._ts.index) - 1) else False
 
             if pd.isnull(sma) or self._ts.index[i] < self._start:
                 continue
@@ -66,7 +69,7 @@ class Strategy():
 
             # buy
             if self._tlog.num_open_trades() == 0:
-                if close > upper_band or sma50 > sma200:
+                if close > upper_band or sma50 > sma200 and not end_flag:
 
                     # calculate shares to buy and remaining cash
                     shares, cash = self._tlog.calc_shares(cash, close)
@@ -77,7 +80,7 @@ class Strategy():
 
                     # record daily balance
                     self._dbal.append(date, high, low, close, shares, cash, pf.TradeState.OPEN)
-            
+
                     # set stop loss
                     stop_loss = 0*close
                 else:
@@ -87,7 +90,7 @@ class Strategy():
             # sell
             elif (close < lower_band and sma50 < sma200) or \
                 (low < stop_loss) or \
-                (i == len(self._ts.index) - 1):
+                 end_flag:
 
                 # enter sell in trade log
                 idx = self._tlog.exit_trade(date, close)
@@ -98,10 +101,10 @@ class Strategy():
 
                 # record daily balance
                 self._dbal.append(date, high, low, close, shares, cash, pf.TradeState.CLOSE)   
-            
+
                 # update cash
                 cash = self._tlog.calc_cash(cash, close, shares)
-            
+
                 # update shares
                 shares = 0
 
@@ -113,18 +116,18 @@ class Strategy():
         self._ts = pf.fetch_timeseries(self._symbol)
         self._ts = pf.select_tradeperiod(self._ts, self._start,
                                          self._end, use_adj=False)
-        
+
         # Add technical indicator:  day sma
         sma = SMA(self._ts, timeperiod=self._sma_period)
         self._ts['sma'] = sma
-        
+
         # Add technical indicator: 50 day ma, and 200 day ma
         sma50 = SMA(self._ts, timeperiod=50)
         self._ts['sma50'] = sma50
 
         sma200 = SMA(self._ts, timeperiod=200)
-        self._ts['sma200'] = sma200    
-        
+        self._ts['sma200'] = sma200
+
         self._tlog = pf.TradeLog()
         self._dbal = pf.DailyBal()
 
@@ -143,7 +146,6 @@ class Strategy():
                          self._start, self._end, self._capital)
         return stats
 
-        
 def summary(strategies, *metrics):
     """ Stores stats summary in a DataFrame.
         stats() must be called before calling this function """
@@ -157,7 +159,7 @@ def summary(strategies, *metrics):
 
     df = pd.DataFrame(data, columns=columns, index=index)
     return df
-    
+
 def plot_bar_graph(df, metric):
     """ Plot Bar Graph: Strategy
         stats() must be called before calling this function """
@@ -167,5 +169,4 @@ def plot_bar_graph(df, metric):
     axes = fig.add_subplot(111, ylabel=metric)
     df.plot(kind='bar', ax=axes, legend=False)
     axes.set_xticklabels(df.index, rotation=0)
-        
 

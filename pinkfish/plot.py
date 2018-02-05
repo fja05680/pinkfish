@@ -37,7 +37,7 @@ def plot_trades(strategy, benchmark=None):
     fig = plt.figure()
     axes = fig.add_subplot(111, ylabel='Portfolio value in $')
     axes.plot(benchmark.index, benchmark['close'], label=label)
-    
+
     #buy
     buy = benchmark[strategy['state'] == pf.TradeState.OPEN]
     axes.plot(buy.index, buy['close'], '^', markersize=10, color='k')
