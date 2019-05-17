@@ -14,6 +14,10 @@ from __future__ import absolute_import
 import matplotlib.pyplot as plt
 import pinkfish as pf
 
+# Register matplotlib converters
+from pandas.plotting import register_matplotlib_converters
+register_matplotlib_converters()
+
 def plot_equity_curve(strategy, benchmark=None):
     """ Plot Equity Curves: Strategy vs (optionally) Benchmark 
         Both arguements are daily balance. """

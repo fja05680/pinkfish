@@ -49,7 +49,7 @@ class TradeLog():
 
     def _get_open_trades(self):
         """ find the "integer" index of rows with NaN """
-        return pd.isnull(self._tlog).any(1).nonzero()[0]
+        return pd.isnull(self._tlog).any(1).to_numpy().nonzero()[0]
     
     def num_open_trades(self):
         """ return number of open orders, i.e. not closed out """
