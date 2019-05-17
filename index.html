@@ -46,7 +46,7 @@ Simple, I couldn't find a python backtesting library that I allowed me to backte
 <h2>
 <a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h2>
 
-<p>This is how I got pinkfish working on xubuntu 16.04:</p>
+<p>This is how I got pinkfish working on xubuntu 18.04:</p>
 
 <pre><code>sudo apt-get update
 sudo apt-get upgrade
@@ -75,10 +75,8 @@ make
 sudo make install
 sudo -H pip install TA-Lib
 
-sudo apt-get install ipython-notebook
-#if you want to read the notebook v4 format
-#sudo pip install ipython --upgrade
-#sudo pip install jsonschema
+#install jupyter notebook
+sudo -H pip install jupyter
 
 #if you want to run unit tests
 sudo apt install python-tk
