@@ -29,14 +29,16 @@ def _adj_column_names(ts):
     return ts
 
 
-def fetch_timeseries(symbol, dir_name="data", use_cache=True, from_year=1900):
+def fetch_timeseries(symbol, dir_name="data", use_cache=True, from_year=None):
     """
     Read time series data. Use cached version if it exists and
     use_cache is True, otherwise retrive, cache, then read.
     """
-    if from_year < 1971:
+    if from_year is None:
         is_windows = hasattr(sys, "getwindowsversion")
-        if is_windows:
+        if not is_windows:
+            from_year = 1990
+        else:
             # https://github.com/fja05680/pinkfish/pull/5
             # import time; time.mktime(datetime.date(1970, 1, 1).timetuple())
             from_year = 1971
