@@ -12,19 +12,21 @@ from __future__ import absolute_import
 
 # Other imports
 import pandas as pd
-import ConfigParser
+from configparser import ConfigParser
 import os
 
+
 def print_full(x):
-    pd.set_option('display.max_rows', len(x))
+    pd.set_option("display.max_rows", len(x))
     print(x)
-    pd.reset_option('display.max_rows')
+    pd.reset_option("display.max_rows")
+
 
 def read_config():
-    ''' Read configuration '''
+    """ Read configuration """
 
     conf = {}
-    parser = ConfigParser.ConfigParser()
-    parser.read(os.path.expanduser('~/.pinkfish'))
-    conf['base_dir'] = parser.get('global', 'base_dir')
+    parser = ConfigParser()
+    parser.read(os.path.expanduser("~/.pinkfish"))
+    conf["base_dir"] = parser.get("global", "base_dir")
     return conf

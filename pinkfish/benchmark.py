@@ -13,11 +13,13 @@ from __future__ import absolute_import
 # Other imports
 import pinkfish as pf
 
-class Benchmark():
+
+class Benchmark:
     """ benchmark """
 
-    def __init__(self, symbol, capital, start, end,
-                 slippage_per_trade=0, commissions_per_trade=0):
+    def __init__(
+        self, symbol, capital, start, end, slippage_per_trade=0, commissions_per_trade=0
+    ):
         self._symbol = symbol
         self._capital = capital
         self._start = start
@@ -34,9 +36,9 @@ class Benchmark():
         for i in range(len(self._ts.index)):
 
             date = self._ts.index[i]
-            high = self._ts['high'][i]
-            low = self._ts['low'][i]
-            close = self._ts['close'][i]
+            high = self._ts["high"][i]
+            low = self._ts["low"][i]
+            close = self._ts["close"][i]
             end_flag = True if (i == len(self._ts.index) - 1) else False
 
             if self._ts.index[i] < self._start:
@@ -55,41 +57,49 @@ class Benchmark():
 
                 # enter buy in trade log
                 self._tlog.enter_trade(date, close, shares)
-                print("{0} BUY  {1} {2} @ {3:.2f}".format(date, shares, 
-                      self._symbol, close))
+                print(
+                    "{0} BUY  {1} {2} @ {3:.2f}".format(
+                        date, shares, self._symbol, close
+                    )
+                )
 
                 # record daily balance
-                self._dbal.append(date, high, low, close, shares, cash,
-                                  pf.TradeState.OPEN)
+                self._dbal.append(
+                    date, high, low, close, shares, cash, pf.TradeState.OPEN
+                )
 
-            # sell 
+            # sell
             elif end_flag:
 
                 # enter sell in trade log
                 idx = self._tlog.exit_trade(date, close)
-                shares = self._tlog.get_log()['qty'][idx]
-                print("{0} SELL {1} {2} @ {3:.2f}".format(date, shares,
-                      self._symbol, close))
+                shares = self._tlog.get_log()["qty"][idx]
+                print(
+                    "{0} SELL {1} {2} @ {3:.2f}".format(
+                        date, shares, self._symbol, close
+                    )
+                )
 
                 # record daily balance
-                self._dbal.append(date, high, low, close, shares,
-                                  cash, pf.TradeState.CLOSE)   
+                self._dbal.append(
+                    date, high, low, close, shares, cash, pf.TradeState.CLOSE
+                )
 
                 # update cash
                 cash = self._tlog.calc_cash(cash, close, shares)
-                
+
                 # update shares
                 shares = 0
 
             # hold
             else:
-                self._dbal.append(date, high, low, close, shares,
-                                  cash, pf.TradeState.HOLD)
+                self._dbal.append(
+                    date, high, low, close, shares, cash, pf.TradeState.HOLD
+                )
 
     def run(self):
         self._ts = pf.fetch_timeseries(self._symbol)
-        self._ts = pf.select_tradeperiod(self._ts, self._start,
-                                         self._end, True, False)
+        self._ts = pf.select_tradeperiod(self._ts, self._start, self._end, True, False)
         self._tlog = pf.TradeLog()
         self._dbal = pf.DailyBal()
 
@@ -103,8 +113,6 @@ class Benchmark():
 
     def stats(self):
         tlog, dbal = self.get_logs()
-        
-        stats = pf.stats(self._ts, tlog, dbal,
-                         self._start, self._end, self._capital)
-        return stats
 
+        stats = pf.stats(self._ts, tlog, dbal, self._start, self._end, self._capital)
+        return stats
