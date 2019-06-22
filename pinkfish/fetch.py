@@ -11,6 +11,7 @@ from __future__ import division
 from __future__ import absolute_import
 
 # Other imports
+import sys
 import pandas as pd
 import pandas_datareader.data as pdr
 import datetime
@@ -26,11 +27,20 @@ def _adj_column_names(ts):
     ts.index.names = ['date']
     return ts
 
-def fetch_timeseries(symbol, dir_name='data', use_cache=True, from_year=1900):
+def fetch_timeseries(symbol, dir_name='data', use_cache=True, from_year=None):
     """
     Read time series data. Use cached version if it exists and
     use_cache is True, otherwise retrive, cache, then read.
     """
+    if from_year is None:
+        is_windows = hasattr(sys, "getwindowsversion")
+        if not is_windows:
+            from_year = 1900
+        else:
+            # https://github.com/fja05680/pinkfish/pull/5 e.g.
+            # import time; time.mktime(datetime.date(1970, 1, 1).timetuple())
+            from_year = 1971
+
     base_dir = ''
     try:
         conf = pf.read_config()
