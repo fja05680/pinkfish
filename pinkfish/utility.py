@@ -12,7 +12,7 @@ from __future__ import absolute_import
 
 # Other imports
 import pandas as pd
-import ConfigParser
+from configparser import ConfigParser
 import os
 
 def print_full(x):
