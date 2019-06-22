@@ -6,6 +6,12 @@ __pycache__/
 # C extensions
 *.so
 
+#vscode settings
+.vscode/
+
+# the data cache folder
+data/
+
 # Distribution / packaging
 .Python
 env/
