@@ -2,6 +2,7 @@ import unittest
 import pandas as pd
 import pinkfish as pf
 
+
 class TestStatistics(unittest.TestCase):
     def setUp(self):
         d = {"open": [1.0, 2.0, 3.0],
@@ -19,6 +20,9 @@ class TestStatistics(unittest.TestCase):
     def test_total_net_profit(self):
         result = pf.statistics.total_net_profit(self.df_test)
         self.assertEqual(result, 15)
-        
+
+
+'''  
 if __name__ == "__main__":
     unittest.main()
+'''
