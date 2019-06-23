@@ -22,7 +22,6 @@ def print_full(x):
 
 def read_config():
     ''' Read configuration '''
-
     conf = {}
     parser = ConfigParser()
     parser.read(os.path.expanduser('~/.pinkfish'))

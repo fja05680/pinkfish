@@ -14,7 +14,6 @@ from __future__ import absolute_import
 import pinkfish as pf
 
 class Benchmark():
-    """ benchmark """
 
     def __init__(self, symbol, capital, start, end,
                  slippage_per_trade=0, commissions_per_trade=0):
@@ -88,8 +87,8 @@ class Benchmark():
 
     def run(self):
         self._ts = pf.fetch_timeseries(self._symbol)
-        self._ts = pf.select_tradeperiod(self._ts, self._start,
-                                         self._end, True, False)
+        self._ts = pf.select_tradeperiod(self._ts, self._start, self._end,
+                                         use_adj=True, pad=False)
         self._tlog = pf.TradeLog()
         self._dbal = pf.DailyBal()
 

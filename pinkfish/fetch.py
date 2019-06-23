@@ -33,13 +33,8 @@ def fetch_timeseries(symbol, dir_name='data', use_cache=True, from_year=None):
     use_cache is True, otherwise retrive, cache, then read.
     """
     if from_year is None:
-        is_windows = hasattr(sys, "getwindowsversion")
-        if not is_windows:
-            from_year = 1900
-        else:
-            # https://github.com/fja05680/pinkfish/pull/5 e.g.
-            # import time; time.mktime(datetime.date(1970, 1, 1).timetuple())
-            from_year = 1971
+        is_windows = hasattr(sys, 'getwindowsversion')
+        from_year = 1900 if not is_windows else 1971
 
     base_dir = ''
     try:
@@ -66,9 +61,7 @@ def fetch_timeseries(symbol, dir_name='data', use_cache=True, from_year=None):
     return ts
 
 def _adj_prices(ts):
-    """
-    Back adjust prices relative to adj_close for dividends and splits
-    """
+    """ Back adjust prices relative to adj_close for dividends and splits """
     ts['open'] = ts['open'] * ts['adj_close'] / ts['close'] 
     ts['high'] = ts['high'] * ts['adj_close'] / ts['close']
     ts['low'] = ts['low'] * ts['adj_close'] / ts['close']

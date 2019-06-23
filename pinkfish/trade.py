@@ -14,7 +14,6 @@ from __future__ import absolute_import
 import pandas as pd
 
 class TradeLog():
-    """ trade log """
 
     def __init__(self):
         columns = ['entry_date', 'entry_price', 'long_short', 'qty',
@@ -45,7 +44,7 @@ class TradeLog():
         if long_short == 'long':
             self.shares += shares
         else:
-            self.shares -=shares
+            self.shares -= shares
 
     def _get_open_trades(self):
         """ find the "integer" index of rows with NaN """
