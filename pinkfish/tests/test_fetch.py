@@ -73,3 +73,37 @@ class TestFetch(unittest.TestCase):
         df = pf.fetch_timeseries(
             self.symbol, dir_name=self.dir_name
         )
+
+    @unittest.mock.patch("pinkfish.fetch._adj_prices")
+    def test_fetch_with_adj_prices(self, mocker):
+        ''' Check that the _adj_prices method gets called. '''
+        ts = pf.fetch_timeseries(
+            self.symbol, dir_name=self.dir_name
+        )
+
+        start = datetime.datetime(2000, 6, 30)
+        end = datetime.datetime(2000, 12, 29)
+        ts = pf.select_tradeperiod(ts, start, end, use_adj=True)
+        mocker.assert_called_once()
+
+    def test_adj_prices(self):
+        ''' Check the price adjustments. '''
+        prices = {"open": 1.1, "high": 1.2, "low": 1.0, "close": 1.15, "adj_close": 1.17}
+        ts = pd.DataFrame(
+            index = [datetime.datetime.now().date()],
+            data = [list(prices.values())],
+            columns = list(prices.keys())
+        )
+        ts = pf.fetch._adj_prices(ts)
+    
+        open_ts = round(ts["open"].values[0], 4)
+        open_ex = round(prices["open"] * prices["adj_close"] / prices["close"], 4)
+        self.assertEqual(open_ts, open_ex)
+
+        high_ts = round(ts["high"].values[0], 4)
+        high_ex = round(prices["high"] * prices["adj_close"] / prices["close"], 4)
+        self.assertEqual(high_ts, high_ex)
+    
+        low_ts = round(ts["low"].values[0], 4)
+        low_ex = round(prices["low"] * prices["adj_close"] / prices["close"], 4)
+        self.assertEqual(low_ts, low_ex)
