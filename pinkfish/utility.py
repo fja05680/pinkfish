@@ -24,7 +24,7 @@ def read_config():
     ''' Read configuration '''
 
     conf = {}
-    parser = ConfigParser.ConfigParser()
+    parser = ConfigParser()
     parser.read(os.path.expanduser('~/.pinkfish'))
     conf['base_dir'] = parser.get('global', 'base_dir')
     return conf
