@@ -85,8 +85,7 @@ def annual_return_rate(end_balance, capital, start, end):
 
 def trading_period(start, end):
     diff = relativedelta(end, start)
-    return '{} years {} months {} days'.format(diff.years, diff.months,
-                                               diff.days)
+    return '{} years {} months {} days'.format(diff.years, diff.months, diff.days)
 
 def _true_func(arg1, arg2):
     return True
@@ -252,8 +251,7 @@ def max_closed_out_drawdown(close):
 
     rd_mask = close > dd['peak']
     if rd_mask.any():
-        dd['recovery_date'] = \
-            close[rd_mask].index[0].strftime('%Y-%m-%d')
+        dd['recovery_date'] = close[rd_mask].index[0].strftime('%Y-%m-%d')
     else:
         dd['recovery_date'] = 'Not Recovered Yet'
 
@@ -276,8 +274,7 @@ def max_intra_day_drawdown(high, low):
 
     rd_mask = high > dd['peak']
     if rd_mask.any():
-        dd['recovery_date'] = \
-            high[rd_mask].index[0].strftime('%Y-%m-%d')
+        dd['recovery_date'] = high[rd_mask].index[0].strftime('%Y-%m-%d')
     return dd
 
 def _windowed_view(x, window_size):
@@ -419,13 +416,11 @@ def stats(ts, tlog, dbal, start, end, capital):
     stats['gross_profit'] = gross_profit(tlog)
     stats['gross_loss'] = gross_loss(tlog)
     stats['profit_factor'] = profit_factor(tlog)
-    stats['return_on_initial_capital'] = \
-        return_on_initial_capital(tlog, capital)
+    stats['return_on_initial_capital'] = return_on_initial_capital(tlog, capital)
     cagr = annual_return_rate(dbal['close'][-1], capital, start, end)
     stats['annual_return_rate'] = cagr
     stats['trading_period'] = trading_period(start, end)
-    stats['pct_time_in_market'] = \
-        pct_time_in_market(ts, tlog, start, end)
+    stats['pct_time_in_market'] = pct_time_in_market(ts, tlog, start, end)
 
     # SUMS
     stats['total_num_trades'] = total_num_trades(tlog)
@@ -454,12 +449,9 @@ def stats(ts, tlog, dbal, start, end, capital):
     stats['largest_pct_losing_trade'] = largest_pct_losing_trade(tlog)
 
     # STREAKS
-    stats['max_consecutive_winning_trades'] = \
-        max_consecutive_winning_trades(tlog)
-    stats['max_consecutive_losing_trades'] = \
-        max_consecutive_losing_trades(tlog)
-    stats['avg_bars_winning_trades'] = \
-        avg_bars_winning_trades(ts, tlog)
+    stats['max_consecutive_winning_trades'] = max_consecutive_winning_trades(tlog)
+    stats['max_consecutive_losing_trades'] = max_consecutive_losing_trades(tlog)
+    stats['avg_bars_winning_trades'] = avg_bars_winning_trades(ts, tlog)
     stats['avg_bars_losing_trades'] = avg_bars_losing_trades(ts, tlog)
 
     # DRAWDOWN
@@ -524,8 +516,10 @@ def stats(ts, tlog, dbal, start, end, capital):
 # SUMMARY - stats() must be called before calling any of these functions    
     
 def summary(stats, *metrics):
-    """ Returns stats summary in a DataFrame.
-        stats() must be called before calling this function """
+    """
+    Returns stats summary in a DataFrame.
+    stats() must be called before calling this function
+    """
     index = []
     columns = ['strategy']
     data = []
@@ -538,8 +532,10 @@ def summary(stats, *metrics):
     return df
 
 def summary2(stats, benchmark_stats, *metrics):
-    """ Returns stats with benchmark summary in a DataFrame.
-        stats() must be called before calling this function """
+    """
+    Returns stats with benchmark summary in a DataFrame.
+    stats() must be called before calling this function
+    """
     index = []
     columns = ['strategy', 'benchmark']
     data = []
@@ -552,9 +548,11 @@ def summary2(stats, benchmark_stats, *metrics):
     return df
 
 def summary3(stats, benchmark_stats, *extras):
-    """ Returns stats with benchmark summary in a DataFrame.
-        stats() must be called before calling this function
-        *extras: extra metrics """
+    """
+    Returns stats with benchmark summary in a DataFrame.
+    stats() must be called before calling this function
+    *extras: extra metrics
+    """
     index = ['annual_return_rate',
              'max_closed_out_drawdown',
              'drawdown_annualized_return',

@@ -19,8 +19,10 @@ from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 
 def plot_equity_curve(strategy, benchmark=None):
-    """ Plot Equity Curves: Strategy vs (optionally) Benchmark 
-        Both arguements are daily balance. """
+    """
+    Plot Equity Curves: Strategy vs (optionally) Benchmark 
+    Both arguements are daily balance.
+    """
     fig = plt.figure()
     axes = fig.add_subplot(111, ylabel='Portfolio value in $')
     axes.plot(strategy['close'], label='strategy')
@@ -29,9 +31,11 @@ def plot_equity_curve(strategy, benchmark=None):
     plt.legend(loc='best')
 
 def plot_trades(strategy, benchmark=None):
-    """ Plot Trades: benchmark is the equity curve that the trades
-        get plotted on.  If not provided, strategy equity curve is used.
-        Both arguements are daily balance. """
+    """
+    Plot Trades: benchmark is the equity curve that the trades get plotted on.
+    If not provided, strategy equity curve is used.
+    Both arguements are daily balance.
+    """
     if benchmark is None or strategy is benchmark:
         benchmark = strategy
         label = 'strategy'
