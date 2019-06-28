@@ -4,15 +4,17 @@ from configparser import ConfigParser
 import pandas as pd
 import numpy as np
 import pinkfish as pf
-
-
-def get_test_config_path(*args):
-    dire_path = os.path.dirname(os.path.abspath(__file__))
-    file_path = os.path.join(dire_path, ".pinkfish")
-    return file_path
+from . test_config import get_test_config_path
 
 
 class TestUtility(unittest.TestCase):
+
+    @classmethod
+    def tearDownClass(cls):
+        ''' Ensure we delete the test .pinkfish file if it exists. '''
+        config_path = get_test_config_path()
+        if os.path.isfile(config_path):
+            os.remove(config_path)
 
     @unittest.mock.patch("builtins.print", autospec=True, side_effect=print)
     def test_print_full(self, mocker):
@@ -37,6 +39,3 @@ class TestUtility(unittest.TestCase):
 
         conf_dict = pf.read_config()
         self.assertTrue(config["global"]["base_dir"] == conf_dict["base_dir"])
-
-        if os.path.isfile(config_path):
-            os.remove(config_path)
