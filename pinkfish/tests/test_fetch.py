@@ -4,6 +4,7 @@ import datetime
 import unittest
 import pandas as pd
 import pinkfish as pf
+from . test_config import read_config_for_tests
 
 
 class TestFetch(unittest.TestCase):
@@ -107,3 +108,18 @@ class TestFetch(unittest.TestCase):
         low_ts = round(ts["low"].values[0], 4)
         low_ex = round(prices["low"] * prices["adj_close"] / prices["close"], 4)
         self.assertEqual(low_ts, low_ex)
+
+    @unittest.mock.patch("pinkfish.read_config", side_effect=read_config_for_tests)
+    def test_fetch_with_config(self, *args):
+        ''' Check the data fetch where we have a config file. '''
+        file_path = os.path.join(self.dir_path, "test_data", self.symbol + ".csv")
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+
+        df = pf.fetch_timeseries(
+            self.symbol, dir_name="test_data"
+        )
+
+        file_exists = os.path.isfile(file_path)
+        self.assertTrue(file_exists)
+
