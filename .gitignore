@@ -12,6 +12,7 @@ __pycache__/
 
 # the data cache folder
 data/
+test_data/
 
 # Distribution / packaging
 .Python
