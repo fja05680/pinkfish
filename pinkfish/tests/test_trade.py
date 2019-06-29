@@ -62,13 +62,13 @@ class TestTrade(unittest.TestCase):
         self.assertTrue(len(prices) == 1)
         self.assertTrue(prices[0] == portfolio_value)
 
-        # all other values are y
+        # all other values (except state) are y
         others = list(set(df[other_columns].values.flatten().tolist()))
         self.assertTrue(len(others) == 1)
         self.assertTrue(others[0] == self.shares)
 
         # check the order of our states
         states = df["state"].values.tolist()
-        assert states[0] == pf.trade.TradeState.OPEN
-        assert states[1] == pf.trade.TradeState.HOLD
-        assert states[2] == pf.trade.TradeState.CLOSE
+        self.assertTrue(states[0] == pf.trade.TradeState.OPEN)
+        self.assertTrue(states[1] == pf.trade.TradeState.HOLD)
+        self.assertTrue(states[2] == pf.trade.TradeState.CLOSE)
