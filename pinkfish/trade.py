@@ -11,7 +11,17 @@ from __future__ import division
 from __future__ import absolute_import
 
 # Other imports
+from enum import Enum
 import pandas as pd
+
+
+class TradeError(Exception):
+    """Base trade exception"""
+
+
+class TradeStateError(TradeError):
+    """ The trade state provided does not exist. """
+
 
 class TradeLog():
 
@@ -87,8 +97,10 @@ class TradeLog():
         """ return Dataframe """
         return self._tlog
 
-class TradeState:
+
+class TradeState(Enum):
     OPEN, HOLD, CLOSE = range(0, 3)
+
 
 class DailyBal:
     """ Log for daily balance """
@@ -98,6 +110,9 @@ class DailyBal:
 
     def _balance(self, date, high, low, close, shares, cash, state):
         """ calculates daily balance values """
+        if not isinstance(state, TradeState):
+            raise TradeStateError
+
         if state == TradeState.OPEN:
             # date, high, low, close, cash, state
             t = (date, close*shares + cash, close*shares + cash,
