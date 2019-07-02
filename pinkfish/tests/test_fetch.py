@@ -2,6 +2,11 @@ import os
 import shutil
 import datetime
 import unittest
+import six
+if six.PY3:
+    from unittest import mock
+else:
+    import mock
 import pandas as pd
 import pinkfish as pf
 from . test_config import read_config_for_tests
@@ -75,7 +80,7 @@ class TestFetch(unittest.TestCase):
             self.symbol, dir_name=self.dir_name
         )
 
-    @unittest.mock.patch("pinkfish.fetch._adj_prices")
+    @mock.patch("pinkfish.fetch._adj_prices")
     def test_fetch_with_adj_prices(self, mocker):
         ''' Check that the _adj_prices method gets called. '''
         ts = pf.fetch_timeseries(
@@ -109,7 +114,7 @@ class TestFetch(unittest.TestCase):
         low_ex = round(prices["low"] * prices["adj_close"] / prices["close"], 4)
         self.assertEqual(low_ts, low_ex)
 
-    @unittest.mock.patch("pinkfish.read_config", side_effect=read_config_for_tests)
+    @mock.patch("pinkfish.read_config", side_effect=read_config_for_tests)
     def test_fetch_with_config(self, *args):
         ''' Check the data fetch where we have a config file. '''
         file_path = os.path.join(self.dir_path, "test_data", self.symbol + ".csv")

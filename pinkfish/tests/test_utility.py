@@ -1,6 +1,16 @@
+
+from __future__ import print_function
+
 import os
-import unittest
 from configparser import ConfigParser
+import unittest
+import six
+if six.PY3:
+    from unittest import mock
+    print_location = "builtins.print"
+else:
+    import mock
+    print_location = "__builtin__.print"
 import pandas as pd
 import numpy as np
 import pinkfish as pf
@@ -16,14 +26,14 @@ class TestUtility(unittest.TestCase):
         if os.path.isfile(config_path):
             os.remove(config_path)
 
-    @unittest.mock.patch("builtins.print", autospec=True, side_effect=print)
+    @mock.patch(print_location)
     def test_print_full(self, mocker):
         ''' Check that our data frame is printed. '''
         df = pd.DataFrame(np.random.randn(20, 4), columns=list("ABCD"))
         pf.print_full(df)
         mocker.assert_called_once_with(df)
 
-    @unittest.mock.patch("os.path.expanduser", side_effect=get_test_config_path)
+    @mock.patch("os.path.expanduser", side_effect=get_test_config_path)
     def test_read_config(self, mocker):
         ''' Check that the config file is read correctly. '''
         config_path = get_test_config_path()
