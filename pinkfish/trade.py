@@ -11,7 +11,6 @@ from __future__ import division
 from __future__ import absolute_import
 
 # Other imports
-from enum import Enum
 import pandas as pd
 
 
@@ -98,7 +97,7 @@ class TradeLog():
         return self._tlog
 
 
-class TradeState(Enum):
+class TradeState:
     OPEN, HOLD, CLOSE = range(0, 3)
 
 
@@ -110,7 +109,7 @@ class DailyBal:
 
     def _balance(self, date, high, low, close, shares, cash, state):
         """ calculates daily balance values """
-        if not isinstance(state, TradeState):
+        if state not in list(vars(TradeState).values()) or state is None:
             raise TradeStateError
 
         if state == TradeState.OPEN:
@@ -136,4 +135,3 @@ class DailyBal:
         dbal = pd.DataFrame(self._l, columns=columns)
         dbal.set_index('date', inplace=True)
         return dbal
-
