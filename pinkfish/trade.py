@@ -17,10 +17,8 @@ import pandas as pd
 class TradeError(Exception):
     """Base trade exception"""
 
-
 class TradeStateError(TradeError):
     """ The trade state provided does not exist. """
-
 
 class TradeLog():
 
@@ -44,7 +42,7 @@ class TradeLog():
 
     def enter_trade(self, entry_date, entry_price, shares, long_short='long'):
         """ record trade entry in trade log """
-        d = {'entry_date':entry_date, 'entry_price':entry_price, 'qty':shares, 
+        d = {'entry_date':entry_date, 'entry_price':entry_price, 'qty':shares,
              'long_short':long_short}
         tmp = pd.DataFrame([d], columns=self._tlog.columns)
         self._tlog = self._tlog.append(tmp, ignore_index=True)
@@ -58,7 +56,7 @@ class TradeLog():
     def _get_open_trades(self):
         """ find the "integer" index of rows with NaN """
         return pd.isnull(self._tlog).any(1).to_numpy().nonzero()[0]
-    
+
     def num_open_trades(self):
         """ return number of open orders, i.e. not closed out """
         return len(self._get_open_trades())
@@ -96,10 +94,8 @@ class TradeLog():
         """ return Dataframe """
         return self._tlog
 
-
 class TradeState:
     OPEN, HOLD, CLOSE = range(0, 3)
-
 
 class DailyBal:
     """ Log for daily balance """
@@ -122,7 +118,6 @@ class DailyBal:
         elif state == TradeState.CLOSE:
             t = (date, high*shares + cash, low*shares + cash,
                  close*shares + cash, shares, cash, state)
-
         return t
 
     def append(self, date, high, low, close, shares, cash, state):
