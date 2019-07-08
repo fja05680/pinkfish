@@ -33,8 +33,7 @@ def fetch_timeseries(symbol, dir_name='data', use_cache=True, from_year=None):
     use_cache is True, otherwise retrive, cache, then read.
     """
     if from_year is None:
-        is_windows = hasattr(sys, 'getwindowsversion')
-        from_year = 1900 if not is_windows else 1971
+        from_year = 1900 if not sys.platform.startswith("win") else 1971
 
     base_dir = ''
     try:
