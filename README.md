@@ -1,6 +1,8 @@
 pinkfish
 ======
 
+**First major update in 4 years - add scaling in and out capability**
+
 A backtester and spreadsheet library for security analysis.
 
 Why another python backtesting library?  How is pinkfish different?
