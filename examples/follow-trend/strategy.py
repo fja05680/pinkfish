@@ -21,7 +21,7 @@ import pinkfish as pf
 class Strategy():
 
     def __init__(self, symbol, capital, start, end, use_adj=False,
-                 sma_period=200, percent_band=0,
+                 sma_period=200, percent_band=0, sp500_filter=False,
                  slippage_per_trade=0, commissions_per_trade=0):
         self._symbol = symbol
         self._capital = capital
@@ -30,13 +30,17 @@ class Strategy():
         self._use_adj = use_adj
         self._sma_period = sma_period
         self._percent_band = percent_band/100
+        self._sp500_filter = sp500_filter
         self._slippage_per_trade = slippage_per_trade
         self._commissions_per_trade = commissions_per_trade
 
     def _algo(self):
         """ Algo:
-            1. The SPY closes above its upper band, buy
-            2. If the SPY closes below its lower band, sell your long position.
+            1. S&P 500 index closes above its 200 day moving average
+            2. The stock closes above its upper band, buy
+
+            3. S&P 500 index closes below its 200 day moving average
+            4. The stock closes below its lower band, sell your long position.
         """
         self._tlog.cash = self._capital
         start_flag = True
@@ -51,6 +55,8 @@ class Strategy():
             sma = row.sma
             upper_band = sma + sma * self._percent_band
             lower_band = sma - sma * self._percent_band
+            sp500_close = row.sp500_close
+            sp500_sma = row.sp500_sma
             end_flag = True if (i == len(self._ts) - 1) else False
             trade_state = None
 
@@ -64,6 +70,7 @@ class Strategy():
 
             # buy
             if (self._tlog.num_open_trades() == 0
+                and (sp500_close > sp500_sma or not self._sp500_filter)
                 and close > upper_band
                 and not end_flag):
 
@@ -75,7 +82,8 @@ class Strategy():
 
             # sell
             elif (self._tlog.num_open_trades() > 0
-                  and (close < lower_band
+                  and ((self._sp500_filter and sp500_close < sp500_sma)
+                       or close < lower_band
                        or end_flag)):
 
                 # enter sell in trade log
@@ -104,6 +112,14 @@ class Strategy():
 
         self._tlog = pf.TradeLog()
         self._dbal = pf.DailyBal()
+        
+        # add S&P500 200 sma
+        sp500 = pf.fetch_timeseries('^GSPC')
+        sp500 = pf.select_tradeperiod(sp500, self._start,
+                                      self._end, False)
+        self._ts['sp500_close'] = sp500['close']
+        sp500_sma = SMA(sp500, timeperiod=200)
+        self._ts['sp500_sma'] = sp500_sma
 
         self._algo()
 

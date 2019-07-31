@@ -18,6 +18,22 @@ import datetime
 import os
 import pinkfish as pf
 
+
+def _get_cache_dir(dir_name):
+    """ returns the path to the cache_dir """
+    base_dir = ''
+    try:
+        conf = pf.read_config()
+        base_dir = conf['base_dir']
+    except:
+        pass
+    finally:
+        dir_name = os.path.join(base_dir, dir_name)
+
+    if not os.path.exists(dir_name):
+        os.makedirs(dir_name)
+    return dir_name
+
 def _adj_column_names(ts):
     """
     ta-lib expects columns to be lower case; to be consistent,
@@ -36,19 +52,8 @@ def fetch_timeseries(symbol, dir_name='data', use_cache=True, from_year=None):
         is_windows = hasattr(sys, 'getwindowsversion')
         from_year = 1900 if not is_windows else 1971
 
-    base_dir = ''
-    try:
-        conf = pf.read_config()
-        base_dir = conf['base_dir']
-    except:
-        pass
-    finally:
-        dir_name = os.path.join(base_dir, dir_name)
-
-    if not os.path.exists(dir_name):
-        os.makedirs(dir_name)    
-
-    timeseries_cache = os.path.join(dir_name, symbol + '.csv')
+    symbol = symbol.upper()
+    timeseries_cache = os.path.join(_get_cache_dir(dir_name), symbol + '.csv')
 
     if os.path.isfile(timeseries_cache) and use_cache:
         pass
@@ -60,9 +65,29 @@ def fetch_timeseries(symbol, dir_name='data', use_cache=True, from_year=None):
     ts = _adj_column_names(ts)
     return ts
 
+def clear_timeseries(symbols=None, dir_name='data'):
+    """
+    Remove cached timeseries for list of symbols.
+    If symbols is None, remove all timeseries.
+    """
+    cache_dir = _get_cache_dir(dir_name)
+
+    if symbols:
+        # in case user forgot to put single symbol in list
+        if not isinstance(symbols, list):
+            symbols = [symbols]
+        filenames = [symbol.upper() + '.csv' for symbol in symbols]
+    else:
+        filenames = [f for f in os.listdir(cache_dir) if f.endswith('.csv')]
+
+    for f in filenames:
+        filepath = os.path.join(cache_dir, f)
+        if os.path.exists(filepath):
+            os.remove(filepath)
+
 def _adj_prices(ts):
     """ Back adjust prices relative to adj_close for dividends and splits """
-    ts['open'] = ts['open'] * ts['adj_close'] / ts['close'] 
+    ts['open'] = ts['open'] * ts['adj_close'] / ts['close']
     ts['high'] = ts['high'] * ts['adj_close'] / ts['close']
     ts['low'] = ts['low'] * ts['adj_close'] / ts['close']
     ts['close'] = ts['close'] * ts['adj_close'] / ts['close']
@@ -76,10 +101,10 @@ def select_tradeperiod(ts, start, end, use_adj=False, pad=True):
     """
     if use_adj:
         _adj_prices(ts)
-        
+
     if start < ts.index[0]: start = ts.index[0]
     if end > ts.index[-1]: end = ts.index[-1]
-    if pad:    
+    if pad:
         ts = ts[start - datetime.timedelta(365):end]
     else:
         ts = ts[start:end]

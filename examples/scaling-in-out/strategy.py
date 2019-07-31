@@ -21,26 +21,31 @@ import pinkfish as pf
 class Strategy():
 
     def __init__(self, symbol, capital, start, end, use_adj=False,
-                 sma_period=200, percent_band=0,
+                 period=7, max_positions=4, sp500_filter=True, 
                  slippage_per_trade=0, commissions_per_trade=0):
         self._symbol = symbol
         self._capital = capital
         self._start = start
         self._end = end
         self._use_adj = use_adj
-        self._sma_period = sma_period
-        self._percent_band = percent_band/100
+        self._period = period
+        self._max_positions = max_positions
+        self._sp500_filter = sp500_filter
         self._slippage_per_trade = slippage_per_trade
         self._commissions_per_trade = commissions_per_trade
-
+        
     def _algo(self):
         """ Algo:
-            1. The SPY closes above its upper band, buy
-            2. If the SPY closes below its lower band, sell your long position.
+            1. The SPY is above its 200-day moving average
+            2. The SPY closes at a X-day low, buy some shares
+               If it set further lows, buy some more
+            3. If the SPY closes at a X-day high, sell some.
+               If it sets further highs, sell some more, etc...
         """
         self._tlog.cash = self._capital
         start_flag = True
         end_flag = False
+        stop_loss = 0
 
         for i, row in enumerate(self._ts.itertuples()):
 
@@ -48,13 +53,15 @@ class Strategy():
             high = row.high
             low = row.low
             close = row.close
-            sma = row.sma
-            upper_band = sma + sma * self._percent_band
-            lower_band = sma - sma * self._percent_band
+            sma200 = row.sma200
+            period_high = row.period_high
+            period_low = row.period_low
+            sp500_close = row.sp500_close
+            sp500_sma = row.sp500_sma
             end_flag = True if (i == len(self._ts) - 1) else False
             trade_state = None
 
-            if pd.isnull(sma) or date < self._start:
+            if pd.isnull(sma200) or date < self._start:
                 continue
             elif start_flag:
                 start_flag = False
@@ -63,23 +70,51 @@ class Strategy():
                 self._end = self._ts.index[-1]
 
             # buy
-            if (self._tlog.num_open_trades() == 0
-                and close > upper_band
+            if (self._tlog.num_open_trades() < self._max_positions
+                and (sp500_close > sp500_sma or not self._sp500_filter)
+                and close > sma200
+                and close == period_low
                 and not end_flag):
+                
+                # calc number of shares
+                cash = self._tlog.cash / (self._max_positions - self._tlog.num_open_trades())
+                shares = self._tlog.calc_shares(price=close, cash=cash)
+                
+                # if we have enough cash to buy any shares, the buy them
+                if shares > 0:
 
-                # enter buy in trade log
-                shares = self._tlog.enter_trade(date, close)
-                trade_state = pf.TradeState.OPEN
-                #print("{0} BUY  {1} {2} @ {3:.2f}".format(
-                #      date, shares, self._symbol, close))
+                    # enter buy in trade log
+                    self._tlog.enter_trade(date, close, shares)
+                    trade_state = pf.TradeState.OPEN
+                    #print("{0} BUY  {1} {2} @ {3:.2f}".format(
+                    #      date, shares, self._symbol, close))
+                
+                    # set stop loss
+                    stop_loss = 0*close
+                else:
+                    trade_state = pf.TradeState.HOLD 
 
             # sell
+            
+            #elif (self._tlog.num_open_trades() > 0
+            #      and ((self._sp500_filter and sp500_close < sp500_sma)
+            #            or close == period_high
+            #            or low < stop_loss
+            #            or end_flag)):
+            
             elif (self._tlog.num_open_trades() > 0
-                  and (close < lower_band
+                  and (close == period_high
+                       or low < stop_loss
                        or end_flag)):
+                
+                if end_flag:
+                    shares = self._tlog.shares
+                else:
+                    # exit one position
+                    shares = -1
 
                 # enter sell in trade log
-                shares = self._tlog.exit_trade(date, close)
+                shares = self._tlog.exit_trade(date, close, shares)
                 trade_state = pf.TradeState.CLOSE
                 #print("{0} SELL {1} {2} @ {3:.2f}".format(
                 #      date, shares, self._symbol, close))
@@ -96,31 +131,43 @@ class Strategy():
     def run(self):
         self._ts = pf.fetch_timeseries(self._symbol)
         self._ts = pf.select_tradeperiod(self._ts, self._start,
-                                         self._end, self._use_adj)       
+                                         self._end, use_adj=False)
 
-        # Add technical indicator:  day sma
-        sma = SMA(self._ts, timeperiod=self._sma_period)
-        self._ts['sma'] = sma          
+        # Add technical indicator: 200 day sma
+        sma200 = SMA(self._ts, timeperiod=200)
+        self._ts['sma200'] = sma200
 
+        # Add technical indicator: X day high, and X day low
+        period_high = pd.Series(self._ts.close).rolling(self._period).max()
+        period_low = pd.Series(self._ts.close).rolling(self._period).min()
+        self._ts['period_high'] = period_high
+        self._ts['period_low'] = period_low
+        
         self._tlog = pf.TradeLog()
         self._dbal = pf.DailyBal()
+        
+        # add S&P500 200 sma
+        sp500 = pf.fetch_timeseries('^GSPC')
+        sp500 = pf.select_tradeperiod(sp500, self._start,
+                                      self._end, False)
+        self._ts['sp500_close'] = sp500['close']
+        sp500_sma = SMA(sp500, timeperiod=200)
+        self._ts['sp500_sma'] = sp500_sma
 
         self._algo()
 
     def get_logs(self):
         """ return DataFrames """
-        rlog = self._tlog.get_log_raw()
         tlog = self._tlog.get_log()
         dbal = self._dbal.get_log()
-        return rlog, tlog, dbal
+        return tlog, dbal
 
     def stats(self):
-        _, tlog, dbal = self.get_logs()
-        
+        tlog, dbal = self.get_logs()
+
         stats = pf.stats(self._ts, tlog, dbal,
                          self._start, self._end, self._capital)
         return stats
-
 
 def summary(strategies, *metrics):
     """ Stores stats summary in a DataFrame.
@@ -135,7 +182,7 @@ def summary(strategies, *metrics):
 
     df = pd.DataFrame(data, columns=columns, index=index)
     return df
-    
+
 def plot_bar_graph(df, metric):
     """ Plot Bar Graph: Strategy
         stats() must be called before calling this function """
@@ -145,3 +192,4 @@ def plot_bar_graph(df, metric):
     axes = fig.add_subplot(111, ylabel=metric)
     df.plot(kind='bar', ax=axes, legend=False)
     axes.set_xticklabels(df.index, rotation=0)
+

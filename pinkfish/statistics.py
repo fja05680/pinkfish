@@ -38,14 +38,17 @@ def _difference_in_years(start, end):
     return diff_in_years
 
 def _get_trade_bars(ts, tlog, op):
-
     l = []
-    for i in range(len(tlog.index)):
-        if op(tlog['pl_cash'][i], 0):
-            entry_date = tlog['entry_date'][i]
-            exit_date = tlog['exit_date'][i]
-            l.append(len(ts[entry_date:exit_date].index))
+    for row in tlog.itertuples():
+        if op(row.pl_cash, 0):
+            l.append(len(ts[row.entry_date:row.exit_date].index))
     return l
+
+def currency(amount):
+    if amount >= 0:
+        return '${:,.2f}'.format(amount)
+    else:
+        return '-${:,.2f}'.format(-amount)
 
 #####################################################################
 # OVERALL RESULTS
@@ -87,19 +90,18 @@ def trading_period(start, end):
     diff = relativedelta(end, start)
     return '{} years {} months {} days'.format(diff.years, diff.months, diff.days)
 
-def _true_func(arg1, arg2):
-    return True
+def _total_days_in_market(dbal):
+    n = (dbal['shares'] > 0).sum()
+    if dbal.iloc[-2]['shares'] > 0:
+        n += 1
+    return n
 
-def _total_days_in_market(ts, tlog):
-    l = _get_trade_bars(ts, tlog, _true_func)
-    return sum(l)
+def pct_time_in_market(dbal):
+    return _total_days_in_market(dbal) / len(dbal) * 100
 
-def pct_time_in_market(ts, tlog, start, end):
-    return _total_days_in_market(ts, tlog) / len(ts[start:end].index) * 100
-    
 #####################################################################
 # SUMS
-    
+
 def total_num_trades(tlog):
     return len(tlog.index)
 
@@ -143,7 +145,7 @@ def largest_profit_winning_trade(tlog):
 
 def largest_loss_losing_trade(tlog):
     if num_losing_trades(tlog) == 0: return 0
-    return tlog[tlog['pl_cash'] < 0].min()['pl_cash'] 
+    return tlog[tlog['pl_cash'] < 0].min()['pl_cash']
 
 #####################################################################
 # POINTS
@@ -193,23 +195,19 @@ def largest_pct_losing_trade(tlog):
 
 def _subsequence(s, c):
     """
-    Takes as parameter list like object s and returns the length of the longest 
+    Takes as parameter list like object s and returns the length of the longest
     subsequence of s constituted only by consecutive character 'c's.
     Example: If the string passed as parameter is "001000111100", and c is '0',
     then the longest subsequence of only '0's has length 3.
     """
 
-    bit = 0        # current element in the sequence
     count = 0      # current length of the sequence of zeros
     maxlen = 0     # temporary value of the maximum length
 
-    for i in range(len(s)):
-        bit = s[i]
-
+    for bit in s:
         if bit == c:            # we have read a new '0'
-            count = count + 1   # update the length of the current sequence
-            if count > maxlen:  # if necessary, ...
-                                # ... update the temporary maximum
+            count += 1          # update the length of the current sequence
+            if count > maxlen:  # if necessary, update the temporary maximum
                 maxlen = count
         else:                   # we have read a 1
             count = 0           # reset the length of the current sequence
@@ -420,7 +418,7 @@ def stats(ts, tlog, dbal, start, end, capital):
     cagr = annual_return_rate(dbal['close'][-1], capital, start, end)
     stats['annual_return_rate'] = cagr
     stats['trading_period'] = trading_period(start, end)
-    stats['pct_time_in_market'] = pct_time_in_market(ts, tlog, start, end)
+    stats['pct_time_in_market'] = pct_time_in_market(dbal)
 
     # SUMS
     stats['total_num_trades'] = total_num_trades(tlog)
@@ -511,10 +509,10 @@ def stats(ts, tlog, dbal, start, end, capital):
     stats['sharpe_ratio'] = sharpe_ratio(dbal['close'].pct_change())
     stats['sortino_ratio'] = sortino_ratio(dbal['close'].pct_change())
     return stats
-    
+
 #####################################################################
-# SUMMARY - stats() must be called before calling any of these functions    
-    
+# SUMMARY - stats() must be called before calling any of these functions
+
 def summary(stats, *metrics):
     """
     Returns stats summary in a DataFrame.
@@ -582,6 +580,51 @@ def summary3(stats, benchmark_stats, *extras):
     for extra in extras:
         index.append(extra)
         data.append((stats[extra], benchmark_stats[extra]))
+
+    df = pd.DataFrame(data, columns=columns, index=index)
+    return df
+
+def summary4(stats):
+    """
+    Returns currency stats summary in a DataFrame.
+    stats() must be called before calling this function
+    """
+    index = ['beginning_balance',
+             'ending_balance',
+             'total_net_profit',
+             'gross_profit',
+             'gross_loss']
+    columns = ['strategy']
+    data = [currency(stats['beginning_balance']),
+            currency(stats['ending_balance']),
+            currency(stats['total_net_profit']),
+            currency(stats['gross_profit']),
+            currency(stats['gross_loss'])]
+
+    df = pd.DataFrame(data, columns=columns, index=index)
+    return df
+
+def summary5(stats, benchmark_stats):
+    """
+    Returns currency stats with benchmark summary in a DataFrame.
+    stats() must be called before calling this function
+    """
+    index = ['beginning_balance',
+             'ending_balance',
+             'total_net_profit',
+             'gross_profit',
+             'gross_loss']
+    columns = ['strategy', 'benchmark']
+    data = [(currency(stats['beginning_balance']),
+             currency(benchmark_stats['beginning_balance'])),
+            (currency(stats['ending_balance']),
+             currency(benchmark_stats['ending_balance'])),
+            (currency(stats['total_net_profit']),
+             currency(benchmark_stats['total_net_profit'])),
+            (currency(stats['gross_profit']),
+             currency(benchmark_stats['gross_profit'])),
+            (currency(stats['gross_loss']),
+             currency(benchmark_stats['gross_loss']))]
 
     df = pd.DataFrame(data, columns=columns, index=index)
     return df
