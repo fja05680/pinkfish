@@ -1,7 +1,7 @@
 pinkfish
 ======
 
-**07-31-2019: First major update in 4 years - add scaling in and out capability**
+**07-31-2019: First major update since original release - Add scale-in and scale-out capability**
 
 A backtester and spreadsheet library for security analysis.
 
@@ -15,7 +15,7 @@ Some of the key features of pinkfish:
  - uses daily data (vs minute or tick data) for intraday trading
  - uses free daily data from yahoo finance
  - simple to use python API
- - create spreadsheets within ipython by utilizing pandas dataframes and itable formatting
+ - create spreadsheets within Jupyter Notebook by utilizing pandas dataframes and itable formatting
 
 ## Installation
 Follow the installation instructions located at:
