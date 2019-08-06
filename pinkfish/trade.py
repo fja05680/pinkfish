@@ -27,7 +27,7 @@ Assist with trading
 """
 
 class TradeError(Exception):
-    """Base trade exception"""
+    """ Base trade exception """
 
 class TradeStateError(TradeError):
     """ The trade state provided does not exist. """
@@ -94,10 +94,11 @@ class TradeLog(object):
         return self._shares
 
     def exit_trade(self, exit_date, exit_price, shares=None):
-        """ record exit in trade log; return shares exited
-            shares=None exits all shares
-            shares>0 exits that number of shares
-            shares<0 indicates the number of positons to exit
+        """
+        record exit in trade log; return shares exited
+        shares = None exits all shares
+        shares > 0 exits that number of shares
+        shares < 0 indicates the number of positons to exit
         """
 
         if shares is None or shares > self._shares:
