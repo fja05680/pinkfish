@@ -1,7 +1,7 @@
 """
-trade
+indicator
 ---------
-Assist with trading
+Custom indicators
 """
 
 # Use future imports for python 3.0 forward compatibility
