@@ -59,7 +59,7 @@ class Strategy():
             end_flag = True if (i == len(self._ts) - 1) else False
             trade_state = None
 
-            if pd.isnull(sma) or date < self._start:
+            if pd.isnull(sma) or pd.isnull(regime) or date < self._start:
                 continue
             elif start_flag:
                 start_flag = False
@@ -114,9 +114,9 @@ class Strategy():
         
         # add S&P500 200 sma regime filter
         ts = pf.fetch_timeseries('^GSPC')
-        ts = pf.select_tradeperiod(ts, self._start, self._end, False)
-        ts['sma200'] = SMA(ts, timeperiod=200)
-        self._ts['regime'] = ts.apply(pf.Regime().apply, axis=1) 
+        ts = pf.select_tradeperiod(ts, self._start, self._end, False) 
+        self._ts['regime'] = \
+            pf.CROSSOVER(ts, timeperiod_fast=1, timeperiod_slow=200)
 
         self._algo()
 
