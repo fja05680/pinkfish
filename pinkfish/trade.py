@@ -13,24 +13,11 @@ from __future__ import absolute_import
 # Other imports
 import pandas as pd
 
-
-class TradeError(Exception):
-    """Base trade exception"""
-
-class TradeStateError(TradeError):
-    """ The trade state provided does not exist. """
-
-"""
-trade
----------
-Assist with trading
-"""
-
 class TradeError(Exception):
     """ Base trade exception """
 
 class TradeStateError(TradeError):
-    """ The trade state provided does not exist. """
+    """ The trade state provided does not exist """
 
 class TradeLog(object):
 
