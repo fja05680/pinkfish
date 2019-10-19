@@ -20,15 +20,12 @@ import pinkfish as pf
 
 class Strategy():
 
-    def __init__(self, symbol, capital, start, end, period,
-                 slippage_per_trade=0, commissions_per_trade=0):
+    def __init__(self, symbol, capital, start, end, period):
         self._symbol = symbol
         self._capital = capital
         self._start = start
         self._end = end
         self._period = period
-        self._slippage_per_trade = slippage_per_trade
-        self._commissions_per_trade = commissions_per_trade
         
     def _algo(self):
         """ Algo:

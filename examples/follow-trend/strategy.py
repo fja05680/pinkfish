@@ -21,8 +21,7 @@ import pinkfish as pf
 class Strategy():
 
     def __init__(self, symbol, capital, start, end, use_adj=False,
-                 sma_period=200, percent_band=0, regime_filter=False,
-                 slippage_per_trade=0, commissions_per_trade=0):
+                 sma_period=200, percent_band=0, regime_filter=False):
         self._symbol = symbol
         self._capital = capital
         self._start = start
@@ -31,8 +30,6 @@ class Strategy():
         self._sma_period = sma_period
         self._percent_band = percent_band/100
         self._regime_filter = regime_filter
-        self._slippage_per_trade = slippage_per_trade
-        self._commissions_per_trade = commissions_per_trade
 
     def _algo(self):
         """ Algo:

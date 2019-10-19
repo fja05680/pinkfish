@@ -21,8 +21,7 @@ import pinkfish as pf
 class Strategy():
 
     def __init__(self, symbol, capital, start, end, use_adj=False,
-                 period=7, max_positions=4, sp500_filter=True, 
-                 slippage_per_trade=0, commissions_per_trade=0):
+                 period=7, max_positions=4, sp500_filter=True):
         self._symbol = symbol
         self._capital = capital
         self._start = start
@@ -31,8 +30,6 @@ class Strategy():
         self._period = period
         self._max_positions = max_positions
         self._sp500_filter = sp500_filter
-        self._slippage_per_trade = slippage_per_trade
-        self._commissions_per_trade = commissions_per_trade
         self._positions = 0
         
     def _algo(self):
