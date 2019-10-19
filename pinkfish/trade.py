@@ -30,7 +30,7 @@ class TradeLog(object):
         self._cumul_total = 0    # cumul total profits (loss)
 
     def calc_shares(self, price, cash=None):
-        """ calculate shares and remaining cash before entry """
+        """ calculate shares and remaining cash before enter_trade() """
         if cash is None or cash > self._cash:
             cash = self._cash
         shares = int(cash / price)
@@ -40,8 +40,9 @@ class TradeLog(object):
         """ add entry to open_trades list; update shares and cash """
         if shares == 0:
             return 0
-        if shares is None:
-            shares = self.calc_shares(entry_price)
+
+        max_shares = self.calc_shares(entry_price)
+        shares = max_shares if shares is None else min(shares, max_shares)
 
         # date, price, shares, entry_exit
         # record in raw trade log
@@ -79,6 +80,17 @@ class TradeLog(object):
     def shares(self):
         """ return number of shares """
         return self._shares
+
+    #@property
+    def value(self, price):
+        """ return percent of portfolio value currently allocated """
+        return self._shares * price
+
+    #@property
+    def percent(self, price):
+        """ return percent of portfolio value currently allocated """
+        total_equity = self._cash + self._shares * price
+        return ((self._shares * price) / total_equity) * 100
 
     def exit_trade(self, exit_date, exit_price, shares=None):
         """
@@ -141,6 +153,49 @@ class TradeLog(object):
                 shares -= exit_shares
 
         return shares_orig
+
+    def adjust_shares(self, date, price, shares):
+        """
+        Adjust a position to a target number of shares.
+        If the position doesn't already exist, this is equivalent
+        to entering a new trade. If the position does exist, this is
+        equivalent to entering or exiting a trade for the difference between
+        the target number of shares and the current number of shares.
+        """
+        diff = shares - self._shares
+        if diff >= 0:
+            shares = self.enter_trade(date, price, shares=diff)
+        else:
+            shares = self.exit_trade(date, price, shares=-diff)
+            shares = -shares
+        return shares
+
+    def adjust_value(self, date, price, value):
+        """
+        Adjust a position to a target value.
+        If the position doesn't already exist, this is equivalent
+        to entering a new trade. If the position does exist, this is
+        equivalent to entering or exiting a trade for the difference between
+        the target value and the current value.
+        """
+        total_equity = self._cash + self._shares * price
+        shares = int(min(total_equity, value) / price)
+        shares = self.adjust_shares(date, price, shares)
+        return shares
+
+    def adjust_percent(self, date, price, percent):
+        """
+        Adjust a position to a target percent of the current portfolio value.
+        If the position doesn't already exist, this is equivalent
+        to entering a new trade. If the position does exist, this is
+        equivalent to entering or exiting a trade for the difference between
+        the target percent and the current percent.
+        """
+        percent = percent if percent <= 1 else percent/100
+        total_equity = self._cash + self._shares * price
+        value = total_equity * percent
+        shares = self.adjust_value(date, price, value)
+        return shares
 
     def get_log(self):
         """ return Dataframe """
