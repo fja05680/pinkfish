@@ -55,6 +55,7 @@ class Strategy():
             regime = row.regime
             end_flag = True if (i == len(self._ts) - 1) else False
             trade_state = None
+            shares = 0
 
             if pd.isnull(sma) or pd.isnull(regime) or date < self._start:
                 continue
@@ -72,10 +73,6 @@ class Strategy():
 
                 # enter buy in trade log
                 shares = self._tlog.enter_trade(date, close)
-                trade_state = pf.TradeState.OPEN
-                #print("{0} BUY  {1} {2} @ {3:.2f}".format(
-                #      date, shares, self._symbol, close))
-
             # sell
             elif (self._tlog.num_open_trades() > 0
                   and ((self._regime_filter and regime < 0)
@@ -84,18 +81,22 @@ class Strategy():
 
                 # enter sell in trade log
                 shares = self._tlog.exit_trade(date, close)
-                trade_state = pf.TradeState.CLOSE
-                #print("{0} SELL {1} {2} @ {3:.2f}".format(
-                #      date, shares, self._symbol, close))
 
-            # hold
+            if shares > 0:
+                trade_state = pf.TradeState.OPEN
+                print("{0} BUY  {1} {2} @ {3:.2f}".format(
+                      date, shares, self._symbol, close))
+            elif shares < 0:
+                trade_state = pf.TradeState.CLOSE
+                print("{0} SELL {1} {2} @ {3:.2f}".format(
+                      date, shares, self._symbol, close))
             else:
                 trade_state = pf.TradeState.HOLD
 
             # record daily balance
             self._dbal.append(date, high, low, close,
                               self._tlog.shares, self._tlog.cash,
-                              trade_state)
+                              trade_state) 
 
     def run(self):
         self._ts = pf.fetch_timeseries(self._symbol)

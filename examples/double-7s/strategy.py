@@ -49,6 +49,7 @@ class Strategy():
             period_low = row.period_low
             end_flag = True if (i == len(self._ts) - 1) else False
             trade_state = None
+            shares = 0
 
             if pd.isnull(sma200) or date < self._start:
                 continue
@@ -66,24 +67,23 @@ class Strategy():
 
                 # enter buy in trade log
                 shares = self._tlog.enter_trade(date, close)
-                trade_state = pf.TradeState.OPEN
-                #print("{0} BUY  {1} {2} @ {3:.2f}".format(
-                #      date, shares, self._symbol, close))
-                
                 # set stop loss
                 stop_loss = 0*close
-
             # sell
             elif (self._tlog.num_open_trades() > 0
                   and (close == period_high or low < stop_loss or end_flag)):
 
                 # enter sell in trade log
                 shares = self._tlog.exit_trade(date, close)
-                trade_state = pf.TradeState.CLOSE
-                #print("{0} SELL {1} {2} @ {3:.2f}".format(
-                #      date, shares, self._symbol, close))
 
-            # hold
+            if shares > 0:
+                trade_state = pf.TradeState.OPEN
+                print("{0} BUY  {1} {2} @ {3:.2f}".format(
+                      date, shares, self._symbol, close))
+            elif shares < 0:
+                trade_state = pf.TradeState.CLOSE
+                print("{0} SELL {1} {2} @ {3:.2f}".format(
+                      date, shares, self._symbol, close))
             else:
                 trade_state = pf.TradeState.HOLD
 
