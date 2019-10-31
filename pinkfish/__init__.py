@@ -20,6 +20,11 @@ from .statistics import (
     summary5
 )
 
+from .evolved import (
+    monthly_returns_map,
+    holding_period_map
+)
+
 from .benchmark import (
     Benchmark
 )
