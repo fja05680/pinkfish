@@ -1,6 +1,7 @@
 pinkfish
 ======
 
+**11-01-2019: Add monthly and holding_period tables (see buy-and-hold example)**  
 **07-31-2019: First major update since original release - Add scale-in and scale-out capability**
 
 A backtester and spreadsheet library for security analysis.
