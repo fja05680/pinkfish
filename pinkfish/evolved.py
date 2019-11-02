@@ -24,10 +24,10 @@ Andreas Clenow
 October 25, 2019 at 17:29
 Hi Farrell,
 
-I can be paid in reviews and/or beer. 🙂
+I can be paid in reviews and/or beer. :)
 
 For an open source project, use the code as you see fit. A credit in the
-comments somewhere would be nice, but I won’t sue you if you forget it.
+comments somewhere would be nice, but I won't sue you if you forget it.
 
 ac
 -------------------------------------------------------------------------------
