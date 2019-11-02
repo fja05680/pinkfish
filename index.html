@@ -47,7 +47,8 @@ Simple, I couldn't find a python backtesting library that I allowed me to backte
 
 <p>This is how I got pinkfish working on xubuntu 18.04:</p>
 
-<pre><code>sudo apt-get update
+<pre><code>
+sudo apt-get update
 sudo apt-get upgrade
 
 sudo apt-get install build-essential
@@ -78,7 +79,7 @@ sudo -H pip install TA-Lib
 #install jupyter notebook
 sudo -H pip install jupyter
 
-#if you want to run unit tests
+#if you want to run unit tests (optional)
 sudo apt install python-tk
 
 #install itable from github
@@ -92,7 +93,14 @@ sudo python setup.py install
 cd ~/src
 git clone https://github.com/fja05680/pinkfish.git
 cd pinkfish
-sudo python setup.py install</code></pre>
+sudo python setup.py install
+
+#create/specify shared data cache directory (optional)
+mkdir $HOME/data
+echo [global] > $HOME/.pinkfish
+echo base_dir = $HOME >> $HOME/.pinkfish
+
+</code></pre>
 
 <h2>
 <a id="examples" class="anchor" href="#examples" aria-hidden="true"><span class="octicon octicon-link"></span></a>Examples</h2>
