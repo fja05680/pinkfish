@@ -19,8 +19,8 @@ Some of the key features of pinkfish:
 
 ## Installation
 Follow the installation instructions located at:
-http://fja05680.github.io/pinkfish/
+https://fja05680.github.io/pinkfish/
 
 ## Examples
- - spreadsheet - make a read only spreadsheet within ipython
- - golden-cross - an example illustrating the classic long term trading algorithm
+ - [spreadsheet](https://fja05680.github.io/pinkfish/examples/spreadsheet.html) - make a read only spreadsheet within ipython
+ - [golden-cross](http://fja05680.github.io/pinkfish/examples/golden-cross.html) - an example illustrating the classic long term trading algorithm
