@@ -70,3 +70,7 @@ target/
 
 # ipython metadata
 .ipynb_checkpoints
+
+# private algos
+algos/
+
