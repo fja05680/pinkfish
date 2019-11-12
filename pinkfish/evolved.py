@@ -2,8 +2,8 @@
 evolved
 ---------
 This module contains a collection of functions that were copied or derived
-from the book "Trading Evolved" by Andreas F. Clenow.  Below is a correspondance
-I had with the author:
+from the book "Trading Evolved" by Andreas F. Clenow.
+Below is a correspondance I had with the author:
 
 -------------------------------------------------------------------------------
 Farrell
@@ -42,6 +42,7 @@ from __future__ import absolute_import
 
 # Other imports
 import pandas as pd
+import matplotlib.pyplot as plt
 import empyrical as em
 from IPython.core.display import display, HTML
 
@@ -154,3 +155,79 @@ def holding_period_map(returns):
 
 #table = holding_period_map(returns['1990':])
 #display(HTML(table))
+
+def calc_corr(ser1, ser2, window):
+    """
+    Calculates correlation between two series.
+    """
+    ret1 = ser1.pct_change()
+    ret2 = ser2.pct_change()
+    corr = ret1.rolling(window).corr(ret2)
+    return corr
+
+def prettier_graphs(ret1, ret2, label1='Strategy', label2='Benchmark',
+                    points_to_plot=None):
+    """
+    Plot 3 subplots.  The first subplot will show a rebased comparison of the
+    returns to the benchmark returns, recalculated with the same starting value
+    of 1.  This will be shown on a semi logarithmic scale.  The second subplot
+    will show relative strength of the returns to the benchmark returns, and
+    the third the correlation between the two.
+
+    points_to_plot: Define how many points (trading days) we intend to plot.
+    """
+
+    # default is to plot all points (days)
+    if points_to_plot is None:
+        points_to_plot = 0;
+
+    data = pd.DataFrame(ret1)
+    data['ret2'] = pd.DataFrame(ret2)
+    data.columns = ['ret1', 'ret2']
+    data.head()
+
+    # Rebase the two series to the same point in time,
+    # starting where the plot will start.
+    for col in data:
+        data[col + '_rebased'] = \
+            (data[-points_to_plot:][col].pct_change() + 1).cumprod()
+
+    # Relative strength, ret1 to ret2
+    data['rel_str'] = data['ret1'] / data['ret2']
+
+    # Calculate 50 day rolling correlation
+    data['corr'] = calc_corr(data['ret1'], data['ret2'], 100)
+
+    # After this, we slice the data, effectively discarding all but the last
+    # 300 data points, using the slicing logic from before.
+    # Slice the data, cut points we don't intend to plot.
+    plot_data = data[-points_to_plot:]
+
+    # Make  new figure and set the size.
+    fig = plt.figure(figsize=(12, 8))
+
+    # The first subplot, planning for 3 plots high, 1 plot wide,
+    # this being the first.
+    ax = fig.add_subplot(311)
+    ax.set_title('Comparison')
+    ax.semilogy(plot_data['ret1_rebased'], linestyle='-',
+                label=label1, linewidth=3.0)
+    ax.semilogy(plot_data['ret2_rebased'], linestyle='--',
+                label=label2, linewidth=3.0)
+    ax.legend()
+    ax.grid(False)
+
+    # Second sub plot.
+    ax = fig.add_subplot(312)
+    label='Relative Strength, {} to {}'.format(label1, label2)
+    ax.plot(plot_data['rel_str'], label=label, linestyle=':', linewidth=3.0)
+    ax.legend()
+    ax.grid(True)
+
+    # Third subplot.
+    ax = fig.add_subplot(313)
+    label='Correlation between {} and {}'.format(label1, label2)
+    ax.plot(plot_data['corr'], label=label, linestyle='-.', linewidth=3.0)
+    ax.legend()
+    ax.grid(True)
+

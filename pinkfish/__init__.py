@@ -22,7 +22,8 @@ from .statistics import (
 
 from .evolved import (
     monthly_returns_map,
-    holding_period_map
+    holding_period_map,
+    prettier_graphs
 )
 
 from .benchmark import (
