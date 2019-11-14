@@ -3,6 +3,7 @@ pinkfish
 
 **11-12-2019: Add prettier_graphs (see double-7s example)**  
 **11-01-2019: Add monthly and holding_period tables (see buy-and-hold example)**  
+**10-18-2019: Add capability to maintain a certain value, shares, or percent in a security (see percent-allocate example)**  
 **07-31-2019: First major update since original release - Add scale-in and scale-out capability**
 
 A backtester and spreadsheet library for security analysis.
