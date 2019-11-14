@@ -94,7 +94,7 @@ class TradeLog(object):
 
     def exit_trade(self, exit_date, exit_price, shares=None):
         """
-        record exit in trade log; return shares exited
+        record exit in trade log; return -shares exited
         shares = None exits all shares
         shares > 0 exits that number of shares
         shares < 0 indicates the number of positons to exit
@@ -152,7 +152,7 @@ class TradeLog(object):
                 del self._open_trades[0]
                 shares -= exit_shares
 
-        return shares_orig
+        return -shares_orig
 
     def adjust_shares(self, date, price, shares):
         """
@@ -167,7 +167,6 @@ class TradeLog(object):
             shares = self.enter_trade(date, price, shares=diff)
         else:
             shares = self.exit_trade(date, price, shares=-diff)
-            shares = -shares
         return shares
 
     def adjust_value(self, date, price, value):

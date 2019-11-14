@@ -104,7 +104,7 @@ class Strategy():
             elif shares < 0:
                 trade_state = pf.TradeState.CLOSE
                 print("{0} SELL {1} {2} @ {3:.2f}".format(
-                      date, shares, self._symbol, close))
+                      date, -shares, self._symbol, close))
             else:
                 trade_state = pf.TradeState.HOLD
 

@@ -63,7 +63,7 @@ class Benchmark(object):
                 shares = self._tlog.exit_trade(date, close)
                 trade_state = pf.TradeState.CLOSE
                 print("{0} SELL {1} {2} @ {3:.2f}".format(
-                      date, shares, self._symbol, close))
+                      date, -shares, self._symbol, close))
 
             # hold
             else:
