@@ -30,6 +30,10 @@ from .benchmark import (
     Benchmark
 )
 
+from .calendar import (
+    calendar
+)
+
 from .plot import (
     plot_equity_curve,
     plot_trades,
