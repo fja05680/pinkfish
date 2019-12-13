@@ -11,6 +11,7 @@
 - `scaling-in`: scale in strategy
 - `scaling-in-out`: scale in and out strategy
 - `scaling-out`: scale out strategy
-- `sma-percent-band`: trading strategy using price vs long term sma; a percent band around the sma is used for hysteresis
+- `sell-in-may-and-go-away`: demonstration of using the calendar module
+- `sma-percent-band`: trading strategy using price vs long term sma; percent band around sma used for hysteresis
 - `spreadsheet`: make a read only spreadsheet within jupyter notebook
 - `ta-lib-tutorial`: a tutorial on using the ta-lib technical analysis library
