@@ -1,4 +1,5 @@
 - `benchmark.py`: benchmark for comparision to strategies
+- `calendar.py`: adds calendar columns to a dataframe
 - `evolved.py`: collection of functions that were copied or derived from the book "Trading Evolved" by Andreas F. Clenow
 - `fetch.py`: retrive time series data
 - `indicator.py`: custom indicators
