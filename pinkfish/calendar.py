@@ -28,9 +28,9 @@ from itertools import izip
 import pinkfish as pf
 
 def _first_day(row):
-    first_dotw = row['dotw'] < row['prev_dotw']
-    first_dotm = row['dotm'] < row['prev_dotm']
-    first_doty = row['doty'] < row['prev_doty']
+    first_dotw = row['dotw'] < row['__prev_dotw__']
+    first_dotm = row['dotm'] < row['__prev_dotm__']
+    first_doty = row['doty'] < row['__prev_doty__']
 
     return first_dotw, first_dotm, first_doty
 
@@ -49,16 +49,16 @@ def calendar(ts):
     # month as January=1, December=12
     ts['month'] = ts.index.month
 
-    # Temporarily add prev_dotw, prev_dotm, prev_doty for convenience
-    # drop them later
-    ts['prev_dotw'] = ts['dotw'].shift()
-    ts['prev_dotw'].fillna(0, inplace=True)
+    # Temporarily add __prev_dotw__, __prev_dotm__, __prev_doty__
+    # for convenience; drop them later
+    ts['__prev_dotw__'] = ts['dotw'].shift()
+    ts['__prev_dotw__'].fillna(0, inplace=True)
 
-    ts['prev_dotm'] = ts['dotm'].shift()
-    ts['prev_dotm'].fillna(0, inplace=True)
+    ts['__prev_dotm__'] = ts['dotm'].shift()
+    ts['__prev_dotm__'].fillna(0, inplace=True)
 
-    ts['prev_doty'] = ts['doty'].shift()
-    ts['prev_doty'].fillna(0, inplace=True)
+    ts['__prev_doty__'] = ts['doty'].shift()
+    ts['__prev_doty__'].fillna(0, inplace=True)
 
     # First and last day of the week, month, and year
     ts['first_dotw'], ts['first_dotm'], ts['first_doty'] = \
@@ -74,7 +74,7 @@ def calendar(ts):
     ts['last_doty'].fillna(False, inplace=True)
 
     # Drop temporary columns
-    ts.drop(columns=['prev_dotw', 'prev_dotm', 'prev_doty'], inplace=True)
+    ts.drop(columns=['__prev_dotw__', '__prev_dotm__', '__prev_doty__'], inplace=True)
 
     return ts
 
