@@ -105,6 +105,11 @@ def pct_time_in_market(dbal):
 def total_num_trades(tlog):
     return len(tlog.index)
 
+def trades_per_year(tlog, start, end):
+    diff = relativedelta(end, start)
+    years = diff.years + diff.months/12 + diff.days/365
+    return total_num_trades(tlog) / years
+
 def num_winning_trades(tlog):
     return (tlog['pl_cash'] > 0).sum()
 
@@ -422,6 +427,7 @@ def stats(ts, tlog, dbal, start, end, capital):
 
     # SUMS
     stats['total_num_trades'] = total_num_trades(tlog)
+    stats['trades_per_year'] = trades_per_year(tlog, start, end)
     stats['num_winning_trades'] = num_winning_trades(tlog)
     stats['num_losing_trades'] = num_losing_trades(tlog)
     stats['num_even_trades'] = num_even_trades(tlog)
