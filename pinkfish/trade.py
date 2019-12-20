@@ -196,11 +196,51 @@ class TradeLog(object):
         shares = self.adjust_value(date, price, value)
         return shares
 
-    def get_log(self):
+    def _merge_trades(self, tlog):
+        """ merge like trades that occur on the same day """
+
+        # merge exit trades that occur on the same date
+        def _merge_exits(tlog):
+            # tlog is a DataFrame of group values
+            tlog['entry_date'] = tlog['entry_date'].head(1)
+            tlog['entry_price'] = \
+                (tlog['entry_price'] * tlog['qty']).sum() / tlog['qty'].sum()
+            tlog['exit_price'] = \
+                (tlog['exit_price'] * tlog['qty']).sum() / tlog['qty'].sum()
+            tlog['pl_points'] = tlog['pl_points'].sum()
+            tlog['pl_cash'] = tlog['pl_cash'].sum()
+            tlog['qty'] = tlog['qty'].sum()
+            tlog['cumul_total'] = tlog['cumul_total'].sum()
+            return tlog
+
+        # merge entry trades that occur on the same date
+        def _merge_entrys(tlog):
+            # tlog is a DataFrame of group values
+            tlog['entry_price'] = \
+                (tlog['entry_price'] * tlog['qty']).sum() / tlog['qty'].sum()
+            tlog['exit_date'] = tlog['exit_date'].tail(1)
+            tlog['exit_price'] = \
+                (tlog['exit_price'] * tlog['qty']).sum() / tlog['qty'].sum()
+            tlog['pl_points'] = tlog['pl_points'].sum()
+            tlog['pl_cash'] = tlog['pl_cash'].sum()
+            tlog['qty'] = tlog['qty'].sum()
+            tlog['cumul_total'] = tlog['cumul_total'].sum()
+            return tlog
+
+        tlog = tlog.groupby('entry_date').apply(_merge_entrys).dropna().reset_index(drop=True)
+        tlog = tlog.groupby('exit_date').apply(_merge_exits).dropna().reset_index(drop=True)
+        return tlog
+
+
+    def get_log(self, merge_trades=False):
         """ return Dataframe """
         columns = ['entry_date', 'entry_price', 'exit_date', 'exit_price',
                    'pl_points', 'pl_cash', 'qty', 'cumul_total']
         tlog = pd.DataFrame(self._l, columns=columns)
+
+        if merge_trades:
+            tlog = self._merge_trades(tlog)
+
         return tlog
 
     def get_log_raw(self):
