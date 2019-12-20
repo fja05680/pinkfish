@@ -1,7 +1,7 @@
 pinkfish
 ======
 
-**12-20-2019: Add capability to merge like trades (all buys or all sells) that occur on same day (see double-7s example)**  
+**12-20-2019: Add capability to merge like trades (all buys or all sells) that occur on same day (see scaling-in example)**  
 **12-13-2019: Add calendar columns to a dataframe (see sell-in-may-and-go-away example)**  
 **11-12-2019: Add prettier_graphs (see double-7s example)**  
 **11-01-2019: Add monthly and holding_period tables (see buy-and-hold example)**  
