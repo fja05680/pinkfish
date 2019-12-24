@@ -6,6 +6,7 @@
 - `double-7s-open`: same as double-7s, but sell next open instead of current close
 - `follow-trend`: apply the same trading strategy to multiple securites, one at a time, and compare them
 - `golden-cross`: classic golden-cross/death-cross long term trading strategy
+- `merge-trades`: Compare regular trade log vs merged trade log using Scaling-in algorithm
 - `percent-allocate`: maintain a certain percentage allocation to a security
 - `pinkfish-challenge`: buy on the close on the SAME day a new 20 day high is set
 - `scaling-in`: scale in strategy
