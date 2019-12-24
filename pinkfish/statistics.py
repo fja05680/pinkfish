@@ -103,7 +103,7 @@ def pct_time_in_market(dbal):
 # SUMS
 
 def total_num_trades(tlog):
-    return len(tlog.index)
+    return len(tlog)
 
 def trades_per_year(tlog, start, end):
     diff = relativedelta(end, start)

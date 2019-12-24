@@ -18,6 +18,8 @@ from talib.abstract import *
 # project imports
 import pinkfish as pf
 
+pf.DEBUG = False
+
 class Strategy():
     """ strategy """
 
@@ -53,7 +55,6 @@ class Strategy():
             period_high = self._ts['period_high'][i-1]
             period_low = self._ts['period_low'][i-1]
             end_flag = True if (i == len(self._ts) - 1) else False
-            trade_state = None
             shares = 0
 
             if i == 0 or pd.isnull(sma200) or date < self._start:
@@ -94,20 +95,15 @@ class Strategy():
                 #    print("--------------------STOP-----------------------------")
 
             if shares > 0:
-                trade_state = pf.TradeState.OPEN
-                print("{0} BUY  {1} {2} @ {3:.2f}".format(
-                      date, shares, self._symbol, close))
+                pf.DBG("{0} BUY  {1} {2} @ {3:.2f}".format(
+                       date, shares, self._symbol, close))
             elif shares < 0:
-                trade_state = pf.TradeState.CLOSE
-                print("{0} SELL {1} {2} @ {3:.2f}".format(
-                      date, -shares, self._symbol, close))
-            else:
-                trade_state = pf.TradeState.HOLD
+                pf.DBG("{0} SELL {1} {2} @ {3:.2f}".format(
+                       date, -shares, self._symbol, close))
 
             # record daily balance
             self._dbal.append(date, high, low, close,
-                              self._tlog.shares, self._tlog.cash,
-                              trade_state) 
+                              self._tlog.shares, self._tlog.cash) 
 
     def run(self):
         self._ts = pf.fetch_timeseries(self._symbol)
@@ -131,14 +127,12 @@ class Strategy():
 
     def get_logs(self):
         """ return DataFrames """
-        tlog = self._tlog.get_log()
-        dbal = self._dbal.get_log()
-        return tlog, dbal
+        self.tlog = self._tlog.get_log()
+        self.dbal = self._dbal.get_log(self.tlog)
+        return self.tlog, self.dbal
 
-    def stats(self):
-        tlog, dbal = self.get_logs()
-
-        stats = pf.stats(self._ts, tlog, dbal,
+    def get_stats(self):
+        stats = pf.stats(self._ts, self.tlog, self.dbal,
                          self._start, self._end, self._capital)
         return stats
 

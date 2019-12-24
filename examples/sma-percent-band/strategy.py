@@ -18,6 +18,8 @@ from talib.abstract import *
 # project imports
 import pinkfish as pf
 
+pf.DEBUG = False
+
 class Strategy():
 
     def __init__(self, symbol, capital, start, end, use_adj=False,
@@ -49,7 +51,6 @@ class Strategy():
             upper_band = sma + sma * self._percent_band
             lower_band = sma - sma * self._percent_band
             end_flag = True if (i == len(self._ts) - 1) else False
-            trade_state = None
             shares = 0
 
             if pd.isnull(sma) or date < self._start:
@@ -77,20 +78,15 @@ class Strategy():
                 shares = self._tlog.exit_trade(date, close)
 
             if shares > 0:
-                trade_state = pf.TradeState.OPEN
-                print("{0} BUY  {1} {2} @ {3:.2f}".format(
-                      date, shares, self._symbol, close))
+                pf.DBG("{0} BUY  {1} {2} @ {3:.2f}".format(
+                       date, shares, self._symbol, close))
             elif shares < 0:
-                trade_state = pf.TradeState.CLOSE
-                print("{0} SELL {1} {2} @ {3:.2f}".format(
-                      date, -shares, self._symbol, close))
-            else:
-                trade_state = pf.TradeState.HOLD
+                pf.DBG("{0} SELL {1} {2} @ {3:.2f}".format(
+                       date, -shares, self._symbol, close))
 
             # record daily balance
             self._dbal.append(date, high, low, close,
-                              self._tlog.shares, self._tlog.cash,
-                              trade_state)
+                              self._tlog.shares, self._tlog.cash)
 
     def run(self):
         self._ts = pf.fetch_timeseries(self._symbol)
@@ -108,18 +104,15 @@ class Strategy():
 
     def get_logs(self):
         """ return DataFrames """
-        rlog = self._tlog.get_log_raw()
-        tlog = self._tlog.get_log()
-        dbal = self._dbal.get_log()
-        return rlog, tlog, dbal
+        self.rlog = self._tlog.get_log_raw()
+        self.tlog = self._tlog.get_log()
+        self.dbal = self._dbal.get_log(self.tlog)
+        return self.rlog, self.tlog, self.dbal
 
-    def stats(self):
-        _, tlog, dbal = self.get_logs()
-        
-        stats = pf.stats(self._ts, tlog, dbal,
+    def get_stats(self):
+        stats = pf.stats(self._ts, self.tlog, self.dbal,
                          self._start, self._end, self._capital)
         return stats
-
 
 def summary(strategies, *metrics):
     """ Stores stats summary in a DataFrame.

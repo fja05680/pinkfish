@@ -18,10 +18,12 @@ from talib.abstract import *
 # project imports
 import pinkfish as pf
 
+pf.DEBUG = False
+
 class Strategy():
 
     def __init__(self, symbol, capital, start, end, use_adj=False,
-                 period=7, max_positions=4, sp500_filter=True):
+                 period=7, max_positions=4):
         self._symbol = symbol
         self._capital = capital
         self._start = start
@@ -29,7 +31,6 @@ class Strategy():
         self._use_adj = use_adj
         self._period = period
         self._max_positions = max_positions
-        self._sp500_filter = sp500_filter
         
     def _algo(self):
         """ Algo:
@@ -53,10 +54,7 @@ class Strategy():
             sma200 = row.sma200
             period_high = row.period_high
             period_low = row.period_low
-            sp500_close = row.sp500_close
-            sp500_sma = row.sp500_sma
             end_flag = True if (i == len(self._ts) - 1) else False
-            trade_state = None
             shares = 0
 
             if pd.isnull(sma200) or date < self._start:
@@ -69,7 +67,6 @@ class Strategy():
 
             # buy
             if (self._tlog.num_open_trades() < self._max_positions
-                and (sp500_close > sp500_sma or not self._sp500_filter)
                 and close > sma200
                 and close == period_low
                 and not end_flag):
@@ -86,14 +83,7 @@ class Strategy():
                     # set stop loss
                     stop_loss = 0*close
 
-            # sell
-            
-            #elif (self._tlog.num_open_trades() > 0
-            #      and ((self._sp500_filter and sp500_close < sp500_sma)
-            #            or close == period_high
-            #            or low < stop_loss
-            #            or end_flag)):
-            
+            # sell           
             elif (self._tlog.num_open_trades() > 0
                   and (close == period_high
                        or low < stop_loss
@@ -109,20 +99,15 @@ class Strategy():
                 shares = self._tlog.exit_trade(date, close, shares)
 
             if shares > 0:
-                trade_state = pf.TradeState.OPEN
-                print("{0} BUY  {1} {2} @ {3:.2f}".format(
-                      date, shares, self._symbol, close))
+                pf.DBG("{0} BUY  {1} {2} @ {3:.2f}".format(
+                       date, shares, self._symbol, close))
             elif shares < 0:
-                trade_state = pf.TradeState.CLOSE
-                print("{0} SELL {1} {2} @ {3:.2f}".format(
-                      date, -shares, self._symbol, close))
-            else:
-                trade_state = pf.TradeState.HOLD
+                pf.DBG("{0} SELL {1} {2} @ {3:.2f}".format(
+                       date, -shares, self._symbol, close))
 
             # record daily balance
-            self._dbal.append(date, high, low, close,
-                              self._tlog.shares, self._tlog.cash,
-                              trade_state)
+            self._dbal.append(date, high, low, close, 
+                              self._tlog.shares, self._tlog.cash)
 
     def run(self):
         self._ts = pf.fetch_timeseries(self._symbol)
@@ -141,27 +126,17 @@ class Strategy():
         
         self._tlog = pf.TradeLog()
         self._dbal = pf.DailyBal()
-        
-        # add S&P500 200 sma
-        sp500 = pf.fetch_timeseries('^GSPC')
-        sp500 = pf.select_tradeperiod(sp500, self._start,
-                                      self._end, False)
-        self._ts['sp500_close'] = sp500['close']
-        sp500_sma = SMA(sp500, timeperiod=200)
-        self._ts['sp500_sma'] = sp500_sma
 
         self._algo()
 
     def get_logs(self):
         """ return DataFrames """
-        tlog = self._tlog.get_log()
-        dbal = self._dbal.get_log()
-        return tlog, dbal
+        self.tlog = self._tlog.get_log()
+        self.dbal = self._dbal.get_log(self.tlog)
+        return self.tlog, self.dbal
 
-    def stats(self):
-        tlog, dbal = self.get_logs()
-
-        stats = pf.stats(self._ts, tlog, dbal,
+    def get_stats(self):
+        stats = pf.stats(self._ts, self.tlog, self.dbal,
                          self._start, self._end, self._capital)
         return stats
 
@@ -188,4 +163,3 @@ def plot_bar_graph(df, metric):
     axes = fig.add_subplot(111, ylabel=metric)
     df.plot(kind='bar', ax=axes, legend=False)
     axes.set_xticklabels(df.index, rotation=0)
-

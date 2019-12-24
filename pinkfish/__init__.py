@@ -49,3 +49,10 @@ from .utility import (
     read_config
 )
 
+DEBUG = False
+def DBG(s):
+    if DEBUG: print(s)
+    else:     pass
+
+SP500_BEGIN = '1957-03-04'
+

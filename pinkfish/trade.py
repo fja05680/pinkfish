@@ -13,12 +13,6 @@ from __future__ import absolute_import
 # Other imports
 import pandas as pd
 
-class TradeError(Exception):
-    """ Base trade exception """
-
-class TradeStateError(TradeError):
-    """ The trade state provided does not exist """
-
 class TradeLog(object):
 
     def __init__(self):
@@ -250,7 +244,7 @@ class TradeLog(object):
         return rlog
 
 class TradeState:
-    OPEN, HOLD, CLOSE = range(0, 3)
+    OPEN, HOLD, CLOSE = ['O', '-', 'X']
 
 class DailyBal(object):
     """ Log for daily balance """
@@ -258,30 +252,29 @@ class DailyBal(object):
     def __init__(self):
         self._l = []  # list of daily balance tuples
 
-    def _balance(self, date, high, low, close, shares, cash, state):
-        """ calculates daily balance values """
-        if state not in list(vars(TradeState).values()) or state is None:
-            raise TradeStateError
-
-        if state == TradeState.OPEN:
-            # date, high, low, close, cash, state
-            t = (date, close*shares + cash, close*shares + cash,
-                 close*shares + cash, shares, cash, state)
-        elif state == TradeState.HOLD:
-            t = (date, high*shares + cash, low*shares + cash,
-                 close*shares + cash, shares, cash, state)
-        elif state == TradeState.CLOSE:
-            t = (date, high*shares + cash, low*shares + cash,
-                 close*shares + cash, shares, cash, state)
-        return t
-
-    def append(self, date, high, low, close, shares, cash, state):
-        t = self._balance(date, high, low, close, shares, cash, state)
+    def append(self, date, high, low, close, shares, cash):
+        # calculate daily balance values: date, high, low, close, shares, cash
+        t = (date, high*shares + cash, low*shares + cash,
+                   close*shares + cash, shares, cash)
         self._l.append(t)
 
-    def get_log(self):
+    def get_log(self, tlog):
         """ return Dataframe """
-        columns = ['date', 'high', 'low', 'close', 'shares', 'cash', 'state']
+        columns = ['date', 'high', 'low', 'close', 'shares', 'cash']
         dbal = pd.DataFrame(self._l, columns=columns)
+
+        def trade_state(row):
+            # convert pandas.timestamp to numpy.datetime64
+            # see if there was a entry or exit in tlog on date
+            date = row.date.to_datetime64()
+            if date in tlog.entry_date.values:
+                state = TradeState.OPEN
+            elif date in tlog.exit_date.values:
+                state = TradeState.CLOSE
+            else:
+                state = TradeState.HOLD
+            return state
+
+        dbal['state'] = dbal.apply(trade_state, axis=1)
         dbal.set_index('date', inplace=True)
         return dbal
