@@ -131,8 +131,6 @@ def holding_period_map(returns):
     """
 
     year = em.aggregate_returns(returns.pct_change(), 'yearly')
-    returns = pd.DataFrame(columns=range(1, len(year)+1), index=year.index)
-
     year_start = 0
 
     table = "<table class='table table-hover table-condensed table-striped'>"
@@ -147,7 +145,7 @@ def holding_period_map(returns):
 
         for years_held in (range(1, len(year)+1)): # Iterates years held
             if years_held <= len(year[year_start:year_start + years_held]):
-                ret = em.annual_return(year[year_start:year_start + years_held], 'yearly' )
+                ret = em.annual_return(year[year_start:year_start + years_held], 'yearly')
                 table += "<td>{:.0f}</td>".format(ret * 100)
         table += "</tr>"
         year_start+=1
