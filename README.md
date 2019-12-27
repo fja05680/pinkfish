@@ -1,8 +1,8 @@
 pinkfish
 ======
 
-**12-27-2019: Integration with Quantopian's pyfolio and empyrical libraries (see pyfolio-empyrical example)**
-**12-24-2019: Use trade_log to create trade_state column in daily_balance.  No longer need to manually set trade_state**
+**12-27-2019: Integration with Quantopian's pyfolio and empyrical libraries (see pyfolio-empyrical example)**  
+**12-24-2019: Use trade_log to create trade_state column in daily_balance.  No longer need to manually set trade_state**  
 **12-20-2019: Add capability to merge like trades (all buys or all sells) that occur on same day (see merge-trades example)**  
 **12-13-2019: Add calendar columns to a dataframe (see sell-in-may-and-go-away example)**  
 **11-12-2019: Add prettier_graphs (see double-7s example)**  
