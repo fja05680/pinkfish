@@ -9,6 +9,7 @@
 - `merge-trades`: Compare regular trade log vs merged trade log using Scaling-in algorithm
 - `percent-allocate`: maintain a certain percentage allocation to a security
 - `pinkfish-challenge`: buy on the close on the SAME day a new 20 day high is set
+- `pyfolio-empyrical`: demonstrates integration with quantopian's pyfolio and empyrical libraries
 - `scaling-in`: scale in strategy
 - `scaling-in-out`: scale in and out strategy
 - `scaling-out`: scale out strategy
