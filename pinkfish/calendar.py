@@ -24,8 +24,12 @@ from __future__ import absolute_import
 
 # other imports
 import pandas as pd
-from itertools import izip
+try:
+    from itertools import izip
+except ImportError:  # will be 3.x series
+    izip = zip
 import pinkfish as pf
+
 
 def _first_day(row):
     first_dotw = row['dotw'] < row['__prev_dotw__']
