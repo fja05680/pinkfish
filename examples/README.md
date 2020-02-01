@@ -7,6 +7,7 @@
 - `follow-trend`: apply the same trading strategy to multiple securites, one at a time, and compare them
 - `golden-cross`: classic golden-cross/death-cross long term trading strategy
 - `merge-trades`: Compare regular trade log vs merged trade log using Scaling-in algorithm
+- `momentum`: A stock that's going up tends to keep going up...until it doesn't
 - `percent-allocate`: maintain a certain percentage allocation to a security
 - `pinkfish-challenge`: buy on the close on the SAME day a new 20 day high is set
 - `pyfolio-empyrical`: demonstrates integration with quantopian's pyfolio and empyrical libraries
@@ -17,3 +18,4 @@
 - `sma-percent-band`: trading strategy using price vs long term sma; percent band around sma used for hysteresis
 - `spreadsheet`: make a read only spreadsheet within jupyter notebook
 - `ta-lib-tutorial`: a tutorial on using the ta-lib technical analysis library
+- `trade-two-symbols`: same as golden-cross example, except hold GLD when not in SPY; demonstrates trading 2 symbols
