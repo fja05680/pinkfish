@@ -1,6 +1,7 @@
 pinkfish
 ======
 
+**01-31-2020: Add basic multi symbol support (see trade-two-symbols example)**
 **12-27-2019: Integration with Quantopian's pyfolio and empyrical libraries (see pyfolio-empyrical example)**  
 **12-24-2019: Use trade_log to create trade_state column in daily_balance.  No longer need to manually set trade_state**  
 **12-20-2019: Add capability to merge like trades (all buys or all sells) that occur on same day (see merge-trades example)**  
