@@ -30,7 +30,7 @@ class TradeLog(object):
         shares = int(cash / price)
         return shares
 
-    def enter_trade(self, entry_date, entry_price, shares=None):
+    def enter_trade(self, entry_date, entry_price, shares=None, symbol=''):
         """ add entry to open_trades list; update shares and cash """
         if shares == 0:
             return 0
@@ -40,11 +40,12 @@ class TradeLog(object):
 
         # date, price, shares, entry_exit
         # record in raw trade log
-        t = (entry_date, entry_price, shares, 'entry')
+        t = (entry_date, entry_price, shares, 'entry', symbol)
         self._raw.append(t)
 
         # add record to open_trades
-        d = {'entry_date':entry_date, 'entry_price':entry_price, 'qty':shares}
+        d = {'entry_date':entry_date, 'entry_price':entry_price, 'qty':shares,
+             'symbol':symbol}
         self._open_trades.append(d)
 
         # update shares and cash
@@ -75,18 +76,18 @@ class TradeLog(object):
         """ return number of shares """
         return self._shares
 
-    #@property
+    @property
     def value(self, price):
-        """ return percent of portfolio value currently allocated """
+        """ return total value of shares """
         return self._shares * price
 
-    #@property
+    @property
     def percent(self, price):
         """ return percent of portfolio value currently allocated """
         total_equity = self._cash + self._shares * price
         return ((self._shares * price) / total_equity) * 100
 
-    def exit_trade(self, exit_date, exit_price, shares=None):
+    def exit_trade(self, exit_date, exit_price, shares=None, symbol=''):
         """
         record exit in trade log; return -shares exited
         shares = None exits all shares
@@ -109,7 +110,7 @@ class TradeLog(object):
 
         # record in raw trade log
         # date, price, shares, entry_exit
-        t = (exit_date, exit_price, shares, 'exit')
+        t = (exit_date, exit_price, shares, 'exit', symbol)
         self._raw.append(t)
 
         for i, open_trade in enumerate(self._open_trades[:]):
@@ -125,15 +126,15 @@ class TradeLog(object):
 
             # record in trade log
             t = (entry_date, entry_price, exit_date, exit_price,
-                 pl_points, pl_cash, exit_shares, self._cumul_total)
+                 pl_points, pl_cash, exit_shares, self._cumul_total, symbol)
             self._l.append(t)
 
             # update shares and cash
             self._shares -= exit_shares
             self._cash += exit_price * exit_shares
 
-            #print('i = {}, shares = {}, exit_shares = {}, qty = {}'
-            #      .format(i, shares, exit_shares, qty))
+            #print('i = {}, shares = {}, exit_shares = {}, qty = {}, symbol = {}'
+            #      .format(i, shares, exit_shares, qty, symbol))
 
             # update open_trades list
             if shares == qty:
@@ -229,7 +230,7 @@ class TradeLog(object):
     def get_log(self, merge_trades=False):
         """ return Dataframe """
         columns = ['entry_date', 'entry_price', 'exit_date', 'exit_price',
-                   'pl_points', 'pl_cash', 'qty', 'cumul_total']
+                   'pl_points', 'pl_cash', 'qty', 'cumul_total', 'symbol']
         tlog = pd.DataFrame(self._l, columns=columns)
 
         if merge_trades:
@@ -239,7 +240,7 @@ class TradeLog(object):
 
     def get_log_raw(self):
         """ return Dataframe """
-        columns = ['date', 'price', 'shares', 'entry_exit']
+        columns = ['date', 'price', 'shares', 'entry_exit', 'symbol']
         rlog = pd.DataFrame(self._raw, columns=columns)
         return rlog
 
