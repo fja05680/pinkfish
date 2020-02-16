@@ -1,7 +1,8 @@
 from .fetch import (
     fetch_timeseries,
     select_tradeperiod,
-    clear_timeseries
+    remove_cache_symbols,
+    update_cache_symbols
 )
 
 from .trade import (

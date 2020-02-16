@@ -14,6 +14,7 @@ from __future__ import absolute_import
 import sys
 import pandas as pd
 import pandas_datareader.data as pdr
+from pandas_datareader._utils import RemoteDataError
 import datetime
 import os
 import pinkfish as pf
@@ -51,6 +52,8 @@ def fetch_timeseries(symbol, dir_name='data', use_cache=True, from_year=None):
     if from_year is None:
         from_year = 1900 if not sys.platform.startswith('win') else 1971
 
+    # yahoo finance uses '-' where '.' is used in symbol names
+    symbol = symbol.replace('.', '-')
     symbol = symbol.upper()
     timeseries_cache = os.path.join(_get_cache_dir(dir_name), symbol + '.csv')
 
@@ -63,26 +66,6 @@ def fetch_timeseries(symbol, dir_name='data', use_cache=True, from_year=None):
     ts = pd.read_csv(timeseries_cache, index_col='Date', parse_dates=True)
     ts = _adj_column_names(ts)
     return ts
-
-def clear_timeseries(symbols=None, dir_name='data'):
-    """
-    Remove cached timeseries for list of symbols.
-    If symbols is None, remove all timeseries.
-    """
-    cache_dir = _get_cache_dir(dir_name)
-
-    if symbols:
-        # in case user forgot to put single symbol in list
-        if not isinstance(symbols, list):
-            symbols = [symbols]
-        filenames = [symbol.upper() + '.csv' for symbol in symbols]
-    else:
-        filenames = [f for f in os.listdir(cache_dir) if f.endswith('.csv')]
-
-    for f in filenames:
-        filepath = os.path.join(cache_dir, f)
-        if os.path.exists(filepath):
-            os.remove(filepath)
 
 def _adj_prices(ts):
     """ Back adjust prices relative to adj_close for dividends and splits """
@@ -109,3 +92,70 @@ def select_tradeperiod(ts, start, end, use_adj=False, pad=True):
         ts = ts[start:end]
 
     return ts
+
+def remove_cache_symbols(symbols=None, dir_name='data'):
+    """
+    Remove cached timeseries for list of symbols.
+    If symbols is None, remove all timeseries.
+    Filter out any symbols prefixed with '__'
+    """
+    cache_dir = _get_cache_dir(dir_name)
+
+    if symbols:
+        # in case user forgot to put single symbol in list
+        if not isinstance(symbols, list):
+            symbols = [symbols]
+        filenames = [symbol.upper() + '.csv' for symbol in symbols]
+    else:
+        filenames = [f for f in os.listdir(cache_dir) if f.endswith('.csv')]
+
+    # filter out any filename prefixed with '__'
+    filenames = [f for f in filenames if not f.startswith('__')]
+
+    print('removing symbols:')
+    for i, f in enumerate(filenames):
+        symbol = os.path.splitext(f)[0]
+        print(symbol + ' ', end='')
+        if i % 10 == 0 and i != 0: print()
+
+        filepath = os.path.join(cache_dir, f)
+        if os.path.exists(filepath):
+            os.remove(filepath)
+        else:
+            print('\n({} not found)'.format(f))
+    print()
+
+def update_cache_symbols(symbols=None, dir_name='data', from_year=None):
+    """
+    Update cached timeseries for list of symbols.
+    If symbols is None, update all timeseries.
+    Filter out any filename prefixed with '__'
+    """
+    cache_dir = _get_cache_dir(dir_name)
+
+    if symbols:
+        # in case user forgot to put single symbol in list
+        if not isinstance(symbols, list):
+            symbols = [symbols]
+    else:
+        filenames = ([f for f in os.listdir(cache_dir)
+                     if f.endswith('.csv') and not f.startswith('__')])
+        symbols = [os.path.splitext(filename)[0] for filename in filenames]
+
+    # make symbol names uppercase
+    symbols = [symbol.upper() for symbol in symbols]
+
+    print('updating symbols:')
+    for i, symbol in enumerate(symbols):
+        print(symbol + ' ', end='')
+        if i % 10 == 0 and i != 0: print()
+
+        try:
+            fetch_timeseries(symbol, dir_name=dir_name, use_cache=False,
+                             from_year=from_year)
+        except RemoteDataError as e:
+            print('\n({})'.format(e))
+        except Exception as e:
+            print('\n({})'.format(e))
+    print()
+
