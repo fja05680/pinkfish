@@ -1,9 +1,8 @@
 pinkfish
 ======
 
-sp500-components-timeseries
-**02-16-2020: Download latest time series for every S&P 500 component (see sp500-components-timeseries example)** 
-**02-16-2020: Update your entire ticker symbol cache to latest time series (see update-cache-symbols example)** 
+**02-16-2020: Download latest time series for every S&P 500 component (see sp500-components-timeseries example)**   
+**02-16-2020: Update your entire ticker symbol cache to latest time series (see update-cache-symbols example)**   
 **01-31-2020: Add basic multi symbol support (see trade-two-symbols example)**  
 **12-27-2019: Integration with Quantopian's pyfolio and empyrical libraries (see pyfolio-empyrical example)**  
 **12-24-2019: Use trade_log to create trade_state column in daily_balance.  No longer need to manually set trade_state**  
