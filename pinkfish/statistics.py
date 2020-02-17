@@ -380,7 +380,7 @@ def sortino_ratio(rets, risk_free=0.00, period=TRADING_DAYS_PER_YEAR):
 #####################################################################
 # STATS - this is the primary call used to generate the results
 
-def stats(ts, tlog, dbal, start, end, capital):
+def stats(ts, tlog, dbal, capital):
     """
     Compute trading stats
     Parameters
@@ -393,10 +393,6 @@ def stats(ts, tlog, dbal, start, end, capital):
         exit_date, exit_price, pl_points, pl_cash, cumul_total)
     dbal : Dataframe
         Daily Balance (date, high, low, close)
-    start : datetime
-        date of first buy
-    end : datetime
-        date of last sell
     capital : float
         starting capital
 
@@ -407,6 +403,9 @@ def stats(ts, tlog, dbal, start, end, capital):
     -------
     stats : Series of stats
     """
+
+    start = ts.index[0]
+    end = ts.index[-1]
 
     stats = pd.Series()
 

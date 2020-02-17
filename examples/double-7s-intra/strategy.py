@@ -39,8 +39,6 @@ class Strategy():
         """
 
         self._tlog.cash = self._capital
-        start_flag = True
-        end_flag = False
         stop_loss = 0
 
         for i, row in enumerate(self._ts.itertuples()):
@@ -56,14 +54,6 @@ class Strategy():
             period_low = self._ts['period_low'][i-1]
             end_flag = True if (i == len(self._ts) - 1) else False
             shares = 0
-
-            if i == 0 or pd.isnull(sma200) or date < self._start:
-                continue
-            elif start_flag:
-                start_flag = False
-                # set start and end
-                self._start = date
-                self._end = self._ts.index[-1]
 
             # buy
             if (self._tlog.num_open_trades() == 0
@@ -119,6 +109,8 @@ class Strategy():
         period_low = pd.Series(self._ts.high).rolling(self._period).min()
         self._ts['period_high'] = period_high
         self._ts['period_low'] = period_low
+        
+        self._ts, self._start = pf.finalize_timeseries(self._ts, self._start)
 
         self._tlog = pf.TradeLog()
         self._dbal = pf.DailyBal()
@@ -132,8 +124,7 @@ class Strategy():
         return self.tlog, self.dbal
 
     def get_stats(self):
-        stats = pf.stats(self._ts, self.tlog, self.dbal,
-                         self._start, self._end, self._capital)
+        stats = pf.stats(self._ts, self.tlog, self.dbal, self._capital)
         return stats
 
 def summary(strategies, *metrics):

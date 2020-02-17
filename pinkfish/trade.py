@@ -76,12 +76,10 @@ class TradeLog(object):
         """ return number of shares """
         return self._shares
 
-    @property
     def value(self, price):
         """ return total value of shares """
         return self._shares * price
 
-    @property
     def percent(self, price):
         """ return percent of portfolio value currently allocated """
         total_equity = self._cash + self._shares * price

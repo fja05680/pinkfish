@@ -42,8 +42,6 @@ class Strategy():
             4. The stock closes below its lower band, sell your long position.
         """
         self._tlog.cash = self._capital
-        start_flag = True
-        end_flag = False
 
         for i, row in enumerate(self._ts.itertuples()):
 
@@ -57,14 +55,6 @@ class Strategy():
             regime = row.regime
             end_flag = True if (i == len(self._ts) - 1) else False
             shares = 0
-
-            if pd.isnull(sma) or pd.isnull(regime) or date < self._start:
-                continue
-            elif start_flag:
-                start_flag = False
-                # set start and end
-                self._start = date
-                self._end = self._ts.index[-1]
 
             # buy
             if (self._tlog.num_open_trades() == 0
@@ -102,15 +92,17 @@ class Strategy():
         # Add technical indicator:  day sma
         sma = SMA(self._ts, timeperiod=self._sma_period)
         self._ts['sma'] = sma          
-
-        self._tlog = pf.TradeLog()
-        self._dbal = pf.DailyBal()
         
         # add S&P500 200 sma regime filter
         ts = pf.fetch_timeseries('^GSPC')
         ts = pf.select_tradeperiod(ts, self._start, self._end, False) 
         self._ts['regime'] = \
             pf.CROSSOVER(ts, timeperiod_fast=1, timeperiod_slow=200)
+        
+        self._ts, self._start = pf.finalize_timeseries(self._ts, self._start)
+        
+        self._tlog = pf.TradeLog()
+        self._dbal = pf.DailyBal()
 
         self._algo()
 
@@ -122,8 +114,7 @@ class Strategy():
         return self.rlog, self.tlog, self.dbal
 
     def get_stats(self):
-        stats = pf.stats(self._ts, self.tlog, self.dbal,
-                         self._start, self._end, self._capital)
+        stats = pf.stats(self._ts, self.tlog, self.dbal, self._capital)
         return stats
 
 

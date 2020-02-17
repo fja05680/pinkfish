@@ -39,7 +39,6 @@ class Strategy():
         """
         self._tlog.cash = self._capital
         start_flag = True
-        end_flag = False
         stop_loss = 0
         periods = range(TRADING_DAYS_PER_MONTH*3, TRADING_DAYS_PER_MONTH*13, TRADING_DAYS_PER_MONTH)
 
@@ -52,13 +51,12 @@ class Strategy():
             end_flag = True if (i == len(self._ts) - 1) else False
             shares = 0
 
-            if i < TRADING_DAYS_PER_YEAR*2 or date < self._start:
+            if i < TRADING_DAYS_PER_YEAR*2:
                 continue
             elif start_flag:
                 start_flag = False
-                # set start and end
+                # set start
                 self._start = date
-                self._end = self._ts.index[-1]
                 
             if self._tlog.num_open_trades() == 0:
                 # if period is None, then select a random trading period of
@@ -107,6 +105,8 @@ class Strategy():
         # add calendar columns
         self._ts = pf.calendar(self._ts)
         
+        self._ts, self._start = pf.finalize_timeseries(self._ts, self._start)
+        
         self._tlog = pf.TradeLog()
         self._dbal = pf.DailyBal()
 
@@ -119,8 +119,7 @@ class Strategy():
         return self.tlog, self.dbal
 
     def get_stats(self):
-        stats = pf.stats(self._ts, self.tlog, self.dbal,
-                         self._start, self._end, self._capital)
+        stats = pf.stats(self._ts, self.tlog, self.dbal, self._capital)
         return stats
 
 def summary(strategies, *metrics):

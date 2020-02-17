@@ -93,6 +93,15 @@ def select_tradeperiod(ts, start, end, use_adj=False, pad=True):
 
     return ts
 
+def finalize_timeseries(ts, start):
+    """ Drop all rows that have nan column values
+        Set timeseries to begin at start
+    """
+    ts = ts.dropna()
+    ts = ts[start:]
+    start = ts.index[0]
+    return ts, start
+
 def remove_cache_symbols(symbols=None, dir_name='data'):
     """
     Remove cached timeseries for list of symbols.

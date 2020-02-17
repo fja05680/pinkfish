@@ -42,8 +42,6 @@ class Strategy():
             4. If you have free cash, use it all when fresh lows are set.
         """
         self._tlog.cash = self._capital
-        start_flag = True
-        end_flag = False
         stop_loss = 0
 
         for i, row in enumerate(self._ts.itertuples()):
@@ -56,16 +54,7 @@ class Strategy():
             period_high = row.period_high
             period_low = row.period_low
             end_flag = True if (i == len(self._ts) - 1) else False
-            trade_state = None
             shares = 0
-
-            if pd.isnull(sma200) or date < self._start:
-                continue
-            elif start_flag:
-                start_flag = False
-                # set start and end
-                self._start = date
-                self._end = self._ts.index[-1]
 
             # buy
             if (close > sma200
@@ -126,6 +115,8 @@ class Strategy():
         self._ts['period_high'] = period_high
         self._ts['period_low'] = period_low
         
+        self._ts, self._start = pf.finalize_timeseries(self._ts, self._start)
+        
         self._tlog = pf.TradeLog()
         self._dbal = pf.DailyBal()
 
@@ -138,8 +129,7 @@ class Strategy():
         return self.tlog, self.dbal
 
     def get_stats(self):
-        stats = pf.stats(self._ts, self.tlog, self.dbal,
-                         self._start, self._end, self._capital)
+        stats = pf.stats(self._ts, self.tlog, self.dbal, self._capital)
         return stats
 
 def summary(strategies, *metrics):

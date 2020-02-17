@@ -22,22 +22,21 @@ pf.DEBUG = False
 
 class Strategy():
 
-    def __init__(self, symbol, capital, start, end, period):
+    def __init__(self, symbol, capital, start, end, period, sma):
         self._symbol = symbol
         self._capital = capital
         self._start = start
         self._end = end
         self._period = period
+        self._sma = sma
         
     def _algo(self):
         """ Algo:
-            1. The SPY is above its 200-day moving average
+            1. The SPY is above its 200-day moving average or SPY is above its 50-day ma
             2. The SPY closes at a X-day low, buy.
             3. If the SPY closes at a X-day high, sell your long position.
         """
         self._tlog.cash = self._capital
-        start_flag = True
-        end_flag = False
         stop_loss = 0
 
         for i, row in enumerate(self._ts.itertuples()):
@@ -47,22 +46,18 @@ class Strategy():
             low = row.low
             close = row.close
             sma200 = row.sma200
+            sma = row.sma
             period_high = row.period_high
             period_low = row.period_low
             end_flag = True if (i == len(self._ts) - 1) else False
             shares = 0
 
-            if pd.isnull(sma200) or date < self._start:
-                continue
-            elif start_flag:
-                start_flag = False
-                # set start and end
-                self._start = date
-                self._end = self._ts.index[-1]
+            lookback = self._ts['close'][i-147]
 
             # buy
             if (self._tlog.num_open_trades() == 0
-                and close > sma200
+                and (close > sma200 or close > sma)
+                #and close > lookback
                 and close == period_low
                 and not end_flag):
 
@@ -91,17 +86,23 @@ class Strategy():
     def run(self):
         self._ts = pf.fetch_timeseries(self._symbol)
         self._ts = pf.select_tradeperiod(self._ts, self._start,
-                                         self._end, use_adj=False)
+                                         self._end, use_adj=True)
 
         # Add technical indicator: 200 day sma
         sma200 = SMA(self._ts, timeperiod=200)
         self._ts['sma200'] = sma200
+
+        # Add technical indicator: X day sma
+        sma = SMA(self._ts, timeperiod=self._sma)
+        self._ts['sma'] = sma
 
         # Add technical indicator: X day high, and X day low
         period_high = pd.Series(self._ts.close).rolling(self._period).max()
         period_low = pd.Series(self._ts.close).rolling(self._period).min()
         self._ts['period_high'] = period_high
         self._ts['period_low'] = period_low
+        
+        self._ts, self._start = pf.finalize_timeseries(self._ts, self._start)
         
         self._tlog = pf.TradeLog()
         self._dbal = pf.DailyBal()
@@ -115,8 +116,7 @@ class Strategy():
         return self.tlog, self.dbal
 
     def get_stats(self):
-        stats = pf.stats(self._ts, self.tlog, self.dbal,
-                         self._start, self._end, self._capital)
+        stats = pf.stats(self._ts, self.tlog, self.dbal, self._capital)
         return stats
 
 def summary(strategies, *metrics):

@@ -38,8 +38,6 @@ class Strategy():
             2. If the SPY closes below its lower band, sell your long position.
         """
         self._tlog.cash = self._capital
-        start_flag = True
-        end_flag = False
 
         for i, row in enumerate(self._ts.itertuples()):
 
@@ -48,22 +46,17 @@ class Strategy():
             low = row.low
             close = row.close
             sma = row.sma
+            sma200 = row.sma200
             upper_band = sma + sma * self._percent_band
             lower_band = sma - sma * self._percent_band
+            upper_band200 = sma200 + sma200 * self._percent_band
+            lower_band200 = sma200 - sma200 * self._percent_band
             end_flag = True if (i == len(self._ts) - 1) else False
             shares = 0
 
-            if pd.isnull(sma) or date < self._start:
-                continue
-            elif start_flag:
-                start_flag = False
-                # set start and end
-                self._start = date
-                self._end = self._ts.index[-1]
-
             # buy
             if (self._tlog.num_open_trades() == 0
-                and close > upper_band
+                and ((close < upper_band200 and close > upper_band) or (close > upper_band200))
                 and not end_flag):
 
                 # enter buy in trade log
@@ -71,8 +64,8 @@ class Strategy():
 
             # sell
             elif (self._tlog.num_open_trades() > 0
-                  and (close < lower_band
-                       or end_flag)):
+                  and (close < lower_band200 and close < lower_band)
+                  or end_flag):
 
                 # enter sell in trade log
                 shares = self._tlog.exit_trade(date, close)
@@ -95,7 +88,13 @@ class Strategy():
 
         # Add technical indicator:  day sma
         sma = SMA(self._ts, timeperiod=self._sma_period)
-        self._ts['sma'] = sma          
+        self._ts['sma'] = sma
+        
+        # Add technical indicator:  day sma
+        sma200 = SMA(self._ts, timeperiod=200)
+        self._ts['sma200'] = sma200
+        
+        self._ts, self._start = pf.finalize_timeseries(self._ts, self._start)
 
         self._tlog = pf.TradeLog()
         self._dbal = pf.DailyBal()
@@ -110,8 +109,7 @@ class Strategy():
         return self.rlog, self.tlog, self.dbal
 
     def get_stats(self):
-        stats = pf.stats(self._ts, self.tlog, self.dbal,
-                         self._start, self._end, self._capital)
+        stats = pf.stats(self._ts, self.tlog, self.dbal, self._capital)
         return stats
 
 def summary(strategies, *metrics):
