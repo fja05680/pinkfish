@@ -1,7 +1,7 @@
 pinkfish
 ======
 
-**04-25-2020: Update for xubuntu 20.04; minor fixes for latest libraries; test everything against Python3.8 **
+**04-25-2020: Update for xubuntu 20.04; minor fixes for latest libraries; test everything against Python3.8 **  
 **02-16-2020: Download latest time series for every S&P 500 component (see sp500-components-timeseries example)**   
 **02-16-2020: Update your entire ticker symbol cache to latest time series (see update-cache-symbols example)**   
 **01-31-2020: Add basic multi symbol support (see trade-two-symbols example)**  
