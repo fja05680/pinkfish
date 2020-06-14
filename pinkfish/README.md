@@ -5,6 +5,7 @@
 - `indicator.py`: custom indicators
 - `__init__.py`: create pinkfish package
 - `plot.py`: functions for plotting
+- `portfolio.py`: perform backtesting of a portfolio of securities
 - `statistics.py`: calculate trading statistics
 - `trade.py`: assist with trading
 - `utility.py`: utilities
