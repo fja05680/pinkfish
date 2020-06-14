@@ -16,18 +16,8 @@ last_doty: last trading day of the year
 
 """
 
-# Use future imports for python 3.0 forward compatibility
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
-from __future__ import absolute_import
-
 # other imports
 import pandas as pd
-try:
-    from itertools import izip
-except ImportError:  # will be 3.x series
-    izip = zip
 import pinkfish as pf
 
 
@@ -66,7 +56,7 @@ def calendar(ts):
 
     # First and last day of the week, month, and year
     ts['first_dotw'], ts['first_dotm'], ts['first_doty'] = \
-        izip(*ts.apply(_first_day, axis=1))
+        zip(*ts.apply(_first_day, axis=1))
 
     ts['last_dotw'] = ts['first_dotw'].shift(-1)
     ts['last_dotw'].fillna(False, inplace=True)

@@ -101,7 +101,7 @@ class TestFetch(unittest.TestCase):
             columns = list(prices.keys())
         )
         ts = pf.fetch._adj_prices(ts)
-    
+
         open_ts = round(ts["open"].values[0], 4)
         open_ex = round(prices["open"] * prices["adj_close"] / prices["close"], 4)
         self.assertEqual(open_ts, open_ex)
@@ -109,7 +109,7 @@ class TestFetch(unittest.TestCase):
         high_ts = round(ts["high"].values[0], 4)
         high_ex = round(prices["high"] * prices["adj_close"] / prices["close"], 4)
         self.assertEqual(high_ts, high_ex)
-    
+
         low_ts = round(ts["low"].values[0], 4)
         low_ex = round(prices["low"] * prices["adj_close"] / prices["close"], 4)
         self.assertEqual(low_ts, low_ex)

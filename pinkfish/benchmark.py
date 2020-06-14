@@ -4,14 +4,9 @@ benchmark
 Benchmark for comparision to strategies
 """
 
-# Use future imports for python 3.0 forward compatibility
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
-from __future__ import absolute_import
-
 # Other imports
 import pinkfish as pf
+
 
 class Benchmark(object):
 
@@ -23,15 +18,13 @@ class Benchmark(object):
         self._use_adj = use_adj
 
     def _algo(self):
-        self._tlog.cash = self._capital
+        pf.TradeLog.initialize(self._capital)
 
         for i, row in enumerate(self._ts.itertuples()):
 
             date = row.Index.to_pydatetime()
-            high = row.high
-            low = row.low
-            close = row.close
-            end_flag = True if (i == len(self._ts) - 1) else False
+            high = row.high; low = row.low; close = row.close 
+            end_flag = pf.is_last_row(self._ts, i)
 
             # buy
             if self._tlog.num_open_trades() == 0:
@@ -50,8 +43,7 @@ class Benchmark(object):
                       date, -shares, self._symbol, close))
 
             # record daily balance
-            self._dbal.append(date, high, low, close,
-                              self._tlog.shares, self._tlog.cash)
+            self._dbal.append(date, high, low, close, self._tlog.shares)
 
     def run(self):
         self._ts = pf.fetch_timeseries(self._symbol)

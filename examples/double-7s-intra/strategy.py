@@ -3,12 +3,6 @@ stategy
 ---------
 """
 
-# use future imports for python 3.x forward compatibility
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
-from __future__ import absolute_import
-
 # other imports
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -19,6 +13,7 @@ from talib.abstract import *
 import pinkfish as pf
 
 pf.DEBUG = False
+
 
 class Strategy():
     """ strategy """
@@ -37,22 +32,18 @@ class Strategy():
             2. The SPY makes an intraday X-day low, buy.
             3. If the SPY makes an intraday X-day high, sell your long position.
         """
-
-        self._tlog.cash = self._capital
+        self._tlog.initialize(self._capital)
         stop_loss = 0
 
         for i, row in enumerate(self._ts.itertuples()):
 
             date = row.Index.to_pydatetime()
-            high = row.high
-            low = row.low
-            close = row.close
-            open_ = row.open
+            high = row.high; low = row.low; close = row.close; 
+            end_flag = pf.is_last_row(self._ts, i)
             prev_close = self._ts['close'][i-1]
             sma200 = self._ts['sma200'][i-1]
             period_high = self._ts['period_high'][i-1]
             period_low = self._ts['period_low'][i-1]
-            end_flag = True if (i == len(self._ts) - 1) else False
             shares = 0
 
             # buy
@@ -62,7 +53,7 @@ class Strategy():
                 and not end_flag):
 
                 # adjust price if opened less than period_low
-                price = open_ if open_ <= period_low else period_low    
+                price = row.open if row.open <= period_low else period_low    
                 # enter buy in trade log
                 shares = self._tlog.enter_trade(date, price)
                 # set stop loss
@@ -73,7 +64,7 @@ class Strategy():
 
                 # adjust price if opened greater than period_high; stop_loss; close
                 if high >= period_high:
-                    price = open_ if open_ >= period_high else period_high
+                    price = row.open if row.open >= period_high else period_high
                 elif low < stop_loss:
                     price = stop_loss
                 else:
@@ -92,8 +83,7 @@ class Strategy():
                        date, -shares, self._symbol, close))
 
             # record daily balance
-            self._dbal.append(date, high, low, close,
-                              self._tlog.shares, self._tlog.cash) 
+            self._dbal.append(date, high, low, close, self._tlog.shares) 
 
     def run(self):
         self._ts = pf.fetch_timeseries(self._symbol)

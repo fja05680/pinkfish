@@ -1,17 +1,11 @@
 pinkfish
 ======
 
+**06-13-2020: Add Portfolio cabability, i.e. multiple stocks at the same time (see portfolio example)**
+**06-13-2020: Support ended for Python2.7.  Now Pinkfish is Python3 only**
 **02-16-2020: Download latest time series for every S&P 500 component (see sp500-components-timeseries example)**   
 **02-16-2020: Update your entire ticker symbol cache to latest time series (see update-cache-symbols example)**   
 **01-31-2020: Add basic multi symbol support (see trade-two-symbols example)**  
-**12-27-2019: Integration with Quantopian's pyfolio and empyrical libraries (see pyfolio-empyrical example)**  
-**12-24-2019: Use trade_log to create trade_state column in daily_balance.  No longer need to manually set trade_state**  
-**12-20-2019: Add capability to merge like trades (all buys or all sells) that occur on same day (see merge-trades example)**  
-**12-13-2019: Add calendar columns to a dataframe (see sell-in-may-and-go-away example)**  
-**11-12-2019: Add prettier_graphs (see double-7s example)**  
-**11-01-2019: Add monthly and holding_period tables (see buy-and-hold example)**  
-**10-18-2019: Add capability to maintain a certain value, shares, or percent in a security (see percent-allocate example)**  
-**07-31-2019: First major update since original release - Add scale-in and scale-out capability**
 
 A backtester and spreadsheet library for security analysis.
 

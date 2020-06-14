@@ -4,29 +4,59 @@ trade
 Assist with trading
 """
 
-# Use future imports for python 3.0 forward compatibility
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
-from __future__ import absolute_import
-
 # Other imports
 import pandas as pd
 
+
 class TradeLog(object):
+
+    _cash = 0                    # current cash
+    _cumul_total = 0             # cumul total profits (loss)
+    _share_dict = {}
 
     def __init__(self):
         self._l = []             # list of trade entry/exit tuples
         self._raw = []           # list raw trade tuples
         self._open_trades = []   # list of open trades
-        self._cash = 10000       # current cash
         self._shares = 0         # current shares
-        self._cumul_total = 0    # cumul total profits (loss)
+
+    @classmethod
+    def initialize(cls, cash):
+        cls._cash = cash
+        cls._cumul_total = 0
+        cls._share_dict.clear()
+
+    @classmethod
+    def add_cash(cls, cash):
+        cls._cash += cash
+
+    @property
+    def shares(self):
+        """ return number of shares """
+        return self._shares
+
+    def value(self, price):
+        """ return total value of shares """
+        return self._shares * price
+
+    def percent(self, price):
+        """ return percent of portfolio value currently allocated """
+        total_equity = TradeLog._cash + self._shares * price
+        return ((self._shares * price) / total_equity) * 100
+
+    def num_open_trades(self):
+        """ return number of open orders, i.e. not closed out """
+        return len(self._open_trades)
+
+    def _qty_open_trade(self, index):
+        """ qty of an open trade by index """
+        if index >= self.num_open_trades(): return 0
+        return self._open_trades[index]['qty']
 
     def calc_shares(self, price, cash=None):
         """ calculate shares and remaining cash before enter_trade() """
-        if cash is None or cash > self._cash:
-            cash = self._cash
+        if cash is None or cash > TradeLog._cash:
+            cash = TradeLog._cash
         shares = int(cash / price)
         return shares
 
@@ -50,40 +80,9 @@ class TradeLog(object):
 
         # update shares and cash
         self._shares += shares
-        self._cash -= entry_price * shares
+        TradeLog._share_dict[symbol] = self._shares
+        TradeLog._cash -= entry_price * shares
         return shares
-
-    def num_open_trades(self):
-        """ return number of open orders, i.e. not closed out """
-        return len(self._open_trades)
-
-    def _qty_open_trade(self, index):
-        """ qty of an open trade by index """
-        if index >= self.num_open_trades(): return 0
-        return self._open_trades[index]['qty']
-
-    @property
-    def cash(self):
-        """ return amount of cash """
-        return self._cash
-
-    @cash.setter
-    def cash(self, value):
-        self._cash = value
-
-    @property
-    def shares(self):
-        """ return number of shares """
-        return self._shares
-
-    def value(self, price):
-        """ return total value of shares """
-        return self._shares * price
-
-    def percent(self, price):
-        """ return percent of portfolio value currently allocated """
-        total_equity = self._cash + self._shares * price
-        return ((self._shares * price) / total_equity) * 100
 
     def exit_trade(self, exit_date, exit_price, shares=None, symbol=''):
         """
@@ -120,16 +119,17 @@ class TradeLog(object):
             # calculate exit_shares
             exit_shares = qty if shares >= qty else shares
             pl_cash = pl_points * exit_shares
-            self._cumul_total += pl_cash
+            TradeLog._cumul_total += pl_cash
 
             # record in trade log
             t = (entry_date, entry_price, exit_date, exit_price,
-                 pl_points, pl_cash, exit_shares, self._cumul_total, symbol)
+                 pl_points, pl_cash, exit_shares, TradeLog._cumul_total, symbol)
             self._l.append(t)
 
             # update shares and cash
             self._shares -= exit_shares
-            self._cash += exit_price * exit_shares
+            TradeLog._share_dict[symbol] = self._shares
+            TradeLog._cash += exit_price * exit_shares
 
             #print('i = {}, shares = {}, exit_shares = {}, qty = {}, symbol = {}'
             #      .format(i, shares, exit_shares, qty, symbol))
@@ -147,7 +147,7 @@ class TradeLog(object):
 
         return -shares_orig
 
-    def adjust_shares(self, date, price, shares):
+    def adjust_shares(self, date, price, shares, symbol):
         """
         Adjust a position to a target number of shares.
         If the position doesn't already exist, this is equivalent
@@ -155,14 +155,14 @@ class TradeLog(object):
         equivalent to entering or exiting a trade for the difference between
         the target number of shares and the current number of shares.
         """
-        diff = shares - self._shares
-        if diff >= 0:
-            shares = self.enter_trade(date, price, shares=diff)
+        diff_shares = shares - self._shares
+        if diff_shares >= 0:
+            shares = self.enter_trade(date, price, diff_shares, symbol)
         else:
-            shares = self.exit_trade(date, price, shares=-diff)
+            shares = self.exit_trade(date, price, -diff_shares, symbol)
         return shares
 
-    def adjust_value(self, date, price, value):
+    def adjust_value(self, date, price, value, symbol):
         """
         Adjust a position to a target value.
         If the position doesn't already exist, this is equivalent
@@ -170,12 +170,12 @@ class TradeLog(object):
         equivalent to entering or exiting a trade for the difference between
         the target value and the current value.
         """
-        total_equity = self._cash + self._shares * price
+        total_equity = TradeLog._cash + self._shares * price
         shares = int(min(total_equity, value) / price)
-        shares = self.adjust_shares(date, price, shares)
+        shares = self.adjust_shares(date, price, shares, symbol)
         return shares
 
-    def adjust_percent(self, date, price, percent):
+    def adjust_percent(self, date, price, weight, symbol):
         """
         Adjust a position to a target percent of the current portfolio value.
         If the position doesn't already exist, this is equivalent
@@ -183,10 +183,10 @@ class TradeLog(object):
         equivalent to entering or exiting a trade for the difference between
         the target percent and the current percent.
         """
-        percent = percent if percent <= 1 else percent/100
-        total_equity = self._cash + self._shares * price
-        value = total_equity * percent
-        shares = self.adjust_value(date, price, value)
+        weight = weight if weight <= 1 else weight/100
+        total_equity = TradeLog._cash + self._shares * price
+        value = total_equity * weight
+        shares = self.adjust_value(date, price, value, symbol)
         return shares
 
     def _merge_trades(self, tlog):
@@ -251,8 +251,9 @@ class DailyBal(object):
     def __init__(self):
         self._l = []  # list of daily balance tuples
 
-    def append(self, date, high, low, close, shares, cash):
+    def append(self, date, high, low, close, shares):
         # calculate daily balance values: date, high, low, close, shares, cash
+        cash = TradeLog._cash
         t = (date, high*shares + cash, low*shares + cash,
                    close*shares + cash, shares, cash)
         self._l.append(t)

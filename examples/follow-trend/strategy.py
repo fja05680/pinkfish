@@ -3,12 +3,6 @@ stategy
 ---------
 """
 
-# use future imports for python 3.x forward compatibility
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
-from __future__ import absolute_import
-
 # other imports
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -19,6 +13,7 @@ from talib.abstract import *
 import pinkfish as pf
 
 pf.DEBUG = False
+
 
 class Strategy():
 
@@ -41,24 +36,20 @@ class Strategy():
             3. S&P 500 index closes below its 200 day moving average
             4. The stock closes below its lower band, sell your long position.
         """
-        self._tlog.cash = self._capital
+        self._tlog.initialize(self._capital)
 
         for i, row in enumerate(self._ts.itertuples()):
 
             date = row.Index.to_pydatetime()
-            high = row.high
-            low = row.low
-            close = row.close
-            sma = row.sma
-            upper_band = sma + sma * self._percent_band
-            lower_band = sma - sma * self._percent_band
-            regime = row.regime
-            end_flag = True if (i == len(self._ts) - 1) else False
+            high = row.high; low = row.low; close = row.close; 
+            end_flag = pf.is_last_row(self._ts, i)
+            upper_band = row.sma + row.sma * self._percent_band
+            lower_band = row.sma - row.sma * self._percent_band
             shares = 0
 
             # buy
             if (self._tlog.num_open_trades() == 0
-                and (regime > 0 or not self._regime_filter)
+                and (row.regime > 0 or not self._regime_filter)
                 and close > upper_band
                 and not end_flag):
 
@@ -66,7 +57,7 @@ class Strategy():
                 shares = self._tlog.enter_trade(date, close)
             # sell
             elif (self._tlog.num_open_trades() > 0
-                  and ((self._regime_filter and regime < 0)
+                  and ((self._regime_filter and row.regime < 0)
                        or close < lower_band
                        or end_flag)):
 
@@ -81,8 +72,7 @@ class Strategy():
                        date, -shares, self._symbol, close))
 
             # record daily balance
-            self._dbal.append(date, high, low, close,
-                              self._tlog.shares, self._tlog.cash) 
+            self._dbal.append(date, high, low, close, self._tlog.shares) 
 
     def run(self):
         self._ts = pf.fetch_timeseries(self._symbol)

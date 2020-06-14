@@ -3,12 +3,6 @@ stategy
 ---------
 """
 
-# use future imports for python 3.x forward compatibility
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
-from __future__ import absolute_import
-
 # other imports
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -22,6 +16,7 @@ import pinkfish as pf
 pf.DEBUG = False
 TRADING_DAYS_PER_MONTH = 21
 TRADING_DAYS_PER_YEAR = 252
+
 
 class Strategy():
 
@@ -37,7 +32,7 @@ class Strategy():
             1. The SPY is higher than X days ago, buy
             2. If the SPY is lower than X days ago, sell your long position.
         """
-        self._tlog.cash = self._capital
+        self._tlog.initialize(self._capital)
         start_flag = True
         stop_loss = 0
         periods = range(TRADING_DAYS_PER_MONTH*3, TRADING_DAYS_PER_MONTH*13, TRADING_DAYS_PER_MONTH)
@@ -45,10 +40,8 @@ class Strategy():
         for i, row in enumerate(self._ts.itertuples()):
 
             date = row.Index.to_pydatetime()
-            high = row.high
-            low = row.low
-            close = row.close
-            end_flag = True if (i == len(self._ts) - 1) else False
+            high = row.high; low = row.low; close = row.close; 
+            end_flag = pf.is_last_row(self._ts, i)
             shares = 0
 
             if i < TRADING_DAYS_PER_YEAR*2:
@@ -94,8 +87,7 @@ class Strategy():
                        date, -shares, self._symbol, close))
 
             # record daily balance
-            self._dbal.append(date, high, low, close,
-                              self._tlog.shares, self._tlog.cash)
+            self._dbal.append(date, high, low, close, self._tlog.shares)
 
     def run(self):
         self._ts = pf.fetch_timeseries(self._symbol)

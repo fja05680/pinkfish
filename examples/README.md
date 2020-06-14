@@ -1,6 +1,6 @@
 # Example trading strategies
 
-- `buy-and-hold`: simple buy and hold strategy; demonstrate monthly and holding period tables
+- `buy-and-hold`: simple buy and hold strategy
 - `double-7s`: buy on X day low, sell on X day high (use closing prices)
 - `double-7s-intra`: buy on X day low, sell on X day high (use intraday prices)
 - `double-7s-open`: same as double-7s, but sell next open instead of current close
@@ -10,12 +10,16 @@
 - `momentum`: A stock that's going up tends to keep going up...until it doesn't
 - `percent-allocate`: maintain a certain percentage allocation to a security
 - `pinkfish-challenge`: buy on the close on the SAME day a new 20 day high is set
+- `portfolio`: backtest a portfolio of stocks
 - `pyfolio-empyrical`: demonstrates integration with quantopian's pyfolio and empyrical libraries
 - `scaling-in`: scale in strategy
 - `scaling-in-out`: scale in and out strategy
 - `scaling-out`: scale out strategy
 - `sell-in-may-and-go-away`: demonstration of using the calendar module
 - `sma-percent-band`: trading strategy using price vs long term sma; percent band around sma used for hysteresis
+- `sp500-components-timeseries`: get timeseries of all components in sp500
 - `spreadsheet`: make a read only spreadsheet within jupyter notebook
 - `ta-lib-tutorial`: a tutorial on using the ta-lib technical analysis library
 - `trade-two-symbols`: same as golden-cross example, except hold GLD when not in SPY; demonstrates trading 2 symbols
+- `trading-evolved`: demonstrate monthly returns, holding period returns, and prettier graphs
+- `update-cache-symbols`: utility to update all the symbols in your data cache

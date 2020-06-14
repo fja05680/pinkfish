@@ -4,12 +4,6 @@ statistics
 Calculate trading statistics
 """
 
-# Use future imports for python 3.0 forward compatibility
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
-from __future__ import absolute_import
-
 # Other imports
 import pandas as pd
 import numpy as np
@@ -523,6 +517,16 @@ def summary(stats, *metrics):
     Returns stats summary in a DataFrame.
     stats() must be called before calling this function
     """
+    if not metrics:
+        metrics = ('annual_return_rate',
+                   'max_closed_out_drawdown',
+                   'drawdown_annualized_return',
+                   'drawdown_recovery',
+                   'best_month',
+                   'worst_month',
+                   'sharpe_ratio',
+                   'sortino_ratio',
+                   'monthly_std')
     index = []
     columns = ['strategy']
     data = []

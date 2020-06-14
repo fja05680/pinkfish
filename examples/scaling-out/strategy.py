@@ -3,12 +3,6 @@ stategy
 ---------
 """
 
-# use future imports for python 3.x forward compatibility
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
-from __future__ import absolute_import
-
 # other imports
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -19,6 +13,7 @@ from talib.abstract import *
 import pinkfish as pf
 
 pf.DEBUG = False
+
 
 class Strategy():
 
@@ -41,28 +36,23 @@ class Strategy():
                If it sets further highs, sell some more, etc...
             4. If you have free cash, use it all when fresh lows are set.
         """
-        self._tlog.cash = self._capital
+        self._tlog.initialize(self._capital)
         stop_loss = 0
 
         for i, row in enumerate(self._ts.itertuples()):
 
             date = row.Index.to_pydatetime()
-            high = row.high
-            low = row.low
-            close = row.close
-            sma200 = row.sma200
-            period_high = row.period_high
-            period_low = row.period_low
-            end_flag = True if (i == len(self._ts) - 1) else False
+            high = row.high; low = row.low; close = row.close; 
+            end_flag = pf.is_last_row(self._ts, i)
             shares = 0
 
             # buy
-            if (close > sma200
-                and close == period_low
+            if (close > row.sma200
+                and close == row.period_low
                 and not end_flag):
                 
                 # calc number of shares
-                shares = self._tlog.calc_shares(price=close, cash=self._tlog.cash)
+                shares = self._tlog.calc_shares(price=close, cash=self._tlog._cash)
                 
                 # if we have enough cash to buy any shares, then buy them
                 if shares > 0:
@@ -76,7 +66,7 @@ class Strategy():
 
             # sell
             elif (self._tlog.num_open_trades() > 0
-                  and (close == period_high
+                  and (close == row.period_high
                        or low < stop_loss
                        or end_flag)):
                 
@@ -97,8 +87,7 @@ class Strategy():
                        date, -shares, self._symbol, close))
 
             # record daily balance
-            self._dbal.append(date, high, low, close,
-                              self._tlog.shares, self._tlog.cash)
+            self._dbal.append(date, high, low, close, self._tlog.shares)
 
     def run(self):
         self._ts = pf.fetch_timeseries(self._symbol)

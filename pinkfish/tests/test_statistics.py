@@ -12,17 +12,17 @@ class TestStatistics(unittest.TestCase):
              "adj_close": [1.15, 2.15, 3.15],
              "cumul_total": [5, 10, 15]}
         self.df_test = pd.DataFrame(d)
-        
+
     def test_ending_balance(self):
         result = pf.statistics.ending_balance(self.df_test)
         self.assertEqual(result, 3.1)
-        
+
     def test_total_net_profit(self):
         result = pf.statistics.total_net_profit(self.df_test)
         self.assertEqual(result, 15)
 
 
-'''  
+'''
 if __name__ == "__main__":
     unittest.main()
 '''

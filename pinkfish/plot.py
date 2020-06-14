@@ -4,12 +4,6 @@ plot
 Functions for plotting
 """
 
-# Use future imports for python 3.0 forward compatibility
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
-from __future__ import absolute_import
-
 # Other imports
 import matplotlib.pyplot as plt
 import pinkfish as pf
@@ -20,7 +14,7 @@ register_matplotlib_converters()
 
 def plot_equity_curve(strategy, benchmark=None):
     """
-    Plot Equity Curves: Strategy vs (optionally) Benchmark 
+    Plot Equity Curves: Strategy vs (optionally) Benchmark
     Both arguements are daily balance.
     """
     fig = plt.figure()

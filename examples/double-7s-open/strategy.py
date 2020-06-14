@@ -3,12 +3,6 @@ stategy
 ---------
 """
 
-# use future imports for python 3.x forward compatibility
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
-from __future__ import absolute_import
-
 # other imports
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -19,6 +13,7 @@ from talib.abstract import *
 import pinkfish as pf
 
 pf.DEBUG = False
+
 
 class Strategy():
 
@@ -36,27 +31,21 @@ class Strategy():
             3. If the SPY closes at a X-day high, sell your long position
                on next open
         """
-        self._tlog.cash = self._capital
+        self._tlog.initialize(self._capital)
         stop_loss = 0
         sell_on_open = False
 
         for i, row in enumerate(self._ts.itertuples()):
 
             date = row.Index.to_pydatetime()
-            high = row.high
-            low = row.low
-            open_ = row.open
-            close = row.close
-            sma200 = row.sma200
-            period_high = row.period_high
-            period_low = row.period_low
-            end_flag = True if (i == len(self._ts) - 1) else False
+            high = row.high; low = row.low; close = row.close; 
+            end_flag = pf.is_last_row(self._ts, i)
             shares = 0
 
             # buy
             if (self._tlog.num_open_trades() == 0
-                and close > sma200
-                and close == period_low
+                and close > row.sma200
+                and close == row.period_low
                 and not end_flag):
 
                 # enter buy in trade log
@@ -67,12 +56,12 @@ class Strategy():
             elif (sell_on_open or end_flag):
 
                 # enter sell in trade log
-                shares = self._tlog.exit_trade(date, open_)
+                shares = self._tlog.exit_trade(date, row.open)
                 sell_on_open = False
 
             # sell next open
             elif (self._tlog.num_open_trades() > 0
-                  and (close == period_high or low < stop_loss)):
+                  and (close == row.period_high or low < stop_loss)):
                 sell_on_open = True
 
             if shares > 0:
@@ -83,8 +72,7 @@ class Strategy():
                        date, -shares, self._symbol, close))
 
             # record daily balance
-            self._dbal.append(date, high, low, close,
-                              self._tlog.shares, self._tlog.cash) 
+            self._dbal.append(date, high, low, close, self._tlog.shares) 
 
     def run(self):
         self._ts = pf.fetch_timeseries(self._symbol)

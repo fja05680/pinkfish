@@ -22,6 +22,10 @@ from .statistics import (
     summary5
 )
 
+from .portfolio import (
+    Portfolio
+)
+
 from .evolved import (
     monthly_returns_map,
     holding_period_map,
@@ -48,7 +52,8 @@ from .indicator import (
 
 from .utility import (
     print_full,
-    read_config
+    read_config,
+    is_last_row
 )
 
 DEBUG = False
