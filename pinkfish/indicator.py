@@ -4,7 +4,6 @@ indicator
 Custom indicators
 """
 
-# Other imports
 import numpy as np
 import pandas as pd
 from talib.abstract import *
@@ -19,7 +18,7 @@ class IndicatorError(Exception):
 class TradeCrossOverError(IndicatorError):
     """ Invalid timeperiod specified """
 
-class _CrossOver(object):
+class _CrossOver:
     """
     This indicator is used to represent regime, i.e. Bull or Bear market
     Or more generally as a crossover indicator for two moving averages

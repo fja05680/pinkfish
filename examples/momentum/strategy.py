@@ -3,14 +3,12 @@ stategy
 ---------
 """
 
-# other imports
 import pandas as pd
 import matplotlib.pyplot as plt
 import datetime
 from talib.abstract import *
 import random
 
-# project imports
 import pinkfish as pf
 
 pf.DEBUG = False
@@ -18,7 +16,7 @@ TRADING_DAYS_PER_MONTH = 21
 TRADING_DAYS_PER_YEAR = 252
 
 
-class Strategy():
+class Strategy:
 
     def __init__(self, symbol, capital, start, end, period=None):
         self._symbol = symbol
@@ -32,7 +30,7 @@ class Strategy():
             1. The SPY is higher than X days ago, buy
             2. If the SPY is lower than X days ago, sell your long position.
         """
-        self._tlog.initialize(self._capital)
+        pf.TradeLog.cash = self._capital
         start_flag = True
         stop_loss = 0
         periods = range(TRADING_DAYS_PER_MONTH*3, TRADING_DAYS_PER_MONTH*13, TRADING_DAYS_PER_MONTH)
@@ -51,7 +49,7 @@ class Strategy():
                 # set start
                 self._start = date
                 
-            if self._tlog.num_open_trades() == 0:
+            if self._tlog.shares == 0:
                 # if period is None, then select a random trading period of
                 # 3,4,5,...,or 12 months
                 if self._period is None:
@@ -62,22 +60,22 @@ class Strategy():
             lookback = self._ts['close'][i-period]
             
             # buy (and row.first_dotm)
-            if (self._tlog.num_open_trades() == 0
+            if (self._tlog.shares == 0
                 and row.first_dotm
                 and close > lookback
                 and not end_flag):
 
                 # enter buy in trade log
-                shares = self._tlog.enter_trade(date, close)
+                shares = self._tlog.buy(date, close)
                 # set stop loss
                 stop_loss = 0*close
             # sell
-            elif (self._tlog.num_open_trades() > 0
+            elif (self._tlog.shares > 0
                   and row.first_dotm
                   and (close < lookback or low < stop_loss or end_flag)):
 
                 # enter sell in trade log
-                shares = self._tlog.exit_trade(date, close)
+                shares = self._tlog.sell(date, close)
 
             if shares > 0:
                 pf.DBG("{0} BUY  {1} {2} @ {3:.2f}".format(
@@ -87,7 +85,7 @@ class Strategy():
                        date, -shares, self._symbol, close))
 
             # record daily balance
-            self._dbal.append(date, high, low, close, self._tlog.shares)
+            self._dbal.append(date, high, low, close)
 
     def run(self):
         self._ts = pf.fetch_timeseries(self._symbol)
@@ -99,7 +97,7 @@ class Strategy():
         
         self._ts, self._start = pf.finalize_timeseries(self._ts, self._start)
         
-        self._tlog = pf.TradeLog()
+        self._tlog = pf.TradeLog(self._symbol)
         self._dbal = pf.DailyBal()
 
         self._algo()
@@ -114,7 +112,7 @@ class Strategy():
         stats = pf.stats(self._ts, self.tlog, self.dbal, self._capital)
         return stats
 
-def summary(strategies, *metrics):
+def summary(strategies, metrics):
     """ Stores stats summary in a DataFrame.
         stats() must be called before calling this function """
     index = []

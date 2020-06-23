@@ -7,6 +7,7 @@ from .fetch import (
 )
 
 from .trade import (
+    Direction,
     TradeLog,
     TradeState,
     DailyBal
@@ -16,38 +17,37 @@ from .statistics import (
     stats,
     currency,
     summary,
-    summary2,
-    summary3,
-    summary4,
-    summary5
+    default_metrics,
+    currency_metrics
 )
 
-from .portfolio import (
-    Portfolio
-)
-
-from .evolved import (
-    monthly_returns_map,
-    holding_period_map,
-    prettier_graphs
+from .plot import (
+    plot_equity_curve,
+    plot_equity_curves,
+    plot_trades,
+    plot_bar_graph
 )
 
 from .benchmark import (
     Benchmark
 )
 
-from .calendar import (
-    calendar
-)
-
-from .plot import (
-    plot_equity_curve,
-    plot_trades,
-    plot_bar_graph
+from .portfolio import (
+    Portfolio
 )
 
 from .indicator import (
     CROSSOVER
+)
+
+from .calendar import (
+    calendar
+)
+
+from .evolved import (
+    monthly_returns_map,
+    holding_period_map,
+    prettier_graphs
 )
 
 from .utility import (

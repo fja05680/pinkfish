@@ -4,7 +4,6 @@ fetch
 Retrive time series data
 """
 
-# Other imports
 import sys
 import pandas as pd
 import pandas_datareader.data as pdr
@@ -13,6 +12,9 @@ import datetime
 import os
 import pinkfish as pf
 
+
+#####################################################################
+# TIMESERIES (fetch, select, finalize)
 
 def _get_cache_dir(dir_name):
     """ returns the path to the cache_dir """
@@ -95,6 +97,9 @@ def finalize_timeseries(ts, start):
     ts = ts[start:]
     start = ts.index[0]
     return ts, start
+
+#####################################################################
+# CACHE SYMBOLS (remove, update)
 
 def remove_cache_symbols(symbols=None, dir_name='data'):
     """

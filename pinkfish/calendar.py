@@ -16,7 +16,6 @@ last_doty: last trading day of the year
 
 """
 
-# other imports
 import pandas as pd
 import pinkfish as pf
 

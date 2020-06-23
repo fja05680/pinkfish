@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='pinkfish',
-    version='0.7.0',
+    version='0.8.0',
     description='A backtester and spreadsheet library for security analysis.',
     author='Farrell Aultman',
     author_email='fja0568@gmail.com',
@@ -15,8 +15,7 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.8',
         'Operating System :: OS Independent',
         'Intended Audience :: Science/Research',
         'Topic :: Office/Business :: Financial',

@@ -4,7 +4,6 @@ util
 Utilities
 """
 
-# Other imports
 import pandas as pd
 from configparser import ConfigParser
 import os

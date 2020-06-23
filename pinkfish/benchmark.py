@@ -4,11 +4,10 @@ benchmark
 Benchmark for comparision to strategies
 """
 
-# Other imports
 import pinkfish as pf
 
 
-class Benchmark(object):
+class Benchmark:
 
     def __init__(self, symbol, capital, start, end, use_adj=False):
         self._symbol = symbol
@@ -18,7 +17,7 @@ class Benchmark(object):
         self._use_adj = use_adj
 
     def _algo(self):
-        pf.TradeLog.initialize(self._capital)
+        pf.TradeLog.cash = self._capital
 
         for i, row in enumerate(self._ts.itertuples()):
 
@@ -27,23 +26,18 @@ class Benchmark(object):
             end_flag = pf.is_last_row(self._ts, i)
 
             # buy
-            if self._tlog.num_open_trades() == 0:
-
-                # enter buy in trade log
-                self._tlog.enter_trade(date, close)
+            if self._tlog.shares == 0:
+                self._tlog.buy(date, close)
                 print("{0} BUY  {1} {2} @ {3:.2f}".format(
                       date, self._tlog.shares, self._symbol, close))
-
             # sell
             elif end_flag:
-
-                # enter sell in trade log
-                shares = self._tlog.exit_trade(date, close)
+                shares = self._tlog.sell(date, close)
                 print("{0} SELL {1} {2} @ {3:.2f}".format(
                       date, -shares, self._symbol, close))
 
             # record daily balance
-            self._dbal.append(date, high, low, close, self._tlog.shares)
+            self._dbal.append(date, high, low, close)
 
     def run(self):
         self._ts = pf.fetch_timeseries(self._symbol)
@@ -51,7 +45,7 @@ class Benchmark(object):
                                          use_adj=self._use_adj, pad=False)
         self._ts, _ = pf.finalize_timeseries(self._ts, self._start)
 
-        self._tlog = pf.TradeLog()
+        self._tlog = pf.TradeLog(self._symbol)
         self._dbal = pf.DailyBal()
 
         self._algo()

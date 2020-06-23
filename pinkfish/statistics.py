@@ -4,7 +4,6 @@ statistics
 Calculate trading statistics
 """
 
-# Other imports
 import pandas as pd
 import numpy as np
 import operator
@@ -510,130 +509,60 @@ def stats(ts, tlog, dbal, capital):
     return stats
 
 #####################################################################
-# SUMMARY - stats() must be called before calling any of these functions
+# SUMMARY - stats() must be called before calling summary()
 
-def summary(stats, *metrics):
+default_metrics = (
+    'annual_return_rate',
+    'max_closed_out_drawdown',
+    'best_month',
+    'worst_month',
+    'sharpe_ratio',
+    'sortino_ratio',
+    'monthly_std')
+
+currency_metrics = (
+    'beginning_balance',
+    'ending_balance',
+    'total_net_profit',
+    'gross_profit',
+    'gross_loss')
+
+def _get_metric_value(s, metric):
+    metrics = (
+        'beginning_balance',
+        'ending_balance',
+        'ending_balance',
+        'total_net_profit',
+        'gross_profit',
+        'gross_loss')
+    if metric in metrics:
+        return currency(s[metric])
+    else:
+        return s[metric]
+
+def summary(stats, benchmark_stats=None, metrics=default_metrics, extras=None):
     """
     Returns stats summary in a DataFrame.
     stats() must be called before calling this function
     """
-    if not metrics:
-        metrics = ('annual_return_rate',
-                   'max_closed_out_drawdown',
-                   'drawdown_annualized_return',
-                   'drawdown_recovery',
-                   'best_month',
-                   'worst_month',
-                   'sharpe_ratio',
-                   'sortino_ratio',
-                   'monthly_std')
-    index = []
+    if extras is None: extras = ()
+    metrics += extras
+    
+    # columns
     columns = ['strategy']
-    data = []
-    # add metrics
+    if benchmark_stats is not None:
+        columns.append('benchmark')
+
+    # index & data
+    index = []; data = []
     for metric in metrics:
         index.append(metric)
-        data.append(stats[metric])
+        if benchmark_stats is not None:
+            data.append((_get_metric_value(stats, metric),
+                         _get_metric_value(benchmark_stats, metric)))
+        else:
+            data.append(_get_metric_value(stats, metric))
 
     df = pd.DataFrame(data, columns=columns, index=index)
     return df
 
-def summary2(stats, benchmark_stats, *metrics):
-    """
-    Returns stats with benchmark summary in a DataFrame.
-    stats() must be called before calling this function
-    """
-    index = []
-    columns = ['strategy', 'benchmark']
-    data = []
-    # add metrics
-    for metric in metrics:
-        index.append(metric)
-        data.append((stats[metric], benchmark_stats[metric]))
-
-    df = pd.DataFrame(data, columns=columns, index=index)
-    return df
-
-def summary3(stats, benchmark_stats, *extras):
-    """
-    Returns stats with benchmark summary in a DataFrame.
-    stats() must be called before calling this function
-    *extras: extra metrics
-    """
-    index = ['annual_return_rate',
-             'max_closed_out_drawdown',
-             'drawdown_annualized_return',
-             'pct_profitable_months',
-             'best_month',
-             'worst_month',
-             'sharpe_ratio',
-             'sortino_ratio']
-    columns = ['strategy', 'benchmark']
-    data = [(stats['annual_return_rate'],
-             benchmark_stats['annual_return_rate']),
-            (stats['max_closed_out_drawdown'],
-             benchmark_stats['max_closed_out_drawdown']),
-            (stats['drawdown_annualized_return'],
-             benchmark_stats['drawdown_annualized_return']),
-            (stats['pct_profitable_months'],
-             benchmark_stats['pct_profitable_months']),
-            (stats['best_month'],
-             benchmark_stats['best_month']),
-            (stats['worst_month'],
-             benchmark_stats['worst_month']),
-            (stats['sharpe_ratio'],
-             benchmark_stats['sharpe_ratio']),
-            (stats['sortino_ratio'],
-             benchmark_stats['sortino_ratio'])]
-    # add extra metrics
-    for extra in extras:
-        index.append(extra)
-        data.append((stats[extra], benchmark_stats[extra]))
-
-    df = pd.DataFrame(data, columns=columns, index=index)
-    return df
-
-def summary4(stats):
-    """
-    Returns currency stats summary in a DataFrame.
-    stats() must be called before calling this function
-    """
-    index = ['beginning_balance',
-             'ending_balance',
-             'total_net_profit',
-             'gross_profit',
-             'gross_loss']
-    columns = ['strategy']
-    data = [currency(stats['beginning_balance']),
-            currency(stats['ending_balance']),
-            currency(stats['total_net_profit']),
-            currency(stats['gross_profit']),
-            currency(stats['gross_loss'])]
-
-    df = pd.DataFrame(data, columns=columns, index=index)
-    return df
-
-def summary5(stats, benchmark_stats):
-    """
-    Returns currency stats with benchmark summary in a DataFrame.
-    stats() must be called before calling this function
-    """
-    index = ['beginning_balance',
-             'ending_balance',
-             'total_net_profit',
-             'gross_profit',
-             'gross_loss']
-    columns = ['strategy', 'benchmark']
-    data = [(currency(stats['beginning_balance']),
-             currency(benchmark_stats['beginning_balance'])),
-            (currency(stats['ending_balance']),
-             currency(benchmark_stats['ending_balance'])),
-            (currency(stats['total_net_profit']),
-             currency(benchmark_stats['total_net_profit'])),
-            (currency(stats['gross_profit']),
-             currency(benchmark_stats['gross_profit'])),
-            (currency(stats['gross_loss']),
-             currency(benchmark_stats['gross_loss']))]
-
-    df = pd.DataFrame(data, columns=columns, index=index)
-    return df

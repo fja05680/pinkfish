@@ -3,19 +3,17 @@ stategy
 ---------
 """
 
-# other imports
 import pandas as pd
 import matplotlib.pyplot as plt
 import datetime
 from talib.abstract import *
 
-# project imports
 import pinkfish as pf
 
 pf.DEBUG = False
 
 
-class Strategy():
+class Strategy:
     """ strategy """
 
     def __init__(self, symbol, capital, start, end, use_adj, period):
@@ -32,7 +30,7 @@ class Strategy():
             2. The SPY makes an intraday X-day low, buy.
             3. If the SPY makes an intraday X-day high, sell your long position.
         """
-        self._tlog.initialize(self._capital)
+        pf.TradeLog.cash = self._capital
         stop_loss = 0
 
         for i, row in enumerate(self._ts.itertuples()):
@@ -47,7 +45,7 @@ class Strategy():
             shares = 0
 
             # buy
-            if (self._tlog.num_open_trades() == 0
+            if (self._tlog.shares == 0
                 and prev_close > sma200
                 and low <= period_low
                 and not end_flag):
@@ -55,11 +53,11 @@ class Strategy():
                 # adjust price if opened less than period_low
                 price = row.open if row.open <= period_low else period_low    
                 # enter buy in trade log
-                shares = self._tlog.enter_trade(date, price)
+                shares = self._tlog.buy(date, price)
                 # set stop loss
                 stop_loss = 0*low
             # sell
-            elif (self._tlog.num_open_trades() > 0
+            elif (self._tlog.shares > 0
                   and (high >= period_high or low < stop_loss or end_flag)):
 
                 # adjust price if opened greater than period_high; stop_loss; close
@@ -71,7 +69,7 @@ class Strategy():
                     price = close
 
                 # enter sell in trade log
-                shares = self._tlog.exit_trade(date, price)
+                shares = self._tlog.sell(date, price)
                 #if (low < stop_loss):
                 #    print("--------------------STOP-----------------------------")
 
@@ -83,7 +81,7 @@ class Strategy():
                        date, -shares, self._symbol, close))
 
             # record daily balance
-            self._dbal.append(date, high, low, close, self._tlog.shares) 
+            self._dbal.append(date, high, low, close) 
 
     def run(self):
         self._ts = pf.fetch_timeseries(self._symbol)
@@ -102,7 +100,7 @@ class Strategy():
         
         self._ts, self._start = pf.finalize_timeseries(self._ts, self._start)
 
-        self._tlog = pf.TradeLog()
+        self._tlog = pf.TradeLog(self._symbol)
         self._dbal = pf.DailyBal()
 
         self._algo()
@@ -117,7 +115,7 @@ class Strategy():
         stats = pf.stats(self._ts, self.tlog, self.dbal, self._capital)
         return stats
 
-def summary(strategies, *metrics):
+def summary(strategies, metrics):
     """ Stores stats summary in a DataFrame.
         stats() must be called before calling this function
     """

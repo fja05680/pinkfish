@@ -34,12 +34,13 @@ ac
 
 """
 
-# Other imports
 import pandas as pd
 import matplotlib.pyplot as plt
 import empyrical as em
 from IPython.core.display import display, HTML
 
+#####################################################################
+# MONTHY RETURNS MAP
 
 def monthly_returns_map(returns):
     """ Display per month and per year returns in a table """
@@ -117,6 +118,9 @@ def monthly_returns_map(returns):
 #returns = s.dbal['close']
 #monthly_returns_map(returns)
 
+#####################################################################
+# HOLDING PERIOD MAP
+
 def holding_period_map(returns):
     """
     Display holding period returns in a table.
@@ -147,6 +151,9 @@ def holding_period_map(returns):
 
 #table = holding_period_map(returns['1990':])
 #display(HTML(table))
+
+#####################################################################
+# PRETTIER GRAPHS
 
 def calc_corr(ser1, ser2, window):
     """
