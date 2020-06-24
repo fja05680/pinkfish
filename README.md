@@ -5,10 +5,7 @@ pinkfish
 **06-22-2020: Add Shorting cabability, i.e. (see short-sell example; portfolio example)**   
 **06-13-2020: Add Portfolio cabability, i.e. multiple stocks at the same time (see portfolio example)**  
 **06-13-2020: Support ended for Python2.7.  Now Pinkfish is Python3 only**  
-**04-25-2020: Update for xubuntu 20.04; minor fixes for latest libraries; test everything against Python3.8**  
-**02-16-2020: Download latest time series for every S&P 500 component (see sp500-components-timeseries example)**  
-**02-16-2020: Update your entire ticker symbol cache to latest time series (see update-cache-symbols example)**  
-**01-31-2020: Add basic multi symbol support (see trade-two-symbols example)**  
+**04-25-2020: Update for xubuntu 20.04; minor fixes for latest libraries; test everything against Python3.8**   
 
 A backtester and spreadsheet library for security analysis.
 
@@ -30,5 +27,6 @@ Follow the installation instructions located at:
 https://fja05680.github.io/pinkfish/
 
 ## Examples
+ - [buy-and-hold](https://fja05680.github.io/pinkfish/examples/buy-and-hold.html) - an example illustrating the basic buy and hold strategy
  - [spreadsheet](https://fja05680.github.io/pinkfish/examples/spreadsheet.html) - make a read only spreadsheet within ipython
  - [golden-cross](http://fja05680.github.io/pinkfish/examples/golden-cross.html) - an example illustrating the classic long term trading algorithm
