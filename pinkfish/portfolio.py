@@ -63,15 +63,16 @@ class Portfolio:
     #####################################################################
     # ADJUST POSITION (adjust_shares, adjust_value, adjust_percent, print_holdings)
     
-    def get_row_column_price(self, row, symbol):
+    def get_row_column_price(self, row, symbol, field='close'):
         """ return price given row and symbol """
+        symbol += '_' + field
         try:
-            price = getattr(row, symbol + '_close')
+            price = getattr(row, symbol)
         except AttributeError:
             # this method is slower, but handles column names that don't
             # conform to variable name rules, and thus aren't attributes
             date = row.Index.to_pydatetime()
-            price = self._ts.loc[date, symbol + '_close']
+            price = self._ts.loc[date, symbol]
         return price
 
     def _total_equity(self, row):

@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='pinkfish',
-    version='0.9.0',
+    version='0.9.1',
     description='A backtester and spreadsheet library for security analysis.',
     author='Farrell Aultman',
     author_email='fja0568@gmail.com',
