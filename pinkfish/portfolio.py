@@ -11,7 +11,8 @@ import pinkfish as pf
 class Portfolio:
 
     def __init__(self):
-        self._l = []  # list of daily balance tuples
+        self._l = []      # list of daily balance tuples
+        self._ts = None   # reference to timeseries
         self.symbols = []
 
     #####################################################################
@@ -61,12 +62,23 @@ class Portfolio:
 
     #####################################################################
     # ADJUST POSITION (adjust_shares, adjust_value, adjust_percent, print_holdings)
+    
+    def get_row_column_price(self, row, symbol):
+        """ return price given row and symbol """
+        try:
+            price = getattr(row, symbol + '_close')
+        except AttributeError:
+            # this method is slower, but handles column names that don't
+            # conform to variable name rules, and thus aren't attributes
+            date = row.Index.to_pydatetime()
+            price = self._ts.loc[date, symbol + '_close']
+        return price
 
     def _total_equity(self, row):
         """ return the total equity in portfolio """
         total_equity = pf.TradeLog.cash
         for symbol, tlog in pf.TradeLog.instance.items():
-            close = getattr(row, symbol + '_close')
+            close = self.get_row_column_price(row, symbol)
             total_equity += tlog._total_equity(close) - pf.TradeLog.cash
         return total_equity
 
@@ -103,6 +115,7 @@ class Portfolio:
     def init_trade_logs(self, ts, capital):
         """ add a trade log for each symbol """
         pf.TradeLog.cash = capital
+        self._ts = ts
         for symbol in self.symbols:
             pf.TradeLog(symbol, False)
 
