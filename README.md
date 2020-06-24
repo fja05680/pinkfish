@@ -1,6 +1,7 @@
 pinkfish
 ======
 
+**06-22-2020: Add Shorting cabability, i.e. (see short-sell example; portfolio example)**   
 **06-13-2020: Add Portfolio cabability, i.e. multiple stocks at the same time (see portfolio example)**  
 **06-13-2020: Support ended for Python2.7.  Now Pinkfish is Python3 only**  
 **04-25-2020: Update for xubuntu 20.04; minor fixes for latest libraries; test everything against Python3.8**  
