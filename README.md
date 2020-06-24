@@ -1,7 +1,7 @@
 pinkfish
 ======
 
-**06-23-2020: Add ability to have long and short position in a security simultaneously within a portfolio (see portfolio example)**  
+**06-23-2020: Add ability to have long and short position in same security simultaneously within a portfolio (see portfolio example)**  
 **06-22-2020: Add Shorting cabability, i.e. (see short-sell example; portfolio example)**   
 **06-13-2020: Add Portfolio cabability, i.e. multiple stocks at the same time (see portfolio example)**  
 **06-13-2020: Support ended for Python2.7.  Now Pinkfish is Python3 only**  
