@@ -1,11 +1,11 @@
 pinkfish
 ======
 
+**07-16-2020: Add Margin (leverage) cabability (see double 7s example; scaling-in example; asset-allocation-model example)**  
+**07-16-2020: Add "performnace per symbol" and correlation map cababilities (see asset-allocation-model example; correlation example)**  
 **06-23-2020: Add ability to have long and short position in same security simultaneously within a portfolio (see portfolio example)**  
 **06-22-2020: Add Shorting cabability, i.e. (see short-sell example; portfolio example)**   
-**06-13-2020: Add Portfolio cabability, i.e. multiple stocks at the same time (see portfolio example)**  
-**06-13-2020: Support ended for Python2.7.  Now Pinkfish is Python3 only**  
-**04-25-2020: Update for xubuntu 20.04; minor fixes for latest libraries; test everything against Python3.8**   
+**06-13-2020: Add Portfolio cabability, i.e. multiple stocks at the same time (see portfolio example)**     
 
 A backtester and spreadsheet library for security analysis.
 
@@ -20,6 +20,8 @@ Some of the key features of pinkfish:
  - uses free daily data from yahoo finance
  - simple to use python API
  - backtest single stock/ETF strategy or a portolio (basket of stocks/ETFs)
+ - backtest short selling strategies and simulate trading with margin
+ - write optimizers to select the best parameters
  - create spreadsheets within Jupyter Notebook by utilizing pandas dataframes and itable formatting
 
 ## Installation
