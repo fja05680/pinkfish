@@ -18,11 +18,13 @@ class Benchmark:
 
     def _algo(self):
         pf.TradeLog.cash = self._capital
+        pf.TradeLog.margin = pf.Margin.CASH
+        pf.TradeLog.buying_power = None
 
         for i, row in enumerate(self._ts.itertuples()):
 
             date = row.Index.to_pydatetime()
-            high = row.high; low = row.low; close = row.close 
+            high = row.high; low = row.low; close = row.close
             end_flag = pf.is_last_row(self._ts, i)
 
             # buy

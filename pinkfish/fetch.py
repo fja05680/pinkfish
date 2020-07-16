@@ -51,11 +51,11 @@ def fetch_timeseries(symbol, dir_name='data', use_cache=True, from_year=None):
     # yahoo finance uses '-' where '.' is used in symbol names
     symbol = symbol.replace('.', '-')
     symbol = symbol.upper()
-    
+
     # pinkfish allows the use of a suffix starting with a '_',
     # like SPY_SHRT, so extract the symbol
     symbol = symbol.split('_')[0]
-    
+
     timeseries_cache = os.path.join(_get_cache_dir(dir_name), symbol + '.csv')
 
     if os.path.isfile(timeseries_cache) and use_cache:

@@ -11,6 +11,7 @@ import math
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from numpy.lib.stride_tricks import as_strided
+import pinkfish as pf
 
 
 #####################################################################
@@ -71,6 +72,7 @@ def return_on_initial_capital(tlog, capital):
 
 def _cagr(B, A, n):
     """ calculate compound annual growth rate """
+    if B < 0: B = 0
     return (math.pow(B / A, 1 / n) - 1) * 100
 
 def annual_return_rate(end_balance, capital, start, end):
@@ -91,6 +93,21 @@ def _total_days_in_market(dbal):
 
 def pct_time_in_market(dbal):
     return _total_days_in_market(dbal) / len(dbal) * 100
+
+#####################################################################
+# LEVERAGE
+
+def margin():
+    return pf.TradeLog.margin
+
+def avg_leverage(dbal):
+    return dbal[dbal['leverage'] > 0]['leverage'].mean()
+
+def max_leverage(dbal):
+    return dbal[dbal['leverage'] > 0]['leverage'].max()
+
+def min_leverage(dbal):
+    return dbal[dbal['leverage'] > 0]['leverage'].min()
 
 #####################################################################
 # SUMS
@@ -417,6 +434,12 @@ def stats(ts, tlog, dbal, capital):
     stats['trading_period'] = trading_period(start, end)
     stats['pct_time_in_market'] = pct_time_in_market(dbal)
 
+    # LEVERAGE
+    stats['margin'] = margin()
+    stats['avg_leverage'] = avg_leverage(dbal)
+    stats['max_leverage'] = max_leverage(dbal)
+    stats['min_leverage'] = min_leverage(dbal)
+
     # SUMS
     stats['total_num_trades'] = total_num_trades(tlog)
     stats['trades_per_year'] = trades_per_year(tlog, start, end)
@@ -547,7 +570,7 @@ def summary(stats, benchmark_stats=None, metrics=default_metrics, extras=None):
     """
     if extras is None: extras = ()
     metrics += extras
-    
+
     # columns
     columns = ['strategy']
     if benchmark_stats is not None:

@@ -10,17 +10,22 @@ import pandas as pd
 class Direction:
     LONG, SHORT = ['LONG', 'SHRT']
 
+class Margin:
+    CASH, STANDARD, PATTERN_DAY_TRADER = [1, 2, 4]
+
 #####################################################################
 # TRADE LOG - each symbol has it's own trade log
 
 class TradeLog:
 
-    cash = 0                       # current cash
+    cash = 0                       # current cash; entire portfolio
+    margin = Margin.CASH           # margin percent, default 1:1 no margin
+    buying_power = None            # buying power; for Portfolio class only
     instance = {}                  # dict of TradeLog instances, key=symbol
 
     def __init__(self, symbol, reset=True):
         self.symbol = symbol        # security symbol
-        self.shares = 0             # num shares  
+        self.shares = 0             # num shares
         self.direction = None       # Long or Short
         self.ave_entry_price = 0    # average purchase price per share
         self.cumul_total = 0        # cumul total profits (loss)
@@ -31,14 +36,26 @@ class TradeLog:
             TradeLog.instance.clear()
         TradeLog.instance[symbol] = self
 
-    def value(self, price):
+    def share_value(self, price):
         """ return total value of shares """
-        return self.shares * price
+        equity = 0
+        if self.direction == Direction.LONG:
+            equity += price*self.shares
+        elif self.direction == Direction.SHORT:
+            equity += (2*self.ave_entry_price-price)*self.shares
+        return equity
 
-    def percent(self, price):
+    def total_equity(self, price):
+        """ return the total equity in portfolio """
+        return TradeLog.cash + self.share_value(price)
+
+    def leverage(self, price):
+        """ return the leverage of the position """
+        return self.share_value(price) / self.total_equity(price)
+
+    def share_percent(self, price):
         """ return percent of portfolio value currently allocated """
-        total_equity = TradeLog.cash + self.shares * price
-        return ((self.shares * price) / total_equity) * 100
+        return ((self.share_value(price)) / self.total_equity(price)) * 100
 
     def num_open_trades(self):
         """ return number of open orders, i.e. not closed out """
@@ -47,10 +64,33 @@ class TradeLog:
     #####################################################################
     # ENTER TRADE (buy, sell_short)
 
+    def calc_buying_power(self, price):
+        """ calculate buying power """
+        buying_power = (TradeLog.cash * TradeLog.margin
+                      + self.share_value(price) * TradeLog.margin
+                      - self.share_value(price))
+        return buying_power
+
     def calc_shares(self, price, cash=None):
         """ calculate shares and remaining cash before enter_trade() """
-        if cash is None or cash > TradeLog.cash:
-            cash = TradeLog.cash
+
+        # margin should be equal to or greater than 1
+        if TradeLog.margin < 1: TradeLog.margin = 1
+
+        # calculate buying power
+        if TradeLog.buying_power is not None:
+            buying_power = TradeLog.buying_power
+        else:
+            buying_power = self.calc_buying_power(price)
+
+        # cash can't exceed buying power
+        if cash is None or cash > buying_power:
+            cash = buying_power
+
+        # cash can't be negative
+        if cash < 0: cash = 0
+
+        # calculate shares
         shares = int(cash / price)
         return shares
 
@@ -72,20 +112,20 @@ class TradeLog:
              'direction':direction, 'symbol':self.symbol}
         self._open_trades.append(d)
 
-        # update shares, cash, and average entry price
+        # update average entry price and shares
         self.ave_entry_price = \
             (self.ave_entry_price*self.shares + entry_price*shares) / (self.shares + shares)
         self.shares += shares
 
         # update direction
         if self.direction != direction:
-            if self.direction is None or self.shares == 0: 
+            if self.direction is None or self.shares == 0:
                 self.direction = direction
             else:
                 raise ValueError('not allowed to change direction from {} to {}, '
                                  'this requires shares = 0'
                                  .format(self.direction, direction))
-
+        # update case
         TradeLog.cash -= entry_price * shares
 
         return shares
@@ -141,7 +181,7 @@ class TradeLog:
             entry_date = open_trade['entry_date']
             entry_price = open_trade['entry_price']
             qty = open_trade['qty']
-            
+
             if direction == Direction.LONG:
                 pl_points = exit_price - entry_price
             else:
@@ -196,17 +236,6 @@ class TradeLog:
     #####################################################################
     # ADJUST POSITION (adjust_shares, adjust_value, adjust_percent)
 
-    def _total_equity(self, price):
-        """ return the total equity in portfolio """
-        total_equity = TradeLog.cash
-        if self.direction == Direction.LONG:
-            total_equity += price*self.shares
-        elif self.direction == Direction.SHORT:
-            total_equity += (2*self.ave_entry_price-price)*self.shares
-        else:
-            pass
-        return total_equity
-    
     def adjust_shares(self, date, price, shares, direction=Direction.LONG):
         """
         Adjust a position to a target number of shares.
@@ -236,8 +265,8 @@ class TradeLog:
         equivalent to entering or exiting a trade for the difference between
         the target value and the current value.
         """
-        total_equity = self._total_equity(price)
-        shares = int(min(total_equity, value) / price)
+        margin_value = self.total_equity(price) * TradeLog.margin
+        shares = int(min(margin_value, value) / price)
         shares = self.adjust_shares(date, price, shares, direction)
         return shares
 
@@ -250,8 +279,8 @@ class TradeLog:
         the target percent and the current percent.
         """
         weight = weight if weight <= 1 else weight/100
-        total_equity = self._total_equity(price)
-        value = total_equity * weight
+        margin_value = self.total_equity(price) * TradeLog.margin
+        value = margin_value * weight
         shares = self.adjust_value(date, price, value, direction)
         return shares
 
@@ -325,23 +354,28 @@ class DailyBal:
         self._l = []  # list of daily balance tuples
 
     def append(self, date, high, low, close):
-        # calculate daily balance values: date, high, low, close, shares, cash
+        # calculate daily balance values:
+        # date, high, low, close, shares, cash, leverage
         cash = TradeLog.cash
         tlog = list(TradeLog.instance.values())[0]
-        shares = tlog.shares
-        high_  = tlog._total_equity(high)
-        low_   = tlog._total_equity(low)
-        close_ = tlog._total_equity(high)
+        shares   = tlog.shares
+        high_    = tlog.total_equity(high)
+        low_     = tlog.total_equity(low)
+        close_   = tlog.total_equity(close)
+        leverage = tlog.leverage(close)
+        if (close_ < 0):
+            print('{} WARNING: Margin Call!!!'
+                  .format(date.strftime('%Y-%m-%d')))
 
         if tlog.direction == Direction.LONG:
-            t = (date, high_, low_, close_, shares, cash)
+            t = (date, high_, low_, close_, shares, cash, leverage)
         else:
-            t = (date, low_, high_, close_, shares, cash)
+            t = (date, low_, high_, close_, shares, cash, leverage)
         self._l.append(t)
 
     def get_log(self, tlog):
         """ return Dataframe """
-        columns = ['date', 'high', 'low', 'close', 'shares', 'cash']
+        columns = ['date', 'high', 'low', 'close', 'shares', 'cash', 'leverage']
         dbal = pd.DataFrame(self._l, columns=columns)
 
         def trade_state(row):

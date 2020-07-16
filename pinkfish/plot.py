@@ -53,11 +53,15 @@ def plot_trades(strategy, benchmark=None):
     axes.plot(benchmark.index, benchmark['close'], label=label)
 
     # buy trades
-    buy = benchmark[strategy['state'] == pf.TradeState.OPEN]
+    s = strategy['state'] == pf.TradeState.OPEN
+    s = s.reindex_like(benchmark)
+    buy = benchmark[s]
     axes.plot(buy.index, buy['close'], '^', markersize=10, color='k')
 
     #sell trades
-    sell = benchmark[strategy['state'] == pf.TradeState.CLOSE]
+    s = strategy['state'] == pf.TradeState.CLOSE
+    s = s.reindex_like(benchmark)
+    sell = benchmark[s]
     axes.plot(sell.index, sell['close'], 'v', markersize=10, color='r')
     plt.legend(loc='best')
 

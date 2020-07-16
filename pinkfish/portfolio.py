@@ -5,6 +5,9 @@ Portfolio backtesting
 """
 
 import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn
 import pinkfish as pf
 
 
@@ -53,16 +56,16 @@ class Portfolio:
             output_column = symbol + '_' + output_column_suffix
             ts[output_column] = ta_func(ts, ta_param, input_column)
         return ts
-        
+
     def calendar(self, ts):
         return pf.calendar(ts)
-    
+
     def finalize_timeseries(self, ts, start):
         return pf.finalize_timeseries(ts, start)
 
     #####################################################################
     # ADJUST POSITION (adjust_shares, adjust_value, adjust_percent, print_holdings)
-    
+
     def get_row_column_price(self, row, symbol, field='close'):
         """ return price given row and symbol """
         symbol += '_' + field
@@ -75,30 +78,47 @@ class Portfolio:
             price = self._ts.loc[date, symbol]
         return price
 
-    def _total_equity(self, row):
-        """ return the total equity in portfolio """
-        total_equity = pf.TradeLog.cash
+    def _share_value(self, row):
+        """ total share value in portfolio """
+        share_value = 0
         for symbol, tlog in pf.TradeLog.instance.items():
             close = self.get_row_column_price(row, symbol)
-            total_equity += tlog._total_equity(close) - pf.TradeLog.cash
-        return total_equity
+            share_value += tlog.share_value(close)
+        return share_value
 
-    def adjust_shares(self, date, price, shares, symbol, direction=pf.Direction.LONG):
+    def _total_equity(self, row):
+        """ return the total equity in portfolio """
+        return pf.TradeLog.cash + self._share_value(row)
+
+    def _leverage(self, row):
+        """ return the leverage of portfolio """
+        return self._share_value(row) / self._total_equity(row)
+
+    def _calc_buying_power(self, row):
+        """ calculate buying power """
+        buying_power = (pf.TradeLog.cash * pf.TradeLog.margin
+                      + self._share_value(row) * pf.TradeLog.margin
+                      - self._share_value(row))
+        return buying_power
+
+    def _adjust_shares(self, date, price, shares, symbol, row, direction=pf.Direction.LONG):
         tlog = pf.TradeLog.instance[symbol]
+        pf.TradeLog.buying_power = self._calc_buying_power(row)
         shares = tlog.adjust_shares(date, price, shares, direction)
+        pf.TradeLog.buying_power = None
         return shares
 
-    def adjust_value(self, date, price, value, symbol, row, direction=pf.Direction.LONG):
-        total_equity = self._total_equity(row)
-        shares = int(min(total_equity, value) / price)
-        shares = self.adjust_shares(date, price, shares, symbol, direction)
+    def _adjust_value(self, date, price, value, symbol, row, direction=pf.Direction.LONG):
+        margin_value = self._total_equity(row) * pf.TradeLog.margin
+        shares = int(min(margin_value, value) / price)
+        shares = self._adjust_shares(date, price, shares, symbol, row, direction)
         return shares
 
     def adjust_percent(self, date, price, weight, symbol, row, direction=pf.Direction.LONG):
         weight = weight if weight <= 1 else weight/100
-        total_equity = self._total_equity(row)
-        value = total_equity * weight
-        shares = self.adjust_value(date, price, value, symbol, row, direction)
+        margin_value = self._total_equity(row) * pf.TradeLog.margin
+        value = margin_value * weight
+        shares = self._adjust_value(date, price, value, symbol, row, direction)
         return shares
 
     def print_holdings(self, date, row):
@@ -113,9 +133,10 @@ class Portfolio:
     #####################################################################
     # LOGS (init_trade_logs, record_daily_balance, get_logs)
 
-    def init_trade_logs(self, ts, capital):
+    def init_trade_logs(self, ts, capital, margin=pf.Margin.CASH):
         """ add a trade log for each symbol """
         pf.TradeLog.cash = capital
+        pf.TradeLog.margin = margin
         self._ts = ts
         for symbol in self.symbols:
             pf.TradeLog(symbol, False)
@@ -124,10 +145,12 @@ class Portfolio:
         """ append to daily balance list """
         # calculate daily balance values: date, high, low, close, shares, cash
         total_equity = self._total_equity(row)
+        leverage = self._leverage(row)
         shares = 0
         for tlog in pf.TradeLog.instance.values():
             shares += tlog.shares
-        t = (date, total_equity, total_equity, total_equity, shares, pf.TradeLog.cash)
+        t = (date, total_equity, total_equity, total_equity, shares,
+             pf.TradeLog.cash, leverage)
         self._l.append(t)
 
     def get_logs(self):
@@ -146,4 +169,74 @@ class Portfolio:
         dbal._l = self._l
         dbal = dbal.get_log(tlog)
         return rlog, tlog, dbal
+
+    #####################################################################
+    # PERFORMANCE ANALYSIS (performance_per_symbol, correlation_map)
+
+    def performance_per_symbol(self, weights):
+        """ returns data from containing performace per symbol; also plots perf """
+
+        def _weight(row, weights):
+            return weights[row.name]
+
+        def _currency(row):
+            return pf.currency(row['cumul_total'])
+
+        def _plot(df):
+            df = df[:-1]
+            # Make  new figure and set the size.
+            fig = plt.figure(figsize=(12, 8))
+            # The first subplot, planning for 3 plots high, 1 plot wide,
+            # this being the first.
+            axes = fig.add_subplot(111, ylabel='Percentages')
+            axes.set_title('Performance by Symbol')
+            df.plot(kind='bar', ax=axes)
+            axes.set_xticklabels(df.index, rotation=60)
+            plt.legend(loc='best')
+
+        # convert dict to series
+        s = pd.Series(dtype='object')
+        for symbol, tlog in pf.TradeLog.instance.items():
+            s[symbol] = tlog.cumul_total
+        # convert series to dataframe
+        df = pd.DataFrame(s.values, index=s.index, columns=['cumul_total'])
+        # add weight column
+        df['weight'] = df.apply(_weight, weights=weights, axis=1)
+         # add percent column
+        df['pct_cumul_total'] = df['cumul_total'] / df['cumul_total'].sum()
+        # add relative preformance
+        df['relative_performance'] = df['pct_cumul_total'] / df['weight']
+        # add TOTAL row
+        new_row = pd.Series(name='TOTAL',
+            data={'cumul_total':df['cumul_total'].sum(),
+                  'pct_cumul_total': 1.00, 'weight': 1.00,
+                  'relative_performance': 1.00})
+        df = df.append(new_row, ignore_index=False)
+        # format as currency
+        df['cumul_total'] = df.apply(_currency, axis=1)
+        # plot bar graph of performance
+        _plot(df)
+        return df
+
+    def correlation_map(self, ts):
+        """ return correlation dataframe; show correlation map between symbols"""
+
+        # filter coloumn names for ''_close''; drop '_close' suffix
+        df = ts.filter(regex='_close')
+        df.columns = df.columns.str.strip('_close')
+
+        df = df.corr(method='pearson')
+        #reset symbol as index (rather than 0-X)
+        df.head().reset_index()
+        #del df.index.name
+        df.head(20)
+        #take the bottom triangle since it repeats itself
+        mask = np.zeros_like(df)
+        mask[np.triu_indices_from(mask)] = True
+        #generate plot
+        seaborn.heatmap(df, cmap='RdYlGn', vmax=1.0, vmin=-1.0 ,
+                        mask = mask, linewidths=2.5)
+        plt.yticks(rotation=0)
+        plt.xticks(rotation=90)
+        return df
 

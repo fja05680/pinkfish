@@ -16,7 +16,7 @@ pf.DEBUG = False
 class Strategy:
 
     def __init__(self, symbol, capital, start, end, use_adj=False,
-                 period=7, max_positions=4):
+                 period=7, max_positions=4, stop_loss_pct=0, margin=1):
         self._symbol = symbol
         self._capital = capital
         self._start = start
@@ -24,7 +24,8 @@ class Strategy:
         self._use_adj = use_adj
         self._period = period
         self._max_positions = max_positions
-        self._positions = 0
+        self._stop__loss_pct = stop_loss_pct/100
+        self._margin = margin
         
     def _algo(self):
         """ Algo:
@@ -35,6 +36,7 @@ class Strategy:
             4. If you have free cash, use it all when fresh lows are set.
         """
         pf.TradeLog.cash = self._capital
+        pf.TradeLog.margin = self._margin
         stop_loss = 0
 
         for i, row in enumerate(self._ts.itertuples()):
@@ -45,12 +47,14 @@ class Strategy:
             shares = 0
 
             # buy
-            if (close > row.sma200
+            if (self._tlog.num_open_trades() < self._max_positions
+                and close > row.sma200
                 and close == row.period_low
                 and not end_flag):
                 
                 # calc number of shares
-                shares = self._tlog.calc_shares(price=close, cash=self._tlog.cash)
+                buying_power = self._tlog.calc_buying_power(price=close)
+                shares = self._tlog.calc_shares(price=close, cash=buying_power)
                 
                 # if we have enough cash to buy any shares, then buy them
                 if shares > 0:

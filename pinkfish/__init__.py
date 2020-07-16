@@ -8,6 +8,7 @@ from .fetch import (
 
 from .trade import (
     Direction,
+    Margin,
     TradeLog,
     TradeState,
     DailyBal

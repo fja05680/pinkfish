@@ -15,13 +15,15 @@ pf.DEBUG = False
 
 class Strategy:
 
-    def __init__(self, symbol, capital, start, end, period, sma):
+    def __init__(self, symbol, capital, start, end, period=7, sma=200, stop_loss_pct=0, margin=pf.Margin.CASH):
         self._symbol = symbol
         self._capital = capital
         self._start = start
         self._end = end
         self._period = period
         self._sma = sma
+        self._stop_loss_pct = stop_loss_pct/100
+        self._margin = margin
         
     def _algo(self):
         """ Algo:
@@ -30,6 +32,7 @@ class Strategy:
             3. If the SPY closes at a X-day high, sell your long position.
         """
         pf.TradeLog.cash = self._capital
+        pf.TradeLog.margin = self._margin
         stop_loss = 0
 
         for i, row in enumerate(self._ts.itertuples()):
@@ -48,7 +51,7 @@ class Strategy:
                 # enter buy in trade log
                 shares = self._tlog.buy(date, close)
                 # set stop loss
-                stop_loss = 0*close
+                stop_loss = self._stop_loss_pct*close
             # sell
             elif (self._tlog.shares > 0
                   and (close == row.period_high or low < stop_loss or end_flag)):
@@ -60,16 +63,15 @@ class Strategy:
                 pf.DBG("{0} BUY  {1} {2} @ {3:.2f}".format(
                        date, shares, self._symbol, close))
             elif shares < 0:
-                pf.DBG("{0} SELL {1} {2} @ {3:.2f}".format(
-                       date, -shares, self._symbol, close))
+                pf.DBG("{0} SELL {1} {2} @ {3:.2f} {4}".format(
+                       date, -shares, self._symbol, close, 'STOP' if low < stop_loss else ''))
 
             # record daily balance
             self._dbal.append(date, high, low, close)
 
     def run(self):
         self._ts = pf.fetch_timeseries(self._symbol)
-        self._ts = pf.select_tradeperiod(self._ts, self._start,
-                                         self._end, use_adj=True)
+        self._ts = pf.select_tradeperiod(self._ts, self._start, self._end, use_adj=True)
 
         # Add technical indicator: 200 day sma
         sma200 = SMA(self._ts, timeperiod=200)

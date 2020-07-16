@@ -16,7 +16,7 @@ pf.DEBUG = False
 class Strategy:
 
     def __init__(self, symbol, capital, start, end, use_adj=False,
-                 period=7, max_positions=4):
+                 period=7, max_positions=4, stop_loss_pct=0, margin=1):
         self._symbol = symbol
         self._capital = capital
         self._start = start
@@ -24,6 +24,8 @@ class Strategy:
         self._use_adj = use_adj
         self._period = period
         self._max_positions = max_positions
+        self._stop__loss_pct = stop_loss_pct/100
+        self._margin = margin
         
     def _algo(self):
         """ Algo:
@@ -34,6 +36,7 @@ class Strategy:
                If it sets further highs, sell some more, etc...
         """
         pf.TradeLog.cash = self._capital
+        pf.TradeLog.margin = self._margin
         stop_loss = 0
 
         for i, row in enumerate(self._ts.itertuples()):
@@ -50,7 +53,8 @@ class Strategy:
                 and not end_flag):
                 
                 # calc number of shares
-                cash = self._tlog.cash / (self._max_positions - self._tlog.num_open_trades())
+                buying_power = self._tlog.calc_buying_power(price=close)
+                cash = buying_power / (self._max_positions - self._tlog.num_open_trades())
                 shares = self._tlog.calc_shares(price=close, cash=cash)
                 
                 # if we have enough cash to buy any shares, then buy them
@@ -59,7 +63,7 @@ class Strategy:
                     # enter buy in trade log
                     self._tlog.buy(date, close, shares)
                     # set stop loss
-                    stop_loss = 0*close
+                    stop_loss = self._stop__loss_pct*close
 
             # sell           
             elif (self._tlog.num_open_trades() > 0
