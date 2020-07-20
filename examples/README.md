@@ -1,6 +1,6 @@
 # Example trading strategies
 
-- `buy-and-hold`: strategy) simple buy and hold strategy
+- `buy-and-hold`: (strategy) simple buy and hold strategy; (dividend) dividend vs non-dividend
 - `double-7s`: buy on X day low, sell on X day high (use closing prices)
 - `follow-trend`: apply the same trading strategy to multiple securites, one at a time, and compare them
 - `golden-cross`: classic golden-cross/death-cross long term trading strategy
@@ -19,5 +19,5 @@
 - `sp500-components-timeseries`: get timeseries of all components in sp500
 - `spreadsheet`: make a read only spreadsheet within jupyter notebook
 - `ta-lib-tutorial`: a tutorial on using the ta-lib technical analysis library
-- `trading-evolved`: demonstrate monthly returns, holding period returns, and prettier graphs
+- `trading-evolved`: asset allocation model; correlation; monthly returns; holding period returns; prettier graphs
 - `update-cache-symbols`: utility to update all the symbols in your data cache
