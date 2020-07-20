@@ -44,7 +44,7 @@ class Strategy:
 
             # buy
             if (self._tlog.shares == 0
-                and (close > row.sma200 or close > row.sma)
+                and (row.regime > 0 or close > row.sma)
                 and close == row.period_low
                 and not end_flag):
 
@@ -73,9 +73,9 @@ class Strategy:
         self._ts = pf.fetch_timeseries(self._symbol)
         self._ts = pf.select_tradeperiod(self._ts, self._start, self._end, use_adj=True)
 
-        # Add technical indicator: 200 day sma
-        sma200 = SMA(self._ts, timeperiod=200)
-        self._ts['sma200'] = sma200
+        # Add technical indicator: 200 sma regime filter
+        self._ts['regime'] = \
+            pf.CROSSOVER(self._ts, timeperiod_fast=1, timeperiod_slow=200)
 
         # Add technical indicator: X day sma
         sma = SMA(self._ts, timeperiod=self._sma)

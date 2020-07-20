@@ -15,6 +15,10 @@ from .trade import (
 )
 
 from .statistics import (
+    SP500_BEGIN,
+    TRADING_DAYS_PER_YEAR,
+    TRADING_DAYS_PER_MONTH,
+    TRADING_DAYS_PER_WEEK,
     stats,
     currency,
     summary,
@@ -38,7 +42,8 @@ from .portfolio import (
 )
 
 from .indicator import (
-    CROSSOVER
+    CROSSOVER,
+    MOMENTUM
 )
 
 from .calendar import (
@@ -62,5 +67,4 @@ def DBG(s):
     if DEBUG: print(s)
     else:     pass
 
-SP500_BEGIN = '1957-03-04'
 

@@ -80,25 +80,49 @@ class Portfolio:
 
     def _share_value(self, row):
         """ total share value in portfolio """
-        share_value = 0
+        value = 0
         for symbol, tlog in pf.TradeLog.instance.items():
             close = self.get_row_column_price(row, symbol)
-            share_value += tlog.share_value(close)
-        return share_value
+            value += tlog.share_value(close)
+        return value
+        
+    def _total_value(self, row):
+        """ total_value = share_value +  cash (if cash > 0) """
+        total_value = self._share_value(row)
+        if pf.TradeLog.cash > 0:
+            total_value += pf.TradeLog.cash
+        return total_value
 
-    def _total_equity(self, row):
-        """ return the total equity in portfolio """
+    def _equity(self, row):
+        """ return the equity in portfolio """
         return pf.TradeLog.cash + self._share_value(row)
 
+    def _equity(self, row):
+        """ equity = total_value - loan (loan is negative cash) """
+        equity = self._total_value(row)
+        if pf.TradeLog.cash < 0:
+            equity += pf.TradeLog.cash
+        return equity
+
     def _leverage(self, row):
-        """ return the leverage of portfolio """
-        return self._share_value(row) / self._total_equity(row)
+        """ return the leverage factor of the position """
+        return self._total_value(row) / self._equity(row)
+
+    def _total_funds(self, row):
+        """ total account funds for trading """
+        return self._equity(row) * pf.TradeLog.margin
+
+    def share_percent(self, row, symbol):
+        """ return share value of symbol as a percentage of total_funds """
+        close = self.get_row_column_price(row, symbol)
+        tlog = pf.TradeLog.instance[symbol]
+        value = tlog.share_value(close)
+        return value / self._total_funds(row) * 100
 
     def _calc_buying_power(self, row):
         """ calculate buying power """
         buying_power = (pf.TradeLog.cash * pf.TradeLog.margin
-                      + self._share_value(row) * pf.TradeLog.margin
-                      - self._share_value(row))
+                      + self._share_value(row) * (pf.TradeLog.margin -1))
         return buying_power
 
     def _adjust_shares(self, date, price, shares, symbol, row, direction=pf.Direction.LONG):
@@ -109,15 +133,15 @@ class Portfolio:
         return shares
 
     def _adjust_value(self, date, price, value, symbol, row, direction=pf.Direction.LONG):
-        margin_value = self._total_equity(row) * pf.TradeLog.margin
-        shares = int(min(margin_value, value) / price)
+        total_funds = self._total_funds(row)
+        shares = int(min(total_funds, value) / price)
         shares = self._adjust_shares(date, price, shares, symbol, row, direction)
         return shares
 
     def adjust_percent(self, date, price, weight, symbol, row, direction=pf.Direction.LONG):
         weight = weight if weight <= 1 else weight/100
-        margin_value = self._total_equity(row) * pf.TradeLog.margin
-        value = margin_value * weight
+        total_funds = self._total_funds(row)
+        value = total_funds * weight
         shares = self._adjust_value(date, price, value, symbol, row, direction)
         return shares
 
@@ -128,7 +152,7 @@ class Portfolio:
         for symbol, tlog in pf.TradeLog.instance.items():
             print('{}:{:3}'.format(symbol, tlog.shares), end=' ')
         print('cash: {:8,.2f}'.format(pf.TradeLog.cash), end=' ')
-        print('total: {:9,.2f}'.format(self._total_equity(row)))
+        print('total: {:9,.2f}'.format(self._equity(row)))
 
     #####################################################################
     # LOGS (init_trade_logs, record_daily_balance, get_logs)
@@ -144,12 +168,12 @@ class Portfolio:
     def record_daily_balance(self, date, row):
         """ append to daily balance list """
         # calculate daily balance values: date, high, low, close, shares, cash
-        total_equity = self._total_equity(row)
+        equity = self._equity(row)
         leverage = self._leverage(row)
         shares = 0
         for tlog in pf.TradeLog.instance.values():
             shares += tlog.shares
-        t = (date, total_equity, total_equity, total_equity, shares,
+        t = (date, equity, equity, equity, shares,
              pf.TradeLog.cash, leverage)
         self._l.append(t)
 
@@ -184,7 +208,7 @@ class Portfolio:
 
         def _plot(df):
             df = df[:-1]
-            # Make  new figure and set the size.
+            # Make new figure and set the size.
             fig = plt.figure(figsize=(12, 8))
             # The first subplot, planning for 3 plots high, 1 plot wide,
             # this being the first.
@@ -202,7 +226,7 @@ class Portfolio:
         df = pd.DataFrame(s.values, index=s.index, columns=['cumul_total'])
         # add weight column
         df['weight'] = df.apply(_weight, weights=weights, axis=1)
-         # add percent column
+        # add percent column
         df['pct_cumul_total'] = df['cumul_total'] / df['cumul_total'].sum()
         # add relative preformance
         df['relative_performance'] = df['pct_cumul_total'] / df['weight']
@@ -226,14 +250,14 @@ class Portfolio:
         df.columns = df.columns.str.strip('_close')
 
         df = df.corr(method='pearson')
-        #reset symbol as index (rather than 0-X)
+        # reset symbol as index (rather than 0-X)
         df.head().reset_index()
-        #del df.index.name
+        # del df.index.name
         df.head(20)
-        #take the bottom triangle since it repeats itself
+        # take the bottom triangle since it repeats itself
         mask = np.zeros_like(df)
         mask[np.triu_indices_from(mask)] = True
-        #generate plot
+        # generate plot
         seaborn.heatmap(df, cmap='RdYlGn', vmax=1.0, vmin=-1.0 ,
                         mask = mask, linewidths=2.5)
         plt.yticks(rotation=0)

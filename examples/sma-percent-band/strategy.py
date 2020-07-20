@@ -23,7 +23,7 @@ class Strategy:
         self._end = end
         self._use_adj = use_adj
         self._sma_period = sma_period
-        self._percent_band = percent_band/100
+        self._percent_band = percent_band
 
     def _algo(self):
         """ Algo:
@@ -37,15 +37,11 @@ class Strategy:
             date = row.Index.to_pydatetime()
             high = row.high; low = row.low; close = row.close; 
             end_flag = pf.is_last_row(self._ts, i)
-            upper_band = row.sma + row.sma * self._percent_band
-            lower_band = row.sma - row.sma * self._percent_band
-            upper_band200 = row.sma200 + row.sma200 * self._percent_band
-            lower_band200 = row.sma200 - row.sma200 * self._percent_band
             shares = 0
 
             # buy
             if (self._tlog.shares == 0
-                and ((close < upper_band200 and close > upper_band) or (close > upper_band200))
+                and row.regime > 0
                 and not end_flag):
 
                 # enter buy in trade log
@@ -53,7 +49,7 @@ class Strategy:
 
             # sell
             elif (self._tlog.shares > 0
-                  and (close < lower_band200 and close < lower_band)
+                  and row.regime < 0
                   or end_flag):
 
                 # enter sell in trade log
@@ -74,13 +70,10 @@ class Strategy:
         self._ts = pf.select_tradeperiod(self._ts, self._start,
                                          self._end, self._use_adj)
 
-        # Add technical indicator:  day sma
-        sma = SMA(self._ts, timeperiod=self._sma_period)
-        self._ts['sma'] = sma
-        
-        # Add technical indicator:  day sma
-        sma200 = SMA(self._ts, timeperiod=200)
-        self._ts['sma200'] = sma200
+        # Add technical indicator: sma regime filter
+        self._ts['regime'] = \
+            pf.CROSSOVER(self._ts, timeperiod_fast=1, timeperiod_slow=self._sma_period,
+                         band=self._percent_band)
         
         self._ts, self._start = pf.finalize_timeseries(self._ts, self._start)
 

@@ -11,19 +11,16 @@ import random
 
 import pinkfish as pf
 
-pf.DEBUG = False
-TRADING_DAYS_PER_MONTH = 21
-TRADING_DAYS_PER_YEAR = 252
-
 
 class Strategy:
 
-    def __init__(self, symbol, capital, start, end, period=None):
+    def __init__(self, symbol, capital, start, end, period=None, margin=1):
         self._symbol = symbol
         self._capital = capital
         self._start = start
         self._end = end
         self._period = period
+        self._margin = margin
         
     def _algo(self):
         """ Algo:
@@ -31,38 +28,31 @@ class Strategy:
             2. If the SPY is lower than X days ago, sell your long position.
         """
         pf.TradeLog.cash = self._capital
-        start_flag = True
+        pf.TradeLog.margin = self._margin
         stop_loss = 0
-        periods = range(TRADING_DAYS_PER_MONTH*3, TRADING_DAYS_PER_MONTH*13, TRADING_DAYS_PER_MONTH)
 
         for i, row in enumerate(self._ts.itertuples()):
 
             date = row.Index.to_pydatetime()
-            high = row.high; low = row.low; close = row.close; 
+            high = row.high; low = row.low; close = row.close 
             end_flag = pf.is_last_row(self._ts, i)
             shares = 0
-
-            if i < TRADING_DAYS_PER_YEAR*2:
-                continue
-            elif start_flag:
-                start_flag = False
-                # set start
-                self._start = date
                 
             if self._tlog.shares == 0:
                 # if period is None, then select a random trading period of
-                # 3,4,5,...,or 12 months
+                # 6,7,8,...,or 12 months
                 if self._period is None:
-                    period = random.choice(periods)
+                    period = random.choice(range(6, 12+1))
                 else:
                     period = self._period
 
-            lookback = self._ts['close'][i-period]
+            mom = getattr(row, 'mom'+str(period))
             
             # buy (and row.first_dotm)
             if (self._tlog.shares == 0
-                and row.first_dotm
-                and close > lookback
+                #and row.first_dotm
+                and row.first_dotw
+                and mom > 0
                 and not end_flag):
 
                 # enter buy in trade log
@@ -71,8 +61,9 @@ class Strategy:
                 stop_loss = 0*close
             # sell
             elif (self._tlog.shares > 0
-                  and row.first_dotm
-                  and (close < lookback or low < stop_loss or end_flag)):
+                  #and row.first_dotm
+                  and row.first_dotw
+                  and (mom < 0 or low < stop_loss or end_flag)):
 
                 # enter sell in trade log
                 shares = self._tlog.sell(date, close)
@@ -95,6 +86,13 @@ class Strategy:
         # add calendar columns
         self._ts = pf.calendar(self._ts)
         
+        # add momentum indicator for 3...12 months
+        lookbacks = range(3, 18+1)
+        for lookback in lookbacks:
+            self._ts['mom'+str(lookback)] = pf.MOMENTUM(self._ts,
+                lookback=lookback, time_frame='monthly',
+                price='close', prevday=False)
+
         self._ts, self._start = pf.finalize_timeseries(self._ts, self._start)
         
         self._tlog = pf.TradeLog(self._symbol)

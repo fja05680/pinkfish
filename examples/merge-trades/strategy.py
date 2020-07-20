@@ -43,12 +43,13 @@ class Strategy:
 
             # buy
             if (self._tlog.num_open_trades() < self._max_positions
-                and close > row.sma200
+                and row.regime > 0
                 and close == row.period_low
                 and not end_flag):
-                
+
                 # calc number of shares
-                cash = self._tlog.cash / (self._max_positions - self._tlog.num_open_trades())
+                buying_power = self._tlog.calc_buying_power(price=close)
+                cash = buying_power / (self._max_positions - self._tlog.num_open_trades())
                 shares = self._tlog.calc_shares(price=close, cash=cash)
                 # enter buy in trade log
                 self._tlog.buy(date, close, shares)
@@ -78,9 +79,9 @@ class Strategy:
         self._ts = pf.select_tradeperiod(self._ts, self._start,
                                          self._end, use_adj=False)
 
-        # Add technical indicator: 200 day sma
-        sma200 = SMA(self._ts, timeperiod=200)
-        self._ts['sma200'] = sma200
+        # Add technical indicator: 200 sma regime filter
+        self._ts['regime'] = \
+            pf.CROSSOVER(self._ts, timeperiod_fast=1, timeperiod_slow=200)
 
         # Add technical indicator: X day high, and X day low
         period_high = pd.Series(self._ts.close).rolling(self._period).max()

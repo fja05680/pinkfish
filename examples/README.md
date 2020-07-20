@@ -1,9 +1,7 @@
 # Example trading strategies
 
-- `buy-and-hold`: simple buy and hold strategy
+- `buy-and-hold`: strategy) simple buy and hold strategy
 - `double-7s`: buy on X day low, sell on X day high (use closing prices)
-- `double-7s-intra`: buy on X day low, sell on X day high (use intraday prices)
-- `double-7s-open`: same as double-7s, but sell next open instead of current close
 - `follow-trend`: apply the same trading strategy to multiple securites, one at a time, and compare them
 - `golden-cross`: classic golden-cross/death-cross long term trading strategy
 - `merge-trades`: Compare regular trade log vs merged trade log using Scaling-in algorithm

@@ -38,24 +38,38 @@ class TradeLog:
 
     def share_value(self, price):
         """ return total value of shares """
-        equity = 0
+        value = 0
         if self.direction == Direction.LONG:
-            equity += price*self.shares
+            value += price*self.shares
         elif self.direction == Direction.SHORT:
-            equity += (2*self.ave_entry_price-price)*self.shares
+            value += (2*self.ave_entry_price-price)*self.shares
+        return value
+        
+    def total_value(self, price):
+        """ total_value = share_value +  cash (if cash > 0) """
+        total_value = self.share_value(price)
+        if TradeLog.cash > 0:
+            total_value += TradeLog.cash
+        return total_value
+
+    def equity(self, price):
+        """ equity = total_value - loan (loan is negative cash) """
+        equity = self.total_value(price)
+        if TradeLog.cash < 0:
+            equity += TradeLog.cash
         return equity
 
-    def total_equity(self, price):
-        """ return the total equity in portfolio """
-        return TradeLog.cash + self.share_value(price)
-
     def leverage(self, price):
-        """ return the leverage of the position """
-        return self.share_value(price) / self.total_equity(price)
+        """ return the leverage factor of the position """
+        return self.total_value(price) / self.equity(price)
+        
+    def total_funds(self, price):
+        """ total account funds for trading """
+        return self.equity(price) * TradeLog.margin
 
     def share_percent(self, price):
-        """ return percent of portfolio value currently allocated """
-        return ((self.share_value(price)) / self.total_equity(price)) * 100
+        """ return share value as a percentage of total_funds """
+        return self.share_value(price) / self.total_funds(price) * 100
 
     def num_open_trades(self):
         """ return number of open orders, i.e. not closed out """
@@ -67,8 +81,7 @@ class TradeLog:
     def calc_buying_power(self, price):
         """ calculate buying power """
         buying_power = (TradeLog.cash * TradeLog.margin
-                      + self.share_value(price) * TradeLog.margin
-                      - self.share_value(price))
+                      + self.share_value(price) * (TradeLog.margin -1))
         return buying_power
 
     def calc_shares(self, price, cash=None):
@@ -265,8 +278,8 @@ class TradeLog:
         equivalent to entering or exiting a trade for the difference between
         the target value and the current value.
         """
-        margin_value = self.total_equity(price) * TradeLog.margin
-        shares = int(min(margin_value, value) / price)
+        total_funds = self.total_funds(price)
+        shares = int(min(total_funds, value) / price)
         shares = self.adjust_shares(date, price, shares, direction)
         return shares
 
@@ -279,8 +292,8 @@ class TradeLog:
         the target percent and the current percent.
         """
         weight = weight if weight <= 1 else weight/100
-        margin_value = self.total_equity(price) * TradeLog.margin
-        value = margin_value * weight
+        total_funds = self.total_funds(price)
+        value = total_funds * weight
         shares = self.adjust_value(date, price, value, direction)
         return shares
 
@@ -359,9 +372,9 @@ class DailyBal:
         cash = TradeLog.cash
         tlog = list(TradeLog.instance.values())[0]
         shares   = tlog.shares
-        high_    = tlog.total_equity(high)
-        low_     = tlog.total_equity(low)
-        close_   = tlog.total_equity(close)
+        high_    = tlog.equity(high)
+        low_     = tlog.equity(low)
+        close_   = tlog.equity(close)
         leverage = tlog.leverage(close)
         if (close_ < 0):
             print('{} WARNING: Margin Call!!!'

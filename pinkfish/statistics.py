@@ -21,6 +21,7 @@ TRADING_DAYS_PER_YEAR = 252
 TRADING_DAYS_PER_MONTH = 20
 TRADING_DAYS_PER_WEEK = 5
 
+SP500_BEGIN = '1957-03-04'
 
 #####################################################################
 # HELPER FUNCTIONS
@@ -101,13 +102,13 @@ def margin():
     return pf.TradeLog.margin
 
 def avg_leverage(dbal):
-    return dbal[dbal['leverage'] > 0]['leverage'].mean()
+    return dbal['leverage'].mean()
 
 def max_leverage(dbal):
-    return dbal[dbal['leverage'] > 0]['leverage'].max()
+    return dbal['leverage'].max()
 
 def min_leverage(dbal):
-    return dbal[dbal['leverage'] > 0]['leverage'].min()
+    return dbal['leverage'].min()
 
 #####################################################################
 # SUMS

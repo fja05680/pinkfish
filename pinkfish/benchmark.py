@@ -44,7 +44,7 @@ class Benchmark:
     def run(self):
         self._ts = pf.fetch_timeseries(self._symbol)
         self._ts = pf.select_tradeperiod(self._ts, self._start, self._end,
-                                         use_adj=self._use_adj, pad=False)
+                                         use_adj=self._use_adj)
         self._ts, _ = pf.finalize_timeseries(self._ts, self._start)
 
         self._tlog = pf.TradeLog(self._symbol)

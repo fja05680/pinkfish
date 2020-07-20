@@ -15,8 +15,8 @@ pf.DEBUG = False
 
 class Strategy:
 
-    def __init__(self, symbol, capital, start, end, use_adj=False,
-                 sma_period=200, percent_band=0, regime_filter=False):
+    def __init__(self, symbol, capital, start, end, use_adj=True,
+                 sma_period=200, percent_band=0, regime_filter=True):
         self._symbol = symbol
         self._capital = capital
         self._start = start

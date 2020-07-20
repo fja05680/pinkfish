@@ -76,10 +76,10 @@ def _adj_prices(ts):
     ts['close'] = ts['close'] * ts['adj_close'] / ts['close']
     return ts
 
-def select_tradeperiod(ts, start, end, use_adj=False, pad=True):
+def select_tradeperiod(ts, start, end, use_adj=False):
     """
-    Select a time slice of the data to trade from ts.  If pad=True,
-    back date a year to allow time for long term indicators,
+    Select a time slice of the data to trade from ts.
+    Back date a year to allow time for long term indicators,
     e.g. 200sma is become valid
     """
     if use_adj:
@@ -87,10 +87,7 @@ def select_tradeperiod(ts, start, end, use_adj=False, pad=True):
 
     if start < ts.index[0]: start = ts.index[0]
     if end > ts.index[-1]: end = ts.index[-1]
-    if pad:
-        ts = ts[start - datetime.timedelta(365):end]
-    else:
-        ts = ts[start:end]
+    ts = ts[start - datetime.timedelta(365):end]
 
     return ts
 
