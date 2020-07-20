@@ -1,11 +1,12 @@
 pinkfish
 ======
 
-**07-16-2020: Add Margin (leverage) cabability (see double 7s example; scaling-in example; asset-allocation-model example)**  
-**07-16-2020: Add "performnace per symbol" and correlation map cababilities (see asset-allocation-model example; correlation example)**  
-**06-23-2020: Add ability to have long and short position in same security simultaneously within a portfolio (see portfolio example)**  
+**07-20-2020: Add Momentum Indicator**
+**07-16-2020: Add Margin (leverage) cabability**  
+**07-16-2020: Add "performance per symbol" and correlation map cababilities **  
+**06-23-2020: Add ability to have long and short position in same security simultaneousl**  
 **06-22-2020: Add Shorting cabability, i.e. (see short-sell example; portfolio example)**   
-**06-13-2020: Add Portfolio cabability, i.e. multiple stocks at the same time (see portfolio example)**     
+**06-13-2020: Add Portfolio cabability, i.e. multiple stocks at the same time**     
 
 A backtester and spreadsheet library for security analysis.
 
