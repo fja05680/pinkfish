@@ -1,9 +1,9 @@
 pinkfish
 ======
 
-**07-20-2020: Add Momentum Indicator**
+**07-20-2020: Add Momentum Indicator**  
 **07-16-2020: Add Margin (leverage) cabability**  
-**07-16-2020: Add "performance per symbol" and correlation map cababilities **  
+**07-16-2020: Add "performance per symbol" and correlation map cababilities**  
 **06-23-2020: Add ability to have long and short position in same security simultaneousl**  
 **06-22-2020: Add Shorting cabability, i.e. (see short-sell example; portfolio example)**   
 **06-13-2020: Add Portfolio cabability, i.e. multiple stocks at the same time**     
