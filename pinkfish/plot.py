@@ -32,7 +32,7 @@ def plot_equity_curves(strategies):
     fig = plt.figure(figsize=(16,12))
     axes = fig.add_subplot(111, ylabel='Portfolio value in $')
     for strategy in strategies:
-        axes.plot(strategy.dbal['close'], label=strategy._symbol)
+        axes.plot(strategy.dbal['close'], label=strategy.symbol)
 
     plt.legend(loc='best')
 

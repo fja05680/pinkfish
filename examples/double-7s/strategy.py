@@ -15,15 +15,15 @@ pf.DEBUG = False
 
 class Strategy:
 
-    def __init__(self, symbol, capital, start, end, period=7, sma=200, stop_loss_pct=0, margin=pf.Margin.CASH):
-        self._symbol = symbol
-        self._capital = capital
-        self._start = start
-        self._end = end
-        self._period = period
-        self._sma = sma
-        self._stop_loss_pct = stop_loss_pct/100
-        self._margin = margin
+    def __init__(self, symbol, capital, start, end, stop_loss_pct=0, margin=1, period=7, sma=200):
+        self.symbol = symbol
+        self.capital = capital
+        self.start = start
+        self.end = end
+        self.period = period
+        self.sma = sma
+        self.stop_loss_pct = stop_loss_pct/100
+        self.margin = margin
         
     def _algo(self):
         """ Algo:
@@ -31,77 +31,77 @@ class Strategy:
             2. The SPY closes at a X-day low, buy.
             3. If the SPY closes at a X-day high, sell your long position.
         """
-        pf.TradeLog.cash = self._capital
-        pf.TradeLog.margin = self._margin
+        pf.TradeLog.cash = self.capital
+        pf.TradeLog.margin = self.margin
         stop_loss = 0
 
-        for i, row in enumerate(self._ts.itertuples()):
+        for i, row in enumerate(self.ts.itertuples()):
 
             date = row.Index.to_pydatetime()
             high = row.high; low = row.low; close = row.close 
-            end_flag = pf.is_last_row(self._ts, i)
+            end_flag = pf.is_last_row(self.ts, i)
             shares = 0
 
             # buy
-            if (self._tlog.shares == 0
+            if (self.tlog.shares == 0
                 and (row.regime > 0 or close > row.sma)
                 and close == row.period_low
                 and not end_flag):
 
                 # enter buy in trade log
-                shares = self._tlog.buy(date, close)
+                shares = self.tlog.buy(date, close)
                 # set stop loss
-                stop_loss = self._stop_loss_pct*close
+                stop_loss = self.stop_loss_pct*close
             # sell
-            elif (self._tlog.shares > 0
+            elif (self.tlog.shares > 0
                   and (close == row.period_high or low < stop_loss or end_flag)):
 
                 # enter sell in trade log
-                shares = self._tlog.sell(date, close)
+                shares = self.tlog.sell(date, close)
 
             if shares > 0:
                 pf.DBG("{0} BUY  {1} {2} @ {3:.2f}".format(
-                       date, shares, self._symbol, close))
+                       date, shares, self.symbol, close))
             elif shares < 0:
                 pf.DBG("{0} SELL {1} {2} @ {3:.2f} {4}".format(
-                       date, -shares, self._symbol, close, 'STOP' if low < stop_loss else ''))
+                       date, -shares, self.symbol, close, 'STOP' if low < stop_loss else ''))
 
             # record daily balance
-            self._dbal.append(date, high, low, close)
+            self.dbal.append(date, high, low, close)
 
     def run(self):
-        self._ts = pf.fetch_timeseries(self._symbol)
-        self._ts = pf.select_tradeperiod(self._ts, self._start, self._end, use_adj=True)
+        self.ts = pf.fetch_timeseries(self.symbol)
+        self.ts = pf.select_tradeperiod(self.ts, self.start, self.end, use_adj=True)
 
         # Add technical indicator: 200 sma regime filter
-        self._ts['regime'] = \
-            pf.CROSSOVER(self._ts, timeperiod_fast=1, timeperiod_slow=200)
+        self.ts['regime'] = \
+            pf.CROSSOVER(self.ts, timeperiod_fast=1, timeperiod_slow=200)
 
         # Add technical indicator: X day sma
-        sma = SMA(self._ts, timeperiod=self._sma)
-        self._ts['sma'] = sma
+        sma = SMA(self.ts, timeperiod=self.sma)
+        self.ts['sma'] = sma
 
         # Add technical indicator: X day high, and X day low
-        period_high = pd.Series(self._ts.close).rolling(self._period).max()
-        period_low = pd.Series(self._ts.close).rolling(self._period).min()
-        self._ts['period_high'] = period_high
-        self._ts['period_low'] = period_low
+        period_high = pd.Series(self.ts.close).rolling(self.period).max()
+        period_low = pd.Series(self.ts.close).rolling(self.period).min()
+        self.ts['period_high'] = period_high
+        self.ts['period_low'] = period_low
         
-        self._ts, self._start = pf.finalize_timeseries(self._ts, self._start)
+        self.ts, self.start = pf.finalize_timeseries(self.ts, self.start)
         
-        self._tlog = pf.TradeLog(self._symbol)
-        self._dbal = pf.DailyBal()
+        self.tlog = pf.TradeLog(self.symbol)
+        self.dbal = pf.DailyBal()
 
         self._algo()
 
     def get_logs(self):
         """ return DataFrames """
-        self.tlog = self._tlog.get_log()
-        self.dbal = self._dbal.get_log(self.tlog)
+        self.tlog = self.tlog.get_log()
+        self.dbal = self.dbal.get_log(self.tlog)
         return self.tlog, self.dbal
 
     def get_stats(self):
-        stats = pf.stats(self._ts, self.tlog, self.dbal, self._capital)
+        stats = pf.stats(self.ts, self.tlog, self.dbal, self.capital)
         return stats
 
 def summary(strategies, metrics):

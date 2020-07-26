@@ -19,7 +19,6 @@ class Benchmark:
     def _algo(self):
         pf.TradeLog.cash = self._capital
         pf.TradeLog.margin = pf.Margin.CASH
-        pf.TradeLog.buying_power = None
 
         for i, row in enumerate(self._ts.itertuples()):
 

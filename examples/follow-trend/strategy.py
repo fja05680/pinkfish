@@ -17,14 +17,14 @@ class Strategy:
 
     def __init__(self, symbol, capital, start, end, use_adj=True,
                  sma_period=200, percent_band=0, regime_filter=True):
-        self._symbol = symbol
-        self._capital = capital
-        self._start = start
-        self._end = end
-        self._use_adj = use_adj
-        self._sma_period = sma_period
-        self._percent_band = percent_band/100
-        self._regime_filter = regime_filter
+        self.symbol = symbol
+        self.capital = capital
+        self.start = start
+        self.end = end
+        self.use_adj = use_adj
+        self.sma_period = sma_period
+        self.percent_band = percent_band/100
+        self.regime_filter = regime_filter
 
     def _algo(self):
         """ Algo:
@@ -34,75 +34,76 @@ class Strategy:
             3. S&P 500 index closes below its 200 day moving average
             4. The stock closes below its lower band, sell your long position.
         """
-        pf.TradeLog.cash = self._capital
+        pf.TradeLog.cash = self.capital
+        pf.TradeLog.seq_num = 0
 
-        for i, row in enumerate(self._ts.itertuples()):
+        for i, row in enumerate(self.ts.itertuples()):
 
             date = row.Index.to_pydatetime()
             high = row.high; low = row.low; close = row.close; 
-            end_flag = pf.is_last_row(self._ts, i)
-            upper_band = row.sma + row.sma * self._percent_band
-            lower_band = row.sma - row.sma * self._percent_band
+            end_flag = pf.is_last_row(self.ts, i)
+            upper_band = row.sma + row.sma * self.percent_band
+            lower_band = row.sma - row.sma * self.percent_band
             shares = 0
 
             # buy
-            if (self._tlog.shares == 0
-                and (row.regime > 0 or not self._regime_filter)
+            if (self.tlog.shares == 0
+                and (row.regime > 0 or not self.regime_filter)
                 and close > upper_band
                 and not end_flag):
 
                 # enter buy in trade log
-                shares = self._tlog.buy(date, close)
+                shares = self.tlog.buy(date, close)
             # sell
-            elif (self._tlog.shares > 0
-                  and ((self._regime_filter and row.regime < 0)
+            elif (self.tlog.shares > 0
+                  and ((self.regime_filter and row.regime < 0)
                        or close < lower_band
                        or end_flag)):
 
                 # enter sell in trade log
-                shares = self._tlog.sell(date, close)
+                shares = self.tlog.sell(date, close)
 
             if shares > 0:
                 pf.DBG("{0} BUY  {1} {2} @ {3:.2f}".format(
-                       date, shares, self._symbol, close))
+                       date, shares, self.symbol, close))
             elif shares < 0:
                 pf.DBG("{0} SELL {1} {2} @ {3:.2f}".format(
-                       date, -shares, self._symbol, close))
+                       date, -shares, self.symbol, close))
 
             # record daily balance
-            self._dbal.append(date, high, low, close) 
+            self.dbal.append(date, high, low, close) 
 
     def run(self):
-        self._ts = pf.fetch_timeseries(self._symbol)
-        self._ts = pf.select_tradeperiod(self._ts, self._start,
-                                         self._end, self._use_adj)       
+        self.ts = pf.fetch_timeseries(self.symbol)
+        self.ts = pf.select_tradeperiod(self.ts, self.start,
+                                         self.end, self.use_adj)       
 
         # Add technical indicator:  day sma
-        sma = SMA(self._ts, timeperiod=self._sma_period)
-        self._ts['sma'] = sma          
+        sma = SMA(self.ts, timeperiod=self.sma_period)
+        self.ts['sma'] = sma          
         
         # add S&P500 200 sma regime filter
         ts = pf.fetch_timeseries('^GSPC')
-        ts = pf.select_tradeperiod(ts, self._start, self._end, False) 
-        self._ts['regime'] = \
+        ts = pf.select_tradeperiod(ts, self.start, self.end, False) 
+        self.ts['regime'] = \
             pf.CROSSOVER(ts, timeperiod_fast=1, timeperiod_slow=200)
         
-        self._ts, self._start = pf.finalize_timeseries(self._ts, self._start)
+        self.ts, self.start = pf.finalize_timeseries(self.ts, self.start)
         
-        self._tlog = pf.TradeLog(self._symbol)
-        self._dbal = pf.DailyBal()
+        self.tlog = pf.TradeLog(self.symbol)
+        self.dbal = pf.DailyBal()
 
         self._algo()
 
     def get_logs(self):
         """ return DataFrames """
-        self.rlog = self._tlog.get_log_raw()
-        self.tlog = self._tlog.get_log()
-        self.dbal = self._dbal.get_log(self.tlog)
+        self.rlog = self.tlog.get_log_raw()
+        self.tlog = self.tlog.get_log()
+        self.dbal = self.dbal.get_log(self.tlog)
         return self.rlog, self.tlog, self.dbal
 
     def get_stats(self):
-        stats = pf.stats(self._ts, self.tlog, self.dbal, self._capital)
+        stats = pf.stats(self.ts, self.tlog, self.dbal, self.capital)
         return stats
 
 

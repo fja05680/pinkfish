@@ -15,99 +15,99 @@ import pinkfish as pf
 class Strategy:
 
     def __init__(self, symbol, capital, start, end, period=None, margin=1):
-        self._symbol = symbol
-        self._capital = capital
-        self._start = start
-        self._end = end
-        self._period = period
-        self._margin = margin
+        self.symbol = symbol
+        self.capital = capital
+        self.start = start
+        self.end = end
+        self.period = period
+        self.margin = margin
         
     def _algo(self):
         """ Algo:
             1. The SPY is higher than X days ago, buy
             2. If the SPY is lower than X days ago, sell your long position.
         """
-        pf.TradeLog.cash = self._capital
-        pf.TradeLog.margin = self._margin
+        pf.TradeLog.cash = self.capital
+        pf.TradeLog.margin = self.margin
         stop_loss = 0
 
-        for i, row in enumerate(self._ts.itertuples()):
+        for i, row in enumerate(self.ts.itertuples()):
 
             date = row.Index.to_pydatetime()
             high = row.high; low = row.low; close = row.close 
-            end_flag = pf.is_last_row(self._ts, i)
+            end_flag = pf.is_last_row(self.ts, i)
             shares = 0
                 
-            if self._tlog.shares == 0:
+            if self.tlog.shares == 0:
                 # if period is None, then select a random trading period of
                 # 6,7,8,...,or 12 months
-                if self._period is None:
+                if self.period is None:
                     period = random.choice(range(6, 12+1))
                 else:
-                    period = self._period
+                    period = self.period
 
             mom = getattr(row, 'mom'+str(period))
             
             # buy (and row.first_dotm)
-            if (self._tlog.shares == 0
+            if (self.tlog.shares == 0
                 #and row.first_dotm
                 and row.first_dotw
                 and mom > 0
                 and not end_flag):
 
                 # enter buy in trade log
-                shares = self._tlog.buy(date, close)
+                shares = self.tlog.buy(date, close)
                 # set stop loss
                 stop_loss = 0*close
             # sell
-            elif (self._tlog.shares > 0
+            elif (self.tlog.shares > 0
                   #and row.first_dotm
                   and row.first_dotw
                   and (mom < 0 or low < stop_loss or end_flag)):
 
                 # enter sell in trade log
-                shares = self._tlog.sell(date, close)
+                shares = self.tlog.sell(date, close)
 
             if shares > 0:
                 pf.DBG("{0} BUY  {1} {2} @ {3:.2f}".format(
-                       date, shares, self._symbol, close))
+                       date, shares, self.symbol, close))
             elif shares < 0:
                 pf.DBG("{0} SELL {1} {2} @ {3:.2f}".format(
-                       date, -shares, self._symbol, close))
+                       date, -shares, self.symbol, close))
 
             # record daily balance
-            self._dbal.append(date, high, low, close)
+            self.dbal.append(date, high, low, close)
 
     def run(self):
-        self._ts = pf.fetch_timeseries(self._symbol)
-        self._ts = pf.select_tradeperiod(self._ts, self._start,
-                                         self._end, use_adj=True)
+        self.ts = pf.fetch_timeseries(self.symbol)
+        self.ts = pf.select_tradeperiod(self.ts, self.start,
+                                         self.end, use_adj=True)
 
         # add calendar columns
-        self._ts = pf.calendar(self._ts)
+        self.ts = pf.calendar(self.ts)
         
         # add momentum indicator for 3...12 months
         lookbacks = range(3, 18+1)
         for lookback in lookbacks:
-            self._ts['mom'+str(lookback)] = pf.MOMENTUM(self._ts,
+            self.ts['mom'+str(lookback)] = pf.MOMENTUM(self.ts,
                 lookback=lookback, time_frame='monthly',
                 price='close', prevday=False)
 
-        self._ts, self._start = pf.finalize_timeseries(self._ts, self._start)
+        self.ts, self.start = pf.finalize_timeseries(self.ts, self.start)
         
-        self._tlog = pf.TradeLog(self._symbol)
-        self._dbal = pf.DailyBal()
+        self.tlog = pf.TradeLog(self.symbol)
+        self.dbal = pf.DailyBal()
 
         self._algo()
 
     def get_logs(self):
         """ return DataFrames """
-        self.tlog = self._tlog.get_log()
-        self.dbal = self._dbal.get_log(self.tlog)
+        self.tlog = self.tlog.get_log()
+        self.dbal = self.dbal.get_log(self.tlog)
         return self.tlog, self.dbal
 
     def get_stats(self):
-        stats = pf.stats(self._ts, self.tlog, self.dbal, self._capital)
+        stats = pf.stats(self.ts, self.tlog, self.dbal, self.capital)
         return stats
 
 def summary(strategies, metrics):

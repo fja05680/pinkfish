@@ -17,80 +17,80 @@ class Strategy:
 
     def __init__(self, symbol, capital, start, end, use_adj=False,
                  sma_period=200, percent_band=0):
-        self._symbol = symbol
-        self._capital = capital
-        self._start = start
-        self._end = end
-        self._use_adj = use_adj
-        self._sma_period = sma_period
-        self._percent_band = percent_band
+        self.symbol = symbol
+        self.capital = capital
+        self.start = start
+        self.end = end
+        self.use_adj = use_adj
+        self.sma_period = sma_period
+        self.percent_band = percent_band
 
     def _algo(self):
         """ Algo:
             1. The SPY closes above its upper band, buy
             2. If the SPY closes below its lower band, sell your long position.
         """
-        pf.TradeLog.cash = self._capital
+        pf.TradeLog.cash = self.capital
 
-        for i, row in enumerate(self._ts.itertuples()):
+        for i, row in enumerate(self.ts.itertuples()):
 
             date = row.Index.to_pydatetime()
             high = row.high; low = row.low; close = row.close; 
-            end_flag = pf.is_last_row(self._ts, i)
+            end_flag = pf.is_last_row(self.ts, i)
             shares = 0
 
             # buy
-            if (self._tlog.shares == 0
+            if (self.tlog.shares == 0
                 and row.regime > 0
                 and not end_flag):
 
                 # enter buy in trade log
-                shares = self._tlog.buy(date, close)
+                shares = self.tlog.buy(date, close)
 
             # sell
-            elif (self._tlog.shares > 0
+            elif (self.tlog.shares > 0
                   and row.regime < 0
                   or end_flag):
 
                 # enter sell in trade log
-                shares = self._tlog.sell(date, close)
+                shares = self.tlog.sell(date, close)
 
             if shares > 0:
                 pf.DBG("{0} BUY  {1} {2} @ {3:.2f}".format(
-                       date, shares, self._symbol, close))
+                       date, shares, self.symbol, close))
             elif shares < 0:
                 pf.DBG("{0} SELL {1} {2} @ {3:.2f}".format(
-                       date, -shares, self._symbol, close))
+                       date, -shares, self.symbol, close))
 
             # record daily balance
-            self._dbal.append(date, high, low, close)
+            self.dbal.append(date, high, low, close)
 
     def run(self):
-        self._ts = pf.fetch_timeseries(self._symbol)
-        self._ts = pf.select_tradeperiod(self._ts, self._start,
-                                         self._end, self._use_adj)
+        self.ts = pf.fetch_timeseries(self.symbol)
+        self.ts = pf.select_tradeperiod(self.ts, self.start,
+                                         self.end, self.use_adj)
 
         # Add technical indicator: sma regime filter
-        self._ts['regime'] = \
-            pf.CROSSOVER(self._ts, timeperiod_fast=1, timeperiod_slow=self._sma_period,
-                         band=self._percent_band)
+        self.ts['regime'] = \
+            pf.CROSSOVER(self.ts, timeperiod_fast=1, timeperiod_slow=self.sma_period,
+                         band=self.percent_band)
         
-        self._ts, self._start = pf.finalize_timeseries(self._ts, self._start)
+        self.ts, self.start = pf.finalize_timeseries(self.ts, self.start)
 
-        self._tlog = pf.TradeLog(self._symbol)
-        self._dbal = pf.DailyBal()
+        self.tlog = pf.TradeLog(self.symbol)
+        self.dbal = pf.DailyBal()
 
         self._algo()
 
     def get_logs(self):
         """ return DataFrames """
-        self.rlog = self._tlog.get_log_raw()
-        self.tlog = self._tlog.get_log()
-        self.dbal = self._dbal.get_log(self.tlog)
+        self.rlog = self.tlog.get_log_raw()
+        self.tlog = self.tlog.get_log()
+        self.dbal = self.dbal.get_log(self.tlog)
         return self.rlog, self.tlog, self.dbal
 
     def get_stats(self):
-        stats = pf.stats(self._ts, self.tlog, self.dbal, self._capital)
+        stats = pf.stats(self.ts, self.tlog, self.dbal, self.capital)
         return stats
 
 def summary(strategies, metrics):

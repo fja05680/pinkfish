@@ -66,7 +66,7 @@ class Portfolio:
     #####################################################################
     # ADJUST POSITION (adjust_shares, adjust_value, adjust_percent, print_holdings)
 
-    def get_row_column_price(self, row, symbol, field='close'):
+    def get_row_column_value(self, row, symbol, field='close'):
         """ return price given row and symbol """
         symbol += '_' + field
         try:
@@ -82,7 +82,7 @@ class Portfolio:
         """ total share value in portfolio """
         value = 0
         for symbol, tlog in pf.TradeLog.instance.items():
-            close = self.get_row_column_price(row, symbol)
+            close = self.get_row_column_value(row, symbol)
             value += tlog.share_value(close)
         return value
         
@@ -114,7 +114,7 @@ class Portfolio:
 
     def share_percent(self, row, symbol):
         """ return share value of symbol as a percentage of total_funds """
-        close = self.get_row_column_price(row, symbol)
+        close = self.get_row_column_value(row, symbol)
         tlog = pf.TradeLog.instance[symbol]
         value = tlog.share_value(close)
         return value / self._total_funds(row) * 100
@@ -157,10 +157,18 @@ class Portfolio:
     #####################################################################
     # LOGS (init_trade_logs, record_daily_balance, get_logs)
 
+    buying_power = None            # buying power; for Portfolio class only
+    seq_num = 0                    # used to order trades in Portfolio class
+    instance = {}                  # dict of TradeLog instances, key=symbol
+
     def init_trade_logs(self, ts, capital, margin=pf.Margin.CASH):
         """ add a trade log for each symbol """
+        
         pf.TradeLog.cash = capital
         pf.TradeLog.margin = margin
+        pf.TradeLog.seq_num = 0
+        pf.TradeLog.instance.clear()
+
         self._ts = ts
         for symbol in self.symbols:
             pf.TradeLog(symbol, False)
@@ -183,7 +191,7 @@ class Portfolio:
         for tlog in pf.TradeLog.instance.values():
             rlogs.append(tlog.get_log_raw())
             tlogs.append(tlog.get_log(merge_trades=False))
-        rlog = pd.concat([r for r in rlogs]).sort_values(['date', 'entry_exit'],
+        rlog = pd.concat([r for r in rlogs]).sort_values(['seq_num'],
                          ignore_index=True)
         tlog = pd.concat([t for t in tlogs]).sort_values(['entry_date', 'exit_date'],
                          ignore_index=True)

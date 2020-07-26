@@ -21,6 +21,7 @@ class TradeLog:
     cash = 0                       # current cash; entire portfolio
     margin = Margin.CASH           # margin percent, default 1:1 no margin
     buying_power = None            # buying power; for Portfolio class only
+    seq_num = 0                    # used to order trades in Portfolio class
     instance = {}                  # dict of TradeLog instances, key=symbol
 
     def __init__(self, symbol, reset=True):
@@ -33,6 +34,7 @@ class TradeLog:
         self._raw = []              # list raw trade tuples
         self._open_trades = []      # list of open trades
         if reset:
+            TradeLog.seq_num = 0
             TradeLog.instance.clear()
         TradeLog.instance[symbol] = self
 
@@ -117,8 +119,9 @@ class TradeLog:
             return 0
 
         # record in raw trade log
-        t = (entry_date, entry_price, shares, 'entry', direction, self.symbol)
+        t = (entry_date, TradeLog.seq_num, entry_price, shares, 'entry', direction, self.symbol)
         self._raw.append(t)
+        TradeLog.seq_num += 1
 
         # add record to open_trades
         d = {'entry_date':entry_date, 'entry_price':entry_price, 'qty':shares,
@@ -187,8 +190,9 @@ class TradeLog:
         shares_orig = shares
 
         # record in raw trade log
-        t = (exit_date, exit_price, shares, 'exit', direction, self.symbol)
+        t = (exit_date, TradeLog.seq_num, exit_price, shares, 'exit', direction, self.symbol)
         self._raw.append(t)
+        TradeLog.seq_num += 1
 
         for i, open_trade in enumerate(self._open_trades[:]):
             entry_date = open_trade['entry_date']
@@ -320,9 +324,9 @@ class TradeLog:
         # merge entry trades that occur on the same date
         def _merge_entrys(tlog):
             # tlog is a DataFrame of group values
+            tlog['exit_date'] = tlog['exit_date'].tail(1)
             tlog['entry_price'] = \
                 (tlog['entry_price'] * tlog['qty']).sum() / tlog['qty'].sum()
-            tlog['exit_date'] = tlog['exit_date'].tail(1)
             tlog['exit_price'] = \
                 (tlog['exit_price'] * tlog['qty']).sum() / tlog['qty'].sum()
             tlog['pl_points'] = tlog['pl_points'].sum()
@@ -350,7 +354,7 @@ class TradeLog:
 
     def get_log_raw(self):
         """ return Dataframe """
-        columns = ['date', 'price', 'shares', 'entry_exit', 'direction', 'symbol']
+        columns = ['date', 'seq_num', 'price', 'shares', 'entry_exit', 'direction', 'symbol']
         rlog = pd.DataFrame(self._raw, columns=columns)
         return rlog
 
