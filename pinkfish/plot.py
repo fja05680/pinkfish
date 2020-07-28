@@ -58,7 +58,7 @@ def plot_trades(strategy, benchmark=None):
     buy = benchmark[s]
     axes.plot(buy.index, buy['close'], '^', markersize=10, color='k')
 
-    #sell trades
+    # sell trades
     s = strategy['state'] == pf.TradeState.CLOSE
     s = s.reindex_like(benchmark)
     sell = benchmark[s]

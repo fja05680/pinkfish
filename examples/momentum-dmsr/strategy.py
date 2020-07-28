@@ -14,8 +14,8 @@ import pinkfish as pf
 
 class Strategy:
 
-    def __init__(self, symbols, capital, start, end, lookback=None, margin=1,
-                 use_cache=False, use_absolute_mom=False):
+    def __init__(self, symbols, capital, start, end, margin=1, lookback=None,
+                 use_cache=False, use_absolute_mom=False, use_regime_filter=False, top_tier=3):
         self.symbols = symbols
         self.capital = capital
         self.start = start
@@ -24,16 +24,18 @@ class Strategy:
         self.margin = margin
         self.use_cache = use_cache
         self.use_absolute_mom = use_absolute_mom
+        self.top_tier = top_tier
+        self.use_regime_filter = use_regime_filter
         
     def _algo(self):
- 
+        """ Algo:
+            1. The SPY is higher than X days ago, buy
+            2. If the SPY is lower than X days ago, sell your long position.
+        """
         pf.TradeLog.cash = self.capital
         pf.TradeLog.margin = self.margin
 
         prices = {}; mom = {}; weights = {}
-        SP500 = self.symbols['SP500'];
-        BONDS = self.symbols['BONDS'];
-        EXUS  = self.symbols['EXUS'];
         cnt = 0
 
         for i, row in enumerate(self.ts.itertuples()):
@@ -59,21 +61,19 @@ class Strategy:
                     weights[symbol] = 0
 
                 # relative momentum
-                if end_flag:
+                if end_flag or (self.use_regime_filter and row.regime) < 0:
                     pass
-                elif mom[SP500] > mom[BONDS]:
-                    if mom[SP500] > mom[EXUS]:
-                        weights[SP500] = 1
-                    else:
-                        weights[EXUS] = 1
-                else: 
-                    weights[BONDS] = 1
-                
+                else:
+                    mom = dict(sorted(mom.items(), key=lambda x: x[1], reverse=True))
+                    l = list(mom)
+                    for i in range(self.top_tier):
+                        symbol = l[i]
+                        weights[symbol] = 1 / self.top_tier
+
                 # absolute momentum
                 if self.use_absolute_mom:
-                    if mom[SP500] < 0:  weights[SP500] = 0
-                    if mom[EXUS]  < 0:  weights[EXUS]  = 0
-                    if mom[BONDS] < 0:  weights[BONDS] = 0
+                    for symbol, roc in mom.items():
+                        if roc < 0: weights[symbol] = 0
                 
                 # rebalance portfolio
                 for symbol, weight in weights.items():
@@ -88,7 +88,13 @@ class Strategy:
     def run(self):
         self.portfolio = pf.Portfolio()
         self.ts = self.portfolio.fetch_timeseries(
-            self.symbols.values(), self.start, self.end, use_cache=self.use_cache)
+            self.symbols, self.start, self.end, use_cache=self.use_cache)
+        
+        # add S&P500 200 sma regime filter
+        ts = pf.fetch_timeseries('SPY')
+        ts = pf.select_tradeperiod(ts, self.start, self.end, False) 
+        self.ts['regime'] = \
+            pf.CROSSOVER(ts, timeperiod_fast=1, timeperiod_slow=200)
 
         # add calendar columns
         self.ts = self.portfolio.calendar(self.ts)
