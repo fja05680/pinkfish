@@ -1,6 +1,7 @@
 pinkfish
 ======
 
+**07-27-2020: Add momentum-dmsr example**  
 **07-20-2020: Add momentum-pem example - shows how to include indicators in a portfolio**  
 **07-20-2020: Add Momentum Indicator**  
 **07-16-2020: Add Margin (leverage) cabability**  
