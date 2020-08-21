@@ -1,14 +1,13 @@
 pinkfish
 ======
 
+**08-21-2020: Add double-7s-portfolio example**  
+**08-21-2020: Add volatility indicator and volatility_graph() - see double-7s example**  
+**08-21-2020: Add kelly criterian (used to size leverage)- see double-7s-portfolio example**  
 **07-27-2020: Add momentum-dmsr example**  
 **07-20-2020: Add momentum-pem example - shows how to include indicators in a portfolio**  
 **07-20-2020: Add Momentum Indicator**  
-**07-16-2020: Add Margin (leverage) cabability**  
-**07-16-2020: Add "performance per symbol" and correlation map cababilities**  
-**06-23-2020: Add ability to have long and short position in same security simultaneously**  
-**06-22-2020: Add Shorting cabability, i.e. (see short-sell example; portfolio example)**   
-**06-13-2020: Add Portfolio cabability, i.e. multiple stocks at the same time**     
+**07-16-2020: Add Margin (leverage) cabability**      
 
 A backtester and spreadsheet library for security analysis.
 
