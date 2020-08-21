@@ -43,17 +43,20 @@ from .portfolio import (
 
 from .indicator import (
     CROSSOVER,
-    MOMENTUM
+    MOMENTUM,
+    VOLATILITY
 )
 
 from .calendar import (
     calendar
 )
 
-from .evolved import (
+from .analysis import (
     monthly_returns_map,
     holding_period_map,
-    prettier_graphs
+    prettier_graphs,
+    volatility_graph,
+    kelly_criterian
 )
 
 from .utility import (

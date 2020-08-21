@@ -15,7 +15,8 @@ pf.DEBUG = False
 
 class Strategy:
 
-    def __init__(self, symbol, capital, start, end, stop_loss_pct=0, margin=1, period=7, sma=200):
+    def __init__(self, symbol, capital, start, end, stop_loss_pct=0, margin=1,
+                 period=7, sma=200, use_regime_filter=False):
         self.symbol = symbol
         self.capital = capital
         self.start = start
@@ -24,6 +25,7 @@ class Strategy:
         self.sma = sma
         self.stop_loss_pct = stop_loss_pct/100
         self.margin = margin
+        self.use_regime_filter = use_regime_filter
         
     def _algo(self):
         """ Algo:
@@ -44,7 +46,7 @@ class Strategy:
 
             # buy
             if (self.tlog.shares == 0
-                and (row.regime > 0 or close > row.sma)
+                and (not self.use_regime_filter or (row.regime > 0 or close > row.sma))
                 and close == row.period_low
                 and not end_flag):
 
@@ -76,6 +78,10 @@ class Strategy:
         # Add technical indicator: 200 sma regime filter
         self.ts['regime'] = \
             pf.CROSSOVER(self.ts, timeperiod_fast=1, timeperiod_slow=200)
+        
+        # Add technical indicator: instrument risk, i.e. annual std
+        self.ts['vola'] = \
+            pf.VOLATILITY(self.ts, lookback=20, time_frame='yearly')
 
         # Add technical indicator: X day sma
         sma = SMA(self.ts, timeperiod=self.sma)

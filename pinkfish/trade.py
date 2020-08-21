@@ -5,6 +5,7 @@ Assist with trading
 """
 
 import pandas as pd
+import pinkfish as pf
 
 
 class Direction:

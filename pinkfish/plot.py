@@ -74,7 +74,8 @@ default_metrics = (
     'worst_month',
     'sharpe_ratio',
     'sortino_ratio',
-    'monthly_std')
+    'monthly_std',
+    'annual_std')
 
 def plot_bar_graph(stats, benchmark_stats=None, metrics=default_metrics, extras=None):
     """ Plot Bar Graph: Strategy vs Benchmark """

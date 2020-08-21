@@ -61,7 +61,7 @@ class Strategy:
                     weights[symbol] = 0
 
                 # relative momentum
-                if end_flag or (self.use_regime_filter and row.regime) < 0:
+                if end_flag or (self.use_regime_filter and row.regime < 0):
                     pass
                 else:
                     mom = dict(sorted(mom.items(), key=lambda x: x[1], reverse=True))

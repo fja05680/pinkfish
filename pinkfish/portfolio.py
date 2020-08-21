@@ -58,9 +58,11 @@ class Portfolio:
         return ts
 
     def calendar(self, ts):
+        """ add calendar columns """
         return pf.calendar(ts)
 
     def finalize_timeseries(self, ts, start):
+        """ finalize timeseries """
         return pf.finalize_timeseries(ts, start)
 
     #####################################################################
@@ -94,10 +96,6 @@ class Portfolio:
         return total_value
 
     def _equity(self, row):
-        """ return the equity in portfolio """
-        return pf.TradeLog.cash + self._share_value(row)
-
-    def _equity(self, row):
         """ equity = total_value - loan (loan is negative cash) """
         equity = self._total_value(row)
         if pf.TradeLog.cash < 0:
@@ -111,6 +109,15 @@ class Portfolio:
     def _total_funds(self, row):
         """ total account funds for trading """
         return self._equity(row) * pf.TradeLog.margin
+
+    def shares(self, symbol):
+        """ return number of shares for given symbol in portfolio """
+        tlog = pf.TradeLog.instance[symbol]
+        return tlog.shares
+
+    def positions(self):
+        """ return the positions in portfolio as a list """
+        return [symbol for symbol in self.symbols if self.shares(symbol) > 0]
 
     def share_percent(self, row, symbol):
         """ return share value of symbol as a percentage of total_funds """
@@ -139,6 +146,7 @@ class Portfolio:
         return shares
 
     def adjust_percent(self, date, price, weight, symbol, row, direction=pf.Direction.LONG):
+        """ adjust symbol to a specified weight (percent) of portfolio """
         weight = weight if weight <= 1 else weight/100
         total_funds = self._total_funds(row)
         value = total_funds * weight
@@ -206,7 +214,9 @@ class Portfolio:
     # PERFORMANCE ANALYSIS (performance_per_symbol, correlation_map)
 
     def performance_per_symbol(self, weights):
-        """ returns data from containing performace per symbol; also plots perf """
+        """ returns data from containing performance per symbol;
+            also plots perf
+        """
 
         def _weight(row, weights):
             return weights[row.name]
@@ -218,8 +228,6 @@ class Portfolio:
             df = df[:-1]
             # Make new figure and set the size.
             fig = plt.figure(figsize=(12, 8))
-            # The first subplot, planning for 3 plots high, 1 plot wide,
-            # this being the first.
             axes = fig.add_subplot(111, ylabel='Percentages')
             axes.set_title('Performance by Symbol')
             df.plot(kind='bar', ax=axes)

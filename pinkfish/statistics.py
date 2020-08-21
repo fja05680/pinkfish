@@ -418,7 +418,7 @@ def stats(ts, tlog, dbal, capital):
     start = ts.index[0]
     end = ts.index[-1]
 
-    stats = pd.Series()
+    stats = pd.Series(dtype='object')
 
     # OVERALL RESULTS
     stats['start'] = start.strftime('%Y-%m-%d')
@@ -526,9 +526,19 @@ def stats(ts, tlog, dbal, capital):
     stats['worst_week'] = pc.min()
     stats['avg_week'] = np.average(pc)
     stats['weekly_std'] = pc.std()
+    pc = pct_change(dbal['close'], 1)
+    stats['pct_profitable_days'] = (pc > 0).sum() / len(pc) * 100
+    stats['best_day'] = pc.max()
+    stats['worst_day'] = pc.min()
+    stats['avg_day'] = np.average(pc)
+    stats['daily_std'] = pc.std()
 
     # RATIOS
-    stats['sharpe_ratio'] = sharpe_ratio(dbal['close'].pct_change())
+    sr = sharpe_ratio(dbal['close'].pct_change())
+    sr_std = math.sqrt((1 + 0.5*sr**2) / len(dbal))
+    stats['sharpe_ratio'] = sr
+    stats['sharpe_ratio_max'] = sr + 3*sr_std #3 std=>99.73%
+    stats['sharpe_ratio_min'] = sr - 3*sr_std
     stats['sortino_ratio'] = sortino_ratio(dbal['close'].pct_change())
     return stats
 
@@ -542,7 +552,8 @@ default_metrics = (
     'worst_month',
     'sharpe_ratio',
     'sortino_ratio',
-    'monthly_std')
+    'monthly_std',
+    'annual_std')
 
 currency_metrics = (
     'beginning_balance',

@@ -1,7 +1,7 @@
 """
-evolved
+analysis
 ---------
-This module contains a collection of functions that were copied or derived
+This module contains some functions that were copied or derived
 from the book "Trading Evolved" by Andreas F. Clenow.
 Below is a correspondance I had with the author:
 
@@ -38,6 +38,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import empyrical as em
 from IPython.core.display import display, HTML
+import pinkfish as pf
 
 #####################################################################
 # MONTHY RETURNS MAP
@@ -229,4 +230,72 @@ def prettier_graphs(ret1, ret2, label1='Strategy', label2='Benchmark',
     ax.plot(plot_data['corr'], label=label, linestyle='-.', linewidth=3.0)
     ax.legend()
     ax.grid(True)
+
+#####################################################################
+# VOLATILITY
+
+def volatility_graph(rets, labels, points_to_plot=None):
+
+    def _boxplot(volas, labels):
+        fig = plt.figure(figsize=(12, 8))
+        axes = fig.add_subplot(111, ylabel='Volatility')
+        plt.ylim(0, 1)
+        plt.boxplot(volas, labels=labels)
+        
+    def _volas_plot(volas, labels):
+        fig = plt.figure(figsize=(14,10))
+        axes = fig.add_subplot(111, ylabel='Volatility')
+        for i, vola in enumerate(volas):
+            axes.plot(vola, label=labels[i])
+
+        plt.legend(loc='best')
+
+    # default is to plot all points (days)
+    if points_to_plot is None:
+        points_to_plot = 0;
+
+    # get volatility for each return set
+    volas = []
+    for ret in rets:
+        volas.append(pf.VOLATILITY(ret[-points_to_plot:]).dropna())
+
+    # build metrics dataframe
+    index = []
+    columns = labels
+    data = []
+    # add metrics
+    metrics = ['avg', 'median', 'min', 'max', 'std', 'last']
+    for metric in metrics:
+        index.append(metric)
+        if   metric == 'avg': data.append(vola.mean() for vola in volas)
+        elif metric == 'median': data.append(vola.median() for vola in volas)
+        elif metric == 'min': data.append(vola.min() for vola in volas)
+        elif metric == 'max': data.append(vola.max() for vola in volas)
+        elif metric == 'std': data.append(vola.std() for vola in volas)
+        elif metric == 'last': data.append(vola[-1] for vola in volas)
+
+    df = pd.DataFrame(data, columns=columns, index=index)
+    _boxplot(volas, labels)
+    _volas_plot(volas, labels)
+    return df
+
+#####################################################################
+# KELLY CRITERIAN
+
+def kelly_criterian(strategy, benchmark=None):
+    """ use this function to help with sizing of leverage """
+
+    s = pd.Series(dtype='object')
+    
+    s['sharpe_ratio'] = strategy['sharpe_ratio']
+    s['sharpe_ratio_max'] = strategy['sharpe_ratio_max']
+    s['sharpe_ratio_min'] = strategy['sharpe_ratio_min']
+    s['strategy risk'] = strategy['annual_std'] / 100
+    s['instrument risk'] = benchmark['annual_std'] / 100
+    s['optimal target risk'] = s['sharpe_ratio']
+    s['half kelly criterian'] = s['sharpe_ratio'] / 2
+    s['aggressive leverage'] = s['optimal target risk'] / s['instrument risk']
+    s['moderate leverage'] = s['half kelly criterian'] / s['instrument risk']
+    s['conservative leverage'] = (s['sharpe_ratio_min'] / 2) / s['instrument risk']
+    return s
 

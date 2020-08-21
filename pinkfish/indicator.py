@@ -86,7 +86,6 @@ def CROSSOVER(ts, timeperiod_fast=50, timeperiod_slow=200,
 #####################################################################
 # MOMENTUM
 
-# momentum indicator
 def MOMENTUM(ts, lookback=1, time_frame='monthly', price='close', prevday=False):
     """
     ts: dataframe with 'open', 'high', 'low', 'close', 'volume'
@@ -95,7 +94,7 @@ def MOMENTUM(ts, lookback=1, time_frame='monthly', price='close', prevday=False)
     price: input_array column to use
     prevday: True will shift the series forward; unless you are buying
       on the close, you'll likely want to set this to True.
-      It gives you the previous day's CrossOver
+      It gives you the previous day's Momentum
 
     ex:
     lookback = 1
@@ -118,3 +117,41 @@ def MOMENTUM(ts, lookback=1, time_frame='monthly', price='close', prevday=False)
         s = s.shift()
 
     return s
+
+#####################################################################
+# VOLATILITY
+
+def VOLATILITY(ts, lookback=20, time_frame='yearly',
+               price='close', prevday=False):
+
+    """
+    ts: dataframe with 'open', 'high', 'low', 'close', 'volume'
+    lookback: the number of trading days to lookback, i.e. 20 days
+    timeframe: daily, weekly, monthly, or yearly
+    price: input_array column to use
+    prevday: True will shift the series forward; unless you are buying
+      on the close, you'll likely want to set this to True.
+      It gives you the previous day's Volatility
+
+    ex:
+    lookback = 20
+    ts['vola'] = VOLATILITY(ts, lookback=lookback, 
+        time_frame='yearly', price='close', prevday=True)
+    """
+
+    if lookback < 1:
+        raise ValueError('lookback must be positive')
+
+    if time_frame=='daily':     factor = 1
+    elif time_frame=='weekly':  factor = pf.TRADING_DAYS_PER_WEEK
+    elif time_frame=='monthly': factor = pf.TRADING_DAYS_PER_MONTH
+    elif time_frame=='yearly':  factor = pf.TRADING_DAYS_PER_YEAR
+    else:
+        raise ValueError('invalid time_frame "{}"'.format(time_frame))
+
+    s = ts[price].pct_change().rolling(window=lookback).std() * np.sqrt(factor)
+    if prevday:
+        s = s.shift()
+
+    return s
+
