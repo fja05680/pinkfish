@@ -15,7 +15,7 @@ import pinkfish as pf
 class Strategy:
 
     def __init__(self, symbols, capital, start, end, stop_loss_pct=0, margin=1, period=7,
-                 use_cache=False, use_regime_filter=False):
+                 use_cache=False, use_regime_filter=False, use_vola_weight=False):
         self.symbols = symbols
         self.capital = capital
         self.start = start
@@ -25,6 +25,7 @@ class Strategy:
         self.margin = margin
         self.use_cache = use_cache
         self.use_regime_filter = use_regime_filter
+        self.use_vola_weight = use_vola_weight
 
     def _algo(self):
         """ Algo:
@@ -41,6 +42,12 @@ class Strategy:
             date = row.Index.to_pydatetime()
             end_flag = pf.is_last_row(self.ts, i)
             
+            # need to sum the inverse volatility for each row
+            inverse_vola_sum = 0
+            for symbol in self.portfolio.symbols:
+                inverse_vola_sum += \
+                    1 / self.portfolio.get_row_column_value(row, symbol, field='vola')
+            
             # get symbol row data
             for symbol in self.portfolio.symbols:
                 price = self.portfolio.get_row_column_value(row, symbol)
@@ -52,26 +59,32 @@ class Strategy:
                 period_low = \
                     self.portfolio.get_row_column_value(row, symbol,
                         field='period_low'+str(self.period))
+                inverse_vola = \
+                    1 / self.portfolio.get_row_column_value(row, symbol, field='vola')
                 
-                """ 
-                Sell Logic
-                First we check if an existing position in symbol should be sold
-                * sell if price closes at X day high
-                * sell if price closes below stop loss
-                * sell if end of data
-                """
+                # Sell Logic
+                # First we check if an existing position in symbol should be sold
+                #  - sell if price closes at X day high
+                #  - sell if price closes below stop loss
+                #  - sell if end of data
+
                 if symbol in self.portfolio.positions():
                     if (price == period_high or price < stop_loss[symbol] or end_flag):
                         if (price < stop_loss[symbol]): print('STOP LOSS!!!')
                         self.portfolio.adjust_percent(date, price, 0, symbol, row)
-                #"""
-                #Buy Logic
-                #First we check to see if there is an existing position, if so do nothing
-                #Buy if (regime > 0 or not use_regime_filter) and price closes at X day low
-                #"""
+                        
+                # Buy Logic
+                # First we check to see if there is an existing position, if so do nothing
+                #  - Buy if (regime > 0 or not use_regime_filter) and price closes at X day low
+
                 else:
                     if (regime > 0 or not self.use_regime_filter) and price == period_low:
-                        weight = 1 / len(self.portfolio.symbols)
+                        # use volatility weight
+                        if self.use_vola_weight:
+                            weight = inverse_vola / inverse_vola_sum
+                        # use equal weight
+                        else:
+                            weight = 1 / len(self.portfolio.symbols)
                         self.portfolio.adjust_percent(date, price, weight, symbol, row)
                         # set stop loss
                         stop_loss[symbol] = self.stop_loss_pct*price
@@ -92,6 +105,14 @@ class Strategy:
         self.ts = self.portfolio.add_technical_indicator(
             self.ts, ta_func=_crossover, ta_param=None,
             output_column_suffix='regime', input_column_suffix='close')
+        
+        # Add technical indicator: volatility
+        def _volatility(ts, ta_param, input_column):
+            return pf.VOLATILITY(ts, price=input_column)
+        
+        self.ts = self.portfolio.add_technical_indicator(
+            self.ts, ta_func=_volatility, ta_param=None,
+            output_column_suffix='vola', input_column_suffix='close')
 
         # Add technical indicator: X day high
         def _period_high(ts, ta_param, input_column):
