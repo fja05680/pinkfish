@@ -1,6 +1,7 @@
 pinkfish
 ======
 
+**08-22-2020: Demonstrate how to use volatility to scale position sizes (see double-7s-portfolio example)**  
 **08-21-2020: Add double-7s-portfolio example**  
 **08-21-2020: Add volatility indicator and volatility_graph() - see double-7s example**  
 **08-21-2020: Add kelly criterian (used to size leverage)- see double-7s-portfolio example**  
