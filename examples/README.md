@@ -22,5 +22,5 @@
 - `sp500-components-timeseries`: get timeseries of all components in sp500
 - `spreadsheet`: make a read only spreadsheet within jupyter notebook
 - `ta-lib-tutorial`: a tutorial on using the ta-lib technical analysis library
-- `trading-evolved: monthly returns; holding period returns; prettier graphs
+- `trading-evolved`: monthly returns; holding period returns; prettier graphs
 - `update-cache-symbols`: utility to update all the symbols in your data cache
