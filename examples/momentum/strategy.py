@@ -49,24 +49,21 @@ class Strategy:
             mom = getattr(row, 'mom'+str(period))
             
             # buy (and row.first_dotm)
-            if (self.tlog.shares == 0
-                #and row.first_dotm
-                and row.first_dotw
-                and mom > 0
-                and not end_flag):
-
-                # enter buy in trade log
-                shares = self.tlog.buy(date, close)
-                # set stop loss
-                stop_loss = 0*close
+            if self.tlog.shares == 0:
+                #if (row.first_dotm
+                if (row.first_dotw
+                    and mom > 0):
+                    # enter buy in trade log
+                    shares = self.tlog.buy(date, close)
+                    # set stop loss
+                    stop_loss = 0*close
             # sell
-            elif (self.tlog.shares > 0
-                  #and row.first_dotm
-                  and row.first_dotw
-                  and (mom < 0 or low < stop_loss or end_flag)):
-
-                # enter sell in trade log
-                shares = self.tlog.sell(date, close)
+            else:
+                #if (row.first_dotm
+                if (row.first_dotw
+                    and (mom < 0 or low < stop_loss or end_flag)):
+                    # enter sell in trade log
+                    shares = self.tlog.sell(date, close)
 
             if shares > 0:
                 pf.DBG("{0} BUY  {1} {2} @ {3:.2f}".format(

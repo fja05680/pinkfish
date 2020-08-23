@@ -54,8 +54,10 @@ class Strategy:
                 # reverse sort by last weights (want current positions first in dict)
                 weights = dict(sorted(weights.items(), key=lambda x: x[1], reverse=True))
                 for symbol in self.portfolio.symbols:
-                    prices[symbol] = self.portfolio.get_row_column_value(row, symbol)
-                    mom[symbol] = self.portfolio.get_row_column_value(row, symbol, field='mom'+str(lookback))
+                    prices[symbol] = \
+                        self.portfolio.get_row_column_value(row, symbol)
+                    mom[symbol] = \
+                        self.portfolio.get_row_column_value(row, symbol, field='mom'+str(lookback))
                     weights[symbol] = 0
 
                 # relative momentum

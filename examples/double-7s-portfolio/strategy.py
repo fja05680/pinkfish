@@ -28,10 +28,7 @@ class Strategy:
         self.use_vola_weight = use_vola_weight
 
     def _algo(self):
-        """ Algo:
-            1. The SPY is higher than X days ago, buy
-            2. If the SPY is lower than X days ago, sell your long position.
-        """
+
         pf.TradeLog.cash = self.capital
         pf.TradeLog.margin = self.margin
 
@@ -69,8 +66,8 @@ class Strategy:
                 #  - sell if end of data
 
                 if symbol in self.portfolio.positions():
-                    if (price == period_high or price < stop_loss[symbol] or end_flag):
-                        if (price < stop_loss[symbol]): print('STOP LOSS!!!')
+                    if price == period_high or price < stop_loss[symbol] or end_flag:
+                        if price < stop_loss[symbol]: print('STOP LOSS!!!')
                         self.portfolio.adjust_percent(date, price, 0, symbol, row)
                         
                 # Buy Logic

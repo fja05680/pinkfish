@@ -40,20 +40,13 @@ class Strategy:
             shares = 0
 
             # buy
-            if (self.tlog.shares == 0
-                and row.regime > 0
-                and not end_flag):
-
-                # enter buy in trade log
-                shares = self.tlog.buy(date, close)
-
+            if self.tlog.shares == 0:
+                if row.regime > 0:
+                    shares = self.tlog.buy(date, close)
             # sell
-            elif (self.tlog.shares > 0
-                  and (row.regime < 0
-                       or end_flag)):
-
-                # enter sell in trade log
-                shares = self.tlog.sell(date, close)
+            else:
+                if row.regime < 0 or end_flag:
+                    shares = self.tlog.sell(date, close)
 
             if shares > 0:
                 pf.DBG("{0} BUY  {1} {2} @ {3:.2f}".format(

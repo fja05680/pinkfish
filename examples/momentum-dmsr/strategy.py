@@ -28,10 +28,7 @@ class Strategy:
         self.use_regime_filter = use_regime_filter
         
     def _algo(self):
-        """ Algo:
-            1. The SPY is higher than X days ago, buy
-            2. If the SPY is lower than X days ago, sell your long position.
-        """
+
         pf.TradeLog.cash = self.capital
         pf.TradeLog.margin = self.margin
 
@@ -56,14 +53,17 @@ class Strategy:
                 # reverse sort by last weights (want current positions first in dict)
                 weights = dict(sorted(weights.items(), key=lambda x: x[1], reverse=True))
                 for symbol in self.portfolio.symbols:
-                    prices[symbol] = self.portfolio.get_row_column_value(row, symbol)
-                    mom[symbol] = self.portfolio.get_row_column_value(row, symbol, field='mom'+str(lookback))
+                    prices[symbol] = \
+                        self.portfolio.get_row_column_value(row, symbol)
+                    mom[symbol] = \
+                        self.portfolio.get_row_column_value(row, symbol, field='mom'+str(lookback))
                     weights[symbol] = 0
 
                 # relative momentum
                 if end_flag or (self.use_regime_filter and row.regime < 0):
                     pass
                 else:
+                    # sort by highest momentum
                     mom = dict(sorted(mom.items(), key=lambda x: x[1], reverse=True))
                     l = list(mom)
                     for i in range(self.top_tier):

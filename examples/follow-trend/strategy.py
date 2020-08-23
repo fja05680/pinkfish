@@ -45,23 +45,33 @@ class Strategy:
             upper_band = row.sma + row.sma * self.percent_band
             lower_band = row.sma - row.sma * self.percent_band
             shares = 0
+            
+            # Sell Logic
+            # First we check if an existing position in symbol should be sold
+            #  - sell if (use_regime_filter and regime < 0)
+            #  - sell if price closes below lower_band
+            #  - sell if end of data
 
-            # buy
-            if (self.tlog.shares == 0
-                and (row.regime > 0 or not self.regime_filter)
-                and close > upper_band
-                and not end_flag):
+            if self.tlog.shares > 0:
+                 if ((self.regime_filter and row.regime < 0)
+                     or close < lower_band
+                     or end_flag):
 
-                # enter buy in trade log
-                shares = self.tlog.buy(date, close)
-            # sell
-            elif (self.tlog.shares > 0
-                  and ((self.regime_filter and row.regime < 0)
-                       or close < lower_band
-                       or end_flag)):
+                    # enter sell in trade log
+                    shares = self.tlog.sell(date, close)
 
-                # enter sell in trade log
-                shares = self.tlog.sell(date, close)
+            # Buy Logic
+            # First we check to see if there is an existing position, if so do nothing
+            #  - Buy if (regime > 0 or not use_regime_filter)
+            #            and price closes above upper_band
+            #            and (use_regime_filter and regime > 0)
+            
+            else:
+                if ((row.regime > 0 or not self.regime_filter)
+                    and close > upper_band):
+
+                    # enter buy in trade log
+                    shares = self.tlog.buy(date, close)
 
             if shares > 0:
                 pf.DBG("{0} BUY  {1} {2} @ {3:.2f}".format(

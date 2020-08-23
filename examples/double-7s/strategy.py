@@ -28,11 +28,7 @@ class Strategy:
         self.use_regime_filter = use_regime_filter
         
     def _algo(self):
-        """ Algo:
-            1. The SPY is above its 200-day moving average or SPY is above its X-day ma
-            2. The SPY closes at a X-day low, buy.
-            3. If the SPY closes at a X-day high, sell your long position.
-        """
+
         pf.TradeLog.cash = self.capital
         pf.TradeLog.margin = self.margin
         stop_loss = 0
@@ -43,23 +39,29 @@ class Strategy:
             high = row.high; low = row.low; close = row.close 
             end_flag = pf.is_last_row(self.ts, i)
             shares = 0
+            
+            # Sell Logic
+            # First we check if an existing position in symbol should be sold
+            #  - sell if price closes at X day high
+            #  - sell if price closes below stop loss
+            #  - sell if end of data
 
-            # buy
-            if (self.tlog.shares == 0
-                and (not self.use_regime_filter or (row.regime > 0 or close > row.sma))
-                and close == row.period_low
-                and not end_flag):
+            if self.tlog.shares > 0:
+                if close == row.period_high or low < stop_loss or end_flag:
+                    if close < stop_loss: print('STOP LOSS!!!')
+                    shares = self.tlog.sell(date, close)
+            
+            # Buy Logic
+            # First we check to see if there is an existing position, if so do nothing
+            #  - Buy if (regime > 0 or not use_regime_filter) and price closes at X day low
 
-                # enter buy in trade log
-                shares = self.tlog.buy(date, close)
-                # set stop loss
-                stop_loss = self.stop_loss_pct*close
-            # sell
-            elif (self.tlog.shares > 0
-                  and (close == row.period_high or low < stop_loss or end_flag)):
+            else:
+                if (((row.regime > 0 or close > row.sma) or not self.use_regime_filter)
+                      and close == row.period_low):
 
-                # enter sell in trade log
-                shares = self.tlog.sell(date, close)
+                    shares = self.tlog.buy(date, close)
+                    # set stop loss
+                    stop_loss = self.stop_loss_pct*close
 
             if shares > 0:
                 pf.DBG("{0} BUY  {1} {2} @ {3:.2f}".format(
