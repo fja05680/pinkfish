@@ -121,13 +121,14 @@ def MOMENTUM(ts, lookback=1, time_frame='monthly', price='close', prevday=False)
 #####################################################################
 # VOLATILITY
 
-def VOLATILITY(ts, lookback=20, time_frame='yearly',
+def VOLATILITY(ts, lookback=20, time_frame='yearly', downside=False,
                price='close', prevday=False):
 
     """
     ts: dataframe with 'open', 'high', 'low', 'close', 'volume'
     lookback: the number of trading days to lookback, i.e. 20 days
     timeframe: daily, weekly, monthly, or yearly
+    downside: calculate the downside volatility
     price: input_array column to use
     prevday: True will shift the series forward; unless you are buying
       on the close, you'll likely want to set this to True.
@@ -149,7 +150,11 @@ def VOLATILITY(ts, lookback=20, time_frame='yearly',
     else:
         raise ValueError('invalid time_frame "{}"'.format(time_frame))
 
-    s = ts[price].pct_change().rolling(window=lookback).std() * np.sqrt(factor)
+    s = ts[price].pct_change()
+    if downside:
+        s[s > 0] = 0
+    s = s.rolling(window=lookback).std() * np.sqrt(factor)
+
     if prevday:
         s = s.shift()
 
