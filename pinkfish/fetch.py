@@ -101,7 +101,13 @@ def finalize_timeseries(ts, start):
     return ts, start
 
 #####################################################################
-# CACHE SYMBOLS (remove, update)
+# CACHE SYMBOLS (remove, update, get_symbol_metadata)
+
+def _difference_in_years(start, end):
+    """ calculate the number of years between two dates """
+    diff  = end - start
+    diff_in_years = (diff.days + diff.seconds/86400)/365.2425
+    return diff_in_years
 
 def remove_cache_symbols(symbols=None, dir_name='data'):
     """
@@ -169,3 +175,43 @@ def update_cache_symbols(symbols=None, dir_name='data', from_year=None):
             print('\n({})'.format(e))
     print()
 
+def get_symbol_metadata(symbols=None, dir_name='data', from_year=None):
+    """
+    Get symbol metadata for list of symbols.
+    If symbols is None, get do for all timeseries.
+    Filter out any filename prefixed with '__'
+    """
+
+    cache_dir = _get_cache_dir(dir_name)
+
+    if symbols:
+        # in case user forgot to put single symbol in list
+        if not isinstance(symbols, list):
+            symbols = [symbols]
+    else:
+        filenames = ([f for f in os.listdir(cache_dir)
+                     if f.endswith('.csv') and not f.startswith('__')])
+        symbols = [os.path.splitext(filename)[0] for filename in filenames]
+
+    # make symbol names uppercase
+    symbols = [symbol.upper() for symbol in symbols]
+
+    l = []
+    for i, symbol in enumerate(symbols):
+        try:
+            ts = pf.fetch_timeseries(symbol, dir_name=dir_name, use_cache=True,
+                                     from_year=from_year) 
+            start = ts.index[0].to_pydatetime()
+            end = ts.index[-1].to_pydatetime()
+            num_years = _difference_in_years(start, end)
+            start = start.strftime('%Y-%m-%d')
+            end = end.strftime('%Y-%m-%d')
+            t = (symbol, start, end, num_years)
+            l.append(t)
+        except RemoteDataError as e:
+            print('\n({})'.format(e))
+        except Exception as e:
+            print('\n({})'.format(e))
+    columns = ['symbol', 'start_date', 'end_date', 'num_years']
+    df = pd.DataFrame(l, columns=columns)
+    return df

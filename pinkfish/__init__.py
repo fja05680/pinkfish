@@ -3,7 +3,8 @@ from .fetch import (
     select_tradeperiod,
     finalize_timeseries,
     remove_cache_symbols,
-    update_cache_symbols
+    update_cache_symbols,
+    get_symbol_metadata
 )
 
 from .trade import (
