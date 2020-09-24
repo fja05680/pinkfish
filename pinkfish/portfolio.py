@@ -258,12 +258,24 @@ class Portfolio:
         _plot(df)
         return df
 
-    def correlation_map(self, ts):
+    def correlation_map(self, ts, method='log', days=None):
         """ return correlation dataframe; show correlation map between symbols"""
 
         # filter coloumn names for ''_close''; drop '_close' suffix
         df = ts.filter(regex='_close')
         df.columns = df.columns.str.strip('_close')
+
+        # default is all days
+        if days is None:
+            days = 0;
+        df = df[-days:]
+
+        if method == 'price':
+            pass
+        elif method == 'log':
+            df = np.log(df.pct_change()+1)
+        elif method == 'returns':
+            df = df.pct_change()
 
         df = df.corr(method='pearson')
         # reset symbol as index (rather than 0-X)
