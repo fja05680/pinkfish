@@ -31,9 +31,10 @@ class Strategy:
         pf.TradeLog.margin = self.margin
 
         prices = {}; mom = {}; weights = {}
-        SP500 = self.symbols['SP500'];
-        BONDS = self.symbols['BONDS'];
-        EXUS  = self.symbols['EXUS'];
+        SP500 = self.symbols['SP500']
+        BONDS = self.symbols['BONDS']
+        EXUS  = self.symbols['EXUS']
+        TBILL  = self.symbols['T-BILL']
         cnt = 0
 
         for i, row in enumerate(self.ts.itertuples()):
@@ -63,7 +64,7 @@ class Strategy:
                 # relative momentum
                 if end_flag:
                     pass
-                elif mom[SP500] > mom[BONDS]:
+                elif mom[SP500] > mom[TBILL]:
                     if mom[SP500] > mom[EXUS]:
                         weights[SP500] = 1
                     else:
@@ -76,6 +77,7 @@ class Strategy:
                     if mom[SP500] < 0:  weights[SP500] = 0
                     if mom[EXUS]  < 0:  weights[EXUS]  = 0
                     if mom[BONDS] < 0:  weights[BONDS] = 0
+                    if mom[TBILL] < 0:  weights[TBILL] = 0
                 
                 # rebalance portfolio
                 for symbol, weight in weights.items():

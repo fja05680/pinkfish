@@ -94,7 +94,7 @@ class Strategy:
         ts = pf.fetch_timeseries('SPY')
         ts = pf.select_tradeperiod(ts, self.start, self.end, False) 
         self.ts['regime'] = \
-            pf.CROSSOVER(ts, timeperiod_fast=1, timeperiod_slow=200)
+            pf.CROSSOVER(ts, timeperiod_fast=1, timeperiod_slow=200, band=3.5)
 
         # add calendar columns
         self.ts = self.portfolio.calendar(self.ts)
