@@ -280,8 +280,6 @@ class Portfolio:
         df = df.corr(method='pearson')
         # reset symbol as index (rather than 0-X)
         df.head().reset_index()
-        # del df.index.name
-        df.head(20)
         # take the bottom triangle since it repeats itself
         mask = np.zeros_like(df)
         mask[np.triu_indices_from(mask)] = True
