@@ -30,7 +30,7 @@ class Strategy:
         pf.TradeLog.cash = self.capital
         pf.TradeLog.margin = self.margin
 
-        prices = {}; mom = {}; weights = {}
+        close = {}; mom = {}; weights = {}
         SP500 = self.symbols['SP500']
         BONDS = self.symbols['BONDS']
         EXUS  = self.symbols['EXUS']
@@ -51,15 +51,20 @@ class Strategy:
                 else:
                     lookback = self.lookback
 
+            mom_field = 'mom' + str(lookback)
+            p = self.portfolio.get_prices(row, fields=['close', mom_field])
+
             if row.first_dotm or end_flag:
                 # reverse sort by last weights (want current positions first in dict)
                 weights = dict(sorted(weights.items(), key=lambda x: x[1], reverse=True))
                 for symbol in self.portfolio.symbols:
-                    prices[symbol] = \
-                        self.portfolio.get_row_column_value(row, symbol)
-                    mom[symbol] = \
-                        self.portfolio.get_row_column_value(row, symbol, field='mom'+str(lookback))
+                    close[symbol] = p[symbol]['close']
+                    mom[symbol] = p[symbol][mom_field]
                     weights[symbol] = 0
+
+                # Rebalance logic - assign weights using relative momentum
+                # then assign using absolute momentum if enabled
+                # finally rebalance
 
                 # relative momentum
                 if end_flag:
@@ -81,7 +86,7 @@ class Strategy:
                 
                 # rebalance portfolio
                 for symbol, weight in weights.items():
-                    self.portfolio.adjust_percent(date, prices[symbol], weights[symbol], symbol, row)
+                    self.portfolio.adjust_percent(date, close[symbol], weights[symbol], symbol, row)
                 
                 if self.lookback is None:
                     cnt -= 1

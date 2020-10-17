@@ -33,31 +33,28 @@ class Strategy:
         pf.TradeLog.margin = self.margin
 
         stop_loss = {symbol:0 for symbol in self.portfolio.symbols}
+        period_high_field = 'period_high' + str(self.period)
+        period_low_field  = 'period_low' + str(self.period)
 
         for i, row in enumerate(self.ts.itertuples()):
 
             date = row.Index.to_pydatetime()
             end_flag = pf.is_last_row(self.ts, i)
+            p = self.portfolio.get_prices(row,
+                fields=['close', 'regime', period_high_field, period_low_field, 'vola'])
             
             # need to sum the inverse volatility for each row
             inverse_vola_sum = 0
             for symbol in self.portfolio.symbols:
-                inverse_vola_sum += \
-                    1 / self.portfolio.get_row_column_value(row, symbol, field='vola')
+                inverse_vola_sum += 1 / p[symbol]['vola']
             
             # get symbol row data
             for symbol in self.portfolio.symbols:
-                price = self.portfolio.get_row_column_value(row, symbol)
-                regime = \
-                    self.portfolio.get_row_column_value(row, symbol, field='regime')
-                period_high = \
-                    self.portfolio.get_row_column_value(row, symbol,
-                        field='period_high'+str(self.period))
-                period_low = \
-                    self.portfolio.get_row_column_value(row, symbol,
-                        field='period_low'+str(self.period))
-                inverse_vola = \
-                    1 / self.portfolio.get_row_column_value(row, symbol, field='vola')
+                close = p[symbol]['close']
+                regime = p[symbol]['regime']
+                period_high = p[symbol][period_high_field]
+                period_low = p[symbol][period_low_field]
+                inverse_vola = 1 / p[symbol]['vola']
                 
                 # Sell Logic
                 # First we check if an existing position in symbol should be sold
@@ -66,25 +63,25 @@ class Strategy:
                 #  - sell if end of data
 
                 if symbol in self.portfolio.positions():
-                    if price == period_high or price < stop_loss[symbol] or end_flag:
-                        if price < stop_loss[symbol]: print('STOP LOSS!!!')
-                        self.portfolio.adjust_percent(date, price, 0, symbol, row)
+                    if close == period_high or close < stop_loss[symbol] or end_flag:
+                        if close < stop_loss[symbol]: print('STOP LOSS!!!')
+                        self.portfolio.adjust_percent(date, close, 0, symbol, row)
                         
                 # Buy Logic
                 # First we check to see if there is an existing position, if so do nothing
                 #  - Buy if (regime > 0 or not use_regime_filter) and price closes at X day low
 
                 else:
-                    if (regime > 0 or not self.use_regime_filter) and price == period_low:
+                    if (regime > 0 or not self.use_regime_filter) and close == period_low:
                         # use volatility weight
                         if self.use_vola_weight:
                             weight = inverse_vola / inverse_vola_sum
                         # use equal weight
                         else:
                             weight = 1 / len(self.portfolio.symbols)
-                        self.portfolio.adjust_percent(date, price, weight, symbol, row)
+                        self.portfolio.adjust_percent(date, close, weight, symbol, row)
                         # set stop loss
-                        stop_loss[symbol] = self.stop_loss_pct*price
+                        stop_loss[symbol] = self.stop_loss_pct*close
 
             # record daily balance
             self.portfolio.record_daily_balance(date, row)

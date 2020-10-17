@@ -80,6 +80,16 @@ class Portfolio:
             price = self._ts.loc[date, symbol]
         return price
 
+    def get_prices(self, row, fields):
+        ''' return dict of prices for all symbols given row and fields '''
+        d = {}
+        for symbol in self.symbols:
+            d[symbol] = {}
+            for field in fields:
+                value = self.get_row_column_value(row, symbol, field)
+                d[symbol][field] = value
+        return d
+
     def _share_value(self, row):
         """ total share value in portfolio """
         value = 0
@@ -87,7 +97,7 @@ class Portfolio:
             close = self.get_row_column_value(row, symbol)
             value += tlog.share_value(close)
         return value
-        
+
     def _total_value(self, row):
         """ total_value = share_value +  cash (if cash > 0) """
         total_value = self._share_value(row)

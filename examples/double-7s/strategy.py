@@ -53,7 +53,8 @@ class Strategy:
             
             # Buy Logic
             # First we check to see if there is an existing position, if so do nothing
-            #  - Buy if (regime > 0 or not use_regime_filter) and price closes at X day low
+            #  - Buy if (regime > 0 or not use_regime_filter)
+            #           and price closes at X day low
 
             else:
                 if (((row.regime > 0 or close > row.sma) or not self.use_regime_filter)

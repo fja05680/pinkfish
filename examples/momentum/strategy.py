@@ -47,23 +47,34 @@ class Strategy:
                     period = self.period
 
             mom = getattr(row, 'mom'+str(period))
+
+            # Sell Logic
+            # First we check if an existing position in symbol should be sold
+            #  - if first_dotm (or first_dotw)
+            #            sell if mom < 0
+            #            sell if low < stop_loss
+            #            sell if end_flag
+
             
-            # buy (and row.first_dotm)
-            if self.tlog.shares == 0:
-                #if (row.first_dotm
-                if (row.first_dotw
-                    and mom > 0):
-                    # enter buy in trade log
-                    shares = self.tlog.buy(date, close)
-                    # set stop loss
-                    stop_loss = 0*close
-            # sell
-            else:
-                #if (row.first_dotm
+            if self.tlog.shares > 0:
+                #if (row.first_dotm:
                 if (row.first_dotw
                     and (mom < 0 or low < stop_loss or end_flag)):
                     # enter sell in trade log
                     shares = self.tlog.sell(date, close)
+            
+            # Buy Logic
+            #  - if first_dotm (or first_dotw)
+            #            buy if mom > 0
+
+            else:
+                #if (row.first_dotm
+                if (row.first_dotw
+                     and mom > 0):
+                    # enter buy in trade log
+                    shares = self.tlog.buy(date, close)
+                    # set stop loss
+                    stop_loss = 0*close
 
             if shares > 0:
                 pf.DBG("{0} BUY  {1} {2} @ {3:.2f}".format(

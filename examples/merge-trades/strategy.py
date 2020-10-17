@@ -41,11 +41,26 @@ class Strategy:
             end_flag = pf.is_last_row(self.ts, i)
             shares = 0
 
-            # buy
-            if (self.tlog.num_open_trades() < self.max_positions
+            # Sell Logic
+            # First we check if an existing position in symbol should be sold
+            #  - sell if price close sets a new period_high
+            #  - sell if end of data
+
+            if (self.tlog.num_open_trades() > 0
+                  and (close == row.period_high
+                       or end_flag)):
+
+                # enter sell in trade log
+                shares = self.tlog.sell(date, close)
+
+            # Buy Logic
+            # First we check to see if we have exceeded max_positions, if so do nothing
+            #  - Buy if regime > 0 
+            #            and price close sets a new period_low
+
+            elif (self.tlog.num_open_trades() < self.max_positions
                 and row.regime > 0
-                and close == row.period_low
-                and not end_flag):
+                and close == row.period_low):
 
                 # calc number of shares
                 buying_power = self.tlog.calc_buying_power(price=close)
@@ -53,14 +68,6 @@ class Strategy:
                 shares = self.tlog.calc_shares(price=close, cash=cash)
                 # enter buy in trade log
                 self.tlog.buy(date, close, shares)
-
-            # sell
-            elif (self.tlog.num_open_trades() > 0
-                  and (close == row.period_high
-                       or end_flag)):
-
-                # enter sell in trade log
-                shares = self.tlog.sell(date, close)
 
             if shares > 0:
                 pf.DBG("{0} BUY  {1} {2} @ {3:.2f}".format(
