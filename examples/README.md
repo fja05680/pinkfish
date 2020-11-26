@@ -4,6 +4,7 @@
 - `double-7s`: buy on X day low, sell on X day high (use closing prices)
 - `double-7s-portfolio`: double-7s applied to a portfolio
 - `follow-trend`: apply the same trading strategy to multiple securites, one at a time, and compare them
+- `futures-forex-crypto`: basic futures example using daily futures data from yahoo finance
 - `golden-cross`: classic golden-cross/death-cross long term trading strategy
 - `merge-trades`: Compare regular trade log vs merged trade log using Scaling-in algorithm
 - `momentum`: stock that's going up tends to keep going up...until it doesn't
