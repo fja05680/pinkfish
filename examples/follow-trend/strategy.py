@@ -35,7 +35,6 @@ class Strategy:
             4. The stock closes below its lower band, sell your long position.
         """
         pf.TradeLog.cash = self.capital
-        pf.TradeLog.seq_num = 0
 
         for i, row in enumerate(self.ts.itertuples()):
 

@@ -78,10 +78,15 @@ def _adj_prices(ts):
 
 def select_tradeperiod(ts, start, end, use_adj=False):
     """
-    Select a time slice of the data to trade from ts.
+    First, remove rows that have zero values in price columns
+    Then, select a time slice of the data to trade from ts.
     Back date a year to allow time for long term indicators,
     e.g. 200sma is become valid
     """
+    columns = ['high', 'low', 'open', 'close', 'adj_close']
+    ts[columns] = ts[ts[columns] > 0][columns]
+    ts.dropna()
+
     if use_adj:
         _adj_prices(ts)
 

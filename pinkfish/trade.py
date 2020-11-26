@@ -20,6 +20,7 @@ class Margin:
 class TradeLog:
 
     cash = 0                       # current cash; entire portfolio
+    multiplier = 1                 # applied to profit calculation
     margin = Margin.CASH           # margin percent, default 1:1 no margin
     buying_power = None            # buying power; for Portfolio class only
     seq_num = 0                    # used to order trades in Portfolio class
@@ -129,11 +130,6 @@ class TradeLog:
              'direction':direction, 'symbol':self.symbol}
         self._open_trades.append(d)
 
-        # update average entry price and shares
-        self.ave_entry_price = \
-            (self.ave_entry_price*self.shares + entry_price*shares) / (self.shares + shares)
-        self.shares += shares
-
         # update direction
         if self.direction != direction:
             if self.direction is None or self.shares == 0:
@@ -142,7 +138,13 @@ class TradeLog:
                 raise ValueError('not allowed to change direction from {} to {}, '
                                  'this requires shares = 0'
                                  .format(self.direction, direction))
-        # update case
+
+        # update average entry price and shares
+        self.ave_entry_price = \
+            (self.ave_entry_price*self.shares + entry_price*shares) / (self.shares + shares)
+        self.shares += shares
+
+        # update cash
         TradeLog.cash -= entry_price * shares
 
         return shares
@@ -205,9 +207,9 @@ class TradeLog:
             else:
                 pl_points = -(exit_price - entry_price)
 
-            # calculate exit_shares
+            # calculate exit_shares and pl_cash
             exit_shares = qty if shares >= qty else shares
-            pl_cash = pl_points * exit_shares
+            pl_cash = pl_points * exit_shares * TradeLog.multiplier
             self.cumul_total += pl_cash
 
             # record in trade log
@@ -218,10 +220,15 @@ class TradeLog:
 
             # update shares and cash
             self.shares -= exit_shares
+            TradeLog.cash += self.ave_entry_price*exit_shares + pl_cash
+            '''
             if direction == Direction.LONG:
-                TradeLog.cash += exit_price * exit_shares
+                TradeLog.cash += exit_price * exit_shares * TradeLog.multiplier
             else:
-                TradeLog.cash += (2*self.ave_entry_price-exit_price)*exit_shares
+                TradeLog.cash += ((2*self.ave_entry_price-exit_price)
+                                  * exit_shares
+                                  * TradeLog.multiplier)
+           '''
 
             # update open_trades list
             if shares == qty:
@@ -381,9 +388,9 @@ class DailyBal:
         low_     = tlog.equity(low)
         close_   = tlog.equity(close)
         leverage = tlog.leverage(close)
-        if (close_ < 0):
-            print('{} WARNING: Margin Call!!!'
-                  .format(date.strftime('%Y-%m-%d')))
+        #if (close_ < 0):
+        #    print('{} WARNING: Margin Call!!!'
+        #          .format(date.strftime('%Y-%m-%d')))
 
         if tlog.direction == Direction.LONG:
             t = (date, high_, low_, close_, shares, cash, leverage)
