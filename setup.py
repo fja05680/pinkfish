@@ -1,15 +1,19 @@
 from setuptools import setup
 
+with open('requirements.txt') as f:
+    requirements = f.read().splitlines()
+
 setup(
     name='pinkfish',
     version='1.3.0',
     description='A backtester and spreadsheet library for security analysis.',
     author='Farrell Aultman',
     author_email='fja0568@gmail.com',
-    url='http://github.com/fja0568/pinkfish',
+    url='https://github.com/fja05680/pinkfish',
     packages=['pinkfish'],
     include_package_data=True,
     license='MIT',
+    install_requires=requirements,
     classifiers=[
         'Development Status :: 4 - Beta',
         'License :: OSI Approved :: MIT License',
@@ -22,13 +26,7 @@ setup(
         'Topic :: Scientific/Engineering :: Information Analysis',
         'Topic :: System :: Distributed Computing',
     ],
-    install_requires=[
-        'numpy',
-        'pandas',
-        'matplotlib',
-    ],
     extras_require={
         'talib':  ["talib"],
-        'itable':  ["itable"],
     }
 )
