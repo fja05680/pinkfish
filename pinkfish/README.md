@@ -3,6 +3,7 @@
 - `analysis.py`: strategy analysis
 - `fetch.py`: retrive time series data
 - `indicator.py`: custom indicators
+- `itable.py`: make pretty tables in jupyter notebooks
 - `__init__.py`: create pinkfish package
 - `plot.py`: functions for plotting
 - `portfolio.py`: perform backtesting of a portfolio of securities
