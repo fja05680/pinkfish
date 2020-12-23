@@ -191,20 +191,29 @@ def largest_points_losing_trade(tlog):
 
 def avg_pct_gain_per_trade(tlog):
     if total_num_trades(tlog) == 0: return 0
-    df = tlog['pl_points'] / tlog['entry_price']
-    return np.average(df) * 100
+    s = tlog['pl_points'] / tlog['entry_price']
+    return np.average(s) * 100
 
 def largest_pct_winning_trade(tlog):
     if num_winning_trades(tlog) == 0: return 0
     df = tlog[tlog['pl_points'] > 0]
-    df = df['pl_points'] / df['entry_price']
-    return df.max() * 100
+    s = df['pl_points'] / df['entry_price']
+    return s.max() * 100
 
 def largest_pct_losing_trade(tlog):
     if num_losing_trades(tlog) == 0: return 0
     df = tlog[tlog['pl_points'] < 0]
-    df = df['pl_points'] / df['entry_price']
-    return df.min() * 100
+    s = df['pl_points'] / df['entry_price']
+    return s.min() * 100
+
+def expected_shortfall(tlog):
+    if total_num_trades(tlog) == 0: return 0
+    df = tlog[tlog['pl_points'] < 0]
+    s = df['pl_points'] / df['entry_price']
+    l = sorted(s)
+    end = int(len(l) * .05)
+    avg = np.mean(l[:end]) *100 if end > 0 else 0
+    return avg
 
 #####################################################################
 # STREAKS
@@ -467,6 +476,7 @@ def stats(ts, tlog, dbal, capital):
     stats['avg_pct_gain_per_trade'] = avg_pct_gain_per_trade(tlog)
     stats['largest_pct_winning_trade'] = largest_pct_winning_trade(tlog)
     stats['largest_pct_losing_trade'] = largest_pct_losing_trade(tlog)
+    stats['expected_shortfall'] = expected_shortfall(tlog)
 
     # STREAKS
     stats['max_consecutive_winning_trades'] = max_consecutive_winning_trades(tlog)
