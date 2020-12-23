@@ -10,4 +10,3 @@
 - `statistics.py`: calculate trading statistics
 - `trade.py`: assist with trading
 - `utility.py`: utilities
-- `tests`: test code
