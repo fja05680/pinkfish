@@ -12,7 +12,7 @@ from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 
 
-def plot_equity_curve(strategy, benchmark=None):
+def plot_equity_curve(strategy, benchmark=None, fname=None):
     """
     Plot Equity Curve: Strategy vs (optionally) Benchmark
     Both arguements are daily balance.
@@ -23,8 +23,10 @@ def plot_equity_curve(strategy, benchmark=None):
     if benchmark is not None:
         axes.plot(benchmark['close'], label='benchmark')
     plt.legend(loc='best')
+    if fname:
+        plt.savefig(fname, bbox_inches='tight')
 
-def plot_equity_curves(strategies):
+def plot_equity_curves(strategies, fname=None):
     """
     Plot Equity Curve: multiple equity curves on same plot
     Arguement is daily balance.
@@ -33,10 +35,11 @@ def plot_equity_curves(strategies):
     axes = fig.add_subplot(111, ylabel='Portfolio value in $')
     for strategy in strategies:
         axes.plot(strategy.dbal['close'], label=strategy.symbol)
-
     plt.legend(loc='best')
+    if fname:
+        plt.savefig(fname, bbox_inches='tight')
 
-def plot_trades(strategy, benchmark=None):
+def plot_trades(strategy, benchmark=None, fname=None):
     """
     Plot Trades: benchmark is the equity curve that the trades get plotted on.
     If not provided, strategy equity curve is used.
@@ -64,6 +67,8 @@ def plot_trades(strategy, benchmark=None):
     sell = benchmark[s]
     axes.plot(sell.index, sell['close'], 'v', markersize=10, color='r')
     plt.legend(loc='best')
+    if fname:
+        plt.savefig(fname, bbox_inches='tight')
 
 default_metrics = (
     'annual_return_rate',
@@ -77,7 +82,8 @@ default_metrics = (
     'monthly_std',
     'annual_std')
 
-def plot_bar_graph(stats, benchmark_stats=None, metrics=default_metrics, extras=None):
+def plot_bar_graph(stats, benchmark_stats=None, metrics=default_metrics,
+                   extras=None, fname=None):
     """ Plot Bar Graph: Strategy vs Benchmark """
     if extras is None: extras = ()
     metrics += extras
@@ -88,5 +94,7 @@ def plot_bar_graph(stats, benchmark_stats=None, metrics=default_metrics, extras=
     df.plot(kind='bar', ax=axes, color=['g', 'r'])
     axes.set_xticklabels(df.index, rotation=60)
     plt.legend(loc='best')
+    if fname:
+        plt.savefig(fname, bbox_inches='tight')
     return df
 
