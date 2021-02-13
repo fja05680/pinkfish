@@ -1,6 +1,11 @@
 pinkfish
 ======     
 
+ANNOUNCEMENT: I now have a youtube channel dedicated to Pinkfish.  First 2 videos already uploaded.
+
+https://www.youtube.com/channel/UCsPHH2UBn8Fz0g0MGrZ2Ihw
+
+
 A backtester and spreadsheet library for security analysis.
 
 Why another python backtesting library?  How is pinkfish different?
