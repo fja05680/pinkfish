@@ -28,7 +28,7 @@ SP500_BEGIN = '1957-03-04'
 
 def _difference_in_years(start, end):
     """ calculate the number of years between two dates """
-    diff  = end - start
+    diff  = abs(start - end)
     diff_in_years = (diff.days + diff.seconds/86400)/365.2425
     return diff_in_years
 
@@ -268,8 +268,8 @@ def max_closed_out_drawdown(close):
     dd['max'] = dd_max
     dd['peak'] = running_max[idx]
     dd['trough'] = close[idx]
-    dd['start_date'] = close[close == dd['peak']].index[0].strftime('%Y-%m-%d')
-    dd['end_date'] = idx.strftime('%Y-%m-%d')
+    dd['peak_date'] = close[close == dd['peak']].index[0].strftime('%Y-%m-%d')
+    dd['trough_date'] = idx.strftime('%Y-%m-%d')
     close = close[close.index > idx]
 
     rd_mask = close > dd['peak']
@@ -291,14 +291,30 @@ def max_intra_day_drawdown(high, low):
     dd['max'] = dd_max
     dd['peak'] = running_max[idx]
     dd['trough'] = low[idx]
-    dd['start_date'] = high[high == dd['peak']].index[0].strftime('%Y-%m-%d')
-    dd['end_date'] = idx.strftime('%Y-%m-%d')
+    dd['peak_date'] = high[high == dd['peak']].index[0].strftime('%Y-%m-%d')
+    dd['trough_date'] = idx.strftime('%Y-%m-%d')
     high = high[high.index > idx]
 
     rd_mask = high > dd['peak']
     if rd_mask.any():
         dd['recovery_date'] = high[rd_mask].index[0].strftime('%Y-%m-%d')
+    else:
+        dd['recovery_date'] = 'Not Recovered Yet'
+
     return dd
+
+def drawdown_loss_recovery_period(peak_date, trough_date , recovery_date):
+    if recovery_date == 'Not Recovered Yet':
+        loss_period = recovery_period = recovery_date
+    else:
+        peak_date = datetime.strptime(peak_date, '%Y-%m-%d')
+        trough_date = datetime.strptime(trough_date, '%Y-%m-%d')
+        recovery_date = datetime.strptime(recovery_date, '%Y-%m-%d')
+        loss_period = abs(peak_date - trough_date).days
+        loss_period = str(loss_period) + ' days'
+        recovery_period = abs(trough_date-recovery_date).days
+        recovery_period = str(recovery_period) + ' days'
+    return loss_period, recovery_period
 
 def _windowed_view(x, window_size):
     """Create a 2d windowed view of a 1d array.
@@ -487,13 +503,13 @@ def stats(ts, tlog, dbal, capital):
     # DRAWDOWN
     dd = max_closed_out_drawdown(dbal['close'])
     stats['max_closed_out_drawdown'] = dd['max']
-    stats['max_closed_out_drawdown_start_date'] = dd['start_date']
-    stats['max_closed_out_drawdown_end_date'] = dd['end_date']
+    stats['max_closed_out_drawdown_peak_date'] = dd['peak_date']
+    stats['max_closed_out_drawdown_trough_date'] = dd['trough_date']
     stats['max_closed_out_drawdown_recovery_date'] = dd['recovery_date']
-    stats['drawdown_recovery'] = _difference_in_years(
-        datetime.strptime(dd['start_date'], '%Y-%m-%d'),
-        datetime.strptime(dd['end_date'], '%Y-%m-%d')) *-1
-    stats['drawdown_annualized_return'] = dd['max'] / cagr
+    stats['drawdown_loss_period'], stats['drawdown_recovery_period'] = \
+        drawdown_loss_recovery_period(dd['peak_date'], dd['trough_date'],
+                                      dd['recovery_date'])
+    stats['annualized_return_over_max_drawdown'] = abs(cagr / dd['max'])
     dd = max_intra_day_drawdown(dbal['high'], dbal['low'])
     stats['max_intra_day_drawdown'] = dd['max']
     dd = rolling_max_dd(dbal['close'], TRADING_DAYS_PER_YEAR)
