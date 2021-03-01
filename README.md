@@ -1,7 +1,7 @@
 pinkfish
 ======     
 
-ANNOUNCEMENT: I now have a youtube channel dedicated to Pinkfish.  First 2 videos already uploaded.
+ANNOUNCEMENT: I now have a youtube channel dedicated to Pinkfish.  First 3 videos already uploaded.
 
 https://www.youtube.com/channel/UCsPHH2UBn8Fz0g0MGrZ2Ihw
 
