@@ -410,7 +410,10 @@ def sortino_ratio(rets, risk_free=0.00, period=TRADING_DAYS_PER_YEAR):
     mean = np.mean(rets, axis=0)
     negative_rets = rets[rets < 0]
     dev = np.std(negative_rets, axis=0)
-    sortino = (mean*period - risk_free) / (dev * np.sqrt(period))
+    if dev == 0:
+        sortino = 0
+    else:
+        sortino = (mean*period - risk_free) / (dev * np.sqrt(period))
     return sortino
 
 #####################################################################
