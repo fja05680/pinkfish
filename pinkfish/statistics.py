@@ -380,7 +380,7 @@ def rolling_max_ru(ser, period, min_periods=1):
 #####################################################################
 # PERCENT CHANGE - used to compute several stastics
 
-def pct_change(close, period):
+def pct_change(close: pd.Series, period: int) -> pd.Series:
     diff = (close.shift(-period) - close) / close * 100
     diff.dropna(inplace=True)
     return diff
