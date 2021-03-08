@@ -73,8 +73,7 @@ def plot_trades(strategy, benchmark=None, fname=None):
 default_metrics = (
     'annual_return_rate',
     'max_closed_out_drawdown',
-    'drawdown_annualized_return',
-    'drawdown_recovery',
+    'annualized_return_over_max_drawdown',
     'best_month',
     'worst_month',
     'sharpe_ratio',
