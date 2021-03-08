@@ -535,29 +535,33 @@ def stats(ts, tlog, dbal, capital):
 
     # PERCENT CHANGE
     pc = pct_change(dbal['close'], TRADING_DAYS_PER_YEAR)
-    stats['pct_profitable_years'] = 0 if ((pc > 0).sum() == 0) else (pc > 0).sum() / len(pc) * 100
-    stats['best_year'] = pc.max()
-    stats['worst_year'] = pc.min()
-    stats['avg_year'] = np.average(pc)
-    stats['annual_std'] = pc.std()
+    if len(pc) > 0:
+        stats['pct_profitable_years'] = (pc > 0).sum() / len(pc) * 100
+        stats['best_year'] = pc.max()
+        stats['worst_year'] = pc.min()
+        stats['avg_year'] = np.average(pc)
+        stats['annual_std'] = pc.std()
     pc = pct_change(dbal['close'], TRADING_DAYS_PER_MONTH)
-    stats['pct_profitable_months'] = 0 if ((pc > 0).sum() == 0) else (pc > 0).sum() / len(pc) * 100
-    stats['best_month'] = pc.max()
-    stats['worst_month'] = pc.min()
-    stats['avg_month'] = np.average(pc)
-    stats['monthly_std'] = pc.std()
+    if len(pc) > 0:
+        stats['pct_profitable_months'] = (pc > 0).sum() / len(pc) * 100
+        stats['best_month'] = pc.max()
+        stats['worst_month'] = pc.min()
+        stats['avg_month'] = np.average(pc)
+        stats['monthly_std'] = pc.std()
     pc = pct_change(dbal['close'], TRADING_DAYS_PER_WEEK)
-    stats['pct_profitable_weeks'] = 0 if ((pc > 0).sum() == 0) else (pc > 0).sum() / len(pc) * 100
-    stats['best_week'] = pc.max()
-    stats['worst_week'] = pc.min()
-    stats['avg_week'] = np.average(pc)
-    stats['weekly_std'] = pc.std()
+    if len(pc) > 0:
+        stats['pct_profitable_weeks'] = (pc > 0).sum() / len(pc) * 100
+        stats['best_week'] = pc.max()
+        stats['worst_week'] = pc.min()
+        stats['avg_week'] = np.average(pc)
+        stats['weekly_std'] = pc.std()
     pc = pct_change(dbal['close'], 1)
-    stats['pct_profitable_days'] = 0 if ((pc > 0).sum() == 0) else (pc > 0).sum() / len(pc) * 100
-    stats['best_day'] = pc.max()
-    stats['worst_day'] = pc.min()
-    stats['avg_day'] = np.average(pc)
-    stats['daily_std'] = pc.std()
+    if len(pc) > 0:
+        stats['pct_profitable_days'] = (pc > 0).sum() / len(pc) * 100
+        stats['best_day'] = pc.max()
+        stats['worst_day'] = pc.min()
+        stats['avg_day'] = np.average(pc)
+        stats['daily_std'] = pc.std()
 
     # RATIOS
     sr = sharpe_ratio(dbal['close'].pct_change())
