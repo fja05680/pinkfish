@@ -63,6 +63,6 @@ testpath==0.4.4
 threadpoolctl==2.1.0
 tornado==6.1
 traitlets==5.0.5
-urllib3==1.26.2
+urllib3==1.26.3
 wcwidth==0.2.5
 webencodings==0.5.1
