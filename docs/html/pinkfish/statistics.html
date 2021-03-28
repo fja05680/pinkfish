@@ -1,0 +1,1822 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>pinkfish.statistics API documentation</title>
+<meta name="description" content="Calculate trading statistics …" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pinkfish.statistics</code></h1>
+</header>
+<section id="section-intro">
+<p>Calculate trading statistics.</p>
+<p>The stats() function returns the following metrics in a pd.Series.</p>
+<ul>
+<li>
+<p>`start : str<br>
+The date when trading begins formatted as YY-MM-DD.</p>
+</li>
+<li>
+<p><code>end</code> : str<br>
+The date when trading ends formatted as YY-MM-DD.</p>
+</li>
+<li>
+<p><code>beginning_balance</code> : int<br>
+The initial capital.</p>
+</li>
+<li>
+<p><code>ending_balance</code> : float<br>
+The ending capital.</p>
+</li>
+<li>
+<p><code>total_net_profit</code> : float<br>
+Total value of all profitable trades minus all losing trades.</p>
+</li>
+<li>
+<p><code>gross_profit</code> : float<br>
+Total value of all profitable trades.</p>
+</li>
+<li>
+<p><code>gross_loss</code> : float<br>
+Total value of all losing trades.</p>
+</li>
+<li>
+<p><code>profit_factor</code> : float<br>
+The Ratio of the total profits from profitable trades divided by
+the total loses from losing trades.
+A break-even system has a
+profit factor of 1.</p>
+</li>
+<li>
+<p><code>return_on_initial_capital</code> : float<br>
+The ratio of gross profit divided by the initial capital and
+multiplied by 100.</p>
+</li>
+<li>
+<p><code>annual_return_rate</code> : float<br>
+The compound annual growth rate of the strategy.</p>
+</li>
+<li>
+<p><code>trading_period</code> : str<br>
+The trading time frame expressed as years, monthe, and days.</p>
+</li>
+<li>
+<p><code>pct_time_in_market</code> : float<br>
+The percentage of days in which the strategy is not completely
+holding cash.</p>
+</li>
+<li>
+<p><code>margin</code> : float<br>
+The buying power in dollars divided by the capital.
+For example,
+if the margin is 2 and the capital is $10,000, then the buying
+power is $20,000.</p>
+</li>
+<li>
+<p><code>avg_leverage</code> : float<br>
+Leverage is the total value of securities held plus any cash,
+divided by the total value of securities held plus cash minus
+loans.
+The average leverage is just the average daily leverage
+over the life of the strategy.</p>
+</li>
+<li>
+<p><code>max_leverage</code> : float<br>
+The maximum daily leverage over the life of the strategy.</p>
+</li>
+<li>
+<p><code>min_leverage</code> : float<br>
+The minimum daily leverage over the life of the strategy.</p>
+</li>
+<li>
+<p><code>total_num_trades</code> : int<br>
+The number of closed trades.</p>
+</li>
+<li>
+<p><code>trades_per_year</code> : float<br>
+The average number of closed trades per year.</p>
+</li>
+<li>
+<p><code>num_winning_trades</code> : int<br>
+The number of profitable trades.</p>
+</li>
+<li>
+<p><code>num_losing_trades</code> : int<br>
+The number of losing trades.</p>
+</li>
+<li>
+<p><code>num_even_trades</code> : int<br>
+The number of break even trades.</p>
+</li>
+<li>
+<p><code>pct_profitable_trades</code> : float<br>
+The number of winning trades divided by the total number of closed
+trades and multiplied by 100.</p>
+</li>
+<li>
+<p><code>avg_profit_per_trade</code> : float<br>
+The total net profit divided by the total number of closed trades
+and multiplied by 100.</p>
+</li>
+<li>
+<p><code>avg_profit_per_winning_trade</code> : float<br>
+The gross profit divided by the number of winning trades.</p>
+</li>
+<li>
+<p><code>avg_loss_per_losing_trade</code> : float<br>
+The gross loss divided by the number of losing trades.
+This
+quantity is negative.</p>
+</li>
+<li>
+<p><code>ratio_avg_profit_win_loss</code> : float<br>
+The absolute value of the average profit per winning trade divided
+by the average loss per losing trade.</p>
+</li>
+<li>
+<p><code>largest_profit_winning_trade</code> : float<br>
+The single largest profit for all winning trades.</p>
+</li>
+<li>
+<p><code>largest_loss_losing_trade</code> : float<br>
+The single largest loss for all losing trades.</p>
+</li>
+<li>
+<p><code>num_winning_points</code> : float<br>
+The sum of the increase in points from all winning trades.</p>
+</li>
+<li>
+<p><code>num_losing_points</code> : float<br>
+The sum of the decrease in points from all losing trades.
+This
+quantity is negative.</p>
+</li>
+<li>
+<p><code>total_net_points</code> : float<br>
+The mathematical difference between winning points and
+losing points.</p>
+</li>
+<li>
+<p><code>avg_points</code> : float<br>
+The total net points divided by the total number of trades.</p>
+</li>
+<li>
+<p><code>largest_points_winning_trade</code> : float<br>
+The single largest point increase for all winning trades.</p>
+</li>
+<li>
+<p><code>largest_points_losing_trade</code> : float<br>
+The single largest point decrease for all losing trades.</p>
+</li>
+<li>
+<p><code>avg_pct_gain_per_trade</code> : float<br>
+The average percentage gain for all trades.</p>
+</li>
+<li>
+<p><code>largest_pct_winning_trade</code> : float<br>
+The single largest percent increase for all winning trades.</p>
+</li>
+<li>
+<p><code>largest_pct_losing_trade</code> : float<br>
+The single largest percent decrease for all losing trades.</p>
+</li>
+<li>
+<p><code>expected_shortfall</code> : float<br>
+The expected shortfall is calculated by taking the average of
+returns in the worst 5% of cases.
+In other words, it is the
+average percent loss of the worst 5% of losing trades.</p>
+</li>
+<li>
+<p><code>max_consecutive_winning_trades</code> : int<br>
+The longest winning streak in trades.</p>
+</li>
+<li>
+<p><code>max_consecutive_losing_trades</code> : int<br>
+The longest losing streak in trades.</p>
+</li>
+<li>
+<p><code>avg_bars_winning_trades</code> : float<br>
+On average, how long a winning trade takes in market days.</p>
+</li>
+<li>
+<p><code>avg_bars_losing_trades</code> : float<br>
+On average, how long a losing trade takes in market days.</p>
+</li>
+<li>
+<p><code>max_closed_out_drawdown</code> : float<br>
+Worst peak minus trough balance based on closing prices.</p>
+</li>
+<li>
+<p><code>max_closed_out_drawdown_peak_date</code> : str<br>
+The beginning and peak date of the largest drawdown formatted
+as YY-MM-DD.
+The balance hit it's highest point on this date.</p>
+</li>
+<li>
+<p><code>max_closed_out_drawdown_trough_date</code> : str<br>
+The trough date of the largest drawdown.
+The balance hit it's
+lowest point on this date.</p>
+</li>
+<li>
+<p><code>max_closed_out_drawdown_recovery_date</code> : str<br>
+The end date of the largest drawdown.
+The date in which the
+balance has equaled the peak value again.</p>
+</li>
+<li>
+<p><code>drawdown_loss_period</code> : int<br>
+The number of calendar days from peak to trough.</p>
+</li>
+<li>
+<p><code>drawdown_recovery_period</code> : int<br>
+The number of calendar days from trough to recovery.</p>
+</li>
+<li>
+<p><code>annualized_return_over_max_drawdown</code> : float<br>
+Annual return rate divided by the max drawdown.</p>
+</li>
+<li>
+<p><code>max_intra_day_drawdown</code> : float<br>
+Worst peak minus trough balance based on intraday values.</p>
+</li>
+<li>
+<p><code>avg_yearly_closed_out_drawdown</code> :float<br>
+The average yearly drawdown calculated using every available
+market year period.
+In other words, every rollowing window of 252
+market days is taken as a different year in the calculation.</p>
+</li>
+<li>
+<p><code>max_yearly_closed_out_drawdown</code> : float<br>
+Worst peak minus trough balance based on closing prices during any
+252 market day period.</p>
+</li>
+<li>
+<p><code>avg_monthly_closed_out_drawdown</code> : float<br>
+The average monthly drawdown calculated using every available
+market month period.
+In other words, every rollowing window of 20
+market days is taken as a different month in the calculation.</p>
+</li>
+<li>
+<p><code>max_monthly_closed_out_drawdown</code> : float<br>
+Worst peak minus trough balance based on closing prices during any
+20 market day period.</p>
+</li>
+<li>
+<p><code>avg_weekly_closed_out_drawdown</code> : float<br>
+The average weekly drawdown calculated using every available
+market week period.
+In other words, every rollowing window of 5
+market days is taken as a different week in the calculation.</p>
+</li>
+<li>
+<p><code>max_weekly_closed_out_drawdown</code> : float<br>
+Worst peak minus trough balance based on closing prices during any
+5 market day period.</p>
+</li>
+<li>
+<p><code>avg_yearly_closed_out_runup</code> : float<br>
+The average yearly runup calculated using every available
+market year period.
+In other words, every rollowing window of 252
+market days is taken as a different year in the calculation.</p>
+</li>
+<li>
+<p><code>max_yearly_closed_out_runup</code> : float<br>
+Best peak minus trough balance based on closing prices during any
+252 market day period.</p>
+</li>
+<li>
+<p><code>avg_monthly_closed_out_runup</code> : float<br>
+The average monthly runup calculated using every available
+market month period.
+In other words, every rollowing window of 20
+market days is taken as a different month in the calculation.</p>
+</li>
+<li>
+<p><code>max_monthly_closed_out_runup</code> : float<br>
+Best peak minus trough balance based on closing prices during any
+20 market day period.</p>
+</li>
+<li>
+<p><code>avg_weekly_closed_out_runup</code> : float<br>
+The average weekly runup calculated using every available
+market week period.
+In other words, every rollowing window of 5
+market days is taken as a different week in the calculation.</p>
+</li>
+<li>
+<p><code>max_weekly_closed_out_runup</code> : float<br>
+Best peak minus trough balance based on closing prices during any
+5 market day period.</p>
+</li>
+<li>
+<p><code>pct_profitable_years</code> : float<br>
+The percentage of all years that were profitable.
+In other words,
+the percentage of 252 market day periods that were profitable.</p>
+</li>
+<li>
+<p><code>best_year</code> : float<br>
+The percentage increase in balance of the best year.</p>
+</li>
+<li>
+<p><code>worst_year</code> : float<br>
+The percentage decrease in balance of the worst year.</p>
+</li>
+<li>
+<p><code>avg_year</code> : float<br>
+The percentage change per year on average.</p>
+</li>
+<li>
+<p><code>annual_std</code> : float<br>
+The yearly standard deviation over the entire trading period.</p>
+</li>
+<li>
+<p><code>pct_profitable_months</code> : float<br>
+The percentage of all months that were profitable.
+In other words,
+the percentage of 20 market day periods that were profitable.</p>
+</li>
+<li>
+<p><code>best_month</code> : float<br>
+The percentage increase in balance of the best month.</p>
+</li>
+<li>
+<p><code>worst_month</code> : float<br>
+The percentage decrease in balance of the worst month.</p>
+</li>
+<li>
+<p><code>avg_month</code> : float<br>
+The percentage change per month on average.</p>
+</li>
+<li>
+<p><code>monthly_std</code> : float<br>
+The monthly standard deviation over the entire trading period.</p>
+</li>
+<li>
+<p><code>pct_profitable_weeks</code> : float<br>
+The percentage of all weeks that were profitable.
+In other words,
+the percentage of 5 market day periods that were profitable.</p>
+</li>
+<li>
+<p><code>best_week</code> : float<br>
+The percentage increase in balance of the best week.</p>
+</li>
+<li>
+<p><code>worst_week</code> : float<br>
+The percentage decrease in balance of the worst week.</p>
+</li>
+<li>
+<p><code>avg_week</code> : float<br>
+The percentage change per week on average.</p>
+</li>
+<li>
+<p><code>weekly_std</code> : float<br>
+The weekly standard deviation over the entire trading period.</p>
+</li>
+<li>
+<p><code>pct_profitable_weeks</code> : float<br>
+The percentage of all weeks that were profitable.
+In other words,
+the percentage of 5 market day periods that were profitable.</p>
+</li>
+<li>
+<p><code>weekly_std</code> : float<br>
+The weekly standard deviation over the entire trading period.</p>
+</li>
+<li>
+<p><code>pct_profitable_days</code> : float<br>
+The percentage of all days that were profitable.</p>
+</li>
+<li>
+<p><code>best_day</code> : float<br>
+The percentage increase in balance of the best day.</p>
+</li>
+<li>
+<p><code>worst_day</code> : float<br>
+The percentage decrease in balance of the worst day.</p>
+</li>
+<li>
+<p><code>avg_day</code> : float<br>
+The percentage change per day on average.</p>
+</li>
+<li>
+<p><code>daily_std</code> : float<br>
+The daily standard deviation over the entire trading period.</p>
+</li>
+<li>
+<p><code>sharpe_ratio</code> : float<br>
+A measure of risk adjusted return.
+The ratio is the average return
+per unit of volatility, i.e. standard deviation.</p>
+</li>
+<li>
+<p><code>sharpe_ratio_max</code> : float<br>
+The maximum expected sharpe ratio. It is the sharpe ratio plus
+3 standard deviations of the sharpe ratio.
+99.73% of sharpe ratios
+are theoretically below this value.</p>
+</li>
+<li>
+<p><code>sharpe_ratio_min</code> : float<br>
+The mimimum expected sharpe ratio. It is the sharpe ratio minus
+3 standard deviations of the sharpe ratio.
+99.73% of sharpe ratios
+are theoretically above this value.</p>
+</li>
+<li>
+<p><code>sortino_ratio</code> : float<br>
+A variation of the Sharpe ratio that differentiates harmful
+volatility from overall volatility by using the asset's standard
+deviation of negative portfolio returns (downside deviation)
+instead of the total standard deviation.</p>
+</li>
+</ul>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+Calculate trading statistics.
+
+The stats() function returns the following metrics in a pd.Series.
+
+ - `start : str  
+   The date when trading begins formatted as YY-MM-DD.
+
+ - `end` : str  
+   The date when trading ends formatted as YY-MM-DD.
+
+ - `beginning_balance` : int  
+    The initial capital.
+
+ - `ending_balance` : float  
+    The ending capital.
+
+ - `total_net_profit` : float  
+    Total value of all profitable trades minus all losing trades.
+
+ - `gross_profit` : float  
+    Total value of all profitable trades.
+
+ - `gross_loss` : float  
+    Total value of all losing trades.
+
+ - `profit_factor` : float  
+    The Ratio of the total profits from profitable trades divided by
+    the total loses from losing trades.  A break-even system has a
+    profit factor of 1.
+
+ - `return_on_initial_capital` : float  
+    The ratio of gross profit divided by the initial capital and
+    multiplied by 100.
+
+ - `annual_return_rate` : float  
+    The compound annual growth rate of the strategy.
+
+ - `trading_period` : str  
+    The trading time frame expressed as years, monthe, and days.
+
+ - `pct_time_in_market` : float  
+    The percentage of days in which the strategy is not completely
+    holding cash.
+
+ - `margin` : float  
+    The buying power in dollars divided by the capital.  For example,
+    if the margin is 2 and the capital is $10,000, then the buying
+    power is $20,000.
+
+ - `avg_leverage` : float  
+    Leverage is the total value of securities held plus any cash,
+    divided by the total value of securities held plus cash minus
+    loans.  The average leverage is just the average daily leverage
+    over the life of the strategy.
+
+ - `max_leverage` : float  
+    The maximum daily leverage over the life of the strategy.
+
+ - `min_leverage` : float  
+    The minimum daily leverage over the life of the strategy.
+
+ - `total_num_trades` : int  
+    The number of closed trades.
+
+ - `trades_per_year` : float  
+    The average number of closed trades per year.
+
+ - `num_winning_trades` : int  
+    The number of profitable trades.
+
+ - `num_losing_trades` : int  
+    The number of losing trades.
+
+ - `num_even_trades` : int  
+    The number of break even trades.
+
+ - `pct_profitable_trades` : float  
+    The number of winning trades divided by the total number of closed
+    trades and multiplied by 100.
+
+ - `avg_profit_per_trade` : float  
+    The total net profit divided by the total number of closed trades
+    and multiplied by 100.
+
+ - `avg_profit_per_winning_trade` : float  
+    The gross profit divided by the number of winning trades.
+
+ - `avg_loss_per_losing_trade` : float  
+    The gross loss divided by the number of losing trades.  This
+    quantity is negative.
+
+ - `ratio_avg_profit_win_loss` : float  
+    The absolute value of the average profit per winning trade divided
+    by the average loss per losing trade.
+
+ - `largest_profit_winning_trade` : float  
+    The single largest profit for all winning trades.
+
+ - `largest_loss_losing_trade` : float  
+    The single largest loss for all losing trades.
+
+ - `num_winning_points` : float  
+    The sum of the increase in points from all winning trades.
+
+ - `num_losing_points` : float  
+    The sum of the decrease in points from all losing trades.  This
+    quantity is negative.
+
+ - `total_net_points` : float  
+    The mathematical difference between winning points and
+    losing points.
+
+ - `avg_points` : float  
+    The total net points divided by the total number of trades.
+
+ - `largest_points_winning_trade` : float  
+    The single largest point increase for all winning trades.
+
+ - `largest_points_losing_trade` : float  
+    The single largest point decrease for all losing trades.
+
+ - `avg_pct_gain_per_trade` : float  
+    The average percentage gain for all trades.
+
+ - `largest_pct_winning_trade` : float  
+    The single largest percent increase for all winning trades.
+
+ - `largest_pct_losing_trade` : float  
+    The single largest percent decrease for all losing trades.
+
+ - `expected_shortfall` : float  
+    The expected shortfall is calculated by taking the average of
+    returns in the worst 5% of cases.  In other words, it is the
+    average percent loss of the worst 5% of losing trades.
+
+ - `max_consecutive_winning_trades` : int  
+    The longest winning streak in trades.
+
+ - `max_consecutive_losing_trades` : int  
+    The longest losing streak in trades.
+
+ - `avg_bars_winning_trades` : float  
+    On average, how long a winning trade takes in market days.
+
+ - `avg_bars_losing_trades` : float  
+    On average, how long a losing trade takes in market days.
+
+ - `max_closed_out_drawdown` : float  
+    Worst peak minus trough balance based on closing prices.
+
+ - `max_closed_out_drawdown_peak_date` : str  
+    The beginning and peak date of the largest drawdown formatted
+    as YY-MM-DD.  The balance hit it&#39;s highest point on this date.
+
+ - `max_closed_out_drawdown_trough_date` : str  
+    The trough date of the largest drawdown.  The balance hit it&#39;s
+    lowest point on this date.
+
+ - `max_closed_out_drawdown_recovery_date` : str  
+    The end date of the largest drawdown.  The date in which the
+    balance has equaled the peak value again.
+
+ - `drawdown_loss_period` : int  
+    The number of calendar days from peak to trough.
+
+ - `drawdown_recovery_period` : int  
+    The number of calendar days from trough to recovery.
+
+ - `annualized_return_over_max_drawdown` : float  
+    Annual return rate divided by the max drawdown.
+
+ - `max_intra_day_drawdown` : float  
+    Worst peak minus trough balance based on intraday values.
+
+ - `avg_yearly_closed_out_drawdown` :float  
+    The average yearly drawdown calculated using every available
+    market year period.  In other words, every rollowing window of 252
+    market days is taken as a different year in the calculation.
+
+ - `max_yearly_closed_out_drawdown` : float  
+    Worst peak minus trough balance based on closing prices during any
+    252 market day period.
+
+ - `avg_monthly_closed_out_drawdown` : float  
+    The average monthly drawdown calculated using every available
+    market month period.  In other words, every rollowing window of 20
+    market days is taken as a different month in the calculation.
+
+ - `max_monthly_closed_out_drawdown` : float  
+    Worst peak minus trough balance based on closing prices during any
+    20 market day period.
+
+ - `avg_weekly_closed_out_drawdown` : float  
+    The average weekly drawdown calculated using every available
+    market week period.  In other words, every rollowing window of 5
+    market days is taken as a different week in the calculation.
+
+ - `max_weekly_closed_out_drawdown` : float  
+    Worst peak minus trough balance based on closing prices during any
+    5 market day period.
+
+ - `avg_yearly_closed_out_runup` : float  
+    The average yearly runup calculated using every available
+    market year period.  In other words, every rollowing window of 252
+    market days is taken as a different year in the calculation.
+
+ - `max_yearly_closed_out_runup` : float  
+    Best peak minus trough balance based on closing prices during any
+    252 market day period.
+
+ - `avg_monthly_closed_out_runup` : float  
+    The average monthly runup calculated using every available
+    market month period.  In other words, every rollowing window of 20
+    market days is taken as a different month in the calculation.
+
+ - `max_monthly_closed_out_runup` : float  
+    Best peak minus trough balance based on closing prices during any
+    20 market day period.
+
+ - `avg_weekly_closed_out_runup` : float  
+    The average weekly runup calculated using every available
+    market week period.  In other words, every rollowing window of 5
+    market days is taken as a different week in the calculation.
+
+ - `max_weekly_closed_out_runup` : float  
+    Best peak minus trough balance based on closing prices during any
+    5 market day period.
+
+ - `pct_profitable_years` : float  
+    The percentage of all years that were profitable.  In other words,
+    the percentage of 252 market day periods that were profitable.
+
+ - `best_year` : float  
+    The percentage increase in balance of the best year.
+
+ - `worst_year` : float  
+    The percentage decrease in balance of the worst year.
+
+ - `avg_year` : float  
+    The percentage change per year on average.
+
+ - `annual_std` : float  
+    The yearly standard deviation over the entire trading period.
+
+ - `pct_profitable_months` : float  
+    The percentage of all months that were profitable.  In other words,
+    the percentage of 20 market day periods that were profitable.
+
+ - `best_month` : float  
+    The percentage increase in balance of the best month.
+
+ - `worst_month` : float  
+    The percentage decrease in balance of the worst month.
+
+ - `avg_month` : float  
+    The percentage change per month on average.
+
+ - `monthly_std` : float  
+    The monthly standard deviation over the entire trading period.
+
+ - `pct_profitable_weeks` : float  
+    The percentage of all weeks that were profitable.  In other words,
+    the percentage of 5 market day periods that were profitable.
+
+ - `best_week` : float  
+    The percentage increase in balance of the best week.
+
+ - `worst_week` : float  
+    The percentage decrease in balance of the worst week.
+
+ - `avg_week` : float  
+    The percentage change per week on average.
+
+ - `weekly_std` : float  
+    The weekly standard deviation over the entire trading period.
+
+ - `pct_profitable_weeks` : float  
+    The percentage of all weeks that were profitable.  In other words,
+    the percentage of 5 market day periods that were profitable.
+
+ - `weekly_std` : float  
+    The weekly standard deviation over the entire trading period.
+
+ - `pct_profitable_days` : float  
+    The percentage of all days that were profitable.
+
+ - `best_day` : float  
+    The percentage increase in balance of the best day.
+
+ - `worst_day` : float  
+    The percentage decrease in balance of the worst day.
+
+ - `avg_day` : float  
+    The percentage change per day on average.
+
+ - `daily_std` : float  
+    The daily standard deviation over the entire trading period.
+
+ - `sharpe_ratio` : float  
+    A measure of risk adjusted return.  The ratio is the average return
+    per unit of volatility, i.e. standard deviation.
+
+ - `sharpe_ratio_max` : float  
+    The maximum expected sharpe ratio. It is the sharpe ratio plus
+    3 standard deviations of the sharpe ratio.  99.73% of sharpe ratios
+    are theoretically below this value.
+
+ - `sharpe_ratio_min` : float  
+    The mimimum expected sharpe ratio. It is the sharpe ratio minus
+    3 standard deviations of the sharpe ratio.  99.73% of sharpe ratios
+    are theoretically above this value.
+
+ - `sortino_ratio` : float  
+    A variation of the Sharpe ratio that differentiates harmful
+    volatility from overall volatility by using the asset&#39;s standard
+    deviation of negative portfolio returns (downside deviation)
+    instead of the total standard deviation.
+&#34;&#34;&#34;
+
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+import math
+import operator
+
+import numpy as np
+from numpy.lib.stride_tricks import as_strided
+import pandas as pd
+
+import pinkfish as pf
+
+
+########################################################################
+# CONSTANTS
+
+TRADING_DAYS_PER_YEAR = 252
+&#34;&#34;&#34;
+int : The number of trading days per year.
+&#34;&#34;&#34;
+TRADING_DAYS_PER_MONTH = 20
+&#34;&#34;&#34;
+int : The number of trading days per month.
+&#34;&#34;&#34;
+TRADING_DAYS_PER_WEEK = 5
+&#34;&#34;&#34;
+int : The number of trading days per week.
+&#34;&#34;&#34;
+SP500_BEGIN = &#39;1957-03-04&#39;
+&#34;&#34;&#34;
+str : The date the S&amp;P500 began.
+&#34;&#34;&#34;
+
+
+########################################################################
+# OVERALL RESULTS
+
+def _beginning_balance(capital):
+    return capital
+
+def _ending_balance(dbal):
+    return dbal.iloc[-1][&#39;close&#39;]
+
+def _total_net_profit(tlog):
+    return tlog.iloc[-1][&#39;cumul_total&#39;]
+
+def _gross_profit(tlog):
+    return tlog[tlog[&#39;pl_cash&#39;] &gt; 0].sum()[&#39;pl_cash&#39;]
+
+def _gross_loss(tlog):
+    return tlog[tlog[&#39;pl_cash&#39;] &lt; 0].sum()[&#39;pl_cash&#39;]
+
+def _profit_factor(tlog):
+    if _gross_profit(tlog) == 0: return 0
+    if _gross_loss(tlog) == 0: return 1000
+    return _gross_profit(tlog) / _gross_loss(tlog) * -1
+
+def _return_on_initial_capital(tlog, capital):
+    return _total_net_profit(tlog) / capital * 100
+
+def _difference_in_years(start, end):
+    diff  = abs(start - end)
+    diff_in_years = (diff.days + diff.seconds/86400)/365.2425
+    return diff_in_years
+
+def _cagr(B, A, n):
+    if B &lt; 0: B = 0
+    return (math.pow(B / A, 1 / n) - 1) * 100
+
+def _annual_return_rate(end_balance, capital, start, end):
+    B = end_balance
+    A = capital
+    n = _difference_in_years(start, end)
+    return _cagr(B, A, n)
+
+def _trading_period(start, end):
+    diff = relativedelta(end, start)
+    return &#39;{} years {} months {} days&#39;.format(diff.years, diff.months, diff.days)
+
+def _total_days_in_market(dbal):
+    n = (dbal[&#39;shares&#39;] &gt; 0).sum()
+    if dbal.iloc[-2][&#39;shares&#39;] &gt; 0:
+        n += 1
+    return n
+
+def _pct_time_in_market(dbal):
+    return _total_days_in_market(dbal) / len(dbal) * 100
+
+
+########################################################################
+# LEVERAGE
+
+def _margin():
+    return pf.TradeLog.margin
+
+def _avg_leverage(dbal):
+    return dbal[&#39;leverage&#39;].mean()
+
+def _max_leverage(dbal):
+    return dbal[&#39;leverage&#39;].max()
+
+def _min_leverage(dbal):
+    return dbal[&#39;leverage&#39;].min()
+
+
+########################################################################
+# SUMS
+
+def _total_num_trades(tlog):
+    return len(tlog)
+
+def _trades_per_year(tlog, start, end):
+    diff = relativedelta(end, start)
+    years = diff.years + diff.months/12 + diff.days/365
+    return _total_num_trades(tlog) / years
+
+def _num_winning_trades(tlog):
+    return (tlog[&#39;pl_cash&#39;] &gt; 0).sum()
+
+def _num_losing_trades(tlog):
+    return (tlog[&#39;pl_cash&#39;] &lt; 0).sum()
+
+def _num_even_trades(tlog):
+    return (tlog[&#39;pl_cash&#39;] == 0).sum()
+
+def _pct_profitable_trades(tlog):
+    if _total_num_trades(tlog) == 0: return 0
+    return _num_winning_trades(tlog) / _total_num_trades(tlog) * 100
+
+
+########################################################################
+# CASH PROFITS AND LOSSES
+
+def _avg_profit_per_trade(tlog):
+    if _total_num_trades(tlog) == 0: return 0
+    return _total_net_profit(tlog) / _total_num_trades(tlog)
+
+def _avg_profit_per_winning_trade(tlog):
+    if _num_winning_trades(tlog) == 0: return 0
+    return _gross_profit(tlog) / _num_winning_trades(tlog)
+
+def _avg_loss_per_losing_trade(tlog):
+    if _num_losing_trades(tlog) == 0: return 0
+    return _gross_loss(tlog) / _num_losing_trades(tlog)
+
+def _ratio_avg_profit_win_loss(tlog):
+    if _avg_profit_per_winning_trade(tlog) == 0: return 0
+    if _avg_loss_per_losing_trade(tlog) == 0: return 1000
+    return (_avg_profit_per_winning_trade(tlog) /
+            _avg_loss_per_losing_trade(tlog) * -1)
+
+def _largest_profit_winning_trade(tlog):
+    if _num_winning_trades(tlog) == 0: return 0
+    return tlog[tlog[&#39;pl_cash&#39;] &gt; 0].max()[&#39;pl_cash&#39;]
+
+def _largest_loss_losing_trade(tlog):
+    if _num_losing_trades(tlog) == 0: return 0
+    return tlog[tlog[&#39;pl_cash&#39;] &lt; 0].min()[&#39;pl_cash&#39;]
+
+
+########################################################################
+# POINTS
+
+def _num_winning_points(tlog):
+    if _num_winning_trades(tlog) == 0: return 0
+    return tlog[tlog[&#39;pl_points&#39;] &gt; 0].sum()[&#39;pl_points&#39;]
+
+def _num_losing_points(tlog):
+    if _num_losing_trades(tlog) == 0: return 0
+    return tlog[tlog[&#39;pl_points&#39;] &lt; 0].sum()[&#39;pl_points&#39;]
+
+def _total_net_points(tlog):
+    return _num_winning_points(tlog) + _num_losing_points(tlog)
+
+def _avg_points(tlog):
+    if _total_num_trades(tlog) == 0: return 0
+    return tlog[&#39;pl_points&#39;].sum() / len(tlog.index)
+
+def _largest_points_winning_trade(tlog):
+    if _num_winning_trades(tlog) == 0: return 0
+    return tlog[tlog[&#39;pl_points&#39;] &gt; 0].max()[&#39;pl_points&#39;]
+
+def _largest_points_losing_trade(tlog):
+    if _num_losing_trades(tlog) == 0: return 0
+    return tlog[tlog[&#39;pl_points&#39;] &lt; 0].min()[&#39;pl_points&#39;]
+
+def _avg_pct_gain_per_trade(tlog):
+    if _total_num_trades(tlog) == 0: return 0
+    s = tlog[&#39;pl_points&#39;] / tlog[&#39;entry_price&#39;]
+    return np.average(s) * 100
+
+def _largest_pct_winning_trade(tlog):
+    if _num_winning_trades(tlog) == 0: return 0
+    df = tlog[tlog[&#39;pl_points&#39;] &gt; 0]
+    s = df[&#39;pl_points&#39;] / df[&#39;entry_price&#39;]
+    return s.max() * 100
+
+def _largest_pct_losing_trade(tlog):
+    if _num_losing_trades(tlog) == 0: return 0
+    df = tlog[tlog[&#39;pl_points&#39;] &lt; 0]
+    s = df[&#39;pl_points&#39;] / df[&#39;entry_price&#39;]
+    return s.min() * 100
+
+def _expected_shortfall(tlog):
+    if _total_num_trades(tlog) == 0: return 0
+    df = tlog[tlog[&#39;pl_points&#39;] &lt; 0]
+    s = df[&#39;pl_points&#39;] / df[&#39;entry_price&#39;]
+    l = sorted(s)
+    end = int(len(l) * .05)
+    avg = np.mean(l[:end]) *100 if end &gt; 0 else 0
+    return avg
+
+
+########################################################################
+# STREAKS
+
+def _subsequence(s, c):
+    &#34;&#34;&#34;
+    Calculate the length of a subsequence
+
+    Takes as parameter list like object `s` and returns the length of
+    the longest subsequence of `s` constituted only by consecutive
+    character `c`s.
+
+    Example: If the string passed as parameter is &#34;001000111100&#34;,
+    and `c` is &#39;0&#39;, then the longest subsequence of only &#39;0&#39;s has
+    length 3.
+    &#34;&#34;&#34;
+    count = 0
+    maxlen = 0
+
+    for bit in s:
+        if bit == c:
+            count += 1
+            if count &gt; maxlen:
+                maxlen = count
+        else:
+            count = 0
+    return maxlen
+
+def _max_consecutive_winning_trades(tlog):
+    if _num_winning_trades(tlog) == 0: return 0
+    return _subsequence(tlog[&#39;pl_cash&#39;] &gt; 0, True)
+
+def _max_consecutive_losing_trades(tlog):
+    if _num_losing_trades(tlog) == 0: return 0
+    return _subsequence(tlog[&#39;pl_cash&#39;] &gt; 0, False)
+
+def _get_trade_bars(ts, tlog, op):
+    l = []
+    for row in tlog.itertuples():
+        if op(row.pl_cash, 0):
+            l.append(len(ts[row.entry_date:row.exit_date].index))
+    return l
+
+def _avg_bars_winning_trades(ts, tlog):
+    if _num_winning_trades(tlog) == 0: return 0
+    return np.average(_get_trade_bars(ts, tlog, operator.gt))
+
+def _avg_bars_losing_trades(ts, tlog):
+    if _num_losing_trades(tlog) == 0: return 0
+    return np.average(_get_trade_bars(ts, tlog, operator.lt))
+
+
+########################################################################
+# DRAWDOWN AND RUNUP
+
+def _max_closed_out_drawdown(close):
+    &#34;&#34;&#34;
+    Only compare each point to the previous running peak O(N).
+    &#34;&#34;&#34;
+    running_max = pd.Series(close).expanding(min_periods=1).max()
+    cur_dd = (close - running_max) / running_max * 100
+    dd_max = min(0, cur_dd.min())
+    idx = cur_dd.idxmin()
+
+    dd = pd.Series()
+    dd[&#39;max&#39;] = dd_max
+    dd[&#39;peak&#39;] = running_max[idx]
+    dd[&#39;trough&#39;] = close[idx]
+    dd[&#39;peak_date&#39;] = close[close == dd[&#39;peak&#39;]].index[0].strftime(&#39;%Y-%m-%d&#39;)
+    dd[&#39;trough_date&#39;] = idx.strftime(&#39;%Y-%m-%d&#39;)
+    close = close[close.index &gt; idx]
+
+    rd_mask = close &gt; dd[&#39;peak&#39;]
+    if rd_mask.any():
+        dd[&#39;recovery_date&#39;] = close[rd_mask].index[0].strftime(&#39;%Y-%m-%d&#39;)
+    else:
+        dd[&#39;recovery_date&#39;] = &#39;Not Recovered Yet&#39;
+
+    return dd
+
+def _max_intra_day_drawdown(high, low):
+    &#34;&#34;&#34;
+    Only compare each point to the previous running peak O(N).
+    &#34;&#34;&#34;
+    running_max = pd.Series(high).expanding(min_periods=1).max()
+    cur_dd = (low - running_max) / running_max * 100
+    dd_max = min(0, cur_dd.min())
+    idx = cur_dd.idxmin()
+
+    dd = pd.Series()
+    dd[&#39;max&#39;] = dd_max
+    dd[&#39;peak&#39;] = running_max[idx]
+    dd[&#39;trough&#39;] = low[idx]
+    dd[&#39;peak_date&#39;] = high[high == dd[&#39;peak&#39;]].index[0].strftime(&#39;%Y-%m-%d&#39;)
+    dd[&#39;trough_date&#39;] = idx.strftime(&#39;%Y-%m-%d&#39;)
+    high = high[high.index &gt; idx]
+
+    rd_mask = high &gt; dd[&#39;peak&#39;]
+    if rd_mask.any():
+        dd[&#39;recovery_date&#39;] = high[rd_mask].index[0].strftime(&#39;%Y-%m-%d&#39;)
+    else:
+        dd[&#39;recovery_date&#39;] = &#39;Not Recovered Yet&#39;
+
+    return dd
+
+def _drawdown_loss_recovery_period(peak_date, trough_date , recovery_date):
+    if recovery_date == &#39;Not Recovered Yet&#39;:
+        loss_period = recovery_period = recovery_date
+    else:
+        peak_date = datetime.strptime(peak_date, &#39;%Y-%m-%d&#39;)
+        trough_date = datetime.strptime(trough_date, &#39;%Y-%m-%d&#39;)
+        recovery_date = datetime.strptime(recovery_date, &#39;%Y-%m-%d&#39;)
+        loss_period = abs(peak_date - trough_date).days
+        recovery_period = abs(trough_date-recovery_date).days
+    return loss_period, recovery_period
+
+def _windowed_view(x, window_size):
+    &#34;&#34;&#34;
+    Create a 2d windowed view of a 1d array.
+
+    `x` must be a 1d numpy array.
+
+    `numpy.lib.stride_tricks.as_strided` is used to create the view.
+    The data is not copied.
+
+    Example:
+
+    &gt;&gt;&gt; x = np.array([1, 2, 3, 4, 5, 6])
+    &gt;&gt;&gt; _windowed_view(x, 3)
+    array([[1, 2, 3],
+           [2, 3, 4],
+           [3, 4, 5],
+           [4, 5, 6]])
+    &#34;&#34;&#34;
+    y = as_strided(x, shape=(x.size - window_size + 1, window_size),
+                   strides=(x.strides[0], x.strides[0]))
+    return y
+
+def _rolling_max_dd(ser, period, min_periods=1):
+    &#34;&#34;&#34;
+    Compute the rolling maximum drawdown of `ser`.
+
+    `ser` must be a Series.
+    `min_periods` should satisfy 1 &lt;= min_periods &lt;= window_size.
+
+    Returns an 1d array with length len(x) - min_periods + 1.
+    &#34;&#34;&#34;
+    window_size = period + 1
+    x = ser.values
+    if min_periods &lt; window_size:
+        pad = np.empty(window_size - min_periods)
+        pad.fill(x[0])
+        x = np.concatenate((pad, x))
+    y = _windowed_view(x, window_size)
+    running_max_y = np.maximum.accumulate(y, axis=1)
+    dd = (y - running_max_y) / running_max_y * 100
+    rmdd = dd.min(axis=1)
+    return pd.Series(data=rmdd, index=ser.index, name=ser.name)
+
+def _rolling_max_ru(ser, period, min_periods=1):
+    &#34;&#34;&#34;
+    Compute the rolling maximum runup of `ser`.
+
+    `ser` must be a Series.
+    `min_periods` should satisfy 1 &lt;= min_periods &lt;= window_size.
+
+    Returns an 1d array with length len(x) - min_periods + 1.
+    &#34;&#34;&#34;
+    window_size = period + 1
+    x = ser.values
+    if min_periods &lt; window_size:
+        pad = np.empty(window_size - min_periods)
+        pad.fill(x[0])
+        x = np.concatenate((pad, x))
+    y = _windowed_view(x, window_size)
+    running_min_y = np.minimum.accumulate(y, axis=1)
+    ru = (y - running_min_y) / running_min_y * 100
+    rmru = ru.max(axis=1)
+    return pd.Series(data=rmru, index=ser.index, name=ser.name)
+
+
+########################################################################
+# PERCENT CHANGE - used to compute several stastics
+
+def _pct_change(close, period):
+    diff = (close.shift(-period) - close) / close * 100
+    diff.dropna(inplace=True)
+    return diff
+
+
+########################################################################
+# RATIOS
+
+def _sharpe_ratio(rets, risk_free=0.00, period=TRADING_DAYS_PER_YEAR):
+    dev = np.std(rets, axis=0)
+    mean = np.mean(rets, axis=0)
+    sharpe = (mean*period - risk_free) / (dev * np.sqrt(period))
+    return sharpe
+
+def _sortino_ratio(rets, risk_free=0.00, period=TRADING_DAYS_PER_YEAR):
+    mean = np.mean(rets, axis=0)
+    negative_rets = rets[rets &lt; 0]
+    dev = np.std(negative_rets, axis=0)
+    sortino = (mean*period - risk_free) / (dev * np.sqrt(period))
+    return sortino
+
+
+########################################################################
+# STATS - this is the primary call used to generate the results
+
+def stats(ts, tlog, dbal, capital):
+    &#34;&#34;&#34;
+    Compute trading stats.
+
+    Parameters
+    ----------
+    ts : pd.DataFrame
+        The timeseries of a symbol.
+    tlog : pd.DataFrame
+        The trade log.
+    dbal : pd.DataFrame
+        The daily balance.
+    capital : int
+        The amount of money available for trading.
+
+    Examples
+    --------
+    &gt;&gt;&gt; stats = pf.stats(ts, tlog, dbal, capital)
+
+    Returns
+    -------
+    stats : pd.Series
+        The statistics for the strategy.
+    &#34;&#34;&#34;
+
+    start = ts.index[0]
+    end = ts.index[-1]
+
+    stats = pd.Series(dtype=&#39;object&#39;)
+
+    # OVERALL RESULTS
+    stats[&#39;start&#39;] = start.strftime(&#39;%Y-%m-%d&#39;)
+    stats[&#39;end&#39;] = end.strftime(&#39;%Y-%m-%d&#39;)
+    stats[&#39;beginning_balance&#39;] = _beginning_balance(capital)
+    stats[&#39;ending_balance&#39;] = _ending_balance(dbal)
+    stats[&#39;total_net_profit&#39;] = _total_net_profit(tlog)
+    stats[&#39;gross_profit&#39;] = _gross_profit(tlog)
+    stats[&#39;gross_loss&#39;] = _gross_loss(tlog)
+    stats[&#39;profit_factor&#39;] = _profit_factor(tlog)
+    stats[&#39;return_on_initial_capital&#39;] = _return_on_initial_capital(tlog, capital)
+    cagr = _annual_return_rate(dbal[&#39;close&#39;][-1], capital, start, end)
+    stats[&#39;annual_return_rate&#39;] = cagr
+    stats[&#39;trading_period&#39;] = _trading_period(start, end)
+    stats[&#39;pct_time_in_market&#39;] = _pct_time_in_market(dbal)
+
+    # LEVERAGE
+    stats[&#39;margin&#39;] = _margin()
+    stats[&#39;avg_leverage&#39;] = _avg_leverage(dbal)
+    stats[&#39;max_leverage&#39;] = _max_leverage(dbal)
+    stats[&#39;min_leverage&#39;] = _min_leverage(dbal)
+
+    # SUMS
+    stats[&#39;total_num_trades&#39;] = _total_num_trades(tlog)
+    stats[&#39;trades_per_year&#39;] = _trades_per_year(tlog, start, end)
+    stats[&#39;num_winning_trades&#39;] = _num_winning_trades(tlog)
+    stats[&#39;num_losing_trades&#39;] = _num_losing_trades(tlog)
+    stats[&#39;num_even_trades&#39;] = _num_even_trades(tlog)
+    stats[&#39;pct_profitable_trades&#39;] = _pct_profitable_trades(tlog)
+
+    # CASH PROFITS AND LOSSES
+    stats[&#39;avg_profit_per_trade&#39;] = _avg_profit_per_trade(tlog)
+    stats[&#39;avg_profit_per_winning_trade&#39;] = _avg_profit_per_winning_trade(tlog)
+    stats[&#39;avg_loss_per_losing_trade&#39;] = _avg_loss_per_losing_trade(tlog)
+    stats[&#39;ratio_avg_profit_win_loss&#39;] = _ratio_avg_profit_win_loss(tlog)
+    stats[&#39;largest_profit_winning_trade&#39;] = _largest_profit_winning_trade(tlog)
+    stats[&#39;largest_loss_losing_trade&#39;] = _largest_loss_losing_trade(tlog)
+
+    # POINTS
+    stats[&#39;num_winning_points&#39;] = _num_winning_points(tlog)
+    stats[&#39;num_losing_points&#39;] = _num_losing_points(tlog)
+    stats[&#39;total_net_points&#39;] = _total_net_points(tlog)
+    stats[&#39;avg_points&#39;] = _avg_points(tlog)
+    stats[&#39;largest_points_winning_trade&#39;] = _largest_points_winning_trade(tlog)
+    stats[&#39;largest_points_losing_trade&#39;] = _largest_points_losing_trade(tlog)
+    stats[&#39;avg_pct_gain_per_trade&#39;] = _avg_pct_gain_per_trade(tlog)
+    stats[&#39;largest_pct_winning_trade&#39;] = _largest_pct_winning_trade(tlog)
+    stats[&#39;largest_pct_losing_trade&#39;] = _largest_pct_losing_trade(tlog)
+    stats[&#39;expected_shortfall&#39;] = _expected_shortfall(tlog)
+
+    # STREAKS
+    stats[&#39;max_consecutive_winning_trades&#39;] = _max_consecutive_winning_trades(tlog)
+    stats[&#39;max_consecutive_losing_trades&#39;] = _max_consecutive_losing_trades(tlog)
+    stats[&#39;avg_bars_winning_trades&#39;] = _avg_bars_winning_trades(ts, tlog)
+    stats[&#39;avg_bars_losing_trades&#39;] = _avg_bars_losing_trades(ts, tlog)
+
+    # DRAWDOWN
+    dd = _max_closed_out_drawdown(dbal[&#39;close&#39;])
+    stats[&#39;max_closed_out_drawdown&#39;] = dd[&#39;max&#39;]
+    stats[&#39;max_closed_out_drawdown_peak_date&#39;] = dd[&#39;peak_date&#39;]
+    stats[&#39;max_closed_out_drawdown_trough_date&#39;] = dd[&#39;trough_date&#39;]
+    stats[&#39;max_closed_out_drawdown_recovery_date&#39;] = dd[&#39;recovery_date&#39;]
+    stats[&#39;drawdown_loss_period&#39;], stats[&#39;drawdown_recovery_period&#39;] = \
+        _drawdown_loss_recovery_period(dd[&#39;peak_date&#39;], dd[&#39;trough_date&#39;],
+                                       dd[&#39;recovery_date&#39;])
+    stats[&#39;annualized_return_over_max_drawdown&#39;] = abs(cagr / dd[&#39;max&#39;])
+    dd = _max_intra_day_drawdown(dbal[&#39;high&#39;], dbal[&#39;low&#39;])
+    stats[&#39;max_intra_day_drawdown&#39;] = dd[&#39;max&#39;]
+    dd = _rolling_max_dd(dbal[&#39;close&#39;], TRADING_DAYS_PER_YEAR)
+    stats[&#39;avg_yearly_closed_out_drawdown&#39;] = np.average(dd)
+    stats[&#39;max_yearly_closed_out_drawdown&#39;] = min(dd)
+    dd = _rolling_max_dd(dbal[&#39;close&#39;], TRADING_DAYS_PER_MONTH)
+    stats[&#39;avg_monthly_closed_out_drawdown&#39;] = np.average(dd)
+    stats[&#39;max_monthly_closed_out_drawdown&#39;] = min(dd)
+    dd = _rolling_max_dd(dbal[&#39;close&#39;], TRADING_DAYS_PER_WEEK)
+    stats[&#39;avg_weekly_closed_out_drawdown&#39;] = np.average(dd)
+    stats[&#39;max_weekly_closed_out_drawdown&#39;] = min(dd)
+
+    # RUNUP
+    ru = _rolling_max_ru(dbal[&#39;close&#39;], TRADING_DAYS_PER_YEAR)
+    stats[&#39;avg_yearly_closed_out_runup&#39;] = np.average(ru)
+    stats[&#39;max_yearly_closed_out_runup&#39;] = ru.max()
+    ru = _rolling_max_ru(dbal[&#39;close&#39;], TRADING_DAYS_PER_MONTH)
+    stats[&#39;avg_monthly_closed_out_runup&#39;] = np.average(ru)
+    stats[&#39;max_monthly_closed_out_runup&#39;] = max(ru)
+    ru = _rolling_max_ru(dbal[&#39;close&#39;], TRADING_DAYS_PER_WEEK)
+    stats[&#39;avg_weekly_closed_out_runup&#39;] = np.average(ru)
+    stats[&#39;max_weekly_closed_out_runup&#39;] = max(ru)
+
+    # PERCENT CHANGE
+    pc = _pct_change(dbal[&#39;close&#39;], TRADING_DAYS_PER_YEAR)
+    stats[&#39;pct_profitable_years&#39;] = (pc &gt; 0).sum() / len(pc) * 100
+    stats[&#39;best_year&#39;] = pc.max()
+    stats[&#39;worst_year&#39;] = pc.min()
+    stats[&#39;avg_year&#39;] = np.average(pc)
+    stats[&#39;annual_std&#39;] = pc.std()
+    pc = _pct_change(dbal[&#39;close&#39;], TRADING_DAYS_PER_MONTH)
+    stats[&#39;pct_profitable_months&#39;] = (pc &gt; 0).sum() / len(pc) * 100
+    stats[&#39;best_month&#39;] = pc.max()
+    stats[&#39;worst_month&#39;] = pc.min()
+    stats[&#39;avg_month&#39;] = np.average(pc)
+    stats[&#39;monthly_std&#39;] = pc.std()
+    pc = _pct_change(dbal[&#39;close&#39;], TRADING_DAYS_PER_WEEK)
+    stats[&#39;pct_profitable_weeks&#39;] = (pc &gt; 0).sum() / len(pc) * 100
+    stats[&#39;best_week&#39;] = pc.max()
+    stats[&#39;worst_week&#39;] = pc.min()
+    stats[&#39;avg_week&#39;] = np.average(pc)
+    stats[&#39;weekly_std&#39;] = pc.std()
+    pc = _pct_change(dbal[&#39;close&#39;], 1)
+    stats[&#39;pct_profitable_days&#39;] = (pc &gt; 0).sum() / len(pc) * 100
+    stats[&#39;best_day&#39;] = pc.max()
+    stats[&#39;worst_day&#39;] = pc.min()
+    stats[&#39;avg_day&#39;] = np.average(pc)
+    stats[&#39;daily_std&#39;] = pc.std()
+
+    # RATIOS
+    sr = _sharpe_ratio(dbal[&#39;close&#39;].pct_change())
+    sr_std = math.sqrt((1 + 0.5*sr**2) / len(dbal))
+    stats[&#39;sharpe_ratio&#39;] = sr
+    stats[&#39;sharpe_ratio_max&#39;] = sr + 3*sr_std #3 std=&gt;99.73%
+    stats[&#39;sharpe_ratio_min&#39;] = sr - 3*sr_std
+    stats[&#39;sortino_ratio&#39;] = _sortino_ratio(dbal[&#39;close&#39;].pct_change())
+    return stats
+
+
+########################################################################
+# SUMMARY - stats() must be called before calling summary()
+
+def currency(amount):
+    &#34;&#34;&#34;
+    Returns the dollar amount in US currency format.
+    &#34;&#34;&#34;
+    if amount &gt;= 0:
+        return &#39;${:,.2f}&#39;.format(amount)
+    else:
+        return &#39;-${:,.2f}&#39;.format(-amount)
+
+default_metrics = (
+    &#39;annual_return_rate&#39;,
+    &#39;max_closed_out_drawdown&#39;,
+    &#39;best_month&#39;,
+    &#39;worst_month&#39;,
+    &#39;sharpe_ratio&#39;,
+    &#39;sortino_ratio&#39;,
+    &#39;monthly_std&#39;,
+    &#39;annual_std&#39;)
+&#34;&#34;&#34;
+tuple : Default metrics for summary().
+
+The metrics are:
+
+    &#39;annual_return_rate&#39;  
+    &#39;max_closed_out_drawdown&#39;  
+    &#39;best_month&#39;  
+    &#39;worst_month&#39;  
+    &#39;sharpe_ratio&#39;  
+    &#39;sortino_ratio&#39;  
+    &#39;monthly_std&#39;  
+    &#39;annual_std&#39;
+&#34;&#34;&#34;
+
+currency_metrics = (
+    &#39;beginning_balance&#39;,
+    &#39;ending_balance&#39;,
+    &#39;total_net_profit&#39;,
+    &#39;gross_profit&#39;,
+    &#39;gross_loss&#39;)
+&#34;&#34;&#34;
+tuple : Currency metrics for summary().
+
+The metrics are:
+
+    &#39;beginning_balance&#39;  
+    &#39;ending_balance&#39;  
+    &#39;total_net_profit&#39;  
+    &#39;gross_profit&#39;  
+    &#39;gross_loss&#39;
+&#34;&#34;&#34;
+
+def _get_metric_value(s, metric):
+    &#34;&#34;&#34;
+    Returns a metric in either currency or raw format.
+    &#34;&#34;&#34;
+    metrics = (
+        &#39;beginning_balance&#39;,
+        &#39;ending_balance&#39;,
+        &#39;ending_balance&#39;,
+        &#39;total_net_profit&#39;,
+        &#39;gross_profit&#39;,
+        &#39;gross_loss&#39;)
+    if metric in metrics:
+        return currency(s[metric])
+    else:
+        return s[metric]
+
+def summary(stats, benchmark_stats=None, metrics=default_metrics, extras=None):
+    &#34;&#34;&#34;
+    Returns stats summary.
+
+    IMPORTANT: stats() must be called before calling this function.
+
+    Parameters
+    ----------
+    stats : pd.Series
+        Statistics for the strategy.
+    benchmark_stats : pd.Series, optimal
+        Statistics for the benchmark (default is None, which implies
+        that a benchmark is not being used).
+    metrics : tuple, optional
+        The metrics to be used in the summary (default is
+        `default_metrics`).
+    extras : tuple, optional
+        The extra metrics to be used in the summary (default is None,
+        which imples that no extra metrics are being used).
+    &#34;&#34;&#34;
+    if extras is None: extras = ()
+    metrics += extras
+
+    # Columns.
+    columns = [&#39;strategy&#39;]
+    if benchmark_stats is not None:
+        columns.append(&#39;benchmark&#39;)
+
+    # Index &amp; data.
+    index = []; data = []
+    for metric in metrics:
+        index.append(metric)
+        if benchmark_stats is not None:
+            data.append((_get_metric_value(stats, metric),
+                         _get_metric_value(benchmark_stats, metric)))
+        else:
+            data.append(_get_metric_value(stats, metric))
+
+    df = pd.DataFrame(data, columns=columns, index=index)
+    return df</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-variables">Global variables</h2>
+<dl>
+<dt id="pinkfish.statistics.SP500_BEGIN"><code class="name">var <span class="ident">SP500_BEGIN</span></code></dt>
+<dd>
+<div class="desc"><p>str : The date the S&amp;P500 began.</p></div>
+</dd>
+<dt id="pinkfish.statistics.TRADING_DAYS_PER_MONTH"><code class="name">var <span class="ident">TRADING_DAYS_PER_MONTH</span></code></dt>
+<dd>
+<div class="desc"><p>int : The number of trading days per month.</p></div>
+</dd>
+<dt id="pinkfish.statistics.TRADING_DAYS_PER_WEEK"><code class="name">var <span class="ident">TRADING_DAYS_PER_WEEK</span></code></dt>
+<dd>
+<div class="desc"><p>int : The number of trading days per week.</p></div>
+</dd>
+<dt id="pinkfish.statistics.TRADING_DAYS_PER_YEAR"><code class="name">var <span class="ident">TRADING_DAYS_PER_YEAR</span></code></dt>
+<dd>
+<div class="desc"><p>int : The number of trading days per year.</p></div>
+</dd>
+<dt id="pinkfish.statistics.currency_metrics"><code class="name">var <span class="ident">currency_metrics</span></code></dt>
+<dd>
+<div class="desc"><p>tuple : Currency metrics for summary().</p>
+<p>The metrics are:</p>
+<pre><code>'beginning_balance'  
+'ending_balance'  
+'total_net_profit'  
+'gross_profit'  
+'gross_loss'
+</code></pre></div>
+</dd>
+<dt id="pinkfish.statistics.default_metrics"><code class="name">var <span class="ident">default_metrics</span></code></dt>
+<dd>
+<div class="desc"><p>tuple : Default metrics for summary().</p>
+<p>The metrics are:</p>
+<pre><code>'annual_return_rate'  
+'max_closed_out_drawdown'  
+'best_month'  
+'worst_month'  
+'sharpe_ratio'  
+'sortino_ratio'  
+'monthly_std'  
+'annual_std'
+</code></pre></div>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="pinkfish.statistics.currency"><code class="name flex">
+<span>def <span class="ident">currency</span></span>(<span>amount)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns the dollar amount in US currency format.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def currency(amount):
+    &#34;&#34;&#34;
+    Returns the dollar amount in US currency format.
+    &#34;&#34;&#34;
+    if amount &gt;= 0:
+        return &#39;${:,.2f}&#39;.format(amount)
+    else:
+        return &#39;-${:,.2f}&#39;.format(-amount)</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.statistics.stats"><code class="name flex">
+<span>def <span class="ident">stats</span></span>(<span>ts, tlog, dbal, capital)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Compute trading stats.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>ts</code></strong> :&ensp;<code>pd.DataFrame</code></dt>
+<dd>The timeseries of a symbol.</dd>
+<dt><strong><code>tlog</code></strong> :&ensp;<code>pd.DataFrame</code></dt>
+<dd>The trade log.</dd>
+<dt><strong><code>dbal</code></strong> :&ensp;<code>pd.DataFrame</code></dt>
+<dd>The daily balance.</dd>
+<dt><strong><code>capital</code></strong> :&ensp;<code>int</code></dt>
+<dd>The amount of money available for trading.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<pre><code class="language-python-repl">&gt;&gt;&gt; stats = pf.stats(ts, tlog, dbal, capital)
+</code></pre>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>stats</code></strong> :&ensp;<code>pd.Series</code></dt>
+<dd>The statistics for the strategy.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def stats(ts, tlog, dbal, capital):
+    &#34;&#34;&#34;
+    Compute trading stats.
+
+    Parameters
+    ----------
+    ts : pd.DataFrame
+        The timeseries of a symbol.
+    tlog : pd.DataFrame
+        The trade log.
+    dbal : pd.DataFrame
+        The daily balance.
+    capital : int
+        The amount of money available for trading.
+
+    Examples
+    --------
+    &gt;&gt;&gt; stats = pf.stats(ts, tlog, dbal, capital)
+
+    Returns
+    -------
+    stats : pd.Series
+        The statistics for the strategy.
+    &#34;&#34;&#34;
+
+    start = ts.index[0]
+    end = ts.index[-1]
+
+    stats = pd.Series(dtype=&#39;object&#39;)
+
+    # OVERALL RESULTS
+    stats[&#39;start&#39;] = start.strftime(&#39;%Y-%m-%d&#39;)
+    stats[&#39;end&#39;] = end.strftime(&#39;%Y-%m-%d&#39;)
+    stats[&#39;beginning_balance&#39;] = _beginning_balance(capital)
+    stats[&#39;ending_balance&#39;] = _ending_balance(dbal)
+    stats[&#39;total_net_profit&#39;] = _total_net_profit(tlog)
+    stats[&#39;gross_profit&#39;] = _gross_profit(tlog)
+    stats[&#39;gross_loss&#39;] = _gross_loss(tlog)
+    stats[&#39;profit_factor&#39;] = _profit_factor(tlog)
+    stats[&#39;return_on_initial_capital&#39;] = _return_on_initial_capital(tlog, capital)
+    cagr = _annual_return_rate(dbal[&#39;close&#39;][-1], capital, start, end)
+    stats[&#39;annual_return_rate&#39;] = cagr
+    stats[&#39;trading_period&#39;] = _trading_period(start, end)
+    stats[&#39;pct_time_in_market&#39;] = _pct_time_in_market(dbal)
+
+    # LEVERAGE
+    stats[&#39;margin&#39;] = _margin()
+    stats[&#39;avg_leverage&#39;] = _avg_leverage(dbal)
+    stats[&#39;max_leverage&#39;] = _max_leverage(dbal)
+    stats[&#39;min_leverage&#39;] = _min_leverage(dbal)
+
+    # SUMS
+    stats[&#39;total_num_trades&#39;] = _total_num_trades(tlog)
+    stats[&#39;trades_per_year&#39;] = _trades_per_year(tlog, start, end)
+    stats[&#39;num_winning_trades&#39;] = _num_winning_trades(tlog)
+    stats[&#39;num_losing_trades&#39;] = _num_losing_trades(tlog)
+    stats[&#39;num_even_trades&#39;] = _num_even_trades(tlog)
+    stats[&#39;pct_profitable_trades&#39;] = _pct_profitable_trades(tlog)
+
+    # CASH PROFITS AND LOSSES
+    stats[&#39;avg_profit_per_trade&#39;] = _avg_profit_per_trade(tlog)
+    stats[&#39;avg_profit_per_winning_trade&#39;] = _avg_profit_per_winning_trade(tlog)
+    stats[&#39;avg_loss_per_losing_trade&#39;] = _avg_loss_per_losing_trade(tlog)
+    stats[&#39;ratio_avg_profit_win_loss&#39;] = _ratio_avg_profit_win_loss(tlog)
+    stats[&#39;largest_profit_winning_trade&#39;] = _largest_profit_winning_trade(tlog)
+    stats[&#39;largest_loss_losing_trade&#39;] = _largest_loss_losing_trade(tlog)
+
+    # POINTS
+    stats[&#39;num_winning_points&#39;] = _num_winning_points(tlog)
+    stats[&#39;num_losing_points&#39;] = _num_losing_points(tlog)
+    stats[&#39;total_net_points&#39;] = _total_net_points(tlog)
+    stats[&#39;avg_points&#39;] = _avg_points(tlog)
+    stats[&#39;largest_points_winning_trade&#39;] = _largest_points_winning_trade(tlog)
+    stats[&#39;largest_points_losing_trade&#39;] = _largest_points_losing_trade(tlog)
+    stats[&#39;avg_pct_gain_per_trade&#39;] = _avg_pct_gain_per_trade(tlog)
+    stats[&#39;largest_pct_winning_trade&#39;] = _largest_pct_winning_trade(tlog)
+    stats[&#39;largest_pct_losing_trade&#39;] = _largest_pct_losing_trade(tlog)
+    stats[&#39;expected_shortfall&#39;] = _expected_shortfall(tlog)
+
+    # STREAKS
+    stats[&#39;max_consecutive_winning_trades&#39;] = _max_consecutive_winning_trades(tlog)
+    stats[&#39;max_consecutive_losing_trades&#39;] = _max_consecutive_losing_trades(tlog)
+    stats[&#39;avg_bars_winning_trades&#39;] = _avg_bars_winning_trades(ts, tlog)
+    stats[&#39;avg_bars_losing_trades&#39;] = _avg_bars_losing_trades(ts, tlog)
+
+    # DRAWDOWN
+    dd = _max_closed_out_drawdown(dbal[&#39;close&#39;])
+    stats[&#39;max_closed_out_drawdown&#39;] = dd[&#39;max&#39;]
+    stats[&#39;max_closed_out_drawdown_peak_date&#39;] = dd[&#39;peak_date&#39;]
+    stats[&#39;max_closed_out_drawdown_trough_date&#39;] = dd[&#39;trough_date&#39;]
+    stats[&#39;max_closed_out_drawdown_recovery_date&#39;] = dd[&#39;recovery_date&#39;]
+    stats[&#39;drawdown_loss_period&#39;], stats[&#39;drawdown_recovery_period&#39;] = \
+        _drawdown_loss_recovery_period(dd[&#39;peak_date&#39;], dd[&#39;trough_date&#39;],
+                                       dd[&#39;recovery_date&#39;])
+    stats[&#39;annualized_return_over_max_drawdown&#39;] = abs(cagr / dd[&#39;max&#39;])
+    dd = _max_intra_day_drawdown(dbal[&#39;high&#39;], dbal[&#39;low&#39;])
+    stats[&#39;max_intra_day_drawdown&#39;] = dd[&#39;max&#39;]
+    dd = _rolling_max_dd(dbal[&#39;close&#39;], TRADING_DAYS_PER_YEAR)
+    stats[&#39;avg_yearly_closed_out_drawdown&#39;] = np.average(dd)
+    stats[&#39;max_yearly_closed_out_drawdown&#39;] = min(dd)
+    dd = _rolling_max_dd(dbal[&#39;close&#39;], TRADING_DAYS_PER_MONTH)
+    stats[&#39;avg_monthly_closed_out_drawdown&#39;] = np.average(dd)
+    stats[&#39;max_monthly_closed_out_drawdown&#39;] = min(dd)
+    dd = _rolling_max_dd(dbal[&#39;close&#39;], TRADING_DAYS_PER_WEEK)
+    stats[&#39;avg_weekly_closed_out_drawdown&#39;] = np.average(dd)
+    stats[&#39;max_weekly_closed_out_drawdown&#39;] = min(dd)
+
+    # RUNUP
+    ru = _rolling_max_ru(dbal[&#39;close&#39;], TRADING_DAYS_PER_YEAR)
+    stats[&#39;avg_yearly_closed_out_runup&#39;] = np.average(ru)
+    stats[&#39;max_yearly_closed_out_runup&#39;] = ru.max()
+    ru = _rolling_max_ru(dbal[&#39;close&#39;], TRADING_DAYS_PER_MONTH)
+    stats[&#39;avg_monthly_closed_out_runup&#39;] = np.average(ru)
+    stats[&#39;max_monthly_closed_out_runup&#39;] = max(ru)
+    ru = _rolling_max_ru(dbal[&#39;close&#39;], TRADING_DAYS_PER_WEEK)
+    stats[&#39;avg_weekly_closed_out_runup&#39;] = np.average(ru)
+    stats[&#39;max_weekly_closed_out_runup&#39;] = max(ru)
+
+    # PERCENT CHANGE
+    pc = _pct_change(dbal[&#39;close&#39;], TRADING_DAYS_PER_YEAR)
+    stats[&#39;pct_profitable_years&#39;] = (pc &gt; 0).sum() / len(pc) * 100
+    stats[&#39;best_year&#39;] = pc.max()
+    stats[&#39;worst_year&#39;] = pc.min()
+    stats[&#39;avg_year&#39;] = np.average(pc)
+    stats[&#39;annual_std&#39;] = pc.std()
+    pc = _pct_change(dbal[&#39;close&#39;], TRADING_DAYS_PER_MONTH)
+    stats[&#39;pct_profitable_months&#39;] = (pc &gt; 0).sum() / len(pc) * 100
+    stats[&#39;best_month&#39;] = pc.max()
+    stats[&#39;worst_month&#39;] = pc.min()
+    stats[&#39;avg_month&#39;] = np.average(pc)
+    stats[&#39;monthly_std&#39;] = pc.std()
+    pc = _pct_change(dbal[&#39;close&#39;], TRADING_DAYS_PER_WEEK)
+    stats[&#39;pct_profitable_weeks&#39;] = (pc &gt; 0).sum() / len(pc) * 100
+    stats[&#39;best_week&#39;] = pc.max()
+    stats[&#39;worst_week&#39;] = pc.min()
+    stats[&#39;avg_week&#39;] = np.average(pc)
+    stats[&#39;weekly_std&#39;] = pc.std()
+    pc = _pct_change(dbal[&#39;close&#39;], 1)
+    stats[&#39;pct_profitable_days&#39;] = (pc &gt; 0).sum() / len(pc) * 100
+    stats[&#39;best_day&#39;] = pc.max()
+    stats[&#39;worst_day&#39;] = pc.min()
+    stats[&#39;avg_day&#39;] = np.average(pc)
+    stats[&#39;daily_std&#39;] = pc.std()
+
+    # RATIOS
+    sr = _sharpe_ratio(dbal[&#39;close&#39;].pct_change())
+    sr_std = math.sqrt((1 + 0.5*sr**2) / len(dbal))
+    stats[&#39;sharpe_ratio&#39;] = sr
+    stats[&#39;sharpe_ratio_max&#39;] = sr + 3*sr_std #3 std=&gt;99.73%
+    stats[&#39;sharpe_ratio_min&#39;] = sr - 3*sr_std
+    stats[&#39;sortino_ratio&#39;] = _sortino_ratio(dbal[&#39;close&#39;].pct_change())
+    return stats</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.statistics.summary"><code class="name flex">
+<span>def <span class="ident">summary</span></span>(<span>stats, benchmark_stats=None, metrics=('annual_return_rate', 'max_closed_out_drawdown', 'best_month', 'worst_month', 'sharpe_ratio', 'sortino_ratio', 'monthly_std', 'annual_std'), extras=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns stats summary.</p>
+<p>IMPORTANT: stats() must be called before calling this function.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>stats</code></strong> :&ensp;<code>pd.Series</code></dt>
+<dd>Statistics for the strategy.</dd>
+<dt><strong><code>benchmark_stats</code></strong> :&ensp;<code>pd.Series, optimal</code></dt>
+<dd>Statistics for the benchmark (default is None, which implies
+that a benchmark is not being used).</dd>
+<dt><strong><code>metrics</code></strong> :&ensp;<code>tuple</code>, optional</dt>
+<dd>The metrics to be used in the summary (default is
+<code><a title="pinkfish.statistics.default_metrics" href="#pinkfish.statistics.default_metrics">default_metrics</a></code>).</dd>
+<dt><strong><code>extras</code></strong> :&ensp;<code>tuple</code>, optional</dt>
+<dd>The extra metrics to be used in the summary (default is None,
+which imples that no extra metrics are being used).</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def summary(stats, benchmark_stats=None, metrics=default_metrics, extras=None):
+    &#34;&#34;&#34;
+    Returns stats summary.
+
+    IMPORTANT: stats() must be called before calling this function.
+
+    Parameters
+    ----------
+    stats : pd.Series
+        Statistics for the strategy.
+    benchmark_stats : pd.Series, optimal
+        Statistics for the benchmark (default is None, which implies
+        that a benchmark is not being used).
+    metrics : tuple, optional
+        The metrics to be used in the summary (default is
+        `default_metrics`).
+    extras : tuple, optional
+        The extra metrics to be used in the summary (default is None,
+        which imples that no extra metrics are being used).
+    &#34;&#34;&#34;
+    if extras is None: extras = ()
+    metrics += extras
+
+    # Columns.
+    columns = [&#39;strategy&#39;]
+    if benchmark_stats is not None:
+        columns.append(&#39;benchmark&#39;)
+
+    # Index &amp; data.
+    index = []; data = []
+    for metric in metrics:
+        index.append(metric)
+        if benchmark_stats is not None:
+            data.append((_get_metric_value(stats, metric),
+                         _get_metric_value(benchmark_stats, metric)))
+        else:
+            data.append(_get_metric_value(stats, metric))
+
+    df = pd.DataFrame(data, columns=columns, index=index)
+    return df</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pinkfish" href="index.html">pinkfish</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-variables">Global variables</a></h3>
+<ul class="">
+<li><code><a title="pinkfish.statistics.SP500_BEGIN" href="#pinkfish.statistics.SP500_BEGIN">SP500_BEGIN</a></code></li>
+<li><code><a title="pinkfish.statistics.TRADING_DAYS_PER_MONTH" href="#pinkfish.statistics.TRADING_DAYS_PER_MONTH">TRADING_DAYS_PER_MONTH</a></code></li>
+<li><code><a title="pinkfish.statistics.TRADING_DAYS_PER_WEEK" href="#pinkfish.statistics.TRADING_DAYS_PER_WEEK">TRADING_DAYS_PER_WEEK</a></code></li>
+<li><code><a title="pinkfish.statistics.TRADING_DAYS_PER_YEAR" href="#pinkfish.statistics.TRADING_DAYS_PER_YEAR">TRADING_DAYS_PER_YEAR</a></code></li>
+<li><code><a title="pinkfish.statistics.currency_metrics" href="#pinkfish.statistics.currency_metrics">currency_metrics</a></code></li>
+<li><code><a title="pinkfish.statistics.default_metrics" href="#pinkfish.statistics.default_metrics">default_metrics</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="pinkfish.statistics.currency" href="#pinkfish.statistics.currency">currency</a></code></li>
+<li><code><a title="pinkfish.statistics.stats" href="#pinkfish.statistics.stats">stats</a></code></li>
+<li><code><a title="pinkfish.statistics.summary" href="#pinkfish.statistics.summary">summary</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

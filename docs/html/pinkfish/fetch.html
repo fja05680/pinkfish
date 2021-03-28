@@ -1,0 +1,891 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>pinkfish.fetch API documentation</title>
+<meta name="description" content="Fetch time series data." />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pinkfish.fetch</code></h1>
+</header>
+<section id="section-intro">
+<p>Fetch time series data.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+Fetch time series data.
+&#34;&#34;&#34;
+
+import datetime
+import os
+import sys
+
+import pandas as pd
+from pandas_datareader._utils import RemoteDataError
+import pandas_datareader.data as pdr
+
+import pinkfish as pf
+
+
+########################################################################
+# TIMESERIES (fetch, select, finalize)
+
+def _get_cache_dir(dir_name):
+    &#34;&#34;&#34;
+    Get the data dir path.
+
+    Parameters
+    ----------
+    dir_name : str
+        The leaf data dir name.
+
+    Returns
+    -------
+    str
+        Path to the data dir.
+    &#34;&#34;&#34;
+    base_dir = &#39;&#39;
+    try:
+        conf = pf.read_config()
+        base_dir = conf[&#39;base_dir&#39;]
+    except:
+        pass
+    finally:
+        dir_name = os.path.join(base_dir, dir_name)
+
+    if not os.path.exists(dir_name):
+        os.makedirs(dir_name)
+    return dir_name
+
+
+def _adj_column_names(ts):
+    &#34;&#34;&#34;
+    Make all column names lower case.
+
+    ta-lib expects columns to be lower case. To be consistent,
+    make date index lowercase also.  Replace spaces with underscores.
+
+    Parameters
+    ----------
+    ts : pd.DataFrame
+        The timeseries of a symbol.
+
+    Returns
+    -------
+    pd.DataFrame
+        The timeseries with adjusted column names.
+    &#34;&#34;&#34;
+    ts.columns = [col.lower().replace(&#39; &#39;,&#39;_&#39;) for col in ts.columns]
+    ts.index.names = [&#39;date&#39;]
+    return ts
+
+
+def fetch_timeseries(symbol, dir_name=&#39;data&#39;, use_cache=True, from_year=None):
+    &#34;&#34;&#34;
+    Read time series data.
+
+    Use cached version if it exists and use_cache is True, otherwise
+    retrive, cache, then read.
+
+    Parameters
+    ----------
+    symbol : str
+        The symbol for a security.
+    dir_name : str, optional
+        The leaf data dir name (default is &#39;data&#39;).
+    use_cache: bool, optional
+        True to use data cache.  False to retrieve from the internet 
+        (default is True).
+    from_year: int, optional
+        The start year for timeseries retrieval (default is None,
+        which implies that all the available data is retrieved).
+
+    Returns
+    -------
+    pd.DataFrame
+        The timeseries of a symbol.
+    &#34;&#34;&#34;
+    if from_year is None:
+        from_year = 1900 if not sys.platform.startswith(&#39;win&#39;) else 1971
+
+    # Yahoo finance uses &#39;-&#39; where &#39;.&#39; is used in symbol names.
+    symbol = symbol.replace(&#39;.&#39;, &#39;-&#39;)
+    symbol = symbol.upper()
+
+    # pinkfish allows the use of a suffix starting with a &#39;_&#39;,
+    # like SPY_SHRT, so extract the symbol.
+    symbol = symbol.split(&#39;_&#39;)[0]
+
+    timeseries_cache = os.path.join(_get_cache_dir(dir_name), symbol + &#39;.csv&#39;)
+
+    if os.path.isfile(timeseries_cache) and use_cache:
+        pass
+    else:
+        ts = pdr.DataReader(symbol, &#39;yahoo&#39;, start=datetime.datetime(from_year, 1, 1))
+        ts.to_csv(timeseries_cache, encoding=&#39;utf-8&#39;)
+
+    ts = pd.read_csv(timeseries_cache, index_col=&#39;Date&#39;, parse_dates=True)
+    ts = _adj_column_names(ts)
+
+    # Drop all rows that have nan column values. Remove rows that have
+    # duplicated index.
+    ts = ts.dropna()
+    ts = ts[~ts.index.duplicated(keep=&#39;first&#39;)]
+    return ts
+
+
+def _adj_prices(ts):
+    &#34;&#34;&#34;
+    Back adjust prices relative to adj_close for dividends and splits.
+
+    Parameters
+    ----------
+    ts : pd.DataFrame
+        The timeseries of a symbol.
+
+    Returns
+    -------
+    pd.DataFrame
+        The timeseries with adjusted prices.
+    &#34;&#34;&#34;
+    ts[&#39;open&#39;] = ts[&#39;open&#39;] * ts[&#39;adj_close&#39;] / ts[&#39;close&#39;]
+    ts[&#39;high&#39;] = ts[&#39;high&#39;] * ts[&#39;adj_close&#39;] / ts[&#39;close&#39;]
+    ts[&#39;low&#39;] = ts[&#39;low&#39;] * ts[&#39;adj_close&#39;] / ts[&#39;close&#39;]
+    ts[&#39;close&#39;] = ts[&#39;close&#39;] * ts[&#39;adj_close&#39;] / ts[&#39;close&#39;]
+    return ts
+
+
+def select_tradeperiod(ts, start, end, use_adj=False):
+    &#34;&#34;&#34;
+    Select the trade period.
+
+    First, remove rows that have zero values in price columns. Then,
+    select a time slice of the data to trade from ts.  Back date a year
+    to allow time for long term indicators, e.g. 200sma is become valid.
+
+    Parameters
+    ----------
+    ts : pd.DataFrame
+        The timeseries of a symbol.
+    start : datetime.datetime
+        The desired start date for the strategy.
+    end : datetime.datetime
+        The desired end date for the strategy.
+    use_adj : bool, optional
+        True to adjust prices for dividends and splits
+        (default is False).
+
+    Returns
+    -------
+    pd.DataFrame
+        The timeseries for specified start:end, optionally with prices
+        adjusted.
+    &#34;&#34;&#34;
+    columns = [&#39;high&#39;, &#39;low&#39;, &#39;open&#39;, &#39;close&#39;, &#39;adj_close&#39;]
+    ts[columns] = ts[ts[columns] &gt; 0][columns]
+    ts.dropna()
+
+    if use_adj:
+        _adj_prices(ts)
+
+    if start &lt; ts.index[0]: start = ts.index[0]
+    if end &gt; ts.index[-1]: end = ts.index[-1]
+    ts = ts[start - datetime.timedelta(365):end]
+
+    return ts
+
+
+def finalize_timeseries(ts, start):
+    &#34;&#34;&#34;
+    Finalize timeseries.
+
+    Drop all rows that have nan column values.  Set timeseries to begin
+    at start.
+
+    Parameters
+    ----------
+    ts : pd.DataFrame
+        The timeseries of a symbol.
+    start : datetime.datetime
+        The start date for backtest.
+
+    Returns
+    -------
+    datetime.datetime
+        The start date.
+    pd.DataFrame
+        The timeseries of a symbol.
+    &#34;&#34;&#34;
+    ts = ts.dropna()
+    ts = ts[start:]
+    start = ts.index[0]
+    return ts, start
+
+
+#####################################################################
+# CACHE SYMBOLS (remove, update, get_symbol_metadata)
+
+def _difference_in_years(start, end):
+    &#34;&#34;&#34;
+    Calculate the number of years between two dates.
+
+    Parameters
+    ----------
+    start : datetime.datetime
+        The start date.
+    end : datetime.datetime
+        The end date.
+
+    Returns
+    -------
+    float
+        The difference in years between start and end dates.
+    &#34;&#34;&#34;
+    diff  = end - start
+    diff_in_years = (diff.days + diff.seconds/86400)/365.2425
+    return diff_in_years
+
+
+def remove_cache_symbols(symbols=None, dir_name=&#39;data&#39;):
+    &#34;&#34;&#34;
+    Remove cached timeseries for list of symbols.
+
+    Filter out any symbols prefixed with &#39;__&#39;.
+
+    Parameters
+    ----------
+    symbols : str or list, optional
+        The symbol(s) for which to remove cached timeseries (default
+        is None, which imples remove timeseries for all symbols).
+    dir_name : str, optional
+        The leaf data dir name (default is &#39;data&#39;).
+
+    Returns
+    -------
+    None
+    &#34;&#34;&#34;
+    cache_dir = _get_cache_dir(dir_name)
+
+    if symbols:
+        # If symbols is not a list, cast it to a list.
+        if not isinstance(symbols, list):
+            symbols = [symbols]
+        filenames = [symbol.upper() + &#39;.csv&#39; for symbol in symbols]
+    else:
+        filenames = [f for f in os.listdir(cache_dir) if f.endswith(&#39;.csv&#39;)]
+
+    # Filter out any filename prefixed with &#39;__&#39;.
+    filenames = [f for f in filenames if not f.startswith(&#39;__&#39;)]
+
+    print(&#39;removing symbols:&#39;)
+    for i, f in enumerate(filenames):
+        symbol = os.path.splitext(f)[0]
+        print(symbol + &#39; &#39;, end=&#39;&#39;)
+        if i % 10 == 0 and i != 0: print()
+
+        filepath = os.path.join(cache_dir, f)
+        if os.path.exists(filepath):
+            os.remove(filepath)
+        else:
+            print(&#39;\n({} not found)&#39;.format(f))
+    print()
+
+
+def update_cache_symbols(symbols=None, dir_name=&#39;data&#39;, from_year=None):
+    &#34;&#34;&#34;
+    Update cached timeseries for list of symbols.
+
+    Filter out any filename prefixed with &#39;__&#39;.
+
+    Parameters
+    ----------
+    symbols : str or list, optional
+        The symbol(s) for which to remove cached timeseries (default
+        is None, which imples remove timeseries for all symbols).
+    dir_name : str, optional
+        The leaf data dir name (default is &#39;data).
+    from_year: int, optional
+        The start year for timeseries retrieval (default is None,
+        which implies that all the available data is retrieved).
+
+    Returns
+    -------
+    None
+    &#34;&#34;&#34;
+    cache_dir = _get_cache_dir(dir_name)
+
+    if symbols:
+        # If symbols is not a list, cast it to a list.
+        if not isinstance(symbols, list):
+            symbols = [symbols]
+    else:
+        filenames = ([f for f in os.listdir(cache_dir)
+                     if f.endswith(&#39;.csv&#39;) and not f.startswith(&#39;__&#39;)])
+        symbols = [os.path.splitext(filename)[0] for filename in filenames]
+
+    # Make symbol names uppercase.
+    symbols = [symbol.upper() for symbol in symbols]
+
+    print(&#39;updating symbols:&#39;)
+    for i, symbol in enumerate(symbols):
+        print(symbol + &#39; &#39;, end=&#39;&#39;)
+        if i % 10 == 0 and i != 0: print()
+
+        try:
+            fetch_timeseries(symbol, dir_name=dir_name, use_cache=False,
+                             from_year=from_year)
+        except RemoteDataError as e:
+            print(&#39;\n({})&#39;.format(e))
+        except Exception as e:
+            print(&#39;\n({})&#39;.format(e))
+    print()
+
+
+def get_symbol_metadata(symbols=None, dir_name=&#39;data&#39;, from_year=None):
+    &#34;&#34;&#34;
+    Get symbol metadata for list of symbols.
+
+    Filter out any filename prefixed with &#39;__&#39;.
+
+    Parameters
+    ----------
+    symbols : str or list, optional
+        The symbol(s) for which to remove cached timeseries (default
+        is None, which imples remove timeseries for all symbols).
+    dir_name : str, optional
+        The leaf data dir name (default is &#39;data).
+    from_year: int, optional
+        The start year for timeseries retrieval (default is None,
+        which implies that all the available data is retrieved).
+
+    Returns
+    -------
+    pd.DataFrame
+        Each row contains metadata for a symbol. 
+    &#34;&#34;&#34;
+    cache_dir = _get_cache_dir(dir_name)
+
+    if symbols:
+        # If symbols is not a list, cast it to a list.
+        if not isinstance(symbols, list):
+            symbols = [symbols]
+    else:
+        filenames = ([f for f in os.listdir(cache_dir)
+                     if f.endswith(&#39;.csv&#39;) and not f.startswith(&#39;__&#39;)])
+        symbols = [os.path.splitext(filename)[0] for filename in filenames]
+
+    # Make symbol names uppercase.
+    symbols = [symbol.upper() for symbol in symbols]
+
+    l = []
+    for i, symbol in enumerate(symbols):
+        try:
+            ts = pf.fetch_timeseries(symbol, dir_name=dir_name, use_cache=True,
+                                     from_year=from_year) 
+            start = ts.index[0].to_pydatetime()
+            end = ts.index[-1].to_pydatetime()
+            num_years = _difference_in_years(start, end)
+            start = start.strftime(&#39;%Y-%m-%d&#39;)
+            end = end.strftime(&#39;%Y-%m-%d&#39;)
+            t = (symbol, start, end, num_years)
+            l.append(t)
+        except RemoteDataError as e:
+            print(&#39;\n({})&#39;.format(e))
+        except Exception as e:
+            print(&#39;\n({})&#39;.format(e))
+    columns = [&#39;symbol&#39;, &#39;start_date&#39;, &#39;end_date&#39;, &#39;num_years&#39;]
+    df = pd.DataFrame(l, columns=columns)
+    return df</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="pinkfish.fetch.fetch_timeseries"><code class="name flex">
+<span>def <span class="ident">fetch_timeseries</span></span>(<span>symbol, dir_name='data', use_cache=True, from_year=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Read time series data.</p>
+<p>Use cached version if it exists and use_cache is True, otherwise
+retrive, cache, then read.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>symbol</code></strong> :&ensp;<code>str</code></dt>
+<dd>The symbol for a security.</dd>
+<dt><strong><code>dir_name</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>The leaf data dir name (default is 'data').</dd>
+<dt><strong><code>use_cache</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>True to use data cache.
+False to retrieve from the internet
+(default is True).</dd>
+<dt><strong><code>from_year</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>The start year for timeseries retrieval (default is None,
+which implies that all the available data is retrieved).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>pd.DataFrame</code></dt>
+<dd>The timeseries of a symbol.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fetch_timeseries(symbol, dir_name=&#39;data&#39;, use_cache=True, from_year=None):
+    &#34;&#34;&#34;
+    Read time series data.
+
+    Use cached version if it exists and use_cache is True, otherwise
+    retrive, cache, then read.
+
+    Parameters
+    ----------
+    symbol : str
+        The symbol for a security.
+    dir_name : str, optional
+        The leaf data dir name (default is &#39;data&#39;).
+    use_cache: bool, optional
+        True to use data cache.  False to retrieve from the internet 
+        (default is True).
+    from_year: int, optional
+        The start year for timeseries retrieval (default is None,
+        which implies that all the available data is retrieved).
+
+    Returns
+    -------
+    pd.DataFrame
+        The timeseries of a symbol.
+    &#34;&#34;&#34;
+    if from_year is None:
+        from_year = 1900 if not sys.platform.startswith(&#39;win&#39;) else 1971
+
+    # Yahoo finance uses &#39;-&#39; where &#39;.&#39; is used in symbol names.
+    symbol = symbol.replace(&#39;.&#39;, &#39;-&#39;)
+    symbol = symbol.upper()
+
+    # pinkfish allows the use of a suffix starting with a &#39;_&#39;,
+    # like SPY_SHRT, so extract the symbol.
+    symbol = symbol.split(&#39;_&#39;)[0]
+
+    timeseries_cache = os.path.join(_get_cache_dir(dir_name), symbol + &#39;.csv&#39;)
+
+    if os.path.isfile(timeseries_cache) and use_cache:
+        pass
+    else:
+        ts = pdr.DataReader(symbol, &#39;yahoo&#39;, start=datetime.datetime(from_year, 1, 1))
+        ts.to_csv(timeseries_cache, encoding=&#39;utf-8&#39;)
+
+    ts = pd.read_csv(timeseries_cache, index_col=&#39;Date&#39;, parse_dates=True)
+    ts = _adj_column_names(ts)
+
+    # Drop all rows that have nan column values. Remove rows that have
+    # duplicated index.
+    ts = ts.dropna()
+    ts = ts[~ts.index.duplicated(keep=&#39;first&#39;)]
+    return ts</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.fetch.finalize_timeseries"><code class="name flex">
+<span>def <span class="ident">finalize_timeseries</span></span>(<span>ts, start)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Finalize timeseries.</p>
+<p>Drop all rows that have nan column values.
+Set timeseries to begin
+at start.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>ts</code></strong> :&ensp;<code>pd.DataFrame</code></dt>
+<dd>The timeseries of a symbol.</dd>
+<dt><strong><code>start</code></strong> :&ensp;<code>datetime.datetime</code></dt>
+<dd>The start date for backtest.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>datetime.datetime</code></dt>
+<dd>The start date.</dd>
+<dt><code>pd.DataFrame</code></dt>
+<dd>The timeseries of a symbol.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def finalize_timeseries(ts, start):
+    &#34;&#34;&#34;
+    Finalize timeseries.
+
+    Drop all rows that have nan column values.  Set timeseries to begin
+    at start.
+
+    Parameters
+    ----------
+    ts : pd.DataFrame
+        The timeseries of a symbol.
+    start : datetime.datetime
+        The start date for backtest.
+
+    Returns
+    -------
+    datetime.datetime
+        The start date.
+    pd.DataFrame
+        The timeseries of a symbol.
+    &#34;&#34;&#34;
+    ts = ts.dropna()
+    ts = ts[start:]
+    start = ts.index[0]
+    return ts, start</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.fetch.get_symbol_metadata"><code class="name flex">
+<span>def <span class="ident">get_symbol_metadata</span></span>(<span>symbols=None, dir_name='data', from_year=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get symbol metadata for list of symbols.</p>
+<p>Filter out any filename prefixed with '__'.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>symbols</code></strong> :&ensp;<code>str</code> or <code>list</code>, optional</dt>
+<dd>The symbol(s) for which to remove cached timeseries (default
+is None, which imples remove timeseries for all symbols).</dd>
+<dt><strong><code>dir_name</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>The leaf data dir name (default is 'data).</dd>
+<dt><strong><code>from_year</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>The start year for timeseries retrieval (default is None,
+which implies that all the available data is retrieved).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>pd.DataFrame</code></dt>
+<dd>Each row contains metadata for a symbol.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_symbol_metadata(symbols=None, dir_name=&#39;data&#39;, from_year=None):
+    &#34;&#34;&#34;
+    Get symbol metadata for list of symbols.
+
+    Filter out any filename prefixed with &#39;__&#39;.
+
+    Parameters
+    ----------
+    symbols : str or list, optional
+        The symbol(s) for which to remove cached timeseries (default
+        is None, which imples remove timeseries for all symbols).
+    dir_name : str, optional
+        The leaf data dir name (default is &#39;data).
+    from_year: int, optional
+        The start year for timeseries retrieval (default is None,
+        which implies that all the available data is retrieved).
+
+    Returns
+    -------
+    pd.DataFrame
+        Each row contains metadata for a symbol. 
+    &#34;&#34;&#34;
+    cache_dir = _get_cache_dir(dir_name)
+
+    if symbols:
+        # If symbols is not a list, cast it to a list.
+        if not isinstance(symbols, list):
+            symbols = [symbols]
+    else:
+        filenames = ([f for f in os.listdir(cache_dir)
+                     if f.endswith(&#39;.csv&#39;) and not f.startswith(&#39;__&#39;)])
+        symbols = [os.path.splitext(filename)[0] for filename in filenames]
+
+    # Make symbol names uppercase.
+    symbols = [symbol.upper() for symbol in symbols]
+
+    l = []
+    for i, symbol in enumerate(symbols):
+        try:
+            ts = pf.fetch_timeseries(symbol, dir_name=dir_name, use_cache=True,
+                                     from_year=from_year) 
+            start = ts.index[0].to_pydatetime()
+            end = ts.index[-1].to_pydatetime()
+            num_years = _difference_in_years(start, end)
+            start = start.strftime(&#39;%Y-%m-%d&#39;)
+            end = end.strftime(&#39;%Y-%m-%d&#39;)
+            t = (symbol, start, end, num_years)
+            l.append(t)
+        except RemoteDataError as e:
+            print(&#39;\n({})&#39;.format(e))
+        except Exception as e:
+            print(&#39;\n({})&#39;.format(e))
+    columns = [&#39;symbol&#39;, &#39;start_date&#39;, &#39;end_date&#39;, &#39;num_years&#39;]
+    df = pd.DataFrame(l, columns=columns)
+    return df</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.fetch.remove_cache_symbols"><code class="name flex">
+<span>def <span class="ident">remove_cache_symbols</span></span>(<span>symbols=None, dir_name='data')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Remove cached timeseries for list of symbols.</p>
+<p>Filter out any symbols prefixed with '__'.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>symbols</code></strong> :&ensp;<code>str</code> or <code>list</code>, optional</dt>
+<dd>The symbol(s) for which to remove cached timeseries (default
+is None, which imples remove timeseries for all symbols).</dd>
+<dt><strong><code>dir_name</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>The leaf data dir name (default is 'data').</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>None</code></dt>
+<dd>&nbsp;</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def remove_cache_symbols(symbols=None, dir_name=&#39;data&#39;):
+    &#34;&#34;&#34;
+    Remove cached timeseries for list of symbols.
+
+    Filter out any symbols prefixed with &#39;__&#39;.
+
+    Parameters
+    ----------
+    symbols : str or list, optional
+        The symbol(s) for which to remove cached timeseries (default
+        is None, which imples remove timeseries for all symbols).
+    dir_name : str, optional
+        The leaf data dir name (default is &#39;data&#39;).
+
+    Returns
+    -------
+    None
+    &#34;&#34;&#34;
+    cache_dir = _get_cache_dir(dir_name)
+
+    if symbols:
+        # If symbols is not a list, cast it to a list.
+        if not isinstance(symbols, list):
+            symbols = [symbols]
+        filenames = [symbol.upper() + &#39;.csv&#39; for symbol in symbols]
+    else:
+        filenames = [f for f in os.listdir(cache_dir) if f.endswith(&#39;.csv&#39;)]
+
+    # Filter out any filename prefixed with &#39;__&#39;.
+    filenames = [f for f in filenames if not f.startswith(&#39;__&#39;)]
+
+    print(&#39;removing symbols:&#39;)
+    for i, f in enumerate(filenames):
+        symbol = os.path.splitext(f)[0]
+        print(symbol + &#39; &#39;, end=&#39;&#39;)
+        if i % 10 == 0 and i != 0: print()
+
+        filepath = os.path.join(cache_dir, f)
+        if os.path.exists(filepath):
+            os.remove(filepath)
+        else:
+            print(&#39;\n({} not found)&#39;.format(f))
+    print()</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.fetch.select_tradeperiod"><code class="name flex">
+<span>def <span class="ident">select_tradeperiod</span></span>(<span>ts, start, end, use_adj=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Select the trade period.</p>
+<p>First, remove rows that have zero values in price columns. Then,
+select a time slice of the data to trade from ts.
+Back date a year
+to allow time for long term indicators, e.g. 200sma is become valid.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>ts</code></strong> :&ensp;<code>pd.DataFrame</code></dt>
+<dd>The timeseries of a symbol.</dd>
+<dt><strong><code>start</code></strong> :&ensp;<code>datetime.datetime</code></dt>
+<dd>The desired start date for the strategy.</dd>
+<dt><strong><code>end</code></strong> :&ensp;<code>datetime.datetime</code></dt>
+<dd>The desired end date for the strategy.</dd>
+<dt><strong><code>use_adj</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>True to adjust prices for dividends and splits
+(default is False).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>pd.DataFrame</code></dt>
+<dd>The timeseries for specified start:end, optionally with prices
+adjusted.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def select_tradeperiod(ts, start, end, use_adj=False):
+    &#34;&#34;&#34;
+    Select the trade period.
+
+    First, remove rows that have zero values in price columns. Then,
+    select a time slice of the data to trade from ts.  Back date a year
+    to allow time for long term indicators, e.g. 200sma is become valid.
+
+    Parameters
+    ----------
+    ts : pd.DataFrame
+        The timeseries of a symbol.
+    start : datetime.datetime
+        The desired start date for the strategy.
+    end : datetime.datetime
+        The desired end date for the strategy.
+    use_adj : bool, optional
+        True to adjust prices for dividends and splits
+        (default is False).
+
+    Returns
+    -------
+    pd.DataFrame
+        The timeseries for specified start:end, optionally with prices
+        adjusted.
+    &#34;&#34;&#34;
+    columns = [&#39;high&#39;, &#39;low&#39;, &#39;open&#39;, &#39;close&#39;, &#39;adj_close&#39;]
+    ts[columns] = ts[ts[columns] &gt; 0][columns]
+    ts.dropna()
+
+    if use_adj:
+        _adj_prices(ts)
+
+    if start &lt; ts.index[0]: start = ts.index[0]
+    if end &gt; ts.index[-1]: end = ts.index[-1]
+    ts = ts[start - datetime.timedelta(365):end]
+
+    return ts</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.fetch.update_cache_symbols"><code class="name flex">
+<span>def <span class="ident">update_cache_symbols</span></span>(<span>symbols=None, dir_name='data', from_year=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Update cached timeseries for list of symbols.</p>
+<p>Filter out any filename prefixed with '__'.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>symbols</code></strong> :&ensp;<code>str</code> or <code>list</code>, optional</dt>
+<dd>The symbol(s) for which to remove cached timeseries (default
+is None, which imples remove timeseries for all symbols).</dd>
+<dt><strong><code>dir_name</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>The leaf data dir name (default is 'data).</dd>
+<dt><strong><code>from_year</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>The start year for timeseries retrieval (default is None,
+which implies that all the available data is retrieved).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>None</code></dt>
+<dd>&nbsp;</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def update_cache_symbols(symbols=None, dir_name=&#39;data&#39;, from_year=None):
+    &#34;&#34;&#34;
+    Update cached timeseries for list of symbols.
+
+    Filter out any filename prefixed with &#39;__&#39;.
+
+    Parameters
+    ----------
+    symbols : str or list, optional
+        The symbol(s) for which to remove cached timeseries (default
+        is None, which imples remove timeseries for all symbols).
+    dir_name : str, optional
+        The leaf data dir name (default is &#39;data).
+    from_year: int, optional
+        The start year for timeseries retrieval (default is None,
+        which implies that all the available data is retrieved).
+
+    Returns
+    -------
+    None
+    &#34;&#34;&#34;
+    cache_dir = _get_cache_dir(dir_name)
+
+    if symbols:
+        # If symbols is not a list, cast it to a list.
+        if not isinstance(symbols, list):
+            symbols = [symbols]
+    else:
+        filenames = ([f for f in os.listdir(cache_dir)
+                     if f.endswith(&#39;.csv&#39;) and not f.startswith(&#39;__&#39;)])
+        symbols = [os.path.splitext(filename)[0] for filename in filenames]
+
+    # Make symbol names uppercase.
+    symbols = [symbol.upper() for symbol in symbols]
+
+    print(&#39;updating symbols:&#39;)
+    for i, symbol in enumerate(symbols):
+        print(symbol + &#39; &#39;, end=&#39;&#39;)
+        if i % 10 == 0 and i != 0: print()
+
+        try:
+            fetch_timeseries(symbol, dir_name=dir_name, use_cache=False,
+                             from_year=from_year)
+        except RemoteDataError as e:
+            print(&#39;\n({})&#39;.format(e))
+        except Exception as e:
+            print(&#39;\n({})&#39;.format(e))
+    print()</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pinkfish" href="index.html">pinkfish</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="pinkfish.fetch.fetch_timeseries" href="#pinkfish.fetch.fetch_timeseries">fetch_timeseries</a></code></li>
+<li><code><a title="pinkfish.fetch.finalize_timeseries" href="#pinkfish.fetch.finalize_timeseries">finalize_timeseries</a></code></li>
+<li><code><a title="pinkfish.fetch.get_symbol_metadata" href="#pinkfish.fetch.get_symbol_metadata">get_symbol_metadata</a></code></li>
+<li><code><a title="pinkfish.fetch.remove_cache_symbols" href="#pinkfish.fetch.remove_cache_symbols">remove_cache_symbols</a></code></li>
+<li><code><a title="pinkfish.fetch.select_tradeperiod" href="#pinkfish.fetch.select_tradeperiod">select_tradeperiod</a></code></li>
+<li><code><a title="pinkfish.fetch.update_cache_symbols" href="#pinkfish.fetch.update_cache_symbols">update_cache_symbols</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

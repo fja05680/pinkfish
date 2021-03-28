@@ -1,0 +1,3853 @@
+---
+description: |
+    API documentation for modules: pinkfish, pinkfish.analysis, pinkfish.benchmark, pinkfish.fetch, pinkfish.indicator, pinkfish.itable, pinkfish.pfcalendar, pinkfish.plot, pinkfish.portfolio, pinkfish.statistics, pinkfish.trade, pinkfish.utility.
+
+lang: en
+
+classoption: oneside
+geometry: margin=1in
+papersize: a4
+
+linkcolor: blue
+links-as-notes: true
+...
+
+
+    
+# Module `pinkfish` {#pinkfish}
+
+
+
+
+    
+## Sub-modules
+
+* [pinkfish.analysis](#pinkfish.analysis)
+* [pinkfish.benchmark](#pinkfish.benchmark)
+* [pinkfish.fetch](#pinkfish.fetch)
+* [pinkfish.indicator](#pinkfish.indicator)
+* [pinkfish.itable](#pinkfish.itable)
+* [pinkfish.pfcalendar](#pinkfish.pfcalendar)
+* [pinkfish.plot](#pinkfish.plot)
+* [pinkfish.portfolio](#pinkfish.portfolio)
+* [pinkfish.statistics](#pinkfish.statistics)
+* [pinkfish.trade](#pinkfish.trade)
+* [pinkfish.utility](#pinkfish.utility)
+
+
+    
+## Variables
+
+
+    
+### Variable `DEBUG` {#pinkfish.DEBUG}
+
+
+
+
+bool : True to enable DBG() output.
+
+
+    
+## Functions
+
+
+    
+### Function `DBG` {#pinkfish.DBG}
+
+
+
+
+>     def DBG(
+>         s
+>     )
+
+
+Debug print.  Enable by setting pf.DEBUG=True.
+
+
+
+
+    
+# Module `pinkfish.analysis` {#pinkfish.analysis}
+
+Analysis of results.
+
+This module contains some functions that were copied or derived
+from the book "Trading Evolved" by Andreas F. Clenow.
+Below is a correspondance I had with the author:
+
+------------------------------------------------------------------------
+Farrell
+October 25, 2019 at 15:49
+Hi Andreas,
+
+I just finished reading the book. Awesome one of a kind! Thanks so much.
+I also enjoyed your other two. Question: what is the copyright (if any)
+on the source code you have in the book. I want to incorporate some of
+it into my open source backtester, Pinkfish. How should I credit your
+work if no copyright.  I could add a comment at the beginning of each
+derived function or module at a minimum.
+
+## Farrell
+
+
+Andreas Clenow
+October 25, 2019 at 17:29
+Hi Farrell,
+
+I can be paid in reviews and/or beer. :)
+
+For an open source project, use the code as you see fit. A credit in the
+comments somewhere would be nice, but I won't sue you if you forget it.
+
+ac
+------------------------------------------------------------------------
+
+
+
+
+    
+## Functions
+
+
+    
+### Function `holding_period_map` {#pinkfish.analysis.holding_period_map}
+
+
+
+
+>     def holding_period_map(
+>         dbal
+>     )
+
+
+Display holding period returns in a table.
+
+Length of returns should be 30 or less, otherwise the output
+will be jumbled.
+
+###### Parameters
+
+**```dbal```** :&ensp;<code>pd.Series</code>
+:   The daily closing balance indexed by date.
+
+###### Returns
+
+<code>None</code>
+:   &nbsp;
+
+###### Examples
+
+```python-repl
+>>> table = holding_period_map(dbal['close'])
+>>> display(HTML(table))
+Years    1   2   3   4   5   6   7   8
+2013    30  20  13  12  13  10  12  12
+2014    11   5   7  10   6  10   9
+...
+2020     8
+```
+
+
+    
+### Function `kelly_criterian` {#pinkfish.analysis.kelly_criterian}
+
+
+
+
+>     def kelly_criterian(
+>         stats,
+>         benchmark_stats=None
+>     )
+
+
+Use this function to help with sizing of leverage.
+
+This function uses ideas based on the Kelly Criterian.
+
+###### Parameters
+
+**```stats```** :&ensp;<code>pd.Series</code>
+:   Statistics for the strategy.
+
+
+**```bbenchmark_stats```** :&ensp;<code>pd.Series, optimal</code>
+:   Statistics for the benchmark (default is None, which implies
+    that a benchmark is not being used).
+
+###### Returns
+
+**```s```** :&ensp;<code>pf.Series</code>
+:   Leverage statistics.
+
+     - <code>sharpe\_ratio</code> is a measure of risk adjusted return.
+
+     - <code>sharpe\_ratio\_max</code> is the maximum expected sharpe ratio.
+
+     - <code>sharpe\_ratio\_min</code> is the minimum expected sharpe ratio.
+
+     - <code>strategy risk</code> is a measure of how risky a trading strategy
+        is, calculated as an annual standard deviation of returns.
+
+     - <code>instrument\_risk</code> is a measure of how risky an instrument is
+        before any leverage is applied, calculated as an annual
+        standard deviation of returns.
+
+     - <code>optimal target risk</code> is equal to the expected sharpe ratio,
+        according to the Kelly criterian.  Target risk is the amount
+        of risk you expect to see when trading, calculated as an
+        annual standard deviation of returns.
+
+     - <code>half kelly criterian</code> is equal to half the expected
+        sharpe ratio.  It uses a conservative version of the
+        Kelly criterian known as half Kelly.
+
+     - <code>aggressive leverage</code> is the optimal target risk divided by
+        the instrument risk.  This is a aggrssive form of the
+        leverage factor, which is the cash value of a position
+        divided by your capital.
+
+     - <code>moderate leverage</code> is the leverage factor calculated using
+        half Kelly.
+
+     - <code>conservative leverage</code> is the leverage factor calculated
+        using half of the minimum sharpe ratio divided by 2.
+
+
+
+    
+### Function `monthly_returns_map` {#pinkfish.analysis.monthly_returns_map}
+
+
+
+
+>     def monthly_returns_map(
+>         dbal
+>     )
+
+
+Display per month and per year returns in a table.
+
+###### Parameters
+
+**```dbal```** :&ensp;<code>pd.Series</code>
+:   The daily closing balance indexed by date.
+
+###### Returns
+
+<code>None</code>
+:   &nbsp;
+
+###### Examples
+
+```python-repl
+>>> monthly_returns_map(dbal['close'])
+Year    Jan     Feb     Mar     Apr     May     Jun     Jul ... Year
+1990   -8.5     0.9     2.4    -2.7     9.2    -0.9    -0.5    -8.2
+1991    4.2     6.7     2.2     0.0     3.9    -4.8     4.5    26.3
+```
+
+
+    
+### Function `prettier_graphs` {#pinkfish.analysis.prettier_graphs}
+
+
+
+
+>     def prettier_graphs(
+>         dbal,
+>         benchmark_dbal,
+>         dbal_label='Strategy',
+>         benchmark_label='Benchmark',
+>         points_to_plot=None
+>     )
+
+
+Plot 3 subplots.
+
+The first subplot will show a rebased comparison of the returns to
+the benchmark returns, recalculated with the same starting value
+of 1.  This will be shown on a semi logarithmic scale.  The second
+subplot will show relative strength of the returns to the benchmark
+returns, and the third the correlation between the two.
+
+###### Parameters
+
+**```dbal```** :&ensp;<code>pd.Series</code>
+:   Strategy daily closing balance indexed by date.
+
+
+**```benchmark_dbal```** :&ensp;<code>pd.Series</code>
+:   Benchmark daily closing balance indexed by date.
+
+
+**```label```** :&ensp;<code>str</code>, optional
+:   Label to use in graph for strategy (default is 'Strategy').
+
+
+**```benchmark_label```** :&ensp;<code>str</code>, optional
+:   Label to use in graph for benchmark (default is 'Benchmark').
+
+
+**```points_to_plot```** :&ensp;<code>int</code>, optional
+:   Define how many points (trading days) we intend to plot
+    (default is None, which implies plot all points or days).
+
+###### Returns
+
+<code>None</code>
+:   &nbsp;
+
+###### Examples
+
+```python-repl
+>>> prettier_graphs(dbal['close'], benchmark_dbal['close'],
+                    points_to_plot=5000)
+```
+
+
+    
+### Function `volatility_graphs` {#pinkfish.analysis.volatility_graphs}
+
+
+
+
+>     def volatility_graphs(
+>         dbals,
+>         labels,
+>         points_to_plot=None
+>     )
+
+
+Plot volatility graphs.
+
+The first graph is a boxplot showing the differences between
+2 or more returns.  The second graph shows the volatility plotted
+for 2 or more returns.
+
+###### Parameters
+
+**```dbals```** :&ensp;<code>list</code> of <code>pd.DataFrame</code>
+:   A list of daily closing balances (or daily instrument closing
+    prices) indexed by date.
+
+
+**```labels```** :&ensp;<code>list</code> of <code>str</code>
+:   A list of labels.
+
+
+**```points_to_plot```** :&ensp;<code>int</code>, optional
+:   Define how many points (trading days) we intend to plot
+    (default is None, which implies plot all points or days).
+
+###### Returns
+
+<code>pf.DataFrame</code>
+:   Statistics comparing the <code>dbals</code>.
+
+###### Examples
+
+```python-repl
+>>> df = pf.volatility_graph([ts, dbal], ['SPY', 'Strategy'],
+                             points_to_plot=5000)
+>>> df
+```
+
+
+
+
+
+    
+# Module `pinkfish.benchmark` {#pinkfish.benchmark}
+
+Benchmark for comparision to a strategy.
+
+
+
+
+
+    
+## Classes
+
+
+    
+### Class `Benchmark` {#pinkfish.benchmark.Benchmark}
+
+
+
+
+>     class Benchmark(
+>         symbol,
+>         capital,
+>         start,
+>         end,
+>         use_adj=False
+>     )
+
+
+Benchmark for comparison to a strategy.
+
+Initialize instance variables.
+
+#### Parameters
+
+**```symbol```** :&ensp;<code>str</code>
+:   The symbol for the security to use in the benchmark.
+
+
+**```capital```** :&ensp;<code>int</code>
+:   The amount of money available for trading.
+
+
+**```start```** :&ensp;<code>datetime.datetime</code>
+:   The desired start date for the benchmark.
+
+
+**```end```** :&ensp;<code>datetime.datetime</code>
+:   The desired end date for the benchmark.
+
+
+**```use_adj```** :&ensp;<code>bool</code>, optional
+:   True to adjust prices for dividends and splits
+    (default is False).
+
+#### Attributes
+
+**```symbol```** :&ensp;<code>str</code>
+:   The symbol for the security to use in the benchmark.
+
+
+**```capital```** :&ensp;<code>int</code>
+:   The amount of money available for trading.
+
+
+**```start```** :&ensp;<code>datetime.datetime</code>
+:   The desired start date for the benchmark.
+
+
+**```end```** :&ensp;<code>datetime.datetime</code>
+:   The desired end date for the benchmark.
+
+
+**```use_adj```** :&ensp;<code>bool</code>, optional
+:   True to adjust prices for dividends and splits.
+
+
+**```ts```** :&ensp;<code>pd.DataFrame</code>
+:   The timeseries of the symbol used in backtest.
+
+
+**```tlog```** :&ensp;<code>pd.DataFrame</code>
+:   The trade log.
+
+
+**```dbal```** :&ensp;<code>pd.DataFrame</code>
+:   The daily balance.
+
+
+**```stats```** :&ensp;<code>pd.Series</code>
+:   The statistics for the benchmark.
+
+
+
+
+
+
+
+
+
+    
+#### Methods
+
+
+    
+##### Method `run` {#pinkfish.benchmark.Benchmark.run}
+
+
+
+
+>     def run(
+>         self
+>     )
+
+
+Run the backtest.
+
+Don't adjust the start day because that may cause it not
+to match the start date of the strategy you are benchmarking
+against.  Instead, you should pass in the start date calculated
+for the strategy.
+
+
+
+    
+# Module `pinkfish.fetch` {#pinkfish.fetch}
+
+Fetch time series data.
+
+
+
+
+    
+## Functions
+
+
+    
+### Function `fetch_timeseries` {#pinkfish.fetch.fetch_timeseries}
+
+
+
+
+>     def fetch_timeseries(
+>         symbol,
+>         dir_name='data',
+>         use_cache=True,
+>         from_year=None
+>     )
+
+
+Read time series data.
+
+Use cached version if it exists and use_cache is True, otherwise
+retrive, cache, then read.
+
+###### Parameters
+
+**```symbol```** :&ensp;<code>str</code>
+:   The symbol for a security.
+
+
+**```dir_name```** :&ensp;<code>str</code>, optional
+:   The leaf data dir name (default is 'data').
+
+
+**```use_cache```** :&ensp;<code>bool</code>, optional
+:   True to use data cache.  False to retrieve from the internet 
+    (default is True).
+
+
+**```from_year```** :&ensp;<code>int</code>, optional
+:   The start year for timeseries retrieval (default is None,
+    which implies that all the available data is retrieved).
+
+###### Returns
+
+<code>pd.DataFrame</code>
+:   The timeseries of a symbol.
+
+
+
+    
+### Function `finalize_timeseries` {#pinkfish.fetch.finalize_timeseries}
+
+
+
+
+>     def finalize_timeseries(
+>         ts,
+>         start
+>     )
+
+
+Finalize timeseries.
+
+Drop all rows that have nan column values.  Set timeseries to begin
+at start.
+
+###### Parameters
+
+**```ts```** :&ensp;<code>pd.DataFrame</code>
+:   The timeseries of a symbol.
+
+
+**```start```** :&ensp;<code>datetime.datetime</code>
+:   The start date for backtest.
+
+###### Returns
+
+<code>datetime.datetime</code>
+:   The start date.
+
+
+<code>pd.DataFrame</code>
+:   The timeseries of a symbol.
+
+
+
+    
+### Function `get_symbol_metadata` {#pinkfish.fetch.get_symbol_metadata}
+
+
+
+
+>     def get_symbol_metadata(
+>         symbols=None,
+>         dir_name='data',
+>         from_year=None
+>     )
+
+
+Get symbol metadata for list of symbols.
+
+Filter out any filename prefixed with '__'.
+
+###### Parameters
+
+**```symbols```** :&ensp;<code>str</code> or <code>list</code>, optional
+:   The symbol(s) for which to remove cached timeseries (default
+    is None, which imples remove timeseries for all symbols).
+
+
+**```dir_name```** :&ensp;<code>str</code>, optional
+:   The leaf data dir name (default is 'data).
+
+
+**```from_year```** :&ensp;<code>int</code>, optional
+:   The start year for timeseries retrieval (default is None,
+    which implies that all the available data is retrieved).
+
+###### Returns
+
+<code>pd.DataFrame</code>
+:   Each row contains metadata for a symbol.
+
+
+
+    
+### Function `remove_cache_symbols` {#pinkfish.fetch.remove_cache_symbols}
+
+
+
+
+>     def remove_cache_symbols(
+>         symbols=None,
+>         dir_name='data'
+>     )
+
+
+Remove cached timeseries for list of symbols.
+
+Filter out any symbols prefixed with '__'.
+
+###### Parameters
+
+**```symbols```** :&ensp;<code>str</code> or <code>list</code>, optional
+:   The symbol(s) for which to remove cached timeseries (default
+    is None, which imples remove timeseries for all symbols).
+
+
+**```dir_name```** :&ensp;<code>str</code>, optional
+:   The leaf data dir name (default is 'data').
+
+###### Returns
+
+<code>None</code>
+:   &nbsp;
+
+
+
+    
+### Function `select_tradeperiod` {#pinkfish.fetch.select_tradeperiod}
+
+
+
+
+>     def select_tradeperiod(
+>         ts,
+>         start,
+>         end,
+>         use_adj=False
+>     )
+
+
+Select the trade period.
+
+First, remove rows that have zero values in price columns. Then,
+select a time slice of the data to trade from ts.  Back date a year
+to allow time for long term indicators, e.g. 200sma is become valid.
+
+###### Parameters
+
+**```ts```** :&ensp;<code>pd.DataFrame</code>
+:   The timeseries of a symbol.
+
+
+**```start```** :&ensp;<code>datetime.datetime</code>
+:   The desired start date for the strategy.
+
+
+**```end```** :&ensp;<code>datetime.datetime</code>
+:   The desired end date for the strategy.
+
+
+**```use_adj```** :&ensp;<code>bool</code>, optional
+:   True to adjust prices for dividends and splits
+    (default is False).
+
+###### Returns
+
+<code>pd.DataFrame</code>
+:   The timeseries for specified start:end, optionally with prices
+    adjusted.
+
+
+
+    
+### Function `update_cache_symbols` {#pinkfish.fetch.update_cache_symbols}
+
+
+
+
+>     def update_cache_symbols(
+>         symbols=None,
+>         dir_name='data',
+>         from_year=None
+>     )
+
+
+Update cached timeseries for list of symbols.
+
+Filter out any filename prefixed with '__'.
+
+###### Parameters
+
+**```symbols```** :&ensp;<code>str</code> or <code>list</code>, optional
+:   The symbol(s) for which to remove cached timeseries (default
+    is None, which imples remove timeseries for all symbols).
+
+
+**```dir_name```** :&ensp;<code>str</code>, optional
+:   The leaf data dir name (default is 'data).
+
+
+**```from_year```** :&ensp;<code>int</code>, optional
+:   The start year for timeseries retrieval (default is None,
+    which implies that all the available data is retrieved).
+
+###### Returns
+
+<code>None</code>
+:   &nbsp;
+
+
+
+
+
+
+    
+# Module `pinkfish.indicator` {#pinkfish.indicator}
+
+Custom indicators.
+
+
+
+
+    
+## Functions
+
+
+    
+### Function `CROSSOVER` {#pinkfish.indicator.CROSSOVER}
+
+
+
+
+>     def CROSSOVER(
+>         ts,
+>         timeperiod_fast=50,
+>         timeperiod_slow=200,
+>         func_fast={'name': 'SMA', 'group': 'Overlap Studies', 'display_name': 'Simple Moving Average', 'function_flags': ['Output scale same as input'], 'input_names': OrderedDict([('price', 'close')]), 'parameters': OrderedDict([('timeperiod', 30)]), 'output_flags': OrderedDict([('real', ['Line'])]), 'output_names': ['real']},
+>         func_slow={'name': 'SMA', 'group': 'Overlap Studies', 'display_name': 'Simple Moving Average', 'function_flags': ['Output scale same as input'], 'input_names': OrderedDict([('price', 'close')]), 'parameters': OrderedDict([('timeperiod', 30)]), 'output_flags': OrderedDict([('real', ['Line'])]), 'output_names': ['real']},
+>         band=0,
+>         price='close',
+>         prevday=False
+>     )
+
+
+This indicator is used to represent regime direction and duration.
+
+For example, an indicator value of 50 means a bull market that has
+persisted for 50 days, whereas -20 means a bear market that has
+persisted for 20 days.
+
+More generally, this is a crossover indicator for two moving
+averages.  The indicator is positive when the fast moving average
+is above the slow moving arverage, and negative when the fast
+moving average is below the slow moving average.
+
+###### Parameters
+
+**```ts```** :&ensp;<code>pd.DateFrame</code>
+:   A dataframe with 'open', 'high', 'low', 'close', 'volume'.
+
+
+**```timeperiod_fast```** :&ensp;<code>int</code>, optional
+:   The timeperiod for the fast moving average (default is 50).
+
+
+**```timeperiod_slow```** :&ensp;<code>int</code>
+:   The timeperiod for the slow moving average (default is 200).
+
+
+**```func_fast```** :&ensp;<code>ta\_lib.Function,</code>
+:   {SMA, DEMA, EMA, KAMA, T3, TEMA, TRIMA, WMA}
+    The talib function for fast moving average (default is SMA).
+    MAMA not compatible.
+
+
+**```func_slow```** :&ensp;<code>ta\_lib.Function,</code>
+:   {SMA, DEMA, EMA, KAMA, T3, TEMA, TRIMA, WMA}
+    The talib function for slow moving average. (default is SMA).
+    MAMA not compatible.
+
+
+**```band```** :&ensp;`int, {0-100)`
+:   Percent band around the slow moving average.
+    (default is 0, which implies no band is used).
+
+
+**```price```** :&ensp;`str, {'close', 'open', 'high', 'low'}`
+:   Input_array column to use for price (default is 'close').
+
+
+**```prevday```** :&ensp;<code>bool</code>, optional
+:   True will shift the series forward.  Unless you are buying
+    on the close, you'll likely want to set this to True.
+    It gives you the previous day's CrossOver (default is False).
+
+###### Returns
+
+**```s```** :&ensp;<code>pd.Series</code>
+:   A new column that contains the regime indicator values.
+
+###### Raises
+
+<code>[TradeCrossOverError](#pinkfish.indicator.TradeCrossOverError "pinkfish.indicator.TradeCrossOverError")</code>
+:   If one of the timeperiods specified is invalid.
+
+###### Examples
+
+```python-repl
+>>> ts['regime'] = pf.CROSSOVER(ts, timeperiod_fast=50,
+                                timeperiod_slow=200)
+```
+
+
+```python-repl
+>>> ts['crossover'] = CROSSOVER(ts, timeperiod_fast=1,
+                                timeperiod_slow=50, prevday=True)
+```
+
+
+    
+### Function `MOMENTUM` {#pinkfish.indicator.MOMENTUM}
+
+
+
+
+>     def MOMENTUM(
+>         ts,
+>         lookback=1,
+>         time_frame='monthly',
+>         price='close',
+>         prevday=False
+>     )
+
+
+This indicator is used to represent momentum is security prices.
+
+Percent price change is used to calculate momentum.  Momentum
+is positive if the price since the lookback period has increased.
+Likewise, if price has decreased since the lookback period,
+momentum is negative.  Percent change is used to normalize
+asset prices for comparison.
+
+###### Parameters
+
+**```ts```** :&ensp;<code>pd.DateFrame</code>
+:   A dataframe with 'open', 'high', 'low', 'close', 'volume'.
+
+
+**```lookback```** :&ensp;<code>int</code>, optional
+:   The number of time frames to lookback, i.e. 2 months
+    (default is 1).
+
+
+**```timeframe```** :&ensp;`str, {'monthly', 'daily', 'weekly', 'yearly'}`
+:   The unit or timeframe type of lookback (default is 'monthly').
+
+
+**```price```** :&ensp;`str, {'close', 'open', 'high', 'low'}`
+:   Input_array column to use for price (default is 'close').
+
+
+**```prevday```** :&ensp;<code>bool</code>, optional
+:   True will shift the series forward.  Unless you are buying
+    on the close, you'll likely want to set this to True.
+    It gives you the previous day's Momentum (default is False).
+
+###### Returns
+
+**```s```** :&ensp;<code>pd.Series</code>
+:   A new column that contains the momentum indicator values.
+
+###### Raises
+
+<code>ValueError</code>
+:   If the lookback is not positive or the time_frame is invalid.
+
+###### Examples
+
+```python-repl
+>>> ts['mom'] = pf.MOMENTUM(ts, lookback=6, time_frame='monthly')
+```
+
+
+    
+### Function `VOLATILITY` {#pinkfish.indicator.VOLATILITY}
+
+
+
+
+>     def VOLATILITY(
+>         ts,
+>         lookback=20,
+>         time_frame='yearly',
+>         downside=False,
+>         price='close',
+>         prevday=False
+>     )
+
+
+This indicator is used to represent volatility in security prices.
+
+Volatility is represented as the standard deviation.  Volatility
+is calculated over the lookback period, then we scale to the
+time frame.  Volatility scales with the square root of time.
+For example,  if the market’s daily volatility is 0.5%, then
+volatility for two days is the square root of 2 times
+the daily volatility (0.5% * 1.414 = 0.707%).  We use the square
+root of time to scale from daily to weely, monthly, or yearly.
+
+###### Parameters
+
+**```ts```** :&ensp;<code>pd.DateFrame</code>
+:   A dataframe with 'open', 'high', 'low', 'close', 'volume'.
+
+
+**```lookback```** :&ensp;<code>int</code>, optional
+:   The number of time frames to lookback, i.e. 2 months
+    (default is 1).
+
+
+**```timeframe```** :&ensp;`str, {'yearly', 'daily', 'weekly', 'monthly'}`
+:   The unit or timeframe type of lookback (default is 'yearly').
+
+
+**```downside```** :&ensp;<code>bool</code>, optional
+:   True to calculate the downside volatility (default is False).
+
+
+**```price```** :&ensp;`str, {'close', 'open', 'high', 'low'}`
+:   Input_array column to use for price (default is 'close').
+
+
+**```prevday```** :&ensp;<code>bool </code>
+:   True will shift the series forward.  Unless you are buying
+    on the close, you'll likely want to set this to True.
+    It gives you the previous day's Volatility (default is False).
+
+###### Returns
+
+**```s```** :&ensp;<code>pd.Series</code>
+:   A new column that contains the rollowing volatility.
+
+###### Raises
+
+<code>ValueError</code>
+:   If the lookback is not positive or the time_frame is invalid.
+
+###### Examples
+
+```python-repl
+>>> ts['vola'] = pf.MOMENTUM(ts, lookback=20, time_frame='yearly')
+```
+
+
+
+    
+## Classes
+
+
+    
+### Class `IndicatorError` {#pinkfish.indicator.IndicatorError}
+
+
+
+
+>     class IndicatorError(
+>         *args,
+>         **kwargs
+>     )
+
+
+Base indicator exception.
+
+
+    
+#### Ancestors (in MRO)
+
+* [builtins.Exception](#builtins.Exception)
+* [builtins.BaseException](#builtins.BaseException)
+
+
+    
+#### Descendants
+
+* [pinkfish.indicator.TradeCrossOverError](#pinkfish.indicator.TradeCrossOverError)
+
+
+
+
+
+    
+### Class `TradeCrossOverError` {#pinkfish.indicator.TradeCrossOverError}
+
+
+
+
+>     class TradeCrossOverError(
+>         *args,
+>         **kwargs
+>     )
+
+
+Invalid timeperiod specified.
+
+
+    
+#### Ancestors (in MRO)
+
+* [pinkfish.indicator.IndicatorError](#pinkfish.indicator.IndicatorError)
+* [builtins.Exception](#builtins.Exception)
+* [builtins.BaseException](#builtins.BaseException)
+
+
+
+
+
+
+
+
+    
+# Module `pinkfish.itable` {#pinkfish.itable}
+
+Keep track of styles for cells/headers in PrettyTable.
+
+The MIT License (MIT)
+
+Copyright (c) 2014 Melissa Gymrek <mgymrek@mit.edu>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+
+
+
+
+    
+## Classes
+
+
+    
+### Class `CellStyle` {#pinkfish.itable.CellStyle}
+
+
+
+
+>     class CellStyle
+
+
+Styles for cells PrettyTable
+
+
+
+
+
+
+
+    
+#### Methods
+
+
+    
+##### Method `column_format` {#pinkfish.itable.CellStyle.column_format}
+
+
+
+
+>     def column_format(
+>         self,
+>         x
+>     )
+
+
+
+
+    
+##### Method `copy` {#pinkfish.itable.CellStyle.copy}
+
+
+
+
+>     def copy(
+>         self
+>     )
+
+
+
+
+    
+##### Method `css` {#pinkfish.itable.CellStyle.css}
+
+
+
+
+>     def css(
+>         self
+>     )
+
+
+
+
+    
+##### Method `set` {#pinkfish.itable.CellStyle.set}
+
+
+
+
+>     def set(
+>         self,
+>         key,
+>         value
+>     )
+
+
+
+
+    
+### Class `PrettyTable` {#pinkfish.itable.PrettyTable}
+
+
+
+
+>     class PrettyTable(
+>         df,
+>         tstyle=None,
+>         header_row=False,
+>         header_col=True,
+>         center=False,
+>         rpt_header=0
+>     )
+
+
+Formatted tables for display in IPython notebooks
+
+df: pandas.DataFrame
+style: TableStyle
+header_row: include row headers
+header_col: include column headers
+
+
+
+
+
+
+
+    
+#### Methods
+
+
+    
+##### Method `copy` {#pinkfish.itable.PrettyTable.copy}
+
+
+
+
+>     def copy(
+>         self
+>     )
+
+
+
+
+    
+##### Method `reset_cell_style` {#pinkfish.itable.PrettyTable.reset_cell_style}
+
+
+
+
+>     def reset_cell_style(
+>         self,
+>         rows=None,
+>         cols=None
+>     )
+
+
+Reset existing cell style to defaults
+
+    
+##### Method `reset_col_header_style` {#pinkfish.itable.PrettyTable.reset_col_header_style}
+
+
+
+
+>     def reset_col_header_style(
+>         self,
+>         indices=None
+>     )
+
+
+Reset col header style to defaults
+
+    
+##### Method `reset_corner_style` {#pinkfish.itable.PrettyTable.reset_corner_style}
+
+
+
+
+>     def reset_corner_style(
+>         self
+>     )
+
+
+Reset corner style to defaults
+
+    
+##### Method `reset_row_header_style` {#pinkfish.itable.PrettyTable.reset_row_header_style}
+
+
+
+
+>     def reset_row_header_style(
+>         self,
+>         indices=None
+>     )
+
+
+Reset row header style to defaults
+
+    
+##### Method `set_cell_style` {#pinkfish.itable.PrettyTable.set_cell_style}
+
+
+
+
+>     def set_cell_style(
+>         self,
+>         style=None,
+>         tuples=None,
+>         rows=None,
+>         cols=None,
+>         format_function=None,
+>         **kwargs
+>     )
+
+
+Apply cell style to rows and columns specified
+
+    
+##### Method `set_col_header_style` {#pinkfish.itable.PrettyTable.set_col_header_style}
+
+
+
+
+>     def set_col_header_style(
+>         self,
+>         style=None,
+>         indices=None,
+>         format_function=None,
+>         **kwargs
+>     )
+
+
+Apply style to header at specific index
+If index is None, apply to all headings
+
+    
+##### Method `set_corner_style` {#pinkfish.itable.PrettyTable.set_corner_style}
+
+
+
+
+>     def set_corner_style(
+>         self,
+>         style=None,
+>         format_function=None,
+>         **kwargs
+>     )
+
+
+Apply style to the corner cell
+
+    
+##### Method `set_row_header_style` {#pinkfish.itable.PrettyTable.set_row_header_style}
+
+
+
+
+>     def set_row_header_style(
+>         self,
+>         style=None,
+>         indices=None,
+>         format_function=None,
+>         **kwargs
+>     )
+
+
+Apply style to header at specific index
+If index is None, apply to all headings
+
+    
+##### Method `update_cell_style` {#pinkfish.itable.PrettyTable.update_cell_style}
+
+
+
+
+>     def update_cell_style(
+>         self,
+>         rows=None,
+>         cols=None,
+>         format_function=None,
+>         **kwargs
+>     )
+
+
+Update existing cell style
+
+    
+##### Method `update_col_header_style` {#pinkfish.itable.PrettyTable.update_col_header_style}
+
+
+
+
+>     def update_col_header_style(
+>         self,
+>         indices=None,
+>         format_function=None,
+>         **kwargs
+>     )
+
+
+Update existing row header tyle
+
+    
+##### Method `update_corner_style` {#pinkfish.itable.PrettyTable.update_corner_style}
+
+
+
+
+>     def update_corner_style(
+>         self,
+>         format_function=None,
+>         **kwargs
+>     )
+
+
+Update the corner style
+
+    
+##### Method `update_row_header_style` {#pinkfish.itable.PrettyTable.update_row_header_style}
+
+
+
+
+>     def update_row_header_style(
+>         self,
+>         indices=None,
+>         format_function=None,
+>         **kwargs
+>     )
+
+
+Update existing row header tyle
+
+    
+### Class `TableStyle` {#pinkfish.itable.TableStyle}
+
+
+
+
+>     class TableStyle(
+>         theme=None
+>     )
+
+
+Keep track of styles for cells/headers in PrettyTable
+
+
+
+
+
+
+
+
+
+    
+# Module `pinkfish.pfcalendar` {#pinkfish.pfcalendar}
+
+Adds calendar columns to a timeseries.
+
+ - <code>dotw</code> : int, {0-6}  
+    Day of the week with Monday=0, Sunday=6.
+
+ - <code>dotm</code> : int, {1,2,...}  
+    Day of the month as 1,2,...
+
+ - <code>doty</code> : int, {1,2,...}  
+    Day of the year as 1,2,...
+
+ - <code>month</code> : int, {1-12}  
+    Month as January=1,...,December=12
+
+ - <code>first\_dotw</code> : bool  
+    First trading day of the week.
+
+ - <code>last\_dotw</code> : bool  
+    Last trading day of the week.
+
+ - <code>first\_dotm</code> : bool  
+    First trading day of the month.
+
+ - <code>last\_dotm</code> : bool  
+    Last trading day of the month.
+
+ - <code>first\_doty</code> : bool  
+    First trading day of the year.
+
+ - <code>last\_doty</code> : bool  
+    Last trading day of the year.
+
+
+
+
+    
+## Functions
+
+
+    
+### Function `calendar` {#pinkfish.pfcalendar.calendar}
+
+
+
+
+>     def calendar(
+>         ts
+>     )
+
+
+Add calendar columns to a timeseries.
+
+###### Parameters
+
+**```ts```** :&ensp;<code>pd.DataFrame</code>
+:   The timeseries of a symbol.
+
+###### Returns
+
+<code>pd.DataFrame</code>
+:   The timeseries with calendar columns added.
+
+
+
+
+
+
+    
+# Module `pinkfish.plot` {#pinkfish.plot}
+
+Plotting functions.
+
+
+
+    
+## Variables
+
+
+    
+### Variable `default_metrics` {#pinkfish.plot.default_metrics}
+
+
+
+
+tuple : Default metrics for plot_bar_graph().
+
+The metrics are:
+
+    'annual_return_rate'  
+    'max_closed_out_drawdown'  
+    'annualized_return_over_max_drawdown'  
+    'best_month'  
+    'worst_month'  
+    'sharpe_ratio'  
+    'sortino_ratio'  
+    'monthly_std'  
+    'annual_std'
+
+
+    
+## Functions
+
+
+    
+### Function `plot_bar_graph` {#pinkfish.plot.plot_bar_graph}
+
+
+
+
+>     def plot_bar_graph(
+>         stats,
+>         benchmark_stats=None,
+>         metrics=('annual_return_rate', 'max_closed_out_drawdown', 'annualized_return_over_max_drawdown', 'best_month', 'worst_month', 'sharpe_ratio', 'sortino_ratio', 'monthly_std', 'annual_std'),
+>         extras=None,
+>         fname=None
+>     )
+
+
+Plot Bar Graph: Strategy vs Benchmark (optional).
+
+###### Parameters
+
+**```stats```** :&ensp;<code>pd.Series</code>
+:   Statistics from the strategy.
+
+
+**```benchmark_stats```** :&ensp;<code>pd.Series</code>, optional
+:   Statistics from the benchmark (default is None, which implies
+    that a benchmark is not being used).
+
+
+**```metrics```** :&ensp;<code>tuple</code>, optional
+:   The metrics to be plotted (default is <code>[default\_metrics](#pinkfish.plot.default\_metrics "pinkfish.plot.default\_metrics")</code>).
+
+
+**```extras```** :&ensp;<code>tuple</code>, optional
+:   The additional metrics to be plotted (default is None, which
+    implies no extra metrics should be added).
+
+
+**```fname```** :&ensp;<code>str</code> or `path-like` or `file-like`, optional
+:   Save the current figure to fname (default is None, which
+    implies to not output the figure to a file).
+
+###### Returns
+
+<code>pd.DataFrame</code>
+:   Summary metrics.
+
+
+
+    
+### Function `plot_equity_curve` {#pinkfish.plot.plot_equity_curve}
+
+
+
+
+>     def plot_equity_curve(
+>         strategy,
+>         benchmark=None,
+>         fname=None
+>     )
+
+
+Plot Equity Curve: Strategy vs (optionally) Benchmark.
+
+###### Parameters
+
+**```strategy```** :&ensp;<code>pd.DataFrame</code>
+:   Daily balance for the strategy.
+
+
+**```benchmark```** :&ensp;<code>pd.DataFrame</code>, optional
+:   Daily balance for the benchmark (default is None, which implies
+    that a benchmark is not being used).
+
+
+**```fname```** :&ensp;<code>str</code> or `path-like` or `file-like`, optional
+:   Save the current figure to fname (default is None, which
+    implies to not output the figure to a file).
+
+###### Returns
+
+<code>None</code>
+:   &nbsp;
+
+
+
+    
+### Function `plot_equity_curves` {#pinkfish.plot.plot_equity_curves}
+
+
+
+
+>     def plot_equity_curves(
+>         strategies,
+>         fname=None
+>     )
+
+
+Plot Equity Curve: multiple equity curves on same plot.
+
+###### Parameters
+
+**```strategies```** :&ensp;<code>pd.Series</code>
+:   Container of strategy Daily balance (pd.Dataframe) for each
+    symbol.
+
+
+**```fname```** :&ensp;<code>str</code> or `path-like` or `file-like`, optional
+:   Save the current figure to fname (default is None, which
+    implies to not output the figure to a file).
+
+###### Returns
+
+<code>None</code>
+:   &nbsp;
+
+
+
+    
+### Function `plot_trades` {#pinkfish.plot.plot_trades}
+
+
+
+
+>     def plot_trades(
+>         strategy,
+>         benchmark=None,
+>         fname=None
+>     )
+
+
+Plot Trades.
+
+Benchmark is the equity curve that the trades get plotted on.
+If not provided, strategy equity curve is used.
+
+###### Parameters
+
+**```strategy```** :&ensp;<code>pd.DataFrame</code>
+:   Daily balance for the strategy.
+
+
+**```benchmark```** :&ensp;<code>pd.DataFrame</code>, optional
+:   Daily balance for the benchmark.
+
+
+**```fname```** :&ensp;<code>str</code> or `path-like` or `file-like`, optional
+:   Save the current figure to fname (default is None, which
+    implies to not output the figure to a file).
+
+###### Returns
+
+<code>None</code>
+:   &nbsp;
+
+
+
+
+
+
+    
+# Module `pinkfish.portfolio` {#pinkfish.portfolio}
+
+Portfolio backtesting.
+
+
+
+
+
+    
+## Classes
+
+
+    
+### Class `Portfolio` {#pinkfish.portfolio.Portfolio}
+
+
+
+
+>     class Portfolio
+
+
+A portfolio or collection of securities.
+
+#### Methods
+
+ - fetch_timeseries()  
+   Read time series data for symbols.
+
+ - add_technical_indicator()  
+   Add a technical indicator for each symbol in the portfolio.
+
+ - calendar()  
+   Add calendar columns.
+
+ - finalize_timeseries()  
+   Finalize timeseries.
+
+ - get_row_column_value()  
+   Return price given row, symbol, and field.
+
+ - get_prices()  
+   Return dict of prices for all symbols given row and fields.
+
+ - shares()  
+   Return number of shares for given symbol in portfolio.
+
+ - positions()  
+   Return the active symbols in portfolio as a list.
+
+ - share_percent()  
+   Return share value of symbol as a percentage of <code>total\_funds</code>.
+
+ - adjust_percent()  
+   Adjust symbol to a specified weight (percent) of portfolio.
+
+ - print_holdings()  
+   Print snapshot of portfolio holding and values.
+
+ - init_trade_logs()  
+   Add a trade log for each symbol.
+
+ - record_daily_balance()  
+   Append to daily balance list.
+
+ - get_logs()  
+   Return raw tradelog, tradelog, and daily balance log.
+
+ - performance_per_symbol()  
+   Returns performance per symbol data, also plots performance.
+
+ - correlation_map()  
+   Show correlation map between symbols.
+
+Initialize instance variables.
+
+#### Attributes
+
+**```_l```** :&ensp;<code>list</code> of <code>tuples</code>
+:   The list of daily balance tuples.
+
+
+**```_ts```** :&ensp;<code>pd.DataFrame</code>
+:   The timeseries of the portfolio.
+
+
+**```symbols```** :&ensp;<code>list</code>
+:   The symbols that constitute the portfolio.
+
+
+
+
+
+
+
+
+
+    
+#### Methods
+
+
+    
+##### Method `add_technical_indicator` {#pinkfish.portfolio.Portfolio.add_technical_indicator}
+
+
+
+
+>     def add_technical_indicator(
+>         self,
+>         ts,
+>         ta_func,
+>         ta_param,
+>         output_column_suffix,
+>         input_column_suffix='close'
+>     )
+
+
+Add a technical indicator for each symbol in the portfolio.
+
+A new column will be added for each symbol.  The name of the
+new column will be the symbol name, an underscore, and the
+<code>output\_column\_suffix</code>.  For example, 'SPY_MA30' is the symbol
+SPY with <code>output\_column\_suffix</code> equal to MA30.
+
+ta_func is a wrapper for a technical analysis function.  The
+actual technical analysis function could be from ta-lib,
+pandas, pinkfish indicator, or a custom user function.
+ta_param is used to pass 1 parameter to the ta_func.  Other
+parameters could be passed to the technical indicator within
+ta_func.  If you need to mass more than 1 paramters to ta_func,
+you could make ta_param a dict.
+
+###### Parameters
+
+**```ts```** :&ensp;<code>pd.DataFrame</code>
+:   The timeseries of the portfolio.
+
+
+**```ta_func```** :&ensp;<code>function</code>
+:   A wrapper for a technical analysis function.
+
+
+**```ta_param```** :&ensp;<code>object</code>
+:   The parameter for ta_func (typically an int).
+
+
+**```output_column_suffix```** :&ensp;<code>str</code>
+:   Output array column suffix to use for technical indicator.
+
+
+**```input_column_suffix```** :&ensp;`str, {'close', 'open', 'high', 'low'}`
+:   Input array column suffix to use for price
+    (default is 'close').
+
+###### Returns
+
+**```ts```** :&ensp;<code>pd.DataFrame</code>
+:   Timeseries with new column for technical indicator.
+
+###### Examples
+
+```python-repl
+>>> # Add technical indicator: X day high
+>>> def period_high(ts, ta_param, input_column):
+>>>     return pd.Series(ts[input_column]).rolling(ta_param).max()
+```
+
+
+```python-repl
+>>> ts = portfolio.add_technical_indicator(
+>>>     self.ts, ta_func =_period_high, ta_param=self.period,
+>>>     output_column_suffix='period_high'+str(self.period),
+>>>     input_column_suffix='close')
+```
+
+
+    
+##### Method `adjust_percent` {#pinkfish.portfolio.Portfolio.adjust_percent}
+
+
+
+
+>     def adjust_percent(
+>         self,
+>         date,
+>         price,
+>         weight,
+>         symbol,
+>         row,
+>         direction='LONG'
+>     )
+
+
+Adjust symbol to a specified weight (percent) of portfolio.
+
+###### Parameters
+
+**```date```** :&ensp;<code>str</code>
+:   The current date.
+
+
+**```price```** :&ensp;<code>float</code>
+:   The current price of the security.
+
+
+**```weight```** :&ensp;<code>float</code>
+:   The requested weight for the symbol.
+
+
+**```symbol```** :&ensp;<code>str</code>
+:   The symbol for a security.
+
+
+**```row```** :&ensp;<code>pd.Series</code>
+:   The timeseries of the portfolio.
+
+
+**```direction```** :&ensp;<code>pf.Direction</code>, optional
+:   The direction of the trade (default is Direction.LONG).
+
+###### Returns
+
+<code>int</code>
+:   The number of shares bought or sold.
+
+
+
+    
+##### Method `calendar` {#pinkfish.portfolio.Portfolio.calendar}
+
+
+
+
+>     def calendar(
+>         self,
+>         ts
+>     )
+
+
+Add calendar columns.
+
+    
+##### Method `correlation_map` {#pinkfish.portfolio.Portfolio.correlation_map}
+
+
+
+
+>     def correlation_map(
+>         self,
+>         ts,
+>         method='log',
+>         days=None
+>     )
+
+
+Show correlation map between symbols.
+
+###### Parameters
+
+**```_ts```** :&ensp;<code>pd.DataFrame</code>
+:   The timeseries of the portfolio.
+
+
+**```method```** :&ensp;<code>str</code>, optional `{'price', 'log', 'returns'}`
+:   Analysis done based on specified method (default is 'log').
+
+
+**```days```** :&ensp;<code>int</code>
+:   How many days to use for correlation (default is None,
+    which implies all days.
+
+###### Returns
+
+**```df```** :&ensp;<code>pd.DataFrame</code>
+:   The dataframe contains the correlation data for each symbol
+    in the portfolio.
+
+
+
+    
+##### Method `fetch_timeseries` {#pinkfish.portfolio.Portfolio.fetch_timeseries}
+
+
+
+
+>     def fetch_timeseries(
+>         self,
+>         symbols,
+>         start,
+>         end,
+>         fields=['open', 'high', 'low', 'close'],
+>         use_cache=True
+>     )
+
+
+Read time series data for symbols.
+
+###### Parameters
+
+**```symbols```** :&ensp;<code>list</code>
+:   The list of symbols to fetch timeseries.
+
+
+**```start```** :&ensp;<code>datetime.datetime</code>
+:   The desired start date for the strategy.
+
+
+**```end```** :&ensp;<code>datetime.datetime</code>
+:   The desired end date for the strategy.
+
+
+**```fields```** :&ensp;<code>list</code>, optional
+:   The list of fields to use for each symbol (default is
+    ['open', 'high', 'low', 'close']).
+
+
+**```use_cache```** :&ensp;<code>bool</code>, optional
+:   True to use data cache.  False to retrieve from the
+    internet (default is True).
+
+###### Returns
+
+<code>pd.DataFrame</code>
+:   The timeseries of the symbols.
+
+
+
+    
+##### Method `finalize_timeseries` {#pinkfish.portfolio.Portfolio.finalize_timeseries}
+
+
+
+
+>     def finalize_timeseries(
+>         self,
+>         ts,
+>         start
+>     )
+
+
+Finalize timeseries.
+
+    
+##### Method `get_logs` {#pinkfish.portfolio.Portfolio.get_logs}
+
+
+
+
+>     def get_logs(
+>         self
+>     )
+
+
+Return raw tradelog, tradelog, and daily balance log.
+
+###### Parameters
+
+**```None```**
+:   &nbsp;
+
+###### Returns
+
+**```rlog```** :&ensp;<code>pd.DataFrame</code>
+:   The raw trade log.
+
+
+**```tlog```** :&ensp;<code>pd.DataFrame</code>
+:   The trade log.
+
+
+**```dbal```** :&ensp;<code>pd.DataFrame</code>
+:   The daily balance log.
+
+
+
+    
+##### Method `get_prices` {#pinkfish.portfolio.Portfolio.get_prices}
+
+
+
+
+>     def get_prices(
+>         self,
+>         row,
+>         fields=['open', 'high', 'low', 'close']
+>     )
+
+
+Return dict of prices for all symbols given row and fields.
+
+###### Parameters
+
+**```row```** :&ensp;<code>pd.Series</code>
+:   The timeseries of the portfolio.
+
+
+**```fields```** :&ensp;<code>list</code>, optional
+:   The list of fields to use for each symbol (default is
+    ['open', 'high', 'low', 'close']).
+
+###### Returns
+
+**```d```** :&ensp;<code>dict</code> of <code>floats</code>
+:   The price indexed by symbol and field.
+
+
+
+    
+##### Method `get_row_column_value` {#pinkfish.portfolio.Portfolio.get_row_column_value}
+
+
+
+
+>     def get_row_column_value(
+>         self,
+>         row,
+>         symbol,
+>         field='close'
+>     )
+
+
+Return price given row, symbol, and field.
+
+###### Parameters
+
+**```row```** :&ensp;<code>pd.Series</code>
+:   The timeseries of the portfolio.
+
+
+**```symbol```** :&ensp;<code>str</code>
+:   The symbol for a security.
+
+
+**```field```** :&ensp;<code>str</code>, optional `{'close', 'open', 'high', 'low'}`
+:   The price field (default is 'close').
+
+###### Returns
+
+**```price```** :&ensp;<code>float</code>
+:   The current price.
+
+
+
+    
+##### Method `init_trade_logs` {#pinkfish.portfolio.Portfolio.init_trade_logs}
+
+
+
+
+>     def init_trade_logs(
+>         self,
+>         ts,
+>         capital,
+>         margin=1
+>     )
+
+
+Add a trade log for each symbol.
+
+###### Parameters
+
+**```_ts```** :&ensp;<code>pd.DataFrame</code>
+:   The timeseries of the portfolio.
+
+
+**```capital```** :&ensp;<code>int</code>
+:   The amount of money available for trading.
+
+
+**```margin```** :&ensp;<code>float</code>, optional
+:   Margin percent (default is pf.Margin.CASH)
+
+###### Returns
+
+<code>None</code>
+:   &nbsp;
+
+
+
+    
+##### Method `performance_per_symbol` {#pinkfish.portfolio.Portfolio.performance_per_symbol}
+
+
+
+
+>     def performance_per_symbol(
+>         self,
+>         weights
+>     )
+
+
+Returns performance per symbol data, also plots performance.
+
+###### Parameters
+
+**```weights```** :&ensp;<code>dict</code> of <code>floats</code>
+:   A dictionary of weights with symbol as key.
+
+###### Returns
+
+**```df```** :&ensp;<code>pd.DataFrame</code>
+:   The dataframe contains performance for each symbol in the
+    portfolio.
+
+
+
+    
+##### Method `positions` {#pinkfish.portfolio.Portfolio.positions}
+
+
+
+
+>     def positions(
+>         self
+>     )
+
+
+Return the active symbols in portfolio as a list.
+
+###### Parameters
+
+**```None```**
+:   &nbsp;
+
+###### Returns
+
+<code>list</code> of <code>str</code>
+:   The active symbols in portfolio.
+
+
+
+    
+##### Method `print_holdings` {#pinkfish.portfolio.Portfolio.print_holdings}
+
+
+
+
+>     def print_holdings(
+>         self,
+>         date,
+>         row
+>     )
+
+
+Print snapshot of portfolio holding and values.
+
+###### Parameters
+
+**```date```** :&ensp;<code>str</code>
+:   The current date.
+
+
+**```row```** :&ensp;<code>pd.Series</code>
+:   The timeseries of the portfolio.
+
+###### Returns
+
+<code>None</code>
+:   &nbsp;
+
+
+
+    
+##### Method `record_daily_balance` {#pinkfish.portfolio.Portfolio.record_daily_balance}
+
+
+
+
+>     def record_daily_balance(
+>         self,
+>         date,
+>         row
+>     )
+
+
+Append to daily balance list.
+
+###### Parameters
+
+**```date```** :&ensp;<code>str</code>
+:   The current date.
+
+
+**```row```** :&ensp;<code>pd.Series</code>
+:   The timeseries of the portfolio.
+
+###### Returns
+
+<code>None</code>
+:   &nbsp;
+
+
+
+    
+##### Method `share_percent` {#pinkfish.portfolio.Portfolio.share_percent}
+
+
+
+
+>     def share_percent(
+>         self,
+>         row,
+>         symbol
+>     )
+
+
+Return share value of symbol as a percentage of <code>total\_funds</code>.
+
+###### Parameters
+
+**```row```** :&ensp;<code>pd.Series</code>
+:   The timeseries of the portfolio.
+
+
+**```symbol```** :&ensp;<code>str</code>
+:   The symbol for a security.
+
+###### Returns
+
+<code>float</code>
+:   The share value as a percent.
+
+
+
+    
+##### Method `shares` {#pinkfish.portfolio.Portfolio.shares}
+
+
+
+
+>     def shares(
+>         self,
+>         symbol
+>     )
+
+
+Return number of shares for given symbol in portfolio.
+
+###### Parameters
+
+**```symbol```** :&ensp;<code>str</code>
+:   The symbol for a security.
+
+###### Returns
+
+`tlog.shares : int`
+:   The number of shares for a given symbol.
+
+
+
+
+
+    
+# Module `pinkfish.statistics` {#pinkfish.statistics}
+
+Calculate trading statistics.
+
+The stats() function returns the following metrics in a pd.Series.
+
+ - `start : str  
+   The date when trading begins formatted as YY-MM-DD.
+
+ - <code>end</code> : str  
+   The date when trading ends formatted as YY-MM-DD.
+
+ - <code>beginning\_balance</code> : int  
+    The initial capital.
+
+ - <code>ending\_balance</code> : float  
+    The ending capital.
+
+ - <code>total\_net\_profit</code> : float  
+    Total value of all profitable trades minus all losing trades.
+
+ - <code>gross\_profit</code> : float  
+    Total value of all profitable trades.
+
+ - <code>gross\_loss</code> : float  
+    Total value of all losing trades.
+
+ - <code>profit\_factor</code> : float  
+    The Ratio of the total profits from profitable trades divided by
+    the total loses from losing trades.  A break-even system has a
+    profit factor of 1.
+
+ - <code>return\_on\_initial\_capital</code> : float  
+    The ratio of gross profit divided by the initial capital and
+    multiplied by 100.
+
+ - <code>annual\_return\_rate</code> : float  
+    The compound annual growth rate of the strategy.
+
+ - <code>trading\_period</code> : str  
+    The trading time frame expressed as years, monthe, and days.
+
+ - <code>pct\_time\_in\_market</code> : float  
+    The percentage of days in which the strategy is not completely
+    holding cash.
+
+ - <code>margin</code> : float  
+    The buying power in dollars divided by the capital.  For example,
+    if the margin is 2 and the capital is $10,000, then the buying
+    power is $20,000.
+
+ - <code>avg\_leverage</code> : float  
+    Leverage is the total value of securities held plus any cash,
+    divided by the total value of securities held plus cash minus
+    loans.  The average leverage is just the average daily leverage
+    over the life of the strategy.
+
+ - <code>max\_leverage</code> : float  
+    The maximum daily leverage over the life of the strategy.
+
+ - <code>min\_leverage</code> : float  
+    The minimum daily leverage over the life of the strategy.
+
+ - <code>total\_num\_trades</code> : int  
+    The number of closed trades.
+
+ - <code>trades\_per\_year</code> : float  
+    The average number of closed trades per year.
+
+ - <code>num\_winning\_trades</code> : int  
+    The number of profitable trades.
+
+ - <code>num\_losing\_trades</code> : int  
+    The number of losing trades.
+
+ - <code>num\_even\_trades</code> : int  
+    The number of break even trades.
+
+ - <code>pct\_profitable\_trades</code> : float  
+    The number of winning trades divided by the total number of closed
+    trades and multiplied by 100.
+
+ - <code>avg\_profit\_per\_trade</code> : float  
+    The total net profit divided by the total number of closed trades
+    and multiplied by 100.
+
+ - <code>avg\_profit\_per\_winning\_trade</code> : float  
+    The gross profit divided by the number of winning trades.
+
+ - <code>avg\_loss\_per\_losing\_trade</code> : float  
+    The gross loss divided by the number of losing trades.  This
+    quantity is negative.
+
+ - <code>ratio\_avg\_profit\_win\_loss</code> : float  
+    The absolute value of the average profit per winning trade divided
+    by the average loss per losing trade.
+
+ - <code>largest\_profit\_winning\_trade</code> : float  
+    The single largest profit for all winning trades.
+
+ - <code>largest\_loss\_losing\_trade</code> : float  
+    The single largest loss for all losing trades.
+
+ - <code>num\_winning\_points</code> : float  
+    The sum of the increase in points from all winning trades.
+
+ - <code>num\_losing\_points</code> : float  
+    The sum of the decrease in points from all losing trades.  This
+    quantity is negative.
+
+ - <code>total\_net\_points</code> : float  
+    The mathematical difference between winning points and
+    losing points.
+
+ - <code>avg\_points</code> : float  
+    The total net points divided by the total number of trades.
+
+ - <code>largest\_points\_winning\_trade</code> : float  
+    The single largest point increase for all winning trades.
+
+ - <code>largest\_points\_losing\_trade</code> : float  
+    The single largest point decrease for all losing trades.
+
+ - <code>avg\_pct\_gain\_per\_trade</code> : float  
+    The average percentage gain for all trades.
+
+ - <code>largest\_pct\_winning\_trade</code> : float  
+    The single largest percent increase for all winning trades.
+
+ - <code>largest\_pct\_losing\_trade</code> : float  
+    The single largest percent decrease for all losing trades.
+
+ - <code>expected\_shortfall</code> : float  
+    The expected shortfall is calculated by taking the average of
+    returns in the worst 5% of cases.  In other words, it is the
+    average percent loss of the worst 5% of losing trades.
+
+ - <code>max\_consecutive\_winning\_trades</code> : int  
+    The longest winning streak in trades.
+
+ - <code>max\_consecutive\_losing\_trades</code> : int  
+    The longest losing streak in trades.
+
+ - <code>avg\_bars\_winning\_trades</code> : float  
+    On average, how long a winning trade takes in market days.
+
+ - <code>avg\_bars\_losing\_trades</code> : float  
+    On average, how long a losing trade takes in market days.
+
+ - <code>max\_closed\_out\_drawdown</code> : float  
+    Worst peak minus trough balance based on closing prices.
+
+ - <code>max\_closed\_out\_drawdown\_peak\_date</code> : str  
+    The beginning and peak date of the largest drawdown formatted
+    as YY-MM-DD.  The balance hit it's highest point on this date.
+
+ - <code>max\_closed\_out\_drawdown\_trough\_date</code> : str  
+    The trough date of the largest drawdown.  The balance hit it's
+    lowest point on this date.
+
+ - <code>max\_closed\_out\_drawdown\_recovery\_date</code> : str  
+    The end date of the largest drawdown.  The date in which the
+    balance has equaled the peak value again.
+
+ - <code>drawdown\_loss\_period</code> : int  
+    The number of calendar days from peak to trough.
+
+ - <code>drawdown\_recovery\_period</code> : int  
+    The number of calendar days from trough to recovery.
+
+ - <code>annualized\_return\_over\_max\_drawdown</code> : float  
+    Annual return rate divided by the max drawdown.
+
+ - <code>max\_intra\_day\_drawdown</code> : float  
+    Worst peak minus trough balance based on intraday values.
+
+ - <code>avg\_yearly\_closed\_out\_drawdown</code> :float  
+    The average yearly drawdown calculated using every available
+    market year period.  In other words, every rollowing window of 252
+    market days is taken as a different year in the calculation.
+
+ - <code>max\_yearly\_closed\_out\_drawdown</code> : float  
+    Worst peak minus trough balance based on closing prices during any
+    252 market day period.
+
+ - <code>avg\_monthly\_closed\_out\_drawdown</code> : float  
+    The average monthly drawdown calculated using every available
+    market month period.  In other words, every rollowing window of 20
+    market days is taken as a different month in the calculation.
+
+ - <code>max\_monthly\_closed\_out\_drawdown</code> : float  
+    Worst peak minus trough balance based on closing prices during any
+    20 market day period.
+
+ - <code>avg\_weekly\_closed\_out\_drawdown</code> : float  
+    The average weekly drawdown calculated using every available
+    market week period.  In other words, every rollowing window of 5
+    market days is taken as a different week in the calculation.
+
+ - <code>max\_weekly\_closed\_out\_drawdown</code> : float  
+    Worst peak minus trough balance based on closing prices during any
+    5 market day period.
+
+ - <code>avg\_yearly\_closed\_out\_runup</code> : float  
+    The average yearly runup calculated using every available
+    market year period.  In other words, every rollowing window of 252
+    market days is taken as a different year in the calculation.
+
+ - <code>max\_yearly\_closed\_out\_runup</code> : float  
+    Best peak minus trough balance based on closing prices during any
+    252 market day period.
+
+ - <code>avg\_monthly\_closed\_out\_runup</code> : float  
+    The average monthly runup calculated using every available
+    market month period.  In other words, every rollowing window of 20
+    market days is taken as a different month in the calculation.
+
+ - <code>max\_monthly\_closed\_out\_runup</code> : float  
+    Best peak minus trough balance based on closing prices during any
+    20 market day period.
+
+ - <code>avg\_weekly\_closed\_out\_runup</code> : float  
+    The average weekly runup calculated using every available
+    market week period.  In other words, every rollowing window of 5
+    market days is taken as a different week in the calculation.
+
+ - <code>max\_weekly\_closed\_out\_runup</code> : float  
+    Best peak minus trough balance based on closing prices during any
+    5 market day period.
+
+ - <code>pct\_profitable\_years</code> : float  
+    The percentage of all years that were profitable.  In other words,
+    the percentage of 252 market day periods that were profitable.
+
+ - <code>best\_year</code> : float  
+    The percentage increase in balance of the best year.
+
+ - <code>worst\_year</code> : float  
+    The percentage decrease in balance of the worst year.
+
+ - <code>avg\_year</code> : float  
+    The percentage change per year on average.
+
+ - <code>annual\_std</code> : float  
+    The yearly standard deviation over the entire trading period.
+
+ - <code>pct\_profitable\_months</code> : float  
+    The percentage of all months that were profitable.  In other words,
+    the percentage of 20 market day periods that were profitable.
+
+ - <code>best\_month</code> : float  
+    The percentage increase in balance of the best month.
+
+ - <code>worst\_month</code> : float  
+    The percentage decrease in balance of the worst month.
+
+ - <code>avg\_month</code> : float  
+    The percentage change per month on average.
+
+ - <code>monthly\_std</code> : float  
+    The monthly standard deviation over the entire trading period.
+
+ - <code>pct\_profitable\_weeks</code> : float  
+    The percentage of all weeks that were profitable.  In other words,
+    the percentage of 5 market day periods that were profitable.
+
+ - <code>best\_week</code> : float  
+    The percentage increase in balance of the best week.
+
+ - <code>worst\_week</code> : float  
+    The percentage decrease in balance of the worst week.
+
+ - <code>avg\_week</code> : float  
+    The percentage change per week on average.
+
+ - <code>weekly\_std</code> : float  
+    The weekly standard deviation over the entire trading period.
+
+ - <code>pct\_profitable\_weeks</code> : float  
+    The percentage of all weeks that were profitable.  In other words,
+    the percentage of 5 market day periods that were profitable.
+
+ - <code>weekly\_std</code> : float  
+    The weekly standard deviation over the entire trading period.
+
+ - <code>pct\_profitable\_days</code> : float  
+    The percentage of all days that were profitable.
+
+ - <code>best\_day</code> : float  
+    The percentage increase in balance of the best day.
+
+ - <code>worst\_day</code> : float  
+    The percentage decrease in balance of the worst day.
+
+ - <code>avg\_day</code> : float  
+    The percentage change per day on average.
+
+ - <code>daily\_std</code> : float  
+    The daily standard deviation over the entire trading period.
+
+ - <code>sharpe\_ratio</code> : float  
+    A measure of risk adjusted return.  The ratio is the average return
+    per unit of volatility, i.e. standard deviation.
+
+ - <code>sharpe\_ratio\_max</code> : float  
+    The maximum expected sharpe ratio. It is the sharpe ratio plus
+    3 standard deviations of the sharpe ratio.  99.73% of sharpe ratios
+    are theoretically below this value.
+
+ - <code>sharpe\_ratio\_min</code> : float  
+    The mimimum expected sharpe ratio. It is the sharpe ratio minus
+    3 standard deviations of the sharpe ratio.  99.73% of sharpe ratios
+    are theoretically above this value.
+
+ - <code>sortino\_ratio</code> : float  
+    A variation of the Sharpe ratio that differentiates harmful
+    volatility from overall volatility by using the asset's standard
+    deviation of negative portfolio returns (downside deviation)
+    instead of the total standard deviation.
+
+
+
+    
+## Variables
+
+
+    
+### Variable `SP500_BEGIN` {#pinkfish.statistics.SP500_BEGIN}
+
+
+
+
+str : The date the S&P500 began.
+
+    
+### Variable `TRADING_DAYS_PER_MONTH` {#pinkfish.statistics.TRADING_DAYS_PER_MONTH}
+
+
+
+
+int : The number of trading days per month.
+
+    
+### Variable `TRADING_DAYS_PER_WEEK` {#pinkfish.statistics.TRADING_DAYS_PER_WEEK}
+
+
+
+
+int : The number of trading days per week.
+
+    
+### Variable `TRADING_DAYS_PER_YEAR` {#pinkfish.statistics.TRADING_DAYS_PER_YEAR}
+
+
+
+
+int : The number of trading days per year.
+
+    
+### Variable `currency_metrics` {#pinkfish.statistics.currency_metrics}
+
+
+
+
+tuple : Currency metrics for summary().
+
+The metrics are:
+
+    'beginning_balance'  
+    'ending_balance'  
+    'total_net_profit'  
+    'gross_profit'  
+    'gross_loss'
+
+    
+### Variable `default_metrics` {#pinkfish.statistics.default_metrics}
+
+
+
+
+tuple : Default metrics for summary().
+
+The metrics are:
+
+    'annual_return_rate'  
+    'max_closed_out_drawdown'  
+    'best_month'  
+    'worst_month'  
+    'sharpe_ratio'  
+    'sortino_ratio'  
+    'monthly_std'  
+    'annual_std'
+
+
+    
+## Functions
+
+
+    
+### Function `currency` {#pinkfish.statistics.currency}
+
+
+
+
+>     def currency(
+>         amount
+>     )
+
+
+Returns the dollar amount in US currency format.
+
+    
+### Function `stats` {#pinkfish.statistics.stats}
+
+
+
+
+>     def stats(
+>         ts,
+>         tlog,
+>         dbal,
+>         capital
+>     )
+
+
+Compute trading stats.
+
+###### Parameters
+
+**```ts```** :&ensp;<code>pd.DataFrame</code>
+:   The timeseries of a symbol.
+
+
+**```tlog```** :&ensp;<code>pd.DataFrame</code>
+:   The trade log.
+
+
+**```dbal```** :&ensp;<code>pd.DataFrame</code>
+:   The daily balance.
+
+
+**```capital```** :&ensp;<code>int</code>
+:   The amount of money available for trading.
+
+###### Examples
+
+```python-repl
+>>> stats = pf.stats(ts, tlog, dbal, capital)
+```
+
+
+###### Returns
+
+**```stats```** :&ensp;<code>pd.Series</code>
+:   The statistics for the strategy.
+
+
+
+    
+### Function `summary` {#pinkfish.statistics.summary}
+
+
+
+
+>     def summary(
+>         stats,
+>         benchmark_stats=None,
+>         metrics=('annual_return_rate', 'max_closed_out_drawdown', 'best_month', 'worst_month', 'sharpe_ratio', 'sortino_ratio', 'monthly_std', 'annual_std'),
+>         extras=None
+>     )
+
+
+Returns stats summary.
+
+IMPORTANT: stats() must be called before calling this function.
+
+###### Parameters
+
+**```stats```** :&ensp;<code>pd.Series</code>
+:   Statistics for the strategy.
+
+
+**```benchmark_stats```** :&ensp;<code>pd.Series, optimal</code>
+:   Statistics for the benchmark (default is None, which implies
+    that a benchmark is not being used).
+
+
+**```metrics```** :&ensp;<code>tuple</code>, optional
+:   The metrics to be used in the summary (default is
+    <code>[default\_metrics](#pinkfish.statistics.default\_metrics "pinkfish.statistics.default\_metrics")</code>).
+
+
+**```extras```** :&ensp;<code>tuple</code>, optional
+:   The extra metrics to be used in the summary (default is None,
+    which imples that no extra metrics are being used).
+
+
+
+
+
+
+    
+# Module `pinkfish.trade` {#pinkfish.trade}
+
+Trading agent.
+
+
+
+
+
+    
+## Classes
+
+
+    
+### Class `DailyBal` {#pinkfish.trade.DailyBal}
+
+
+
+
+>     class DailyBal
+
+
+Log for daily balance.
+
+Initialize instance variables.
+
+#### Attributes
+
+**```_l```** :&ensp;<code>list</code> of <code>tuples</code>
+:   The list of daily balance tuples.
+
+
+
+
+
+
+
+
+
+    
+#### Methods
+
+
+    
+##### Method `append` {#pinkfish.trade.DailyBal.append}
+
+
+
+
+>     def append(
+>         self,
+>         date,
+>         high,
+>         low,
+>         close
+>     )
+
+
+Append a new entry to the daily balance log.
+
+###### Parameters
+
+**```date```** :&ensp;<code>str</code>
+:   The current date.
+
+
+**```high```** :&ensp;<code>float</code>
+:   The balance high value of the day.
+
+
+**```low```** :&ensp;<code>float</code>
+:   The balance low value of the day.
+
+
+**```close```** :&ensp;<code>float</code>
+:   The balance close value of the day.
+
+###### Returns
+
+<code>None</code>
+:   &nbsp;
+
+
+
+    
+##### Method `get_log` {#pinkfish.trade.DailyBal.get_log}
+
+
+
+
+>     def get_log(
+>         self,
+>         tlog
+>     )
+
+
+Return the daily balance log.
+
+The daily balance log consists of the following columns:
+'date', 'high', 'low', 'close', 'shares', 'cash', 'leverage'
+
+###### Parameters
+
+**```tlog```** :&ensp;<code>pd.DataFrame</code>
+:   The trade log.
+
+###### Returns
+
+**```dbal```** :&ensp;<code>pd.DataFrame</code>
+:   The daily balance log.
+
+
+
+    
+### Class `Direction` {#pinkfish.trade.Direction}
+
+
+
+
+>     class Direction
+
+
+The direction of the trade.  Either LONG or SHORT.
+
+
+
+
+    
+#### Class variables
+
+
+    
+##### Variable `LONG` {#pinkfish.trade.Direction.LONG}
+
+
+
+
+
+
+    
+##### Variable `SHORT` {#pinkfish.trade.Direction.SHORT}
+
+
+
+
+
+
+
+
+
+    
+### Class `Margin` {#pinkfish.trade.Margin}
+
+
+
+
+>     class Margin
+
+
+The type of margin.  CASH, STANDARD, or PATTERN_DAY_TRADER.
+
+
+
+
+    
+#### Class variables
+
+
+    
+##### Variable `CASH` {#pinkfish.trade.Margin.CASH}
+
+
+
+
+
+
+    
+##### Variable `PATTERN_DAY_TRADER` {#pinkfish.trade.Margin.PATTERN_DAY_TRADER}
+
+
+
+
+
+
+    
+##### Variable `STANDARD` {#pinkfish.trade.Margin.STANDARD}
+
+
+
+
+
+
+
+
+
+    
+### Class `TradeLog` {#pinkfish.trade.TradeLog}
+
+
+
+
+>     class TradeLog(
+>         symbol,
+>         reset=True
+>     )
+
+
+The trade log for each symbol.
+
+Initialize instance variables.
+
+#### Parameters
+
+**```symbol```** :&ensp;<code>str</code>
+:   The symbol for a security.
+
+
+**```reset```** :&ensp;<code>bool</code>, optional
+:   Use when starting new portfolio construction to clear the
+    dict of TradeLog instances (default is True).
+
+#### Attributes
+
+**```symbol```** :&ensp;<code>str</code>
+:   The symbol for a security.
+
+
+**```shares```** :&ensp;<code>int</code>
+:   Number of shares of the symbol.
+
+
+**```direction```** :&ensp;<code>pf.Direction</code>
+:   The direction of the trade, Long or Short.
+
+
+**```ave_entry_price```** :&ensp;<code>float</code>
+:   The average purchase price per share.
+
+
+**```cumul_total```** :&ensp;<code>float</code>
+:   The cumulative total profits (loss).
+
+
+**```_l```** :&ensp;<code>list</code> of <code>tuples</code>
+:   The list of matching entry/exit trade pairs.  This list
+    will become the official trade log.
+
+
+**```_raw```** :&ensp;<code>list</code> of <code>tuples</code>
+:   The list of raw trades, either entry or exit.
+
+
+**```open_trades```** :&ensp;<code>list</code>
+:   The list of open trades, i.e. not closed out.
+
+
+
+
+
+
+    
+#### Class variables
+
+
+    
+##### Variable `buying_power` {#pinkfish.trade.TradeLog.buying_power}
+
+
+
+
+float : Buying power for Portfolio class.
+
+    
+##### Variable `cash` {#pinkfish.trade.TradeLog.cash}
+
+
+
+
+int : Current cash, entire portfolio.
+
+    
+##### Variable `instance` {#pinkfish.trade.TradeLog.instance}
+
+
+
+
+dict of pf.TradeLog : dict (key=symbol) of TradeLog instances used
+in Portfolio class.
+
+    
+##### Variable `margin` {#pinkfish.trade.TradeLog.margin}
+
+
+
+
+float : Margin percent.
+
+    
+##### Variable `multiplier` {#pinkfish.trade.TradeLog.multiplier}
+
+
+
+
+int : Applied to profit calculation.  Used only with futures.
+
+    
+##### Variable `seq_num` {#pinkfish.trade.TradeLog.seq_num}
+
+
+
+
+int : Sequential number used to order trades in Portfolio class.
+
+
+
+
+    
+#### Methods
+
+
+    
+##### Method `adjust_percent` {#pinkfish.trade.TradeLog.adjust_percent}
+
+
+
+
+>     def adjust_percent(
+>         self,
+>         date,
+>         price,
+>         weight,
+>         direction='LONG'
+>     )
+
+
+Adjust position to a target percent of the current portfolio
+value.
+
+If the position doesn't already exist, this is equivalent
+to entering a new trade. If the position does exist, this is
+equivalent to entering or exiting a trade for the difference
+between the target percent and the current percent.
+
+###### Parameters
+
+**```date```** :&ensp;<code>str</code>
+:   The trade date.
+
+
+**```price```** :&ensp;<code>float</code>
+:   The current price of the security.
+
+
+**```shares```** :&ensp;<code>int</code>
+:   The requested target weight.
+
+
+**```direction```** :&ensp;<code>pf.Direction</code>, optional
+:   The direction of the trade (default is Direction.LONG).
+
+###### Returns
+
+<code>int</code>
+:   The number of shares bought or sold.
+
+
+
+    
+##### Method `adjust_shares` {#pinkfish.trade.TradeLog.adjust_shares}
+
+
+
+
+>     def adjust_shares(
+>         self,
+>         date,
+>         price,
+>         shares,
+>         direction='LONG'
+>     )
+
+
+Adjust a position to a target number of shares.
+
+If the position doesn't already exist, this is equivalent
+to entering a new trade. If the position does exist, this is
+equivalent to entering or exiting a trade for the difference
+between the target number of shares and the current number
+of shares.
+
+###### Parameters
+
+**```date```** :&ensp;<code>str</code>
+:   The trade date.
+
+
+**```price```** :&ensp;<code>float</code>
+:   The current price of the security.
+
+
+**```shares```** :&ensp;<code>int</code>
+:   The requested number of target shares.
+
+
+**```direction```** :&ensp;<code>pf.Direction</code>, optional
+:   The direction of the trade (default is Direction.LONG).
+
+###### Returns
+
+<code>int</code>
+:   The number of shares bought or sold.
+
+
+
+    
+##### Method `adjust_value` {#pinkfish.trade.TradeLog.adjust_value}
+
+
+
+
+>     def adjust_value(
+>         self,
+>         date,
+>         price,
+>         value,
+>         direction='LONG'
+>     )
+
+
+Adjust a position to a target value.
+
+If the position doesn't already exist, this is equivalent
+to entering a new trade. If the position does exist, this is
+equivalent to entering or exiting a trade for the difference
+between the target value and the current value.
+
+###### Parameters
+
+**```date```** :&ensp;<code>str</code>
+:   The trade date.
+
+
+**```price```** :&ensp;<code>float</code>
+:   The current price of the security.
+
+
+**```shares```** :&ensp;<code>int</code>
+:   The requested target value.
+
+
+**```direction```** :&ensp;<code>pf.Direction</code>, optional
+:   The direction of the trade (default is Direction.LONG).
+
+###### Returns
+
+<code>int</code>
+:   The number of shares bought or sold.
+
+
+
+    
+##### Method `buy` {#pinkfish.trade.TradeLog.buy}
+
+
+
+
+>     def buy(
+>         self,
+>         entry_date,
+>         entry_price,
+>         shares=None
+>     )
+
+
+Enter a trade on the long side.
+
+###### Parameters
+
+**```entry_date```** :&ensp;<code>str</code>
+:   The entry date.
+
+
+**```entry_price```** :&ensp;<code>float</code>
+:   The entry price.
+
+
+**```shares```** :&ensp;<code>int</code>, optional
+:   The number of shares to buy (default is None, which implies
+    buy the maximum number of shares possible with available
+    buying power).
+
+###### Returns
+
+<code>int</code>
+:   The number of shares bought.
+
+###### Notes
+
+The `buy' alias can be used to call this function for opening a
+long position.
+
+    
+##### Method `buy2cover` {#pinkfish.trade.TradeLog.buy2cover}
+
+
+
+
+>     def buy2cover(
+>         self,
+>         exit_date,
+>         exit_price,
+>         shares=None
+>     )
+
+
+Exit a trade on the short side, i.e. buy to cover.
+
+###### Parameters
+
+**```exit_date```** :&ensp;<code>str</code>
+:   The exit date.
+
+
+**```exit_price```** :&ensp;<code>float</code>
+:   The exit price.
+
+
+**```shares```** :&ensp;<code>int</code>
+:   The number of shares to buy to cover (default in None,
+    which implies close out the short shares).
+
+###### Returns
+
+<code>int</code>
+:   The number of shares bought.
+
+
+
+    
+##### Method `calc_buying_power` {#pinkfish.trade.TradeLog.calc_buying_power}
+
+
+
+
+>     def calc_buying_power(
+>         self,
+>         price
+>     )
+
+
+Calculate buying power.
+
+    
+##### Method `calc_shares` {#pinkfish.trade.TradeLog.calc_shares}
+
+
+
+
+>     def calc_shares(
+>         self,
+>         price,
+>         cash=None
+>     )
+
+
+Calculate shares using buying power before enter_trade().
+
+###### Parameters
+
+**```price```** :&ensp;<code>float</code>
+:   The current price of the security.
+
+
+**```cash```** :&ensp;<code>float</code>, optional
+:   The requested amount of cash used to buy shares (default
+    is None, which implies use all available cash).
+
+###### Returns
+
+**```value```** :&ensp;<code>float</code>
+:   The number of shares that can be purchased with requested
+    cash amount.
+
+
+
+    
+##### Method `enter_trade` {#pinkfish.trade.TradeLog.enter_trade}
+
+
+
+
+>     def enter_trade(
+>         self,
+>         entry_date,
+>         entry_price,
+>         shares=None
+>     )
+
+
+Enter a trade on the long side.
+
+###### Parameters
+
+**```entry_date```** :&ensp;<code>str</code>
+:   The entry date.
+
+
+**```entry_price```** :&ensp;<code>float</code>
+:   The entry price.
+
+
+**```shares```** :&ensp;<code>int</code>, optional
+:   The number of shares to buy (default is None, which implies
+    buy the maximum number of shares possible with available
+    buying power).
+
+###### Returns
+
+<code>int</code>
+:   The number of shares bought.
+
+###### Notes
+
+The `buy' alias can be used to call this function for opening a
+long position.
+
+    
+##### Method `equity` {#pinkfish.trade.TradeLog.equity}
+
+
+
+
+>     def equity(
+>         self,
+>         price
+>     )
+
+
+Return the equity which is the total value minus loan
+(loan is negative cash).
+
+    
+##### Method `exit_trade` {#pinkfish.trade.TradeLog.exit_trade}
+
+
+
+
+>     def exit_trade(
+>         self,
+>         exit_date,
+>         exit_price,
+>         shares=None
+>     )
+
+
+Exit a trade on the long side.
+
+###### Parameters
+
+**```exit_date```** :&ensp;<code>str</code>
+:   The exit date.
+
+
+**```exit_price```** :&ensp;<code>float</code>
+:   The exit price.
+
+
+**```shares```** :&ensp;<code>int</code>, optional
+:   The number of shares to sell (default is None, which implies
+    sell all the shares).
+
+###### Returns
+
+<code>int</code>
+:   The number of shares sold.
+
+###### Notes
+
+The `sell' alias can be used to call this function for closing
+out a long position.
+
+    
+##### Method `get_log` {#pinkfish.trade.TradeLog.get_log}
+
+
+
+
+>     def get_log(
+>         self,
+>         merge_trades=False
+>     )
+
+
+Return the trade log.
+
+The trade log consists of the following columns:
+'entry_date', 'entry_price', 'exit_date', 'exit_price',
+'pl_points', 'pl_cash', 'qty', 'cumul_total',
+'direction', 'symbol'
+
+###### Parameters
+
+**```merge_trade```** :&ensp;<code>bool</code>, optional
+:   True to merge trades that occur on the same date
+    (default is False).
+
+###### Returns
+
+**```tlog```** :&ensp;<code>pd.DataFrame</code>
+:   The trade log.
+
+
+
+    
+##### Method `get_log_raw` {#pinkfish.trade.TradeLog.get_log_raw}
+
+
+
+
+>     def get_log_raw(
+>         self
+>     )
+
+
+Return the raw trade log.
+
+The trade log consists of the following columns:
+'date', 'seq_num', 'price', 'shares', 'entry_exit',
+'direction', 'symbol'
+
+###### Returns
+
+**```rlog```** :&ensp;<code>pd.DataFrame</code>
+:   The raw trade log.
+
+
+
+    
+##### Method `leverage` {#pinkfish.trade.TradeLog.leverage}
+
+
+
+
+>     def leverage(
+>         self,
+>         price
+>     )
+
+
+Return the leverage factor of the position.
+
+    
+##### Method `num_open_trades` {#pinkfish.trade.TradeLog.num_open_trades}
+
+
+
+
+>     def num_open_trades(
+>         self
+>     )
+
+
+Return the number of open orders, i.e. not closed out
+
+    
+##### Method `sell` {#pinkfish.trade.TradeLog.sell}
+
+
+
+
+>     def sell(
+>         self,
+>         exit_date,
+>         exit_price,
+>         shares=None
+>     )
+
+
+Exit a trade on the long side.
+
+###### Parameters
+
+**```exit_date```** :&ensp;<code>str</code>
+:   The exit date.
+
+
+**```exit_price```** :&ensp;<code>float</code>
+:   The exit price.
+
+
+**```shares```** :&ensp;<code>int</code>, optional
+:   The number of shares to sell (default is None, which implies
+    sell all the shares).
+
+###### Returns
+
+<code>int</code>
+:   The number of shares sold.
+
+###### Notes
+
+The `sell' alias can be used to call this function for closing
+out a long position.
+
+    
+##### Method `sell_short` {#pinkfish.trade.TradeLog.sell_short}
+
+
+
+
+>     def sell_short(
+>         self,
+>         entry_date,
+>         entry_price,
+>         shares=None
+>     )
+
+
+Enter a trade on the short side.
+
+###### Parameters
+
+**```entry_date```** :&ensp;<code>str</code>
+:   The entry date.
+
+
+**```entry_price```** :&ensp;<code>float</code>
+:   The entry price.
+
+
+**```shares```** :&ensp;<code>int</code>
+:   The number of shares to sell short (default in None, which
+    implies to sell short the maximum number of shares
+    possible).
+
+###### Returns
+
+<code>int</code>
+:   The number of shares sold short.
+
+
+
+    
+##### Method `share_percent` {#pinkfish.trade.TradeLog.share_percent}
+
+
+
+
+>     def share_percent(
+>         self,
+>         price
+>     )
+
+
+Return the share value as a percentage of total funds
+
+    
+##### Method `share_value` {#pinkfish.trade.TradeLog.share_value}
+
+
+
+
+>     def share_value(
+>         self,
+>         price
+>     )
+
+
+Return the total value of shares of the security.
+
+###### Parameters
+
+**```price```** :&ensp;<code>float</code>
+:   The current price of the security.
+
+###### Returns
+
+**```value```** :&ensp;<code>float</code>
+:   The share value.
+
+
+
+    
+##### Method `total_funds` {#pinkfish.trade.TradeLog.total_funds}
+
+
+
+
+>     def total_funds(
+>         self,
+>         price
+>     )
+
+
+Return the total account funds for trading.
+
+    
+##### Method `total_value` {#pinkfish.trade.TradeLog.total_value}
+
+
+
+
+>     def total_value(
+>         self,
+>         price
+>     )
+
+
+Return the total value which is the total share value plus cash.
+
+###### Parameters
+
+**```price```** :&ensp;<code>float</code>
+:   The current price of the security.
+
+###### Returns
+
+**```value```** :&ensp;<code>float</code>
+:   The total value.
+
+
+
+    
+### Class `TradeState` {#pinkfish.trade.TradeState}
+
+
+
+
+>     class TradeState
+
+
+The trade state of OPEN, HOLD, or CLOSE.
+
+
+
+
+    
+#### Class variables
+
+
+    
+##### Variable `CLOSE` {#pinkfish.trade.TradeState.CLOSE}
+
+
+
+
+
+
+    
+##### Variable `HOLD` {#pinkfish.trade.TradeState.HOLD}
+
+
+
+
+
+
+    
+##### Variable `OPEN` {#pinkfish.trade.TradeState.OPEN}
+
+
+
+
+
+
+
+
+
+
+
+    
+# Module `pinkfish.utility` {#pinkfish.utility}
+
+Utility functions.
+
+
+
+
+    
+## Functions
+
+
+    
+### Function `is_last_row` {#pinkfish.utility.is_last_row}
+
+
+
+
+>     def is_last_row(
+>         ts,
+>         index
+>     )
+
+
+Return True for last row, False otherwise.
+
+    
+### Function `print_full` {#pinkfish.utility.print_full}
+
+
+
+
+>     def print_full(
+>         x
+>     )
+
+
+Print every row of list-like object.
+
+    
+### Function `read_config` {#pinkfish.utility.read_config}
+
+
+
+
+>     def read_config()
+
+
+Read pinkfish configuration.
+
+
+
+-----
+Generated by *pdoc* 0.9.2 (<https://pdoc3.github.io>).
