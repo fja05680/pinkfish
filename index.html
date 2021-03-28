@@ -25,6 +25,8 @@
 
 </a>pinkfish</h1>
 
+<a href="https://www.youtube.com/channel/UCsPHH2UBn8Fz0g0MGrZ2Ihw">Pinkfish on youtube</a>
+      
 <p>A backtester and spreadsheet library for security analysis.</p>
 
 <p>Why another python backtesting library?  How is pinkfish different?
@@ -48,11 +50,18 @@ Simple, I couldn't find a python backtesting library that I allowed me to backte
 <h2>
 <a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h2>
 
+<p>I recommend using Pinkfish either directly with Linux or using a Linux VM.  
+That said, you should be able to make it work under Windows or MacOS.</p>
+
 <p>This is how I got pinkfish working on xubuntu 20.04:</p>
 
 <pre><code>
+# Make sure your system is up to date
+
 sudo apt update
 sudo apt upgrade
+
+# Install some preliminary requirements
 
 sudo apt install python-is-python3
 sudo apt install build-essential
@@ -61,14 +70,14 @@ sudo apt install python3-pip
 sudo ln -s /usr/bin/pip3 /usr/bin/pip
 sudo apt install libfreetype6-dev
 
-sudo pip install numpy
-sudo pip install matplotlib
-sudo pip install pandas
-sudo pip install pandas-datareader
-sudo pip install empyrical
-sudo pip install git+https://github.com/quantopian/pyfolio
+# install Pinkfish from Github
 
-(http://mrjbq7.github.io/ta-lib/install.html)
+git clone https://github.com/fja05680/pinkfish.git
+cd pinkfish
+sudo python setup.py install
+
+# Install TA-LIB (see: <a href="https://mrjbq7.github.io/ta-lib/install.html">https://mrjbq7.github.io/ta-lib/install.html</a>)
+
 cd ~/Downloads
 sudo wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz
 tar -xzvf ta-lib-0.4.0-src.tar.gz
@@ -78,26 +87,7 @@ make
 sudo make install
 sudo pip install TA-Lib
 
-#install jupyter notebook
-sudo pip install jupyter
-
-#if you want to run unit tests (optional)
-sudo apt install python-tk
-
-#install itable from github
-mkdir ~/src
-cd ~/src
-git clone https://github.com/mgymrek/itable.git
-cd itable
-sudo python setup.py install
-
-#install pinkfish from github
-cd ~/src
-git clone https://github.com/fja05680/pinkfish.git
-cd pinkfish
-sudo python setup.py install
-
-#create/specify shared data cache directory (optional)
+# Create shared data cache directory (optional)
 mkdir $HOME/data
 echo [global] > $HOME/.pinkfish
 echo base_dir = $HOME >> $HOME/.pinkfish
