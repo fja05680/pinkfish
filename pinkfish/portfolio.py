@@ -1,46 +1,134 @@
 """
-portfolio
----------
-Portfolio backtesting
+Portfolio backtesting.
 """
 
-import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import seaborn
+
 import pinkfish as pf
 
 
 class Portfolio:
+    """
+    A portfolio or collection of securities.
+
+    Methods
+    -------
+     - fetch_timeseries()  
+       Read time series data for symbols.
+
+     - add_technical_indicator()  
+       Add a technical indicator for each symbol in the portfolio.
+
+     - calendar()  
+       Add calendar columns.
+
+     - finalize_timeseries()  
+       Finalize timeseries.
+
+     - get_row_column_value()  
+       Return price given row, symbol, and field.
+
+     - get_prices()  
+       Return dict of prices for all symbols given row and fields.
+
+     - shares()  
+       Return number of shares for given symbol in portfolio.
+
+     - positions()  
+       Return the active symbols in portfolio as a list.
+
+     - share_percent()  
+       Return share value of symbol as a percentage of `total_funds`.
+
+     - adjust_percent()  
+       Adjust symbol to a specified weight (percent) of portfolio.
+
+     - print_holdings()  
+       Print snapshot of portfolio holding and values.
+
+     - init_trade_logs()  
+       Add a trade log for each symbol.
+
+     - record_daily_balance()  
+       Append to daily balance list.
+
+     - get_logs()  
+       Return raw tradelog, tradelog, and daily balance log.
+
+     - performance_per_symbol()  
+       Returns performance per symbol data, also plots performance.
+
+     - correlation_map()  
+       Show correlation map between symbols.
+    """
 
     def __init__(self):
-        self._l = []      # list of daily balance tuples
-        self._ts = None   # reference to timeseries
+        """
+        Initialize instance variables.
+
+        Attributes
+        ----------
+        _l : list of tuples
+            The list of daily balance tuples.
+        _ts : pd.DataFrame
+            The timeseries of the portfolio.
+        symbols : list
+            The symbols that constitute the portfolio.
+        """
+        self._l = []
+        self._ts = None
         self.symbols = []
 
-    #####################################################################
+    ####################################################################
     # TIMESERIES (fetch, add_technical_indicator, calender, finalize)
 
     def _add_symbol_columns(self, ts, symbol, symbol_ts, fields):
-        """ add column with field suffix for symbol, i.e. SPY_close """
+        """
+        Add column with field suffix for symbol, i.e. SPY_close.
+        """
         for field in fields:
             column = symbol + '_' + field
             ts[column] = symbol_ts[field]
         return ts
 
     def fetch_timeseries(self, symbols, start, end,
-                         fields=['high', 'low', 'close'], use_cache=True):
-        """ read time series data for symbols """
+                         fields=['open', 'high', 'low', 'close'], use_cache=True):
+        """
+        Read time series data for symbols.
+
+        Parameters
+        ----------
+        symbols : list
+            The list of symbols to fetch timeseries.
+        start : datetime.datetime
+            The desired start date for the strategy.
+        end : datetime.datetime
+            The desired end date for the strategy.
+        fields : list, optional
+            The list of fields to use for each symbol (default is
+            ['open', 'high', 'low', 'close']).
+        use_cache: bool, optional
+            True to use data cache.  False to retrieve from the
+            internet (default is True).
+
+        Returns
+        -------
+        pd.DataFrame
+            The timeseries of the symbols.
+        """
         for i, symbol in enumerate(symbols):
 
             if i == 0:
                 ts = pf.fetch_timeseries(symbol, use_cache=use_cache)
                 ts = pf.select_tradeperiod(ts, start, end, use_adj=True)
                 self._add_symbol_columns(ts, symbol, ts, fields)
-                ts.drop(columns=['high', 'low', 'open', 'close', 'volume', 'adj_close'],
+                ts.drop(columns=['open', 'high', 'low', 'close', 'volume', 'adj_close'],
                         inplace=True)
             else:
-                # add another symbol
+                # Add another symbol.
                 _ts = pf.fetch_timeseries(symbol, use_cache=use_cache)
                 _ts = pf.select_tradeperiod(_ts, start, end, use_adj=True)
                 self._add_symbol_columns(ts, symbol, _ts, fields)
@@ -50,7 +138,52 @@ class Portfolio:
 
     def add_technical_indicator(self, ts, ta_func, ta_param, output_column_suffix,
                                 input_column_suffix='close'):
-        """ add a technical indicator for each symbol """
+        """
+        Add a technical indicator for each symbol in the portfolio.
+
+        A new column will be added for each symbol.  The name of the
+        new column will be the symbol name, an underscore, and the
+        `output_column_suffix`.  For example, 'SPY_MA30' is the symbol
+        SPY with `output_column_suffix` equal to MA30.
+
+        ta_func is a wrapper for a technical analysis function.  The
+        actual technical analysis function could be from ta-lib,
+        pandas, pinkfish indicator, or a custom user function.
+        ta_param is used to pass 1 parameter to the ta_func.  Other
+        parameters could be passed to the technical indicator within
+        ta_func.  If you need to mass more than 1 paramters to ta_func,
+        you could make ta_param a dict.
+
+        Parameters
+        ----------
+        ts : pd.DataFrame
+            The timeseries of the portfolio.
+        ta_func : function
+            A wrapper for a technical analysis function.
+        ta_param : object
+            The parameter for ta_func (typically an int).
+        output_column_suffix : str
+            Output array column suffix to use for technical indicator. 
+        input_column_suffix : str, {'close', 'open', 'high', 'low'}
+            Input array column suffix to use for price
+            (default is 'close').
+
+        Returns
+        -------
+        ts : pd.DataFrame
+            Timeseries with new column for technical indicator.
+
+        Examples
+        --------
+        >>> # Add technical indicator: X day high
+        >>> def period_high(ts, ta_param, input_column):
+        >>>     return pd.Series(ts[input_column]).rolling(ta_param).max()
+
+        >>> ts = portfolio.add_technical_indicator(
+        >>>     self.ts, ta_func =_period_high, ta_param=self.period,
+        >>>     output_column_suffix='period_high'+str(self.period),
+        >>>     input_column_suffix='close')
+        """
         for symbol in self.symbols:
             input_column = symbol + '_' + input_column_suffix
             output_column = symbol + '_' + output_column_suffix
@@ -58,30 +191,67 @@ class Portfolio:
         return ts
 
     def calendar(self, ts):
-        """ add calendar columns """
+        """
+        Add calendar columns.
+        """
         return pf.calendar(ts)
 
     def finalize_timeseries(self, ts, start):
-        """ finalize timeseries """
+        """
+        Finalize timeseries.
+        """
         return pf.finalize_timeseries(ts, start)
 
-    #####################################################################
+    ####################################################################
     # ADJUST POSITION (adjust_shares, adjust_value, adjust_percent, print_holdings)
 
     def get_row_column_value(self, row, symbol, field='close'):
-        """ return price given row and symbol """
+        """
+        Return price given row, symbol, and field.
+
+        Parameters
+        ----------
+        row : pd.Series
+            The timeseries of the portfolio.
+        symbol : str
+            The symbol for a security.
+        field : str, optional {'close', 'open', 'high', 'low'}
+            The price field (default is 'close').
+
+        Returns
+        -------
+        price : float
+            The current price.
+        
+        """
         symbol += '_' + field
         try:
             price = getattr(row, symbol)
         except AttributeError:
-            # this method is slower, but handles column names that don't
-            # conform to variable name rules, and thus aren't attributes
+            # This method is slower, but handles column names that
+            # don't conform to variable name rules, and thus aren't
+            # attributes.
             date = row.Index.to_pydatetime()
             price = self._ts.loc[date, symbol]
         return price
 
-    def get_prices(self, row, fields):
-        ''' return dict of prices for all symbols given row and fields '''
+    def get_prices(self, row, fields=['open', 'high', 'low', 'close']):
+        """
+        Return dict of prices for all symbols given row and fields.
+
+        Parameters
+        ----------
+        row : pd.Series
+            The timeseries of the portfolio.
+        fields : list, optional
+            The list of fields to use for each symbol (default is
+            ['open', 'high', 'low', 'close']).
+
+        Returns
+        -------
+        d : dict of floats
+            The price indexed by symbol and field.
+        """
         d = {}
         for symbol in self.symbols:
             d[symbol] = {}
@@ -91,7 +261,9 @@ class Portfolio:
         return d
 
     def _share_value(self, row):
-        """ total share value in portfolio """
+        """
+        Return total share value in portfolio.
+        """
         value = 0
         for symbol, tlog in pf.TradeLog.instance.items():
             close = self.get_row_column_value(row, symbol)
@@ -99,50 +271,100 @@ class Portfolio:
         return value
 
     def _total_value(self, row):
-        """ total_value = share_value +  cash (if cash > 0) """
+        """
+        Return total_value = share_value +  cash (if cash > 0).
+        """
         total_value = self._share_value(row)
         if pf.TradeLog.cash > 0:
             total_value += pf.TradeLog.cash
         return total_value
 
     def _equity(self, row):
-        """ equity = total_value - loan (loan is negative cash) """
+        """
+        Return equity = total_value - loan (loan is negative cash)
+        """
         equity = self._total_value(row)
         if pf.TradeLog.cash < 0:
             equity += pf.TradeLog.cash
         return equity
 
     def _leverage(self, row):
-        """ return the leverage factor of the position """
+        """
+        Return the leverage factor of the position.
+        """
         return self._total_value(row) / self._equity(row)
 
     def _total_funds(self, row):
-        """ total account funds for trading """
+        """
+        Return total account funds for trading.
+        """
         return self._equity(row) * pf.TradeLog.margin
 
     def shares(self, symbol):
-        """ return number of shares for given symbol in portfolio """
+        """
+        Return number of shares for given symbol in portfolio.
+
+        Parameters
+        ----------
+        symbol : str
+            The symbol for a security.
+
+        Returns
+        -------
+        tlog.shares : int
+            The number of shares for a given symbol.
+        """
         tlog = pf.TradeLog.instance[symbol]
         return tlog.shares
 
     def positions(self):
-        """ return the positions in portfolio as a list """
+        """
+        Return the active symbols in portfolio as a list.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        list of str
+            The active symbols in portfolio.
+        """
         return [symbol for symbol in self.symbols if self.shares(symbol) > 0]
 
     def share_percent(self, row, symbol):
-        """ return share value of symbol as a percentage of total_funds """
+        """
+        Return share value of symbol as a percentage of `total_funds`.
+
+        Parameters
+        ----------
+        row : pd.Series
+            The timeseries of the portfolio.
+        symbol : str
+            The symbol for a security.
+
+        Returns
+        -------
+        float
+            The share value as a percent.
+        """
         close = self.get_row_column_value(row, symbol)
         tlog = pf.TradeLog.instance[symbol]
         value = tlog.share_value(close)
         return value / self._total_funds(row) * 100
 
     def _calc_buying_power(self, row):
-        """ calculate buying power """
+        """
+        Return the buying power.
+        """
         buying_power = (pf.TradeLog.cash * pf.TradeLog.margin
                       + self._share_value(row) * (pf.TradeLog.margin -1))
         return buying_power
 
     def _adjust_shares(self, date, price, shares, symbol, row, direction=pf.Direction.LONG):
+        """
+        Adjust shares.
+        """
         tlog = pf.TradeLog.instance[symbol]
         pf.TradeLog.buying_power = self._calc_buying_power(row)
         shares = tlog.adjust_shares(date, price, shares, direction)
@@ -150,13 +372,39 @@ class Portfolio:
         return shares
 
     def _adjust_value(self, date, price, value, symbol, row, direction=pf.Direction.LONG):
+        """
+        Adjust value.
+        """
         total_funds = self._total_funds(row)
         shares = int(min(total_funds, value) / price)
         shares = self._adjust_shares(date, price, shares, symbol, row, direction)
         return shares
 
-    def adjust_percent(self, date, price, weight, symbol, row, direction=pf.Direction.LONG):
-        """ adjust symbol to a specified weight (percent) of portfolio """
+    def adjust_percent(self, date, price, weight, symbol, row,
+                       direction=pf.Direction.LONG):
+        """
+        Adjust symbol to a specified weight (percent) of portfolio.
+
+        Parameters
+        ----------
+        date : str
+            The current date.
+        price : float
+            The current price of the security.
+        weight : float
+            The requested weight for the symbol.
+        symbol : str
+            The symbol for a security.
+        row : pd.Series
+            The timeseries of the portfolio.
+        direction : pf.Direction, optional
+            The direction of the trade (default is Direction.LONG).
+
+        Returns
+        -------
+        int
+            The number of shares bought or sold.
+        """
         weight = weight if weight <= 1 else weight/100
         total_funds = self._total_funds(row)
         value = total_funds * weight
@@ -164,7 +412,21 @@ class Portfolio:
         return shares
 
     def print_holdings(self, date, row):
-        """ print snapshot of portfolio holding and values """
+        """
+        Print snapshot of portfolio holding and values.
+
+        Parameters
+        ----------
+        date : str
+            The current date.
+        row : pd.Series
+            The timeseries of the portfolio.
+
+        Returns
+        -------
+        None
+        """
+
         # 2010-02-01 SPY: 54 TLT: 59 GLD:  9 cash:    84.20 total:  9,872.30
         print(date.strftime('%Y-%m-%d'), end=' ')
         for symbol, tlog in pf.TradeLog.instance.items():
@@ -172,16 +434,26 @@ class Portfolio:
         print('cash: {:8,.2f}'.format(pf.TradeLog.cash), end=' ')
         print('total: {:9,.2f}'.format(self._equity(row)))
 
-    #####################################################################
+    ####################################################################
     # LOGS (init_trade_logs, record_daily_balance, get_logs)
 
-    buying_power = None            # buying power; for Portfolio class only
-    seq_num = 0                    # used to order trades in Portfolio class
-    instance = {}                  # dict of TradeLog instances, key=symbol
-
     def init_trade_logs(self, ts, capital, margin=pf.Margin.CASH):
-        """ add a trade log for each symbol """
-        
+        """
+        Add a trade log for each symbol.
+
+        Parameters
+        ----------
+        _ts : pd.DataFrame
+            The timeseries of the portfolio.
+        capital : int
+            The amount of money available for trading.
+        margin : float, optional
+            Margin percent (default is pf.Margin.CASH)
+
+        Returns
+        -------
+        None
+        """
         pf.TradeLog.cash = capital
         pf.TradeLog.margin = margin
         pf.TradeLog.seq_num = 0
@@ -192,8 +464,23 @@ class Portfolio:
             pf.TradeLog(symbol, False)
 
     def record_daily_balance(self, date, row):
-        """ append to daily balance list """
-        # calculate daily balance values: date, high, low, close, shares, cash
+        """
+        Append to daily balance list.
+
+        Parameters
+        ----------
+        date : str
+            The current date.
+        row : pd.Series
+            The timeseries of the portfolio.
+
+        Returns
+        -------
+        None
+        """
+
+        # calculate daily balance values: date, high, low, close,
+        # shares, cash
         equity = self._equity(row)
         leverage = self._leverage(row)
         shares = 0
@@ -204,7 +491,22 @@ class Portfolio:
         self._l.append(t)
 
     def get_logs(self):
-        """ return raw tradelog, tradelog, and daily balance log """
+        """
+        Return raw tradelog, tradelog, and daily balance log.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        rlog : pd.DataFrame
+            The raw trade log.
+        tlog : pd.DataFrame
+            The trade log.
+        dbal : pd.DataFrame
+            The daily balance log.
+        """
         tlogs = []; rlogs = []
         for tlog in pf.TradeLog.instance.values():
             rlogs.append(tlog.get_log_raw())
@@ -220,12 +522,23 @@ class Portfolio:
         dbal = dbal.get_log(tlog)
         return rlog, tlog, dbal
 
-    #####################################################################
+    ####################################################################
     # PERFORMANCE ANALYSIS (performance_per_symbol, correlation_map)
 
     def performance_per_symbol(self, weights):
-        """ returns data from containing performance per symbol;
-            also plots perf
+        """
+        Returns performance per symbol data, also plots performance.
+
+        Parameters
+        ----------
+        weights : dict of floats
+            A dictionary of weights with symbol as key.
+
+        Returns
+        -------
+        df : pd.DataFrame
+            The dataframe contains performance for each symbol in the
+            portfolio.
         """
 
         def _weight(row, weights):
@@ -244,38 +557,56 @@ class Portfolio:
             axes.set_xticklabels(df.index, rotation=60)
             plt.legend(loc='best')
 
-        # convert dict to series
+        # Convert dict to series.
         s = pd.Series(dtype='object')
         for symbol, tlog in pf.TradeLog.instance.items():
             s[symbol] = tlog.cumul_total
-        # convert series to dataframe
+        # Convert series to dataframe.
         df = pd.DataFrame(s.values, index=s.index, columns=['cumul_total'])
-        # add weight column
+        # Add weight column.
         df['weight'] = df.apply(_weight, weights=weights, axis=1)
-        # add percent column
+        # Add percent column.
         df['pct_cumul_total'] = df['cumul_total'] / df['cumul_total'].sum()
-        # add relative preformance
+        # Add relative preformance.
         df['relative_performance'] = df['pct_cumul_total'] / df['weight']
-        # add TOTAL row
+        # Add TOTAL row.
         new_row = pd.Series(name='TOTAL',
             data={'cumul_total':df['cumul_total'].sum(),
                   'pct_cumul_total': 1.00, 'weight': 1.00,
                   'relative_performance': 1.00})
         df = df.append(new_row, ignore_index=False)
-        # format as currency
+        # Format as currency.
         df['cumul_total'] = df.apply(_currency, axis=1)
-        # plot bar graph of performance
+        # Plot bar graph of performance.
         _plot(df)
         return df
 
     def correlation_map(self, ts, method='log', days=None):
-        """ return correlation dataframe; show correlation map between symbols"""
+        """
+        Show correlation map between symbols.
 
-        # filter coloumn names for ''_close''; drop '_close' suffix
+        Parameters
+        ----------
+        _ts : pd.DataFrame
+            The timeseries of the portfolio.
+        method : str, optional {'price', 'log', 'returns'}
+            Analysis done based on specified method (default is 'log').
+        days : int
+            How many days to use for correlation (default is None,
+            which implies all days.
+
+        Returns
+        -------
+        df : pd.DataFrame
+            The dataframe contains the correlation data for each symbol
+            in the portfolio.
+        """
+
+        # Filter coloumn names for ''_close''; drop '_close' suffix.
         df = ts.filter(regex='_close')
         df.columns = df.columns.str.strip('_close')
 
-        # default is all days
+        # Default is all days.
         if days is None:
             days = 0;
         df = df[-days:]
@@ -288,15 +619,14 @@ class Portfolio:
             df = df.pct_change()
 
         df = df.corr(method='pearson')
-        # reset symbol as index (rather than 0-X)
+        # Reset symbol as index (rather than 0-X).
         df.head().reset_index()
-        # take the bottom triangle since it repeats itself
+        # Take the bottom triangle since it repeats itself.
         mask = np.zeros_like(df)
         mask[np.triu_indices_from(mask)] = True
-        # generate plot
+        # Generate plot.
         seaborn.heatmap(df, cmap='RdYlGn', vmax=1.0, vmin=-1.0 ,
                         mask = mask, linewidths=2.5)
         plt.yticks(rotation=0)
         plt.xticks(rotation=90)
         return df
-

@@ -47,6 +47,7 @@ class Strategy:
             high = row.high; low = row.low; close = row.close; 
             end_flag = pf.is_last_row(self.ts, i)
             regime = row.regime
+            vola = row.vola
             
             # this yahoo futures data hasn't been cleaned well.  there are zero values in here.
             
@@ -96,7 +97,7 @@ class Strategy:
                         if self.enable_shorts:
                             self.tlog._exit_trade(date, close, direction=pf.Direction.SHORT)
                         cash = self.tlog.calc_buying_power(close)
-                        shares = self.tlog.calc_shares(close, cash=cash/self.multiplier)
+                        shares = self.tlog.calc_shares(close, cash=cash/self.multiplier*.30/vola)
                         self.tlog._enter_trade(date, close, shares=shares, direction=pf.Direction.LONG)
                         stop_loss = self.stop_loss_pct*close
                     else:
@@ -106,7 +107,7 @@ class Strategy:
                 else:
                     # enter new long position
                     cash = self.tlog.calc_buying_power(close)
-                    shares = self.tlog.calc_shares(close, cash=cash/self.multiplier)
+                    shares = self.tlog.calc_shares(close, cash=cash/self.multiplier*.30/vola)
                     self.tlog._enter_trade(date, close, shares=shares, direction=pf.Direction.LONG)
                     # set stop loss
                     stop_loss = self.stop_loss_pct*close
@@ -125,6 +126,9 @@ class Strategy:
                          timeperiod_slow=self.timeperiod_slow,
                          band=self.percent_band)
         
+        # Add technical indicator: volatility
+        self.ts['vola'] = pf.VOLATILITY(self.ts)
+
         self.ts, self.start = pf.finalize_timeseries(self.ts, self.start)
         
         self.tlog = pf.TradeLog(self.symbol)

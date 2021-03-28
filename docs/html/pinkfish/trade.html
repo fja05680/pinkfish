@@ -1,0 +1,2802 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>pinkfish.trade API documentation</title>
+<meta name="description" content="Trading agent." />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pinkfish.trade</code></h1>
+</header>
+<section id="section-intro">
+<p>Trading agent.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+Trading agent.
+&#34;&#34;&#34;
+
+import pandas as pd
+
+import pinkfish as pf
+
+
+class Direction:
+    &#34;&#34;&#34;
+    The direction of the trade.  Either LONG or SHORT.
+    &#34;&#34;&#34;
+    LONG, SHORT = [&#39;LONG&#39;, &#39;SHRT&#39;]
+
+class Margin:
+    &#34;&#34;&#34;
+    The type of margin.  CASH, STANDARD, or PATTERN_DAY_TRADER.
+    &#34;&#34;&#34;
+    CASH, STANDARD, PATTERN_DAY_TRADER = [1, 2, 4]
+
+
+########################################################################
+# TRADE LOG - each symbol has it&#39;s own trade log
+
+class TradeLog:
+    &#34;&#34;&#34;
+    The trade log for each symbol.
+    &#34;&#34;&#34;
+
+    cash = 0
+    &#34;&#34;&#34;
+    int : Current cash, entire portfolio.
+    &#34;&#34;&#34;
+    multiplier = 1
+    &#34;&#34;&#34;
+    int : Applied to profit calculation.  Used only with futures.
+    &#34;&#34;&#34;
+    margin = Margin.CASH
+    &#34;&#34;&#34;
+    float : Margin percent.
+    &#34;&#34;&#34;
+    buying_power = None
+    &#34;&#34;&#34;
+    float : Buying power for Portfolio class.
+    &#34;&#34;&#34;
+    seq_num = 0
+    &#34;&#34;&#34;
+    int : Sequential number used to order trades in Portfolio class.
+    &#34;&#34;&#34;
+    instance = {}
+    &#34;&#34;&#34;
+    dict of pf.TradeLog : dict (key=symbol) of TradeLog instances used
+    in Portfolio class.
+    &#34;&#34;&#34;
+
+    def __init__(self, symbol, reset=True):
+        &#34;&#34;&#34;
+        Initialize instance variables.
+
+        Parameters
+        ----------
+        symbol : str
+            The symbol for a security.
+        reset : bool, optional
+            Use when starting new portfolio construction to clear the
+            dict of TradeLog instances (default is True).
+
+        Attributes
+        ----------
+        symbol : str
+            The symbol for a security.
+        shares : int
+            Number of shares of the symbol.
+        direction : pf.Direction
+            The direction of the trade, Long or Short.
+        ave_entry_price : float
+            The average purchase price per share.
+        cumul_total : float
+            The cumulative total profits (loss).
+        _l : list of tuples
+            The list of matching entry/exit trade pairs.  This list
+            will become the official trade log.
+        _raw : list of tuples
+            The list of raw trades, either entry or exit.
+        open_trades : list
+            The list of open trades, i.e. not closed out.
+        &#34;&#34;&#34;
+        self.symbol = symbol
+        self.shares = 0
+        self.direction = None
+        self.ave_entry_price = 0
+        self.cumul_total = 0
+        self._l = []
+        self._raw = []
+        self._open_trades = []
+
+        if reset:
+            TradeLog.seq_num = 0
+            TradeLog.instance.clear()
+        TradeLog.instance[symbol] = self
+
+    def share_value(self, price):
+        &#34;&#34;&#34;
+        Return the total value of shares of the security.
+
+        Parameters
+        ----------
+        price : float
+            The current price of the security.
+
+        Returns
+        -------
+        value : float
+            The share value.
+        &#34;&#34;&#34;
+        value = 0
+        if self.direction == Direction.LONG:
+            value += price*self.shares
+        elif self.direction == Direction.SHORT:
+            value += (2*self.ave_entry_price-price)*self.shares
+        return value
+        
+    def total_value(self, price):
+        &#34;&#34;&#34;
+        Return the total value which is the total share value plus cash.
+
+        Parameters
+        ----------
+        price : float
+            The current price of the security.
+
+        Returns
+        -------
+        value : float
+            The total value.
+        &#34;&#34;&#34;
+        total_value = self.share_value(price)
+        if TradeLog.cash &gt; 0:
+            total_value += TradeLog.cash
+        return total_value
+
+    def equity(self, price):
+        &#34;&#34;&#34;
+        Return the equity which is the total value minus loan
+        (loan is negative cash).
+        &#34;&#34;&#34;
+        equity = self.total_value(price)
+        if TradeLog.cash &lt; 0:
+            equity += TradeLog.cash
+        return equity
+
+    def leverage(self, price):
+        &#34;&#34;&#34;
+        Return the leverage factor of the position.
+        &#34;&#34;&#34;
+        return self.total_value(price) / self.equity(price)
+        
+    def total_funds(self, price):
+        &#34;&#34;&#34;
+        Return the total account funds for trading.
+        &#34;&#34;&#34;
+        return self.equity(price) * TradeLog.margin
+
+    def share_percent(self, price):
+        &#34;&#34;&#34;
+        Return the share value as a percentage of total funds
+        &#34;&#34;&#34;
+        return self.share_value(price) / self.total_funds(price) * 100
+
+    def num_open_trades(self):
+        &#34;&#34;&#34;
+        Return the number of open orders, i.e. not closed out
+        &#34;&#34;&#34;
+        return len(self._open_trades)
+
+    ####################################################################
+    # ENTER TRADE (buy, sell_short)
+
+    def calc_buying_power(self, price):
+        &#34;&#34;&#34;
+        Calculate buying power.
+        &#34;&#34;&#34;
+        buying_power = (TradeLog.cash * TradeLog.margin
+                      + self.share_value(price) * (TradeLog.margin -1))
+        return buying_power
+
+    def calc_shares(self, price, cash=None):
+        &#34;&#34;&#34;
+        Calculate shares using buying power before enter_trade().
+
+        Parameters
+        ----------
+        price : float
+            The current price of the security.
+        cash : float, optional
+            The requested amount of cash used to buy shares (default
+            is None, which implies use all available cash).
+
+        Returns
+        -------
+        value : float
+            The number of shares that can be purchased with requested
+            cash amount.
+        &#34;&#34;&#34;
+
+        # Margin should be equal to or greater than 1.
+        if TradeLog.margin &lt; 1: TradeLog.margin = 1
+
+        # Calculate buying power.
+        #TODO: why is it done this way?
+        if TradeLog.buying_power is not None:
+            buying_power = TradeLog.buying_power
+        else:
+            buying_power = self.calc_buying_power(price)
+
+        # Cash can&#39;t exceed buying power.
+        if cash is None or cash &gt; buying_power:
+            cash = buying_power
+
+        # Cash can&#39;t be negative.
+        if cash &lt; 0: cash = 0
+
+        # Calculate shares.
+        shares = int(cash / price)
+        return shares
+
+    def _enter_trade(self, entry_date, entry_price, shares=None, direction=Direction.LONG):
+        &#34;&#34;&#34;
+        This is a lower level function that gets called from
+        enter_trade() and sell_short().
+        &#34;&#34;&#34;
+
+        max_shares = self.calc_shares(entry_price)
+        shares = max_shares if shares is None else min(shares, max_shares)
+
+        if shares == 0:
+            return 0
+
+        # Record in raw trade log.
+        t = (entry_date, TradeLog.seq_num, entry_price, shares, &#39;entry&#39;, direction, self.symbol)
+        self._raw.append(t)
+        TradeLog.seq_num += 1
+
+        # Add record to open_trades.
+        d = {&#39;entry_date&#39;:entry_date, &#39;entry_price&#39;:entry_price, &#39;qty&#39;:shares,
+             &#39;direction&#39;:direction, &#39;symbol&#39;:self.symbol}
+        self._open_trades.append(d)
+
+        # Update direction.
+        if self.direction != direction:
+            if self.direction is None or self.shares == 0:
+                self.direction = direction
+            else:
+                raise ValueError(&#39;not allowed to change direction from {} to {}, &#39;
+                                 &#39;this requires shares = 0&#39;
+                                 .format(self.direction, direction))
+
+        # Update average entry price and shares.
+        self.ave_entry_price = \
+            (self.ave_entry_price*self.shares + entry_price*shares) / (self.shares + shares)
+        self.shares += shares
+
+        # Update cash.
+        TradeLog.cash -= entry_price * shares
+
+        return shares
+
+    def enter_trade(self, entry_date, entry_price, shares=None):
+        &#34;&#34;&#34;
+        Enter a trade on the long side.
+
+        Parameters
+        ----------
+        entry_date : str
+            The entry date.
+        entry_price : float
+            The entry price.
+        shares : int, optional
+            The number of shares to buy (default is None, which implies
+            buy the maximum number of shares possible with available
+            buying power).
+
+        Returns
+        -------
+        int
+            The number of shares bought.
+
+        Notes
+        -----
+        The `buy&#39; alias can be used to call this function for opening a
+        long position.
+        &#34;&#34;&#34;
+        return self._enter_trade(entry_date=entry_date,
+                                 entry_price=entry_price,
+                                 shares=shares,
+                                 direction=Direction.LONG)
+
+    buy = enter_trade
+    &#34;&#34;&#34;
+    method : buy is a function reference to enter_trade, i.e. an alias.
+    &#34;&#34;&#34;
+
+    def sell_short(self, entry_date, entry_price, shares=None):
+        &#34;&#34;&#34;
+        Enter a trade on the short side.
+
+        Parameters
+        ----------
+        entry_date : str
+            The entry date.
+        entry_price : float
+            The entry price.
+        shares : int
+            The number of shares to sell short (default in None, which
+            implies to sell short the maximum number of shares
+            possible).
+
+        Returns
+        -------
+        int
+            The number of shares sold short.
+        &#34;&#34;&#34;
+        return self._enter_trade(entry_date=entry_date,
+                                 entry_price=entry_price,
+                                 shares=shares,
+                                 direction=Direction.SHORT)
+
+    ####################################################################
+    # EXIT TRADE (sell, buy2cover)
+
+    def _qty_open_trade(self, index):
+        &#34;&#34;&#34;
+        Qty of an open trade by index.
+        &#34;&#34;&#34;
+        if index &gt;= self.num_open_trades(): return 0
+        return self._open_trades[index][&#39;qty&#39;]
+
+    def _exit_trade(self, exit_date, exit_price, shares=None, direction=Direction.LONG):
+        &#34;&#34;&#34;
+        Exit a trade.
+
+        Record exit in trade log. return -shares exited.
+        shares = None exits all shares
+        shares &gt; 0 exits that number of shares
+        shares &lt; 0 indicates the number of positons to exit
+        &#34;&#34;&#34;
+        if shares is None or shares &gt; self.shares:
+            shares = self.shares
+        elif shares &lt; 0:
+            positions = -shares
+            shares = 0
+            for position in range(positions):
+                shares += self._qty_open_trade(position)
+
+        if shares == 0:
+            return 0
+
+        shares_orig = shares
+
+        # Record in raw trade log.
+        t = (exit_date, TradeLog.seq_num, exit_price, shares, &#39;exit&#39;, direction, self.symbol)
+        self._raw.append(t)
+        TradeLog.seq_num += 1
+
+        for i, open_trade in enumerate(self._open_trades[:]):
+            entry_date = open_trade[&#39;entry_date&#39;]
+            entry_price = open_trade[&#39;entry_price&#39;]
+            qty = open_trade[&#39;qty&#39;]
+
+            if direction == Direction.LONG:
+                pl_points = exit_price - entry_price
+            else:
+                pl_points = -(exit_price - entry_price)
+
+            # Calculate exit_shares and pl_cash.
+            exit_shares = qty if shares &gt;= qty else shares
+            pl_cash = pl_points * exit_shares * TradeLog.multiplier
+            self.cumul_total += pl_cash
+
+            # Record in trade log.
+            t = (entry_date, entry_price, exit_date, exit_price,
+                 pl_points, pl_cash, exit_shares, self.cumul_total,
+                 direction, self.symbol)
+            self._l.append(t)
+
+            # Update shares and cash.
+            self.shares -= exit_shares
+            TradeLog.cash += self.ave_entry_price*exit_shares + pl_cash
+            #TODO: This code used with futures at some point.
+            #      I don&#39;t know if it&#39;s still needed or not.
+            &#39;&#39;&#39;
+            if direction == Direction.LONG:
+                TradeLog.cash += exit_price * exit_shares * TradeLog.multiplier
+            else:
+                TradeLog.cash += ((2*self.ave_entry_price-exit_price)
+                                  * exit_shares
+                                  * TradeLog.multiplier)
+           &#39;&#39;&#39;
+
+            # Update open_trades list.
+            if shares == qty:
+                del self._open_trades[0];
+                break
+            elif shares &lt; qty:
+                self._open_trades[0][&#39;qty&#39;] -= shares
+                break
+            else:
+                del self._open_trades[0]
+                shares -= exit_shares
+
+        return -shares_orig
+
+    def exit_trade(self, exit_date, exit_price, shares=None):
+        &#34;&#34;&#34;
+        Exit a trade on the long side.
+
+        Parameters
+        ----------
+        exit_date : str
+            The exit date.
+        exit_price : float
+            The exit price.
+        shares : int, optional
+            The number of shares to sell (default is None, which implies
+            sell all the shares).
+
+        Returns
+        -------
+        int
+            The number of shares sold.
+
+        Notes
+        -----
+        The `sell&#39; alias can be used to call this function for closing
+        out a long position.
+        &#34;&#34;&#34;
+        return self._exit_trade(exit_date=exit_date,
+                                exit_price=exit_price,
+                                shares=shares,
+                                direction=Direction.LONG)
+
+    sell = exit_trade
+    &#34;&#34;&#34;
+    method : sell is a function reference to exit_trade, i.e. an alias.
+    &#34;&#34;&#34;
+
+    def buy2cover(self, exit_date, exit_price, shares=None):
+        &#34;&#34;&#34;
+        Exit a trade on the short side, i.e. buy to cover.
+
+        Parameters
+        ----------
+        exit_date : str
+            The exit date.
+        exit_price : float
+            The exit price.
+        shares : int
+            The number of shares to buy to cover (default in None,
+            which implies close out the short shares).
+
+        Returns
+        -------
+        int
+            The number of shares bought.
+        &#34;&#34;&#34;
+        return self._exit_trade(exit_date=exit_date,
+                                exit_price=exit_price,
+                                shares=shares,
+                                direction=Direction.SHORT)
+
+    ####################################################################
+    # ADJUST POSITION (adjust_shares, adjust_value, adjust_percent)
+
+    def adjust_shares(self, date, price, shares, direction=Direction.LONG):
+        &#34;&#34;&#34;
+        Adjust a position to a target number of shares.
+
+        If the position doesn&#39;t already exist, this is equivalent
+        to entering a new trade. If the position does exist, this is
+        equivalent to entering or exiting a trade for the difference
+        between the target number of shares and the current number
+        of shares.
+
+        Parameters
+        ----------
+        date : str
+            The trade date.
+        price : float
+            The current price of the security.
+        shares : int
+            The requested number of target shares.
+        direction : pf.Direction, optional
+            The direction of the trade (default is Direction.LONG).
+
+        Returns
+        -------
+        int
+            The number of shares bought or sold.
+        &#34;&#34;&#34;
+        diff_shares = shares - self.shares
+        if direction == Direction.LONG:
+            if diff_shares &gt;= 0:
+                shares = self.enter_trade(date, price, diff_shares)
+            else:
+                shares = self.exit_trade(date, price, -diff_shares)
+        else:
+            if diff_shares &gt;= 0:
+                shares = self.sell_short(date, price, diff_shares)
+            else:
+                shares = self.buy2cover(date, price, -diff_shares)
+        return shares
+
+    def adjust_value(self, date, price, value, direction=Direction.LONG):
+        &#34;&#34;&#34;
+        Adjust a position to a target value.
+
+        If the position doesn&#39;t already exist, this is equivalent
+        to entering a new trade. If the position does exist, this is
+        equivalent to entering or exiting a trade for the difference
+        between the target value and the current value.
+
+        Parameters
+        ----------
+        date : str
+            The trade date.
+        price : float
+            The current price of the security.
+        shares : int
+            The requested target value.
+        direction : pf.Direction, optional
+            The direction of the trade (default is Direction.LONG).
+
+        Returns
+        -------
+        int
+            The number of shares bought or sold.
+        &#34;&#34;&#34;
+        total_funds = self.total_funds(price)
+        shares = int(min(total_funds, value) / price)
+        shares = self.adjust_shares(date, price, shares, direction)
+        return shares
+
+    def adjust_percent(self, date, price, weight, direction=Direction.LONG):
+        &#34;&#34;&#34;
+        Adjust position to a target percent of the current portfolio
+        value.
+
+        If the position doesn&#39;t already exist, this is equivalent
+        to entering a new trade. If the position does exist, this is
+        equivalent to entering or exiting a trade for the difference
+        between the target percent and the current percent.
+
+        Parameters
+        ----------
+        date : str
+            The trade date.
+        price : float
+            The current price of the security.
+        shares : int
+            The requested target weight.
+        direction : pf.Direction, optional
+            The direction of the trade (default is Direction.LONG).
+
+        Returns
+        -------
+        int
+            The number of shares bought or sold.
+        &#34;&#34;&#34;
+        weight = weight if weight &lt;= 1 else weight/100
+        total_funds = self.total_funds(price)
+        value = total_funds * weight
+        shares = self.adjust_value(date, price, value, direction)
+        return shares
+
+    ####################################################################
+    # GET LOGS (trade log, raw trade log)
+
+    def _merge_trades(self, tlog):
+        &#34;&#34;&#34;
+        Merge like trades that occur on the same day.
+        &#34;&#34;&#34;
+
+        def _merge_exits(tlog):
+            &#34;&#34;&#34;
+            Merge exit trades that occur on the same date.
+            &#34;&#34;&#34;
+            tlog[&#39;entry_date&#39;] = tlog[&#39;entry_date&#39;].head(1)
+            tlog[&#39;entry_price&#39;] = \
+                (tlog[&#39;entry_price&#39;] * tlog[&#39;qty&#39;]).sum() / tlog[&#39;qty&#39;].sum()
+            tlog[&#39;exit_price&#39;] = \
+                (tlog[&#39;exit_price&#39;] * tlog[&#39;qty&#39;]).sum() / tlog[&#39;qty&#39;].sum()
+            tlog[&#39;pl_points&#39;] = tlog[&#39;pl_points&#39;].sum()
+            tlog[&#39;pl_cash&#39;] = tlog[&#39;pl_cash&#39;].sum()
+            tlog[&#39;qty&#39;] = tlog[&#39;qty&#39;].sum()
+            tlog[&#39;cumul_total&#39;] = tlog[&#39;cumul_total&#39;].sum()
+            return tlog
+
+        def _merge_entrys(tlog):
+            &#34;&#34;&#34;
+             Merge entry trades that occur on the same date.
+             &#34;&#34;&#34;
+            tlog[&#39;exit_date&#39;] = tlog[&#39;exit_date&#39;].tail(1)
+            tlog[&#39;entry_price&#39;] = \
+                (tlog[&#39;entry_price&#39;] * tlog[&#39;qty&#39;]).sum() / tlog[&#39;qty&#39;].sum()
+            tlog[&#39;exit_price&#39;] = \
+                (tlog[&#39;exit_price&#39;] * tlog[&#39;qty&#39;]).sum() / tlog[&#39;qty&#39;].sum()
+            tlog[&#39;pl_points&#39;] = tlog[&#39;pl_points&#39;].sum()
+            tlog[&#39;pl_cash&#39;] = tlog[&#39;pl_cash&#39;].sum()
+            tlog[&#39;qty&#39;] = tlog[&#39;qty&#39;].sum()
+            tlog[&#39;cumul_total&#39;] = tlog[&#39;cumul_total&#39;].sum()
+            return tlog
+
+        tlog = tlog.groupby(&#39;entry_date&#39;).apply(_merge_entrys).dropna().reset_index(drop=True)
+        tlog = tlog.groupby(&#39;exit_date&#39;).apply(_merge_exits).dropna().reset_index(drop=True)
+        return tlog
+
+
+    def get_log(self, merge_trades=False):
+        &#34;&#34;&#34;
+        Return the trade log.
+        
+        The trade log consists of the following columns:
+        &#39;entry_date&#39;, &#39;entry_price&#39;, &#39;exit_date&#39;, &#39;exit_price&#39;,
+        &#39;pl_points&#39;, &#39;pl_cash&#39;, &#39;qty&#39;, &#39;cumul_total&#39;,
+        &#39;direction&#39;, &#39;symbol&#39;
+
+        Parameters
+        ----------
+        merge_trade : bool, optional
+            True to merge trades that occur on the same date
+            (default is False).
+
+        Returns
+        -------
+        tlog : pd.DataFrame
+            The trade log.
+        &#34;&#34;&#34;
+        columns = [&#39;entry_date&#39;, &#39;entry_price&#39;, &#39;exit_date&#39;, &#39;exit_price&#39;,
+                   &#39;pl_points&#39;, &#39;pl_cash&#39;, &#39;qty&#39;, &#39;cumul_total&#39;,
+                   &#39;direction&#39;, &#39;symbol&#39;]
+        tlog = pd.DataFrame(self._l, columns=columns)
+
+        if merge_trades:
+            tlog = self._merge_trades(tlog)
+
+        return tlog
+
+    def get_log_raw(self):
+        &#34;&#34;&#34;
+        Return the raw trade log.
+        
+        The trade log consists of the following columns:
+        &#39;date&#39;, &#39;seq_num&#39;, &#39;price&#39;, &#39;shares&#39;, &#39;entry_exit&#39;,
+        &#39;direction&#39;, &#39;symbol&#39;
+
+        Returns
+        -------
+        rlog : pd.DataFrame
+            The raw trade log.
+        &#34;&#34;&#34;
+        columns = [&#39;date&#39;, &#39;seq_num&#39;, &#39;price&#39;, &#39;shares&#39;, &#39;entry_exit&#39;, &#39;direction&#39;, &#39;symbol&#39;]
+        rlog = pd.DataFrame(self._raw, columns=columns)
+        return rlog
+
+########################################################################
+# DAILY BALANCE
+
+class TradeState:
+    &#34;&#34;&#34;
+    The trade state of OPEN, HOLD, or CLOSE.
+    &#34;&#34;&#34;
+    OPEN, HOLD, CLOSE = [&#39;O&#39;, &#39;-&#39;, &#39;X&#39;]
+
+class DailyBal:
+    &#34;&#34;&#34;
+    Log for daily balance.
+    &#34;&#34;&#34;
+
+    def __init__(self):
+        &#34;&#34;&#34;
+        Initialize instance variables.
+
+        Attributes
+        ----------
+        _l : list of tuples
+            The list of daily balance tuples.
+        &#34;&#34;&#34;
+        self._l = []
+
+    def append(self, date, high, low, close):
+        &#34;&#34;&#34;
+        Append a new entry to the daily balance log.
+
+        Parameters
+        ----------
+        date : str
+            The current date.
+        high : float
+            The balance high value of the day.
+        low : float
+            The balance low value of the day.
+        close : float
+            The balance close value of the day.
+
+        Returns
+        -------
+        None
+        &#34;&#34;&#34;
+
+        # calculate daily balance values:
+        # date, high, low, close, shares, cash, leverage
+        cash = TradeLog.cash
+        tlog = list(TradeLog.instance.values())[0]
+        shares   = tlog.shares
+        high_    = tlog.equity(high)
+        low_     = tlog.equity(low)
+        close_   = tlog.equity(close)
+        leverage = tlog.leverage(close)
+        #if (close_ &lt; 0):
+        #    print(&#39;{} WARNING: Margin Call!!!&#39;
+        #          .format(date.strftime(&#39;%Y-%m-%d&#39;)))
+
+        if tlog.direction == Direction.LONG:
+            t = (date, high_, low_, close_, shares, cash, leverage)
+        else:
+            t = (date, low_, high_, close_, shares, cash, leverage)
+        self._l.append(t)
+
+    def get_log(self, tlog):
+        &#34;&#34;&#34;
+        Return the daily balance log.
+
+        The daily balance log consists of the following columns:
+        &#39;date&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;, &#39;shares&#39;, &#39;cash&#39;, &#39;leverage&#39;
+
+        Parameters
+        ----------
+        tlog : pd.DataFrame
+            The trade log.
+
+        Returns
+        -------
+        dbal : pd.DataFrame
+            The daily balance log.
+        &#34;&#34;&#34;
+        columns = [&#39;date&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;, &#39;shares&#39;, &#39;cash&#39;, &#39;leverage&#39;]
+        dbal = pd.DataFrame(self._l, columns=columns)
+
+        def trade_state(row):
+            &#34;&#34;&#34;
+            Apply function for adding the `state` column to dbal.
+            
+            Convert pandas.timestamp to numpy.datetime64.
+            See if there was a entry or exit in tlog on date.
+            &#34;&#34;&#34;
+            date = row.date.to_datetime64()
+            if date in tlog.entry_date.values:
+                state = TradeState.OPEN
+            elif date in tlog.exit_date.values:
+                state = TradeState.CLOSE
+            else:
+                state = TradeState.HOLD
+            return state
+
+        dbal[&#39;state&#39;] = dbal.apply(trade_state, axis=1)
+        dbal.set_index(&#39;date&#39;, inplace=True)
+        return dbal</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="pinkfish.trade.DailyBal"><code class="flex name class">
+<span>class <span class="ident">DailyBal</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Log for daily balance.</p>
+<p>Initialize instance variables.</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>_l</code></strong> :&ensp;<code>list</code> of <code>tuples</code></dt>
+<dd>The list of daily balance tuples.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DailyBal:
+    &#34;&#34;&#34;
+    Log for daily balance.
+    &#34;&#34;&#34;
+
+    def __init__(self):
+        &#34;&#34;&#34;
+        Initialize instance variables.
+
+        Attributes
+        ----------
+        _l : list of tuples
+            The list of daily balance tuples.
+        &#34;&#34;&#34;
+        self._l = []
+
+    def append(self, date, high, low, close):
+        &#34;&#34;&#34;
+        Append a new entry to the daily balance log.
+
+        Parameters
+        ----------
+        date : str
+            The current date.
+        high : float
+            The balance high value of the day.
+        low : float
+            The balance low value of the day.
+        close : float
+            The balance close value of the day.
+
+        Returns
+        -------
+        None
+        &#34;&#34;&#34;
+
+        # calculate daily balance values:
+        # date, high, low, close, shares, cash, leverage
+        cash = TradeLog.cash
+        tlog = list(TradeLog.instance.values())[0]
+        shares   = tlog.shares
+        high_    = tlog.equity(high)
+        low_     = tlog.equity(low)
+        close_   = tlog.equity(close)
+        leverage = tlog.leverage(close)
+        #if (close_ &lt; 0):
+        #    print(&#39;{} WARNING: Margin Call!!!&#39;
+        #          .format(date.strftime(&#39;%Y-%m-%d&#39;)))
+
+        if tlog.direction == Direction.LONG:
+            t = (date, high_, low_, close_, shares, cash, leverage)
+        else:
+            t = (date, low_, high_, close_, shares, cash, leverage)
+        self._l.append(t)
+
+    def get_log(self, tlog):
+        &#34;&#34;&#34;
+        Return the daily balance log.
+
+        The daily balance log consists of the following columns:
+        &#39;date&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;, &#39;shares&#39;, &#39;cash&#39;, &#39;leverage&#39;
+
+        Parameters
+        ----------
+        tlog : pd.DataFrame
+            The trade log.
+
+        Returns
+        -------
+        dbal : pd.DataFrame
+            The daily balance log.
+        &#34;&#34;&#34;
+        columns = [&#39;date&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;, &#39;shares&#39;, &#39;cash&#39;, &#39;leverage&#39;]
+        dbal = pd.DataFrame(self._l, columns=columns)
+
+        def trade_state(row):
+            &#34;&#34;&#34;
+            Apply function for adding the `state` column to dbal.
+            
+            Convert pandas.timestamp to numpy.datetime64.
+            See if there was a entry or exit in tlog on date.
+            &#34;&#34;&#34;
+            date = row.date.to_datetime64()
+            if date in tlog.entry_date.values:
+                state = TradeState.OPEN
+            elif date in tlog.exit_date.values:
+                state = TradeState.CLOSE
+            else:
+                state = TradeState.HOLD
+            return state
+
+        dbal[&#39;state&#39;] = dbal.apply(trade_state, axis=1)
+        dbal.set_index(&#39;date&#39;, inplace=True)
+        return dbal</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="pinkfish.trade.DailyBal.append"><code class="name flex">
+<span>def <span class="ident">append</span></span>(<span>self, date, high, low, close)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Append a new entry to the daily balance log.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>date</code></strong> :&ensp;<code>str</code></dt>
+<dd>The current date.</dd>
+<dt><strong><code>high</code></strong> :&ensp;<code>float</code></dt>
+<dd>The balance high value of the day.</dd>
+<dt><strong><code>low</code></strong> :&ensp;<code>float</code></dt>
+<dd>The balance low value of the day.</dd>
+<dt><strong><code>close</code></strong> :&ensp;<code>float</code></dt>
+<dd>The balance close value of the day.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>None</code></dt>
+<dd>&nbsp;</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def append(self, date, high, low, close):
+    &#34;&#34;&#34;
+    Append a new entry to the daily balance log.
+
+    Parameters
+    ----------
+    date : str
+        The current date.
+    high : float
+        The balance high value of the day.
+    low : float
+        The balance low value of the day.
+    close : float
+        The balance close value of the day.
+
+    Returns
+    -------
+    None
+    &#34;&#34;&#34;
+
+    # calculate daily balance values:
+    # date, high, low, close, shares, cash, leverage
+    cash = TradeLog.cash
+    tlog = list(TradeLog.instance.values())[0]
+    shares   = tlog.shares
+    high_    = tlog.equity(high)
+    low_     = tlog.equity(low)
+    close_   = tlog.equity(close)
+    leverage = tlog.leverage(close)
+    #if (close_ &lt; 0):
+    #    print(&#39;{} WARNING: Margin Call!!!&#39;
+    #          .format(date.strftime(&#39;%Y-%m-%d&#39;)))
+
+    if tlog.direction == Direction.LONG:
+        t = (date, high_, low_, close_, shares, cash, leverage)
+    else:
+        t = (date, low_, high_, close_, shares, cash, leverage)
+    self._l.append(t)</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.trade.DailyBal.get_log"><code class="name flex">
+<span>def <span class="ident">get_log</span></span>(<span>self, tlog)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the daily balance log.</p>
+<p>The daily balance log consists of the following columns:
+'date', 'high', 'low', 'close', 'shares', 'cash', 'leverage'</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>tlog</code></strong> :&ensp;<code>pd.DataFrame</code></dt>
+<dd>The trade log.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>dbal</code></strong> :&ensp;<code>pd.DataFrame</code></dt>
+<dd>The daily balance log.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_log(self, tlog):
+    &#34;&#34;&#34;
+    Return the daily balance log.
+
+    The daily balance log consists of the following columns:
+    &#39;date&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;, &#39;shares&#39;, &#39;cash&#39;, &#39;leverage&#39;
+
+    Parameters
+    ----------
+    tlog : pd.DataFrame
+        The trade log.
+
+    Returns
+    -------
+    dbal : pd.DataFrame
+        The daily balance log.
+    &#34;&#34;&#34;
+    columns = [&#39;date&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;, &#39;shares&#39;, &#39;cash&#39;, &#39;leverage&#39;]
+    dbal = pd.DataFrame(self._l, columns=columns)
+
+    def trade_state(row):
+        &#34;&#34;&#34;
+        Apply function for adding the `state` column to dbal.
+        
+        Convert pandas.timestamp to numpy.datetime64.
+        See if there was a entry or exit in tlog on date.
+        &#34;&#34;&#34;
+        date = row.date.to_datetime64()
+        if date in tlog.entry_date.values:
+            state = TradeState.OPEN
+        elif date in tlog.exit_date.values:
+            state = TradeState.CLOSE
+        else:
+            state = TradeState.HOLD
+        return state
+
+    dbal[&#39;state&#39;] = dbal.apply(trade_state, axis=1)
+    dbal.set_index(&#39;date&#39;, inplace=True)
+    return dbal</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="pinkfish.trade.Direction"><code class="flex name class">
+<span>class <span class="ident">Direction</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>The direction of the trade.
+Either LONG or SHORT.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Direction:
+    &#34;&#34;&#34;
+    The direction of the trade.  Either LONG or SHORT.
+    &#34;&#34;&#34;
+    LONG, SHORT = [&#39;LONG&#39;, &#39;SHRT&#39;]</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="pinkfish.trade.Direction.LONG"><code class="name">var <span class="ident">LONG</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pinkfish.trade.Direction.SHORT"><code class="name">var <span class="ident">SHORT</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="pinkfish.trade.Margin"><code class="flex name class">
+<span>class <span class="ident">Margin</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>The type of margin.
+CASH, STANDARD, or PATTERN_DAY_TRADER.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Margin:
+    &#34;&#34;&#34;
+    The type of margin.  CASH, STANDARD, or PATTERN_DAY_TRADER.
+    &#34;&#34;&#34;
+    CASH, STANDARD, PATTERN_DAY_TRADER = [1, 2, 4]</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="pinkfish.trade.Margin.CASH"><code class="name">var <span class="ident">CASH</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pinkfish.trade.Margin.PATTERN_DAY_TRADER"><code class="name">var <span class="ident">PATTERN_DAY_TRADER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pinkfish.trade.Margin.STANDARD"><code class="name">var <span class="ident">STANDARD</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="pinkfish.trade.TradeLog"><code class="flex name class">
+<span>class <span class="ident">TradeLog</span></span>
+<span>(</span><span>symbol, reset=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>The trade log for each symbol.</p>
+<p>Initialize instance variables.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>symbol</code></strong> :&ensp;<code>str</code></dt>
+<dd>The symbol for a security.</dd>
+<dt><strong><code>reset</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>Use when starting new portfolio construction to clear the
+dict of TradeLog instances (default is True).</dd>
+</dl>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>symbol</code></strong> :&ensp;<code>str</code></dt>
+<dd>The symbol for a security.</dd>
+<dt><strong><code>shares</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of shares of the symbol.</dd>
+<dt><strong><code>direction</code></strong> :&ensp;<code>pf.Direction</code></dt>
+<dd>The direction of the trade, Long or Short.</dd>
+<dt><strong><code>ave_entry_price</code></strong> :&ensp;<code>float</code></dt>
+<dd>The average purchase price per share.</dd>
+<dt><strong><code>cumul_total</code></strong> :&ensp;<code>float</code></dt>
+<dd>The cumulative total profits (loss).</dd>
+<dt><strong><code>_l</code></strong> :&ensp;<code>list</code> of <code>tuples</code></dt>
+<dd>The list of matching entry/exit trade pairs.
+This list
+will become the official trade log.</dd>
+<dt><strong><code>_raw</code></strong> :&ensp;<code>list</code> of <code>tuples</code></dt>
+<dd>The list of raw trades, either entry or exit.</dd>
+<dt><strong><code>open_trades</code></strong> :&ensp;<code>list</code></dt>
+<dd>The list of open trades, i.e. not closed out.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class TradeLog:
+    &#34;&#34;&#34;
+    The trade log for each symbol.
+    &#34;&#34;&#34;
+
+    cash = 0
+    &#34;&#34;&#34;
+    int : Current cash, entire portfolio.
+    &#34;&#34;&#34;
+    multiplier = 1
+    &#34;&#34;&#34;
+    int : Applied to profit calculation.  Used only with futures.
+    &#34;&#34;&#34;
+    margin = Margin.CASH
+    &#34;&#34;&#34;
+    float : Margin percent.
+    &#34;&#34;&#34;
+    buying_power = None
+    &#34;&#34;&#34;
+    float : Buying power for Portfolio class.
+    &#34;&#34;&#34;
+    seq_num = 0
+    &#34;&#34;&#34;
+    int : Sequential number used to order trades in Portfolio class.
+    &#34;&#34;&#34;
+    instance = {}
+    &#34;&#34;&#34;
+    dict of pf.TradeLog : dict (key=symbol) of TradeLog instances used
+    in Portfolio class.
+    &#34;&#34;&#34;
+
+    def __init__(self, symbol, reset=True):
+        &#34;&#34;&#34;
+        Initialize instance variables.
+
+        Parameters
+        ----------
+        symbol : str
+            The symbol for a security.
+        reset : bool, optional
+            Use when starting new portfolio construction to clear the
+            dict of TradeLog instances (default is True).
+
+        Attributes
+        ----------
+        symbol : str
+            The symbol for a security.
+        shares : int
+            Number of shares of the symbol.
+        direction : pf.Direction
+            The direction of the trade, Long or Short.
+        ave_entry_price : float
+            The average purchase price per share.
+        cumul_total : float
+            The cumulative total profits (loss).
+        _l : list of tuples
+            The list of matching entry/exit trade pairs.  This list
+            will become the official trade log.
+        _raw : list of tuples
+            The list of raw trades, either entry or exit.
+        open_trades : list
+            The list of open trades, i.e. not closed out.
+        &#34;&#34;&#34;
+        self.symbol = symbol
+        self.shares = 0
+        self.direction = None
+        self.ave_entry_price = 0
+        self.cumul_total = 0
+        self._l = []
+        self._raw = []
+        self._open_trades = []
+
+        if reset:
+            TradeLog.seq_num = 0
+            TradeLog.instance.clear()
+        TradeLog.instance[symbol] = self
+
+    def share_value(self, price):
+        &#34;&#34;&#34;
+        Return the total value of shares of the security.
+
+        Parameters
+        ----------
+        price : float
+            The current price of the security.
+
+        Returns
+        -------
+        value : float
+            The share value.
+        &#34;&#34;&#34;
+        value = 0
+        if self.direction == Direction.LONG:
+            value += price*self.shares
+        elif self.direction == Direction.SHORT:
+            value += (2*self.ave_entry_price-price)*self.shares
+        return value
+        
+    def total_value(self, price):
+        &#34;&#34;&#34;
+        Return the total value which is the total share value plus cash.
+
+        Parameters
+        ----------
+        price : float
+            The current price of the security.
+
+        Returns
+        -------
+        value : float
+            The total value.
+        &#34;&#34;&#34;
+        total_value = self.share_value(price)
+        if TradeLog.cash &gt; 0:
+            total_value += TradeLog.cash
+        return total_value
+
+    def equity(self, price):
+        &#34;&#34;&#34;
+        Return the equity which is the total value minus loan
+        (loan is negative cash).
+        &#34;&#34;&#34;
+        equity = self.total_value(price)
+        if TradeLog.cash &lt; 0:
+            equity += TradeLog.cash
+        return equity
+
+    def leverage(self, price):
+        &#34;&#34;&#34;
+        Return the leverage factor of the position.
+        &#34;&#34;&#34;
+        return self.total_value(price) / self.equity(price)
+        
+    def total_funds(self, price):
+        &#34;&#34;&#34;
+        Return the total account funds for trading.
+        &#34;&#34;&#34;
+        return self.equity(price) * TradeLog.margin
+
+    def share_percent(self, price):
+        &#34;&#34;&#34;
+        Return the share value as a percentage of total funds
+        &#34;&#34;&#34;
+        return self.share_value(price) / self.total_funds(price) * 100
+
+    def num_open_trades(self):
+        &#34;&#34;&#34;
+        Return the number of open orders, i.e. not closed out
+        &#34;&#34;&#34;
+        return len(self._open_trades)
+
+    ####################################################################
+    # ENTER TRADE (buy, sell_short)
+
+    def calc_buying_power(self, price):
+        &#34;&#34;&#34;
+        Calculate buying power.
+        &#34;&#34;&#34;
+        buying_power = (TradeLog.cash * TradeLog.margin
+                      + self.share_value(price) * (TradeLog.margin -1))
+        return buying_power
+
+    def calc_shares(self, price, cash=None):
+        &#34;&#34;&#34;
+        Calculate shares using buying power before enter_trade().
+
+        Parameters
+        ----------
+        price : float
+            The current price of the security.
+        cash : float, optional
+            The requested amount of cash used to buy shares (default
+            is None, which implies use all available cash).
+
+        Returns
+        -------
+        value : float
+            The number of shares that can be purchased with requested
+            cash amount.
+        &#34;&#34;&#34;
+
+        # Margin should be equal to or greater than 1.
+        if TradeLog.margin &lt; 1: TradeLog.margin = 1
+
+        # Calculate buying power.
+        #TODO: why is it done this way?
+        if TradeLog.buying_power is not None:
+            buying_power = TradeLog.buying_power
+        else:
+            buying_power = self.calc_buying_power(price)
+
+        # Cash can&#39;t exceed buying power.
+        if cash is None or cash &gt; buying_power:
+            cash = buying_power
+
+        # Cash can&#39;t be negative.
+        if cash &lt; 0: cash = 0
+
+        # Calculate shares.
+        shares = int(cash / price)
+        return shares
+
+    def _enter_trade(self, entry_date, entry_price, shares=None, direction=Direction.LONG):
+        &#34;&#34;&#34;
+        This is a lower level function that gets called from
+        enter_trade() and sell_short().
+        &#34;&#34;&#34;
+
+        max_shares = self.calc_shares(entry_price)
+        shares = max_shares if shares is None else min(shares, max_shares)
+
+        if shares == 0:
+            return 0
+
+        # Record in raw trade log.
+        t = (entry_date, TradeLog.seq_num, entry_price, shares, &#39;entry&#39;, direction, self.symbol)
+        self._raw.append(t)
+        TradeLog.seq_num += 1
+
+        # Add record to open_trades.
+        d = {&#39;entry_date&#39;:entry_date, &#39;entry_price&#39;:entry_price, &#39;qty&#39;:shares,
+             &#39;direction&#39;:direction, &#39;symbol&#39;:self.symbol}
+        self._open_trades.append(d)
+
+        # Update direction.
+        if self.direction != direction:
+            if self.direction is None or self.shares == 0:
+                self.direction = direction
+            else:
+                raise ValueError(&#39;not allowed to change direction from {} to {}, &#39;
+                                 &#39;this requires shares = 0&#39;
+                                 .format(self.direction, direction))
+
+        # Update average entry price and shares.
+        self.ave_entry_price = \
+            (self.ave_entry_price*self.shares + entry_price*shares) / (self.shares + shares)
+        self.shares += shares
+
+        # Update cash.
+        TradeLog.cash -= entry_price * shares
+
+        return shares
+
+    def enter_trade(self, entry_date, entry_price, shares=None):
+        &#34;&#34;&#34;
+        Enter a trade on the long side.
+
+        Parameters
+        ----------
+        entry_date : str
+            The entry date.
+        entry_price : float
+            The entry price.
+        shares : int, optional
+            The number of shares to buy (default is None, which implies
+            buy the maximum number of shares possible with available
+            buying power).
+
+        Returns
+        -------
+        int
+            The number of shares bought.
+
+        Notes
+        -----
+        The `buy&#39; alias can be used to call this function for opening a
+        long position.
+        &#34;&#34;&#34;
+        return self._enter_trade(entry_date=entry_date,
+                                 entry_price=entry_price,
+                                 shares=shares,
+                                 direction=Direction.LONG)
+
+    buy = enter_trade
+    &#34;&#34;&#34;
+    method : buy is a function reference to enter_trade, i.e. an alias.
+    &#34;&#34;&#34;
+
+    def sell_short(self, entry_date, entry_price, shares=None):
+        &#34;&#34;&#34;
+        Enter a trade on the short side.
+
+        Parameters
+        ----------
+        entry_date : str
+            The entry date.
+        entry_price : float
+            The entry price.
+        shares : int
+            The number of shares to sell short (default in None, which
+            implies to sell short the maximum number of shares
+            possible).
+
+        Returns
+        -------
+        int
+            The number of shares sold short.
+        &#34;&#34;&#34;
+        return self._enter_trade(entry_date=entry_date,
+                                 entry_price=entry_price,
+                                 shares=shares,
+                                 direction=Direction.SHORT)
+
+    ####################################################################
+    # EXIT TRADE (sell, buy2cover)
+
+    def _qty_open_trade(self, index):
+        &#34;&#34;&#34;
+        Qty of an open trade by index.
+        &#34;&#34;&#34;
+        if index &gt;= self.num_open_trades(): return 0
+        return self._open_trades[index][&#39;qty&#39;]
+
+    def _exit_trade(self, exit_date, exit_price, shares=None, direction=Direction.LONG):
+        &#34;&#34;&#34;
+        Exit a trade.
+
+        Record exit in trade log. return -shares exited.
+        shares = None exits all shares
+        shares &gt; 0 exits that number of shares
+        shares &lt; 0 indicates the number of positons to exit
+        &#34;&#34;&#34;
+        if shares is None or shares &gt; self.shares:
+            shares = self.shares
+        elif shares &lt; 0:
+            positions = -shares
+            shares = 0
+            for position in range(positions):
+                shares += self._qty_open_trade(position)
+
+        if shares == 0:
+            return 0
+
+        shares_orig = shares
+
+        # Record in raw trade log.
+        t = (exit_date, TradeLog.seq_num, exit_price, shares, &#39;exit&#39;, direction, self.symbol)
+        self._raw.append(t)
+        TradeLog.seq_num += 1
+
+        for i, open_trade in enumerate(self._open_trades[:]):
+            entry_date = open_trade[&#39;entry_date&#39;]
+            entry_price = open_trade[&#39;entry_price&#39;]
+            qty = open_trade[&#39;qty&#39;]
+
+            if direction == Direction.LONG:
+                pl_points = exit_price - entry_price
+            else:
+                pl_points = -(exit_price - entry_price)
+
+            # Calculate exit_shares and pl_cash.
+            exit_shares = qty if shares &gt;= qty else shares
+            pl_cash = pl_points * exit_shares * TradeLog.multiplier
+            self.cumul_total += pl_cash
+
+            # Record in trade log.
+            t = (entry_date, entry_price, exit_date, exit_price,
+                 pl_points, pl_cash, exit_shares, self.cumul_total,
+                 direction, self.symbol)
+            self._l.append(t)
+
+            # Update shares and cash.
+            self.shares -= exit_shares
+            TradeLog.cash += self.ave_entry_price*exit_shares + pl_cash
+            #TODO: This code used with futures at some point.
+            #      I don&#39;t know if it&#39;s still needed or not.
+            &#39;&#39;&#39;
+            if direction == Direction.LONG:
+                TradeLog.cash += exit_price * exit_shares * TradeLog.multiplier
+            else:
+                TradeLog.cash += ((2*self.ave_entry_price-exit_price)
+                                  * exit_shares
+                                  * TradeLog.multiplier)
+           &#39;&#39;&#39;
+
+            # Update open_trades list.
+            if shares == qty:
+                del self._open_trades[0];
+                break
+            elif shares &lt; qty:
+                self._open_trades[0][&#39;qty&#39;] -= shares
+                break
+            else:
+                del self._open_trades[0]
+                shares -= exit_shares
+
+        return -shares_orig
+
+    def exit_trade(self, exit_date, exit_price, shares=None):
+        &#34;&#34;&#34;
+        Exit a trade on the long side.
+
+        Parameters
+        ----------
+        exit_date : str
+            The exit date.
+        exit_price : float
+            The exit price.
+        shares : int, optional
+            The number of shares to sell (default is None, which implies
+            sell all the shares).
+
+        Returns
+        -------
+        int
+            The number of shares sold.
+
+        Notes
+        -----
+        The `sell&#39; alias can be used to call this function for closing
+        out a long position.
+        &#34;&#34;&#34;
+        return self._exit_trade(exit_date=exit_date,
+                                exit_price=exit_price,
+                                shares=shares,
+                                direction=Direction.LONG)
+
+    sell = exit_trade
+    &#34;&#34;&#34;
+    method : sell is a function reference to exit_trade, i.e. an alias.
+    &#34;&#34;&#34;
+
+    def buy2cover(self, exit_date, exit_price, shares=None):
+        &#34;&#34;&#34;
+        Exit a trade on the short side, i.e. buy to cover.
+
+        Parameters
+        ----------
+        exit_date : str
+            The exit date.
+        exit_price : float
+            The exit price.
+        shares : int
+            The number of shares to buy to cover (default in None,
+            which implies close out the short shares).
+
+        Returns
+        -------
+        int
+            The number of shares bought.
+        &#34;&#34;&#34;
+        return self._exit_trade(exit_date=exit_date,
+                                exit_price=exit_price,
+                                shares=shares,
+                                direction=Direction.SHORT)
+
+    ####################################################################
+    # ADJUST POSITION (adjust_shares, adjust_value, adjust_percent)
+
+    def adjust_shares(self, date, price, shares, direction=Direction.LONG):
+        &#34;&#34;&#34;
+        Adjust a position to a target number of shares.
+
+        If the position doesn&#39;t already exist, this is equivalent
+        to entering a new trade. If the position does exist, this is
+        equivalent to entering or exiting a trade for the difference
+        between the target number of shares and the current number
+        of shares.
+
+        Parameters
+        ----------
+        date : str
+            The trade date.
+        price : float
+            The current price of the security.
+        shares : int
+            The requested number of target shares.
+        direction : pf.Direction, optional
+            The direction of the trade (default is Direction.LONG).
+
+        Returns
+        -------
+        int
+            The number of shares bought or sold.
+        &#34;&#34;&#34;
+        diff_shares = shares - self.shares
+        if direction == Direction.LONG:
+            if diff_shares &gt;= 0:
+                shares = self.enter_trade(date, price, diff_shares)
+            else:
+                shares = self.exit_trade(date, price, -diff_shares)
+        else:
+            if diff_shares &gt;= 0:
+                shares = self.sell_short(date, price, diff_shares)
+            else:
+                shares = self.buy2cover(date, price, -diff_shares)
+        return shares
+
+    def adjust_value(self, date, price, value, direction=Direction.LONG):
+        &#34;&#34;&#34;
+        Adjust a position to a target value.
+
+        If the position doesn&#39;t already exist, this is equivalent
+        to entering a new trade. If the position does exist, this is
+        equivalent to entering or exiting a trade for the difference
+        between the target value and the current value.
+
+        Parameters
+        ----------
+        date : str
+            The trade date.
+        price : float
+            The current price of the security.
+        shares : int
+            The requested target value.
+        direction : pf.Direction, optional
+            The direction of the trade (default is Direction.LONG).
+
+        Returns
+        -------
+        int
+            The number of shares bought or sold.
+        &#34;&#34;&#34;
+        total_funds = self.total_funds(price)
+        shares = int(min(total_funds, value) / price)
+        shares = self.adjust_shares(date, price, shares, direction)
+        return shares
+
+    def adjust_percent(self, date, price, weight, direction=Direction.LONG):
+        &#34;&#34;&#34;
+        Adjust position to a target percent of the current portfolio
+        value.
+
+        If the position doesn&#39;t already exist, this is equivalent
+        to entering a new trade. If the position does exist, this is
+        equivalent to entering or exiting a trade for the difference
+        between the target percent and the current percent.
+
+        Parameters
+        ----------
+        date : str
+            The trade date.
+        price : float
+            The current price of the security.
+        shares : int
+            The requested target weight.
+        direction : pf.Direction, optional
+            The direction of the trade (default is Direction.LONG).
+
+        Returns
+        -------
+        int
+            The number of shares bought or sold.
+        &#34;&#34;&#34;
+        weight = weight if weight &lt;= 1 else weight/100
+        total_funds = self.total_funds(price)
+        value = total_funds * weight
+        shares = self.adjust_value(date, price, value, direction)
+        return shares
+
+    ####################################################################
+    # GET LOGS (trade log, raw trade log)
+
+    def _merge_trades(self, tlog):
+        &#34;&#34;&#34;
+        Merge like trades that occur on the same day.
+        &#34;&#34;&#34;
+
+        def _merge_exits(tlog):
+            &#34;&#34;&#34;
+            Merge exit trades that occur on the same date.
+            &#34;&#34;&#34;
+            tlog[&#39;entry_date&#39;] = tlog[&#39;entry_date&#39;].head(1)
+            tlog[&#39;entry_price&#39;] = \
+                (tlog[&#39;entry_price&#39;] * tlog[&#39;qty&#39;]).sum() / tlog[&#39;qty&#39;].sum()
+            tlog[&#39;exit_price&#39;] = \
+                (tlog[&#39;exit_price&#39;] * tlog[&#39;qty&#39;]).sum() / tlog[&#39;qty&#39;].sum()
+            tlog[&#39;pl_points&#39;] = tlog[&#39;pl_points&#39;].sum()
+            tlog[&#39;pl_cash&#39;] = tlog[&#39;pl_cash&#39;].sum()
+            tlog[&#39;qty&#39;] = tlog[&#39;qty&#39;].sum()
+            tlog[&#39;cumul_total&#39;] = tlog[&#39;cumul_total&#39;].sum()
+            return tlog
+
+        def _merge_entrys(tlog):
+            &#34;&#34;&#34;
+             Merge entry trades that occur on the same date.
+             &#34;&#34;&#34;
+            tlog[&#39;exit_date&#39;] = tlog[&#39;exit_date&#39;].tail(1)
+            tlog[&#39;entry_price&#39;] = \
+                (tlog[&#39;entry_price&#39;] * tlog[&#39;qty&#39;]).sum() / tlog[&#39;qty&#39;].sum()
+            tlog[&#39;exit_price&#39;] = \
+                (tlog[&#39;exit_price&#39;] * tlog[&#39;qty&#39;]).sum() / tlog[&#39;qty&#39;].sum()
+            tlog[&#39;pl_points&#39;] = tlog[&#39;pl_points&#39;].sum()
+            tlog[&#39;pl_cash&#39;] = tlog[&#39;pl_cash&#39;].sum()
+            tlog[&#39;qty&#39;] = tlog[&#39;qty&#39;].sum()
+            tlog[&#39;cumul_total&#39;] = tlog[&#39;cumul_total&#39;].sum()
+            return tlog
+
+        tlog = tlog.groupby(&#39;entry_date&#39;).apply(_merge_entrys).dropna().reset_index(drop=True)
+        tlog = tlog.groupby(&#39;exit_date&#39;).apply(_merge_exits).dropna().reset_index(drop=True)
+        return tlog
+
+
+    def get_log(self, merge_trades=False):
+        &#34;&#34;&#34;
+        Return the trade log.
+        
+        The trade log consists of the following columns:
+        &#39;entry_date&#39;, &#39;entry_price&#39;, &#39;exit_date&#39;, &#39;exit_price&#39;,
+        &#39;pl_points&#39;, &#39;pl_cash&#39;, &#39;qty&#39;, &#39;cumul_total&#39;,
+        &#39;direction&#39;, &#39;symbol&#39;
+
+        Parameters
+        ----------
+        merge_trade : bool, optional
+            True to merge trades that occur on the same date
+            (default is False).
+
+        Returns
+        -------
+        tlog : pd.DataFrame
+            The trade log.
+        &#34;&#34;&#34;
+        columns = [&#39;entry_date&#39;, &#39;entry_price&#39;, &#39;exit_date&#39;, &#39;exit_price&#39;,
+                   &#39;pl_points&#39;, &#39;pl_cash&#39;, &#39;qty&#39;, &#39;cumul_total&#39;,
+                   &#39;direction&#39;, &#39;symbol&#39;]
+        tlog = pd.DataFrame(self._l, columns=columns)
+
+        if merge_trades:
+            tlog = self._merge_trades(tlog)
+
+        return tlog
+
+    def get_log_raw(self):
+        &#34;&#34;&#34;
+        Return the raw trade log.
+        
+        The trade log consists of the following columns:
+        &#39;date&#39;, &#39;seq_num&#39;, &#39;price&#39;, &#39;shares&#39;, &#39;entry_exit&#39;,
+        &#39;direction&#39;, &#39;symbol&#39;
+
+        Returns
+        -------
+        rlog : pd.DataFrame
+            The raw trade log.
+        &#34;&#34;&#34;
+        columns = [&#39;date&#39;, &#39;seq_num&#39;, &#39;price&#39;, &#39;shares&#39;, &#39;entry_exit&#39;, &#39;direction&#39;, &#39;symbol&#39;]
+        rlog = pd.DataFrame(self._raw, columns=columns)
+        return rlog</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="pinkfish.trade.TradeLog.buying_power"><code class="name">var <span class="ident">buying_power</span></code></dt>
+<dd>
+<div class="desc"><p>float : Buying power for Portfolio class.</p></div>
+</dd>
+<dt id="pinkfish.trade.TradeLog.cash"><code class="name">var <span class="ident">cash</span></code></dt>
+<dd>
+<div class="desc"><p>int : Current cash, entire portfolio.</p></div>
+</dd>
+<dt id="pinkfish.trade.TradeLog.instance"><code class="name">var <span class="ident">instance</span></code></dt>
+<dd>
+<div class="desc"><p>dict of pf.TradeLog : dict (key=symbol) of TradeLog instances used
+in Portfolio class.</p></div>
+</dd>
+<dt id="pinkfish.trade.TradeLog.margin"><code class="name">var <span class="ident">margin</span></code></dt>
+<dd>
+<div class="desc"><p>float : Margin percent.</p></div>
+</dd>
+<dt id="pinkfish.trade.TradeLog.multiplier"><code class="name">var <span class="ident">multiplier</span></code></dt>
+<dd>
+<div class="desc"><p>int : Applied to profit calculation.
+Used only with futures.</p></div>
+</dd>
+<dt id="pinkfish.trade.TradeLog.seq_num"><code class="name">var <span class="ident">seq_num</span></code></dt>
+<dd>
+<div class="desc"><p>int : Sequential number used to order trades in Portfolio class.</p></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="pinkfish.trade.TradeLog.adjust_percent"><code class="name flex">
+<span>def <span class="ident">adjust_percent</span></span>(<span>self, date, price, weight, direction='LONG')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Adjust position to a target percent of the current portfolio
+value.</p>
+<p>If the position doesn't already exist, this is equivalent
+to entering a new trade. If the position does exist, this is
+equivalent to entering or exiting a trade for the difference
+between the target percent and the current percent.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>date</code></strong> :&ensp;<code>str</code></dt>
+<dd>The trade date.</dd>
+<dt><strong><code>price</code></strong> :&ensp;<code>float</code></dt>
+<dd>The current price of the security.</dd>
+<dt><strong><code>shares</code></strong> :&ensp;<code>int</code></dt>
+<dd>The requested target weight.</dd>
+<dt><strong><code>direction</code></strong> :&ensp;<code>pf.Direction</code>, optional</dt>
+<dd>The direction of the trade (default is Direction.LONG).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>int</code></dt>
+<dd>The number of shares bought or sold.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def adjust_percent(self, date, price, weight, direction=Direction.LONG):
+    &#34;&#34;&#34;
+    Adjust position to a target percent of the current portfolio
+    value.
+
+    If the position doesn&#39;t already exist, this is equivalent
+    to entering a new trade. If the position does exist, this is
+    equivalent to entering or exiting a trade for the difference
+    between the target percent and the current percent.
+
+    Parameters
+    ----------
+    date : str
+        The trade date.
+    price : float
+        The current price of the security.
+    shares : int
+        The requested target weight.
+    direction : pf.Direction, optional
+        The direction of the trade (default is Direction.LONG).
+
+    Returns
+    -------
+    int
+        The number of shares bought or sold.
+    &#34;&#34;&#34;
+    weight = weight if weight &lt;= 1 else weight/100
+    total_funds = self.total_funds(price)
+    value = total_funds * weight
+    shares = self.adjust_value(date, price, value, direction)
+    return shares</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.trade.TradeLog.adjust_shares"><code class="name flex">
+<span>def <span class="ident">adjust_shares</span></span>(<span>self, date, price, shares, direction='LONG')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Adjust a position to a target number of shares.</p>
+<p>If the position doesn't already exist, this is equivalent
+to entering a new trade. If the position does exist, this is
+equivalent to entering or exiting a trade for the difference
+between the target number of shares and the current number
+of shares.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>date</code></strong> :&ensp;<code>str</code></dt>
+<dd>The trade date.</dd>
+<dt><strong><code>price</code></strong> :&ensp;<code>float</code></dt>
+<dd>The current price of the security.</dd>
+<dt><strong><code>shares</code></strong> :&ensp;<code>int</code></dt>
+<dd>The requested number of target shares.</dd>
+<dt><strong><code>direction</code></strong> :&ensp;<code>pf.Direction</code>, optional</dt>
+<dd>The direction of the trade (default is Direction.LONG).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>int</code></dt>
+<dd>The number of shares bought or sold.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def adjust_shares(self, date, price, shares, direction=Direction.LONG):
+    &#34;&#34;&#34;
+    Adjust a position to a target number of shares.
+
+    If the position doesn&#39;t already exist, this is equivalent
+    to entering a new trade. If the position does exist, this is
+    equivalent to entering or exiting a trade for the difference
+    between the target number of shares and the current number
+    of shares.
+
+    Parameters
+    ----------
+    date : str
+        The trade date.
+    price : float
+        The current price of the security.
+    shares : int
+        The requested number of target shares.
+    direction : pf.Direction, optional
+        The direction of the trade (default is Direction.LONG).
+
+    Returns
+    -------
+    int
+        The number of shares bought or sold.
+    &#34;&#34;&#34;
+    diff_shares = shares - self.shares
+    if direction == Direction.LONG:
+        if diff_shares &gt;= 0:
+            shares = self.enter_trade(date, price, diff_shares)
+        else:
+            shares = self.exit_trade(date, price, -diff_shares)
+    else:
+        if diff_shares &gt;= 0:
+            shares = self.sell_short(date, price, diff_shares)
+        else:
+            shares = self.buy2cover(date, price, -diff_shares)
+    return shares</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.trade.TradeLog.adjust_value"><code class="name flex">
+<span>def <span class="ident">adjust_value</span></span>(<span>self, date, price, value, direction='LONG')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Adjust a position to a target value.</p>
+<p>If the position doesn't already exist, this is equivalent
+to entering a new trade. If the position does exist, this is
+equivalent to entering or exiting a trade for the difference
+between the target value and the current value.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>date</code></strong> :&ensp;<code>str</code></dt>
+<dd>The trade date.</dd>
+<dt><strong><code>price</code></strong> :&ensp;<code>float</code></dt>
+<dd>The current price of the security.</dd>
+<dt><strong><code>shares</code></strong> :&ensp;<code>int</code></dt>
+<dd>The requested target value.</dd>
+<dt><strong><code>direction</code></strong> :&ensp;<code>pf.Direction</code>, optional</dt>
+<dd>The direction of the trade (default is Direction.LONG).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>int</code></dt>
+<dd>The number of shares bought or sold.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def adjust_value(self, date, price, value, direction=Direction.LONG):
+    &#34;&#34;&#34;
+    Adjust a position to a target value.
+
+    If the position doesn&#39;t already exist, this is equivalent
+    to entering a new trade. If the position does exist, this is
+    equivalent to entering or exiting a trade for the difference
+    between the target value and the current value.
+
+    Parameters
+    ----------
+    date : str
+        The trade date.
+    price : float
+        The current price of the security.
+    shares : int
+        The requested target value.
+    direction : pf.Direction, optional
+        The direction of the trade (default is Direction.LONG).
+
+    Returns
+    -------
+    int
+        The number of shares bought or sold.
+    &#34;&#34;&#34;
+    total_funds = self.total_funds(price)
+    shares = int(min(total_funds, value) / price)
+    shares = self.adjust_shares(date, price, shares, direction)
+    return shares</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.trade.TradeLog.buy"><code class="name flex">
+<span>def <span class="ident">buy</span></span>(<span>self, entry_date, entry_price, shares=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Enter a trade on the long side.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>entry_date</code></strong> :&ensp;<code>str</code></dt>
+<dd>The entry date.</dd>
+<dt><strong><code>entry_price</code></strong> :&ensp;<code>float</code></dt>
+<dd>The entry price.</dd>
+<dt><strong><code>shares</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>The number of shares to buy (default is None, which implies
+buy the maximum number of shares possible with available
+buying power).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>int</code></dt>
+<dd>The number of shares bought.</dd>
+</dl>
+<h2 id="notes">Notes</h2>
+<p>The `buy' alias can be used to call this function for opening a
+long position.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def enter_trade(self, entry_date, entry_price, shares=None):
+    &#34;&#34;&#34;
+    Enter a trade on the long side.
+
+    Parameters
+    ----------
+    entry_date : str
+        The entry date.
+    entry_price : float
+        The entry price.
+    shares : int, optional
+        The number of shares to buy (default is None, which implies
+        buy the maximum number of shares possible with available
+        buying power).
+
+    Returns
+    -------
+    int
+        The number of shares bought.
+
+    Notes
+    -----
+    The `buy&#39; alias can be used to call this function for opening a
+    long position.
+    &#34;&#34;&#34;
+    return self._enter_trade(entry_date=entry_date,
+                             entry_price=entry_price,
+                             shares=shares,
+                             direction=Direction.LONG)</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.trade.TradeLog.buy2cover"><code class="name flex">
+<span>def <span class="ident">buy2cover</span></span>(<span>self, exit_date, exit_price, shares=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Exit a trade on the short side, i.e. buy to cover.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>exit_date</code></strong> :&ensp;<code>str</code></dt>
+<dd>The exit date.</dd>
+<dt><strong><code>exit_price</code></strong> :&ensp;<code>float</code></dt>
+<dd>The exit price.</dd>
+<dt><strong><code>shares</code></strong> :&ensp;<code>int</code></dt>
+<dd>The number of shares to buy to cover (default in None,
+which implies close out the short shares).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>int</code></dt>
+<dd>The number of shares bought.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def buy2cover(self, exit_date, exit_price, shares=None):
+    &#34;&#34;&#34;
+    Exit a trade on the short side, i.e. buy to cover.
+
+    Parameters
+    ----------
+    exit_date : str
+        The exit date.
+    exit_price : float
+        The exit price.
+    shares : int
+        The number of shares to buy to cover (default in None,
+        which implies close out the short shares).
+
+    Returns
+    -------
+    int
+        The number of shares bought.
+    &#34;&#34;&#34;
+    return self._exit_trade(exit_date=exit_date,
+                            exit_price=exit_price,
+                            shares=shares,
+                            direction=Direction.SHORT)</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.trade.TradeLog.calc_buying_power"><code class="name flex">
+<span>def <span class="ident">calc_buying_power</span></span>(<span>self, price)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Calculate buying power.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calc_buying_power(self, price):
+    &#34;&#34;&#34;
+    Calculate buying power.
+    &#34;&#34;&#34;
+    buying_power = (TradeLog.cash * TradeLog.margin
+                  + self.share_value(price) * (TradeLog.margin -1))
+    return buying_power</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.trade.TradeLog.calc_shares"><code class="name flex">
+<span>def <span class="ident">calc_shares</span></span>(<span>self, price, cash=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Calculate shares using buying power before enter_trade().</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>price</code></strong> :&ensp;<code>float</code></dt>
+<dd>The current price of the security.</dd>
+<dt><strong><code>cash</code></strong> :&ensp;<code>float</code>, optional</dt>
+<dd>The requested amount of cash used to buy shares (default
+is None, which implies use all available cash).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>value</code></strong> :&ensp;<code>float</code></dt>
+<dd>The number of shares that can be purchased with requested
+cash amount.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calc_shares(self, price, cash=None):
+    &#34;&#34;&#34;
+    Calculate shares using buying power before enter_trade().
+
+    Parameters
+    ----------
+    price : float
+        The current price of the security.
+    cash : float, optional
+        The requested amount of cash used to buy shares (default
+        is None, which implies use all available cash).
+
+    Returns
+    -------
+    value : float
+        The number of shares that can be purchased with requested
+        cash amount.
+    &#34;&#34;&#34;
+
+    # Margin should be equal to or greater than 1.
+    if TradeLog.margin &lt; 1: TradeLog.margin = 1
+
+    # Calculate buying power.
+    #TODO: why is it done this way?
+    if TradeLog.buying_power is not None:
+        buying_power = TradeLog.buying_power
+    else:
+        buying_power = self.calc_buying_power(price)
+
+    # Cash can&#39;t exceed buying power.
+    if cash is None or cash &gt; buying_power:
+        cash = buying_power
+
+    # Cash can&#39;t be negative.
+    if cash &lt; 0: cash = 0
+
+    # Calculate shares.
+    shares = int(cash / price)
+    return shares</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.trade.TradeLog.enter_trade"><code class="name flex">
+<span>def <span class="ident">enter_trade</span></span>(<span>self, entry_date, entry_price, shares=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Enter a trade on the long side.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>entry_date</code></strong> :&ensp;<code>str</code></dt>
+<dd>The entry date.</dd>
+<dt><strong><code>entry_price</code></strong> :&ensp;<code>float</code></dt>
+<dd>The entry price.</dd>
+<dt><strong><code>shares</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>The number of shares to buy (default is None, which implies
+buy the maximum number of shares possible with available
+buying power).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>int</code></dt>
+<dd>The number of shares bought.</dd>
+</dl>
+<h2 id="notes">Notes</h2>
+<p>The `buy' alias can be used to call this function for opening a
+long position.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def enter_trade(self, entry_date, entry_price, shares=None):
+    &#34;&#34;&#34;
+    Enter a trade on the long side.
+
+    Parameters
+    ----------
+    entry_date : str
+        The entry date.
+    entry_price : float
+        The entry price.
+    shares : int, optional
+        The number of shares to buy (default is None, which implies
+        buy the maximum number of shares possible with available
+        buying power).
+
+    Returns
+    -------
+    int
+        The number of shares bought.
+
+    Notes
+    -----
+    The `buy&#39; alias can be used to call this function for opening a
+    long position.
+    &#34;&#34;&#34;
+    return self._enter_trade(entry_date=entry_date,
+                             entry_price=entry_price,
+                             shares=shares,
+                             direction=Direction.LONG)</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.trade.TradeLog.equity"><code class="name flex">
+<span>def <span class="ident">equity</span></span>(<span>self, price)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the equity which is the total value minus loan
+(loan is negative cash).</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def equity(self, price):
+    &#34;&#34;&#34;
+    Return the equity which is the total value minus loan
+    (loan is negative cash).
+    &#34;&#34;&#34;
+    equity = self.total_value(price)
+    if TradeLog.cash &lt; 0:
+        equity += TradeLog.cash
+    return equity</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.trade.TradeLog.exit_trade"><code class="name flex">
+<span>def <span class="ident">exit_trade</span></span>(<span>self, exit_date, exit_price, shares=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Exit a trade on the long side.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>exit_date</code></strong> :&ensp;<code>str</code></dt>
+<dd>The exit date.</dd>
+<dt><strong><code>exit_price</code></strong> :&ensp;<code>float</code></dt>
+<dd>The exit price.</dd>
+<dt><strong><code>shares</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>The number of shares to sell (default is None, which implies
+sell all the shares).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>int</code></dt>
+<dd>The number of shares sold.</dd>
+</dl>
+<h2 id="notes">Notes</h2>
+<p>The `sell' alias can be used to call this function for closing
+out a long position.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def exit_trade(self, exit_date, exit_price, shares=None):
+    &#34;&#34;&#34;
+    Exit a trade on the long side.
+
+    Parameters
+    ----------
+    exit_date : str
+        The exit date.
+    exit_price : float
+        The exit price.
+    shares : int, optional
+        The number of shares to sell (default is None, which implies
+        sell all the shares).
+
+    Returns
+    -------
+    int
+        The number of shares sold.
+
+    Notes
+    -----
+    The `sell&#39; alias can be used to call this function for closing
+    out a long position.
+    &#34;&#34;&#34;
+    return self._exit_trade(exit_date=exit_date,
+                            exit_price=exit_price,
+                            shares=shares,
+                            direction=Direction.LONG)</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.trade.TradeLog.get_log"><code class="name flex">
+<span>def <span class="ident">get_log</span></span>(<span>self, merge_trades=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the trade log.</p>
+<p>The trade log consists of the following columns:
+'entry_date', 'entry_price', 'exit_date', 'exit_price',
+'pl_points', 'pl_cash', 'qty', 'cumul_total',
+'direction', 'symbol'</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>merge_trade</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>True to merge trades that occur on the same date
+(default is False).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>tlog</code></strong> :&ensp;<code>pd.DataFrame</code></dt>
+<dd>The trade log.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_log(self, merge_trades=False):
+    &#34;&#34;&#34;
+    Return the trade log.
+    
+    The trade log consists of the following columns:
+    &#39;entry_date&#39;, &#39;entry_price&#39;, &#39;exit_date&#39;, &#39;exit_price&#39;,
+    &#39;pl_points&#39;, &#39;pl_cash&#39;, &#39;qty&#39;, &#39;cumul_total&#39;,
+    &#39;direction&#39;, &#39;symbol&#39;
+
+    Parameters
+    ----------
+    merge_trade : bool, optional
+        True to merge trades that occur on the same date
+        (default is False).
+
+    Returns
+    -------
+    tlog : pd.DataFrame
+        The trade log.
+    &#34;&#34;&#34;
+    columns = [&#39;entry_date&#39;, &#39;entry_price&#39;, &#39;exit_date&#39;, &#39;exit_price&#39;,
+               &#39;pl_points&#39;, &#39;pl_cash&#39;, &#39;qty&#39;, &#39;cumul_total&#39;,
+               &#39;direction&#39;, &#39;symbol&#39;]
+    tlog = pd.DataFrame(self._l, columns=columns)
+
+    if merge_trades:
+        tlog = self._merge_trades(tlog)
+
+    return tlog</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.trade.TradeLog.get_log_raw"><code class="name flex">
+<span>def <span class="ident">get_log_raw</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the raw trade log.</p>
+<p>The trade log consists of the following columns:
+'date', 'seq_num', 'price', 'shares', 'entry_exit',
+'direction', 'symbol'</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>rlog</code></strong> :&ensp;<code>pd.DataFrame</code></dt>
+<dd>The raw trade log.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_log_raw(self):
+    &#34;&#34;&#34;
+    Return the raw trade log.
+    
+    The trade log consists of the following columns:
+    &#39;date&#39;, &#39;seq_num&#39;, &#39;price&#39;, &#39;shares&#39;, &#39;entry_exit&#39;,
+    &#39;direction&#39;, &#39;symbol&#39;
+
+    Returns
+    -------
+    rlog : pd.DataFrame
+        The raw trade log.
+    &#34;&#34;&#34;
+    columns = [&#39;date&#39;, &#39;seq_num&#39;, &#39;price&#39;, &#39;shares&#39;, &#39;entry_exit&#39;, &#39;direction&#39;, &#39;symbol&#39;]
+    rlog = pd.DataFrame(self._raw, columns=columns)
+    return rlog</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.trade.TradeLog.leverage"><code class="name flex">
+<span>def <span class="ident">leverage</span></span>(<span>self, price)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the leverage factor of the position.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def leverage(self, price):
+    &#34;&#34;&#34;
+    Return the leverage factor of the position.
+    &#34;&#34;&#34;
+    return self.total_value(price) / self.equity(price)</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.trade.TradeLog.num_open_trades"><code class="name flex">
+<span>def <span class="ident">num_open_trades</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the number of open orders, i.e. not closed out</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def num_open_trades(self):
+    &#34;&#34;&#34;
+    Return the number of open orders, i.e. not closed out
+    &#34;&#34;&#34;
+    return len(self._open_trades)</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.trade.TradeLog.sell"><code class="name flex">
+<span>def <span class="ident">sell</span></span>(<span>self, exit_date, exit_price, shares=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Exit a trade on the long side.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>exit_date</code></strong> :&ensp;<code>str</code></dt>
+<dd>The exit date.</dd>
+<dt><strong><code>exit_price</code></strong> :&ensp;<code>float</code></dt>
+<dd>The exit price.</dd>
+<dt><strong><code>shares</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>The number of shares to sell (default is None, which implies
+sell all the shares).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>int</code></dt>
+<dd>The number of shares sold.</dd>
+</dl>
+<h2 id="notes">Notes</h2>
+<p>The `sell' alias can be used to call this function for closing
+out a long position.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def exit_trade(self, exit_date, exit_price, shares=None):
+    &#34;&#34;&#34;
+    Exit a trade on the long side.
+
+    Parameters
+    ----------
+    exit_date : str
+        The exit date.
+    exit_price : float
+        The exit price.
+    shares : int, optional
+        The number of shares to sell (default is None, which implies
+        sell all the shares).
+
+    Returns
+    -------
+    int
+        The number of shares sold.
+
+    Notes
+    -----
+    The `sell&#39; alias can be used to call this function for closing
+    out a long position.
+    &#34;&#34;&#34;
+    return self._exit_trade(exit_date=exit_date,
+                            exit_price=exit_price,
+                            shares=shares,
+                            direction=Direction.LONG)</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.trade.TradeLog.sell_short"><code class="name flex">
+<span>def <span class="ident">sell_short</span></span>(<span>self, entry_date, entry_price, shares=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Enter a trade on the short side.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>entry_date</code></strong> :&ensp;<code>str</code></dt>
+<dd>The entry date.</dd>
+<dt><strong><code>entry_price</code></strong> :&ensp;<code>float</code></dt>
+<dd>The entry price.</dd>
+<dt><strong><code>shares</code></strong> :&ensp;<code>int</code></dt>
+<dd>The number of shares to sell short (default in None, which
+implies to sell short the maximum number of shares
+possible).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>int</code></dt>
+<dd>The number of shares sold short.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sell_short(self, entry_date, entry_price, shares=None):
+    &#34;&#34;&#34;
+    Enter a trade on the short side.
+
+    Parameters
+    ----------
+    entry_date : str
+        The entry date.
+    entry_price : float
+        The entry price.
+    shares : int
+        The number of shares to sell short (default in None, which
+        implies to sell short the maximum number of shares
+        possible).
+
+    Returns
+    -------
+    int
+        The number of shares sold short.
+    &#34;&#34;&#34;
+    return self._enter_trade(entry_date=entry_date,
+                             entry_price=entry_price,
+                             shares=shares,
+                             direction=Direction.SHORT)</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.trade.TradeLog.share_percent"><code class="name flex">
+<span>def <span class="ident">share_percent</span></span>(<span>self, price)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the share value as a percentage of total funds</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def share_percent(self, price):
+    &#34;&#34;&#34;
+    Return the share value as a percentage of total funds
+    &#34;&#34;&#34;
+    return self.share_value(price) / self.total_funds(price) * 100</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.trade.TradeLog.share_value"><code class="name flex">
+<span>def <span class="ident">share_value</span></span>(<span>self, price)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the total value of shares of the security.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>price</code></strong> :&ensp;<code>float</code></dt>
+<dd>The current price of the security.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>value</code></strong> :&ensp;<code>float</code></dt>
+<dd>The share value.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def share_value(self, price):
+    &#34;&#34;&#34;
+    Return the total value of shares of the security.
+
+    Parameters
+    ----------
+    price : float
+        The current price of the security.
+
+    Returns
+    -------
+    value : float
+        The share value.
+    &#34;&#34;&#34;
+    value = 0
+    if self.direction == Direction.LONG:
+        value += price*self.shares
+    elif self.direction == Direction.SHORT:
+        value += (2*self.ave_entry_price-price)*self.shares
+    return value</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.trade.TradeLog.total_funds"><code class="name flex">
+<span>def <span class="ident">total_funds</span></span>(<span>self, price)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the total account funds for trading.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def total_funds(self, price):
+    &#34;&#34;&#34;
+    Return the total account funds for trading.
+    &#34;&#34;&#34;
+    return self.equity(price) * TradeLog.margin</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.trade.TradeLog.total_value"><code class="name flex">
+<span>def <span class="ident">total_value</span></span>(<span>self, price)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the total value which is the total share value plus cash.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>price</code></strong> :&ensp;<code>float</code></dt>
+<dd>The current price of the security.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>value</code></strong> :&ensp;<code>float</code></dt>
+<dd>The total value.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def total_value(self, price):
+    &#34;&#34;&#34;
+    Return the total value which is the total share value plus cash.
+
+    Parameters
+    ----------
+    price : float
+        The current price of the security.
+
+    Returns
+    -------
+    value : float
+        The total value.
+    &#34;&#34;&#34;
+    total_value = self.share_value(price)
+    if TradeLog.cash &gt; 0:
+        total_value += TradeLog.cash
+    return total_value</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="pinkfish.trade.TradeState"><code class="flex name class">
+<span>class <span class="ident">TradeState</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>The trade state of OPEN, HOLD, or CLOSE.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class TradeState:
+    &#34;&#34;&#34;
+    The trade state of OPEN, HOLD, or CLOSE.
+    &#34;&#34;&#34;
+    OPEN, HOLD, CLOSE = [&#39;O&#39;, &#39;-&#39;, &#39;X&#39;]</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="pinkfish.trade.TradeState.CLOSE"><code class="name">var <span class="ident">CLOSE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pinkfish.trade.TradeState.HOLD"><code class="name">var <span class="ident">HOLD</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pinkfish.trade.TradeState.OPEN"><code class="name">var <span class="ident">OPEN</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pinkfish" href="index.html">pinkfish</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="pinkfish.trade.DailyBal" href="#pinkfish.trade.DailyBal">DailyBal</a></code></h4>
+<ul class="">
+<li><code><a title="pinkfish.trade.DailyBal.append" href="#pinkfish.trade.DailyBal.append">append</a></code></li>
+<li><code><a title="pinkfish.trade.DailyBal.get_log" href="#pinkfish.trade.DailyBal.get_log">get_log</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pinkfish.trade.Direction" href="#pinkfish.trade.Direction">Direction</a></code></h4>
+<ul class="">
+<li><code><a title="pinkfish.trade.Direction.LONG" href="#pinkfish.trade.Direction.LONG">LONG</a></code></li>
+<li><code><a title="pinkfish.trade.Direction.SHORT" href="#pinkfish.trade.Direction.SHORT">SHORT</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pinkfish.trade.Margin" href="#pinkfish.trade.Margin">Margin</a></code></h4>
+<ul class="">
+<li><code><a title="pinkfish.trade.Margin.CASH" href="#pinkfish.trade.Margin.CASH">CASH</a></code></li>
+<li><code><a title="pinkfish.trade.Margin.PATTERN_DAY_TRADER" href="#pinkfish.trade.Margin.PATTERN_DAY_TRADER">PATTERN_DAY_TRADER</a></code></li>
+<li><code><a title="pinkfish.trade.Margin.STANDARD" href="#pinkfish.trade.Margin.STANDARD">STANDARD</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pinkfish.trade.TradeLog" href="#pinkfish.trade.TradeLog">TradeLog</a></code></h4>
+<ul class="two-column">
+<li><code><a title="pinkfish.trade.TradeLog.adjust_percent" href="#pinkfish.trade.TradeLog.adjust_percent">adjust_percent</a></code></li>
+<li><code><a title="pinkfish.trade.TradeLog.adjust_shares" href="#pinkfish.trade.TradeLog.adjust_shares">adjust_shares</a></code></li>
+<li><code><a title="pinkfish.trade.TradeLog.adjust_value" href="#pinkfish.trade.TradeLog.adjust_value">adjust_value</a></code></li>
+<li><code><a title="pinkfish.trade.TradeLog.buy" href="#pinkfish.trade.TradeLog.buy">buy</a></code></li>
+<li><code><a title="pinkfish.trade.TradeLog.buy2cover" href="#pinkfish.trade.TradeLog.buy2cover">buy2cover</a></code></li>
+<li><code><a title="pinkfish.trade.TradeLog.buying_power" href="#pinkfish.trade.TradeLog.buying_power">buying_power</a></code></li>
+<li><code><a title="pinkfish.trade.TradeLog.calc_buying_power" href="#pinkfish.trade.TradeLog.calc_buying_power">calc_buying_power</a></code></li>
+<li><code><a title="pinkfish.trade.TradeLog.calc_shares" href="#pinkfish.trade.TradeLog.calc_shares">calc_shares</a></code></li>
+<li><code><a title="pinkfish.trade.TradeLog.cash" href="#pinkfish.trade.TradeLog.cash">cash</a></code></li>
+<li><code><a title="pinkfish.trade.TradeLog.enter_trade" href="#pinkfish.trade.TradeLog.enter_trade">enter_trade</a></code></li>
+<li><code><a title="pinkfish.trade.TradeLog.equity" href="#pinkfish.trade.TradeLog.equity">equity</a></code></li>
+<li><code><a title="pinkfish.trade.TradeLog.exit_trade" href="#pinkfish.trade.TradeLog.exit_trade">exit_trade</a></code></li>
+<li><code><a title="pinkfish.trade.TradeLog.get_log" href="#pinkfish.trade.TradeLog.get_log">get_log</a></code></li>
+<li><code><a title="pinkfish.trade.TradeLog.get_log_raw" href="#pinkfish.trade.TradeLog.get_log_raw">get_log_raw</a></code></li>
+<li><code><a title="pinkfish.trade.TradeLog.instance" href="#pinkfish.trade.TradeLog.instance">instance</a></code></li>
+<li><code><a title="pinkfish.trade.TradeLog.leverage" href="#pinkfish.trade.TradeLog.leverage">leverage</a></code></li>
+<li><code><a title="pinkfish.trade.TradeLog.margin" href="#pinkfish.trade.TradeLog.margin">margin</a></code></li>
+<li><code><a title="pinkfish.trade.TradeLog.multiplier" href="#pinkfish.trade.TradeLog.multiplier">multiplier</a></code></li>
+<li><code><a title="pinkfish.trade.TradeLog.num_open_trades" href="#pinkfish.trade.TradeLog.num_open_trades">num_open_trades</a></code></li>
+<li><code><a title="pinkfish.trade.TradeLog.sell" href="#pinkfish.trade.TradeLog.sell">sell</a></code></li>
+<li><code><a title="pinkfish.trade.TradeLog.sell_short" href="#pinkfish.trade.TradeLog.sell_short">sell_short</a></code></li>
+<li><code><a title="pinkfish.trade.TradeLog.seq_num" href="#pinkfish.trade.TradeLog.seq_num">seq_num</a></code></li>
+<li><code><a title="pinkfish.trade.TradeLog.share_percent" href="#pinkfish.trade.TradeLog.share_percent">share_percent</a></code></li>
+<li><code><a title="pinkfish.trade.TradeLog.share_value" href="#pinkfish.trade.TradeLog.share_value">share_value</a></code></li>
+<li><code><a title="pinkfish.trade.TradeLog.total_funds" href="#pinkfish.trade.TradeLog.total_funds">total_funds</a></code></li>
+<li><code><a title="pinkfish.trade.TradeLog.total_value" href="#pinkfish.trade.TradeLog.total_value">total_value</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pinkfish.trade.TradeState" href="#pinkfish.trade.TradeState">TradeState</a></code></h4>
+<ul class="">
+<li><code><a title="pinkfish.trade.TradeState.CLOSE" href="#pinkfish.trade.TradeState.CLOSE">CLOSE</a></code></li>
+<li><code><a title="pinkfish.trade.TradeState.HOLD" href="#pinkfish.trade.TradeState.HOLD">HOLD</a></code></li>
+<li><code><a title="pinkfish.trade.TradeState.OPEN" href="#pinkfish.trade.TradeState.OPEN">OPEN</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

@@ -1,47 +1,119 @@
 """
-trade
----------
-Assist with trading
+Trading agent.
 """
 
 import pandas as pd
+
 import pinkfish as pf
 
 
 class Direction:
+    """
+    The direction of the trade.  Either LONG or SHORT.
+    """
     LONG, SHORT = ['LONG', 'SHRT']
 
 class Margin:
+    """
+    The type of margin.  CASH, STANDARD, or PATTERN_DAY_TRADER.
+    """
     CASH, STANDARD, PATTERN_DAY_TRADER = [1, 2, 4]
 
-#####################################################################
+
+########################################################################
 # TRADE LOG - each symbol has it's own trade log
 
 class TradeLog:
+    """
+    The trade log for each symbol.
+    """
 
-    cash = 0                       # current cash; entire portfolio
-    multiplier = 1                 # applied to profit calculation
-    margin = Margin.CASH           # margin percent, default 1:1 no margin
-    buying_power = None            # buying power; for Portfolio class only
-    seq_num = 0                    # used to order trades in Portfolio class
-    instance = {}                  # dict of TradeLog instances, key=symbol
+    cash = 0
+    """
+    int : Current cash, entire portfolio.
+    """
+    multiplier = 1
+    """
+    int : Applied to profit calculation.  Used only with futures.
+    """
+    margin = Margin.CASH
+    """
+    float : Margin percent.
+    """
+    buying_power = None
+    """
+    float : Buying power for Portfolio class.
+    """
+    seq_num = 0
+    """
+    int : Sequential number used to order trades in Portfolio class.
+    """
+    instance = {}
+    """
+    dict of pf.TradeLog : dict (key=symbol) of TradeLog instances used
+    in Portfolio class.
+    """
 
     def __init__(self, symbol, reset=True):
-        self.symbol = symbol        # security symbol
-        self.shares = 0             # num shares
-        self.direction = None       # Long or Short
-        self.ave_entry_price = 0    # average purchase price per share
-        self.cumul_total = 0        # cumul total profits (loss)
-        self._l = []                # list of trade entry/exit tuples
-        self._raw = []              # list raw trade tuples
-        self._open_trades = []      # list of open trades
+        """
+        Initialize instance variables.
+
+        Parameters
+        ----------
+        symbol : str
+            The symbol for a security.
+        reset : bool, optional
+            Use when starting new portfolio construction to clear the
+            dict of TradeLog instances (default is True).
+
+        Attributes
+        ----------
+        symbol : str
+            The symbol for a security.
+        shares : int
+            Number of shares of the symbol.
+        direction : pf.Direction
+            The direction of the trade, Long or Short.
+        ave_entry_price : float
+            The average purchase price per share.
+        cumul_total : float
+            The cumulative total profits (loss).
+        _l : list of tuples
+            The list of matching entry/exit trade pairs.  This list
+            will become the official trade log.
+        _raw : list of tuples
+            The list of raw trades, either entry or exit.
+        open_trades : list
+            The list of open trades, i.e. not closed out.
+        """
+        self.symbol = symbol
+        self.shares = 0
+        self.direction = None
+        self.ave_entry_price = 0
+        self.cumul_total = 0
+        self._l = []
+        self._raw = []
+        self._open_trades = []
+
         if reset:
             TradeLog.seq_num = 0
             TradeLog.instance.clear()
         TradeLog.instance[symbol] = self
 
     def share_value(self, price):
-        """ return total value of shares """
+        """
+        Return the total value of shares of the security.
+
+        Parameters
+        ----------
+        price : float
+            The current price of the security.
+
+        Returns
+        -------
+        value : float
+            The share value.
+        """
         value = 0
         if self.direction == Direction.LONG:
             value += price*self.shares
@@ -50,69 +122,114 @@ class TradeLog:
         return value
         
     def total_value(self, price):
-        """ total_value = share_value +  cash (if cash > 0) """
+        """
+        Return the total value which is the total share value plus cash.
+
+        Parameters
+        ----------
+        price : float
+            The current price of the security.
+
+        Returns
+        -------
+        value : float
+            The total value.
+        """
         total_value = self.share_value(price)
         if TradeLog.cash > 0:
             total_value += TradeLog.cash
         return total_value
 
     def equity(self, price):
-        """ equity = total_value - loan (loan is negative cash) """
+        """
+        Return the equity which is the total value minus loan
+        (loan is negative cash).
+        """
         equity = self.total_value(price)
         if TradeLog.cash < 0:
             equity += TradeLog.cash
         return equity
 
     def leverage(self, price):
-        """ return the leverage factor of the position """
+        """
+        Return the leverage factor of the position.
+        """
         return self.total_value(price) / self.equity(price)
         
     def total_funds(self, price):
-        """ total account funds for trading """
+        """
+        Return the total account funds for trading.
+        """
         return self.equity(price) * TradeLog.margin
 
     def share_percent(self, price):
-        """ return share value as a percentage of total_funds """
+        """
+        Return the share value as a percentage of total funds
+        """
         return self.share_value(price) / self.total_funds(price) * 100
 
     def num_open_trades(self):
-        """ return number of open orders, i.e. not closed out """
+        """
+        Return the number of open orders, i.e. not closed out
+        """
         return len(self._open_trades)
 
-    #####################################################################
+    ####################################################################
     # ENTER TRADE (buy, sell_short)
 
     def calc_buying_power(self, price):
-        """ calculate buying power """
+        """
+        Calculate buying power.
+        """
         buying_power = (TradeLog.cash * TradeLog.margin
                       + self.share_value(price) * (TradeLog.margin -1))
         return buying_power
 
     def calc_shares(self, price, cash=None):
-        """ calculate shares and remaining cash before enter_trade() """
+        """
+        Calculate shares using buying power before enter_trade().
 
-        # margin should be equal to or greater than 1
+        Parameters
+        ----------
+        price : float
+            The current price of the security.
+        cash : float, optional
+            The requested amount of cash used to buy shares (default
+            is None, which implies use all available cash).
+
+        Returns
+        -------
+        value : float
+            The number of shares that can be purchased with requested
+            cash amount.
+        """
+
+        # Margin should be equal to or greater than 1.
         if TradeLog.margin < 1: TradeLog.margin = 1
 
-        # calculate buying power
+        # Calculate buying power.
+        #TODO: why is it done this way?
         if TradeLog.buying_power is not None:
             buying_power = TradeLog.buying_power
         else:
             buying_power = self.calc_buying_power(price)
 
-        # cash can't exceed buying power
+        # Cash can't exceed buying power.
         if cash is None or cash > buying_power:
             cash = buying_power
 
-        # cash can't be negative
+        # Cash can't be negative.
         if cash < 0: cash = 0
 
-        # calculate shares
+        # Calculate shares.
         shares = int(cash / price)
         return shares
 
     def _enter_trade(self, entry_date, entry_price, shares=None, direction=Direction.LONG):
-        """ add entry to open_trades list; update shares and cash """
+        """
+        This is a lower level function that gets called from
+        enter_trade() and sell_short().
+        """
 
         max_shares = self.calc_shares(entry_price)
         shares = max_shares if shares is None else min(shares, max_shares)
@@ -120,17 +237,17 @@ class TradeLog:
         if shares == 0:
             return 0
 
-        # record in raw trade log
+        # Record in raw trade log.
         t = (entry_date, TradeLog.seq_num, entry_price, shares, 'entry', direction, self.symbol)
         self._raw.append(t)
         TradeLog.seq_num += 1
 
-        # add record to open_trades
+        # Add record to open_trades.
         d = {'entry_date':entry_date, 'entry_price':entry_price, 'qty':shares,
              'direction':direction, 'symbol':self.symbol}
         self._open_trades.append(d)
 
-        # update direction
+        # Update direction.
         if self.direction != direction:
             if self.direction is None or self.shares == 0:
                 self.direction = direction
@@ -139,46 +256,95 @@ class TradeLog:
                                  'this requires shares = 0'
                                  .format(self.direction, direction))
 
-        # update average entry price and shares
+        # Update average entry price and shares.
         self.ave_entry_price = \
             (self.ave_entry_price*self.shares + entry_price*shares) / (self.shares + shares)
         self.shares += shares
 
-        # update cash
+        # Update cash.
         TradeLog.cash -= entry_price * shares
 
         return shares
 
     def enter_trade(self, entry_date, entry_price, shares=None):
+        """
+        Enter a trade on the long side.
+
+        Parameters
+        ----------
+        entry_date : str
+            The entry date.
+        entry_price : float
+            The entry price.
+        shares : int, optional
+            The number of shares to buy (default is None, which implies
+            buy the maximum number of shares possible with available
+            buying power).
+
+        Returns
+        -------
+        int
+            The number of shares bought.
+
+        Notes
+        -----
+        The `buy' alias can be used to call this function for opening a
+        long position.
+        """
         return self._enter_trade(entry_date=entry_date,
                                  entry_price=entry_price,
                                  shares=shares,
                                  direction=Direction.LONG)
-    # buy function reference
+
     buy = enter_trade
+    """
+    method : buy is a function reference to enter_trade, i.e. an alias.
+    """
 
     def sell_short(self, entry_date, entry_price, shares=None):
+        """
+        Enter a trade on the short side.
+
+        Parameters
+        ----------
+        entry_date : str
+            The entry date.
+        entry_price : float
+            The entry price.
+        shares : int
+            The number of shares to sell short (default in None, which
+            implies to sell short the maximum number of shares
+            possible).
+
+        Returns
+        -------
+        int
+            The number of shares sold short.
+        """
         return self._enter_trade(entry_date=entry_date,
                                  entry_price=entry_price,
                                  shares=shares,
                                  direction=Direction.SHORT)
 
-    #####################################################################
+    ####################################################################
     # EXIT TRADE (sell, buy2cover)
 
     def _qty_open_trade(self, index):
-        """ qty of an open trade by index """
+        """
+        Qty of an open trade by index.
+        """
         if index >= self.num_open_trades(): return 0
         return self._open_trades[index]['qty']
 
     def _exit_trade(self, exit_date, exit_price, shares=None, direction=Direction.LONG):
         """
-        record exit in trade log; return -shares exited
+        Exit a trade.
+
+        Record exit in trade log. return -shares exited.
         shares = None exits all shares
         shares > 0 exits that number of shares
         shares < 0 indicates the number of positons to exit
         """
-
         if shares is None or shares > self.shares:
             shares = self.shares
         elif shares < 0:
@@ -192,7 +358,7 @@ class TradeLog:
 
         shares_orig = shares
 
-        # record in raw trade log
+        # Record in raw trade log.
         t = (exit_date, TradeLog.seq_num, exit_price, shares, 'exit', direction, self.symbol)
         self._raw.append(t)
         TradeLog.seq_num += 1
@@ -207,20 +373,22 @@ class TradeLog:
             else:
                 pl_points = -(exit_price - entry_price)
 
-            # calculate exit_shares and pl_cash
+            # Calculate exit_shares and pl_cash.
             exit_shares = qty if shares >= qty else shares
             pl_cash = pl_points * exit_shares * TradeLog.multiplier
             self.cumul_total += pl_cash
 
-            # record in trade log
+            # Record in trade log.
             t = (entry_date, entry_price, exit_date, exit_price,
                  pl_points, pl_cash, exit_shares, self.cumul_total,
                  direction, self.symbol)
             self._l.append(t)
 
-            # update shares and cash
+            # Update shares and cash.
             self.shares -= exit_shares
             TradeLog.cash += self.ave_entry_price*exit_shares + pl_cash
+            #TODO: This code used with futures at some point.
+            #      I don't know if it's still needed or not.
             '''
             if direction == Direction.LONG:
                 TradeLog.cash += exit_price * exit_shares * TradeLog.multiplier
@@ -230,7 +398,7 @@ class TradeLog:
                                   * TradeLog.multiplier)
            '''
 
-            # update open_trades list
+            # Update open_trades list.
             if shares == qty:
                 del self._open_trades[0];
                 break
@@ -244,30 +412,91 @@ class TradeLog:
         return -shares_orig
 
     def exit_trade(self, exit_date, exit_price, shares=None):
+        """
+        Exit a trade on the long side.
+
+        Parameters
+        ----------
+        exit_date : str
+            The exit date.
+        exit_price : float
+            The exit price.
+        shares : int, optional
+            The number of shares to sell (default is None, which implies
+            sell all the shares).
+
+        Returns
+        -------
+        int
+            The number of shares sold.
+
+        Notes
+        -----
+        The `sell' alias can be used to call this function for closing
+        out a long position.
+        """
         return self._exit_trade(exit_date=exit_date,
                                 exit_price=exit_price,
                                 shares=shares,
                                 direction=Direction.LONG)
 
-    # sell function reference
     sell = exit_trade
+    """
+    method : sell is a function reference to exit_trade, i.e. an alias.
+    """
 
     def buy2cover(self, exit_date, exit_price, shares=None):
+        """
+        Exit a trade on the short side, i.e. buy to cover.
+
+        Parameters
+        ----------
+        exit_date : str
+            The exit date.
+        exit_price : float
+            The exit price.
+        shares : int
+            The number of shares to buy to cover (default in None,
+            which implies close out the short shares).
+
+        Returns
+        -------
+        int
+            The number of shares bought.
+        """
         return self._exit_trade(exit_date=exit_date,
                                 exit_price=exit_price,
                                 shares=shares,
                                 direction=Direction.SHORT)
 
-    #####################################################################
+    ####################################################################
     # ADJUST POSITION (adjust_shares, adjust_value, adjust_percent)
 
     def adjust_shares(self, date, price, shares, direction=Direction.LONG):
         """
         Adjust a position to a target number of shares.
+
         If the position doesn't already exist, this is equivalent
         to entering a new trade. If the position does exist, this is
-        equivalent to entering or exiting a trade for the difference between
-        the target number of shares and the current number of shares.
+        equivalent to entering or exiting a trade for the difference
+        between the target number of shares and the current number
+        of shares.
+
+        Parameters
+        ----------
+        date : str
+            The trade date.
+        price : float
+            The current price of the security.
+        shares : int
+            The requested number of target shares.
+        direction : pf.Direction, optional
+            The direction of the trade (default is Direction.LONG).
+
+        Returns
+        -------
+        int
+            The number of shares bought or sold.
         """
         diff_shares = shares - self.shares
         if direction == Direction.LONG:
@@ -285,10 +514,27 @@ class TradeLog:
     def adjust_value(self, date, price, value, direction=Direction.LONG):
         """
         Adjust a position to a target value.
+
         If the position doesn't already exist, this is equivalent
         to entering a new trade. If the position does exist, this is
-        equivalent to entering or exiting a trade for the difference between
-        the target value and the current value.
+        equivalent to entering or exiting a trade for the difference
+        between the target value and the current value.
+
+        Parameters
+        ----------
+        date : str
+            The trade date.
+        price : float
+            The current price of the security.
+        shares : int
+            The requested target value.
+        direction : pf.Direction, optional
+            The direction of the trade (default is Direction.LONG).
+
+        Returns
+        -------
+        int
+            The number of shares bought or sold.
         """
         total_funds = self.total_funds(price)
         shares = int(min(total_funds, value) / price)
@@ -297,11 +543,29 @@ class TradeLog:
 
     def adjust_percent(self, date, price, weight, direction=Direction.LONG):
         """
-        Adjust a position to a target percent of the current portfolio value.
+        Adjust position to a target percent of the current portfolio
+        value.
+
         If the position doesn't already exist, this is equivalent
         to entering a new trade. If the position does exist, this is
-        equivalent to entering or exiting a trade for the difference between
-        the target percent and the current percent.
+        equivalent to entering or exiting a trade for the difference
+        between the target percent and the current percent.
+
+        Parameters
+        ----------
+        date : str
+            The trade date.
+        price : float
+            The current price of the security.
+        shares : int
+            The requested target weight.
+        direction : pf.Direction, optional
+            The direction of the trade (default is Direction.LONG).
+
+        Returns
+        -------
+        int
+            The number of shares bought or sold.
         """
         weight = weight if weight <= 1 else weight/100
         total_funds = self.total_funds(price)
@@ -309,15 +573,18 @@ class TradeLog:
         shares = self.adjust_value(date, price, value, direction)
         return shares
 
-    #####################################################################
+    ####################################################################
     # GET LOGS (trade log, raw trade log)
 
     def _merge_trades(self, tlog):
-        """ merge like trades that occur on the same day """
+        """
+        Merge like trades that occur on the same day.
+        """
 
-        # merge exit trades that occur on the same date
         def _merge_exits(tlog):
-            # tlog is a DataFrame of group values
+            """
+            Merge exit trades that occur on the same date.
+            """
             tlog['entry_date'] = tlog['entry_date'].head(1)
             tlog['entry_price'] = \
                 (tlog['entry_price'] * tlog['qty']).sum() / tlog['qty'].sum()
@@ -329,9 +596,10 @@ class TradeLog:
             tlog['cumul_total'] = tlog['cumul_total'].sum()
             return tlog
 
-        # merge entry trades that occur on the same date
         def _merge_entrys(tlog):
-            # tlog is a DataFrame of group values
+            """
+             Merge entry trades that occur on the same date.
+             """
             tlog['exit_date'] = tlog['exit_date'].tail(1)
             tlog['entry_price'] = \
                 (tlog['entry_price'] * tlog['qty']).sum() / tlog['qty'].sum()
@@ -349,7 +617,25 @@ class TradeLog:
 
 
     def get_log(self, merge_trades=False):
-        """ return Dataframe """
+        """
+        Return the trade log.
+        
+        The trade log consists of the following columns:
+        'entry_date', 'entry_price', 'exit_date', 'exit_price',
+        'pl_points', 'pl_cash', 'qty', 'cumul_total',
+        'direction', 'symbol'
+
+        Parameters
+        ----------
+        merge_trade : bool, optional
+            True to merge trades that occur on the same date
+            (default is False).
+
+        Returns
+        -------
+        tlog : pd.DataFrame
+            The trade log.
+        """
         columns = ['entry_date', 'entry_price', 'exit_date', 'exit_price',
                    'pl_points', 'pl_cash', 'qty', 'cumul_total',
                    'direction', 'symbol']
@@ -361,24 +647,67 @@ class TradeLog:
         return tlog
 
     def get_log_raw(self):
-        """ return Dataframe """
+        """
+        Return the raw trade log.
+        
+        The trade log consists of the following columns:
+        'date', 'seq_num', 'price', 'shares', 'entry_exit',
+        'direction', 'symbol'
+
+        Returns
+        -------
+        rlog : pd.DataFrame
+            The raw trade log.
+        """
         columns = ['date', 'seq_num', 'price', 'shares', 'entry_exit', 'direction', 'symbol']
         rlog = pd.DataFrame(self._raw, columns=columns)
         return rlog
 
-#####################################################################
+########################################################################
 # DAILY BALANCE
 
 class TradeState:
+    """
+    The trade state of OPEN, HOLD, or CLOSE.
+    """
     OPEN, HOLD, CLOSE = ['O', '-', 'X']
 
 class DailyBal:
-    """ Log for daily balance """
+    """
+    Log for daily balance.
+    """
 
     def __init__(self):
-        self._l = []  # list of daily balance tuples
+        """
+        Initialize instance variables.
+
+        Attributes
+        ----------
+        _l : list of tuples
+            The list of daily balance tuples.
+        """
+        self._l = []
 
     def append(self, date, high, low, close):
+        """
+        Append a new entry to the daily balance log.
+
+        Parameters
+        ----------
+        date : str
+            The current date.
+        high : float
+            The balance high value of the day.
+        low : float
+            The balance low value of the day.
+        close : float
+            The balance close value of the day.
+
+        Returns
+        -------
+        None
+        """
+
         # calculate daily balance values:
         # date, high, low, close, shares, cash, leverage
         cash = TradeLog.cash
@@ -399,13 +728,32 @@ class DailyBal:
         self._l.append(t)
 
     def get_log(self, tlog):
-        """ return Dataframe """
+        """
+        Return the daily balance log.
+
+        The daily balance log consists of the following columns:
+        'date', 'high', 'low', 'close', 'shares', 'cash', 'leverage'
+
+        Parameters
+        ----------
+        tlog : pd.DataFrame
+            The trade log.
+
+        Returns
+        -------
+        dbal : pd.DataFrame
+            The daily balance log.
+        """
         columns = ['date', 'high', 'low', 'close', 'shares', 'cash', 'leverage']
         dbal = pd.DataFrame(self._l, columns=columns)
 
         def trade_state(row):
-            # convert pandas.timestamp to numpy.datetime64
-            # see if there was a entry or exit in tlog on date
+            """
+            Apply function for adding the `state` column to dbal.
+            
+            Convert pandas.timestamp to numpy.datetime64.
+            See if there was a entry or exit in tlog on date.
+            """
             date = row.date.to_datetime64()
             if date in tlog.entry_date.values:
                 state = TradeState.OPEN
