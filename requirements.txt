@@ -46,7 +46,7 @@ prompt-toolkit==3.0.8
 ptyprocess==0.6.0
 pycparser==2.20
 pyfolio==0.9.2
-Pygments==2.7.3
+Pygments==2.7.4
 pyparsing==2.4.7
 pyrsistent==0.17.3
 python-dateutil==2.8.1
