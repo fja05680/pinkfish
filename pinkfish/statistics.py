@@ -512,7 +512,10 @@ def stats(ts, tlog, dbal, capital):
     stats['drawdown_loss_period'], stats['drawdown_recovery_period'] = \
         drawdown_loss_recovery_period(dd['peak_date'], dd['trough_date'],
                                       dd['recovery_date'])
-    stats['annualized_return_over_max_drawdown'] = abs(cagr / dd['max'])
+    if dd['max'] == 0:
+        stats['annualized_return_over_max_drawdown'] = 0
+    else:
+        stats['annualized_return_over_max_drawdown'] = abs(cagr / dd['max'])
     dd = max_intra_day_drawdown(dbal['high'], dbal['low'])
     stats['max_intra_day_drawdown'] = dd['max']
     dd = rolling_max_dd(dbal['close'], TRADING_DAYS_PER_YEAR)
