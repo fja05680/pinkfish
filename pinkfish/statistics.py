@@ -3,7 +3,7 @@ Calculate trading statistics.
 
 The stats() function returns the following metrics in a pd.Series.
 
- - `start : str  
+ - `start` : str  
    The date when trading begins formatted as YY-MM-DD.
 
  - `end` : str  
@@ -345,9 +345,13 @@ TRADING_DAYS_PER_WEEK = 5
 """
 int : The number of trading days per week.
 """
-SP500_BEGIN = '1957-03-04'
+ALPHA_BEGIN = (1900, 1, 1)
 """
-str : The date the S&P500 began.
+tuple : Use with `select_timeseries`, beginning data for any timeseries.
+"""
+SP500_BEGIN = (1957, 3, 4)
+"""
+tuple : Use with `select_timeseries`, date the S&P500 began.
 """
 
 
