@@ -1,0 +1,1123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>pinkfish.analysis API documentation</title>
+<meta name="description" content="Analysis of results …" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pinkfish.analysis</code></h1>
+</header>
+<section id="section-intro">
+<p>Analysis of results.</p>
+<p>This module contains some functions that were copied or derived
+from the book "Trading Evolved" by Andreas F. Clenow.
+Below is a correspondance I had with the author:</p>
+<hr>
+<p>Farrell
+October 25, 2019 at 15:49
+Hi Andreas,</p>
+<p>I just finished reading the book. Awesome one of a kind! Thanks so much.
+I also enjoyed your other two. Question: what is the copyright (if any)
+on the source code you have in the book. I want to incorporate some of
+it into my open source backtester, Pinkfish. How should I credit your
+work if no copyright.
+I could add a comment at the beginning of each
+derived function or module at a minimum.</p>
+<h2 id="farrell">Farrell</h2>
+<p>Andreas Clenow
+October 25, 2019 at 17:29
+Hi Farrell,</p>
+<p>I can be paid in reviews and/or beer. :)</p>
+<p>For an open source project, use the code as you see fit. A credit in the
+comments somewhere would be nice, but I won't sue you if you forget it.</p>
+<h2 id="ac">ac</h2>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+Analysis of results.
+
+This module contains some functions that were copied or derived
+from the book &#34;Trading Evolved&#34; by Andreas F. Clenow.
+Below is a correspondance I had with the author:
+
+------------------------------------------------------------------------
+Farrell
+October 25, 2019 at 15:49
+Hi Andreas,
+
+I just finished reading the book. Awesome one of a kind! Thanks so much.
+I also enjoyed your other two. Question: what is the copyright (if any)
+on the source code you have in the book. I want to incorporate some of
+it into my open source backtester, Pinkfish. How should I credit your
+work if no copyright.  I could add a comment at the beginning of each
+derived function or module at a minimum.
+
+Farrell
+------------------------------------------------------------------------
+
+Andreas Clenow
+October 25, 2019 at 17:29
+Hi Farrell,
+
+I can be paid in reviews and/or beer. :)
+
+For an open source project, use the code as you see fit. A credit in the
+comments somewhere would be nice, but I won&#39;t sue you if you forget it.
+
+ac
+------------------------------------------------------------------------
+&#34;&#34;&#34;
+
+import empyrical as em
+from IPython.core.display import display, HTML
+import matplotlib.pyplot as plt
+import pandas as pd
+
+import pinkfish as pf
+
+
+########################################################################
+# MONTHY RETURNS MAP
+
+def monthly_returns_map(dbal):
+    &#34;&#34;&#34;
+    Display per month and per year returns in a table.
+
+    Parameters
+    ----------
+    dbal : pd.Series
+        The daily closing balance indexed by date.
+
+    Returns
+    -------
+    None
+
+    Examples
+    --------
+    &gt;&gt;&gt; monthly_returns_map(dbal[&#39;close&#39;])
+    Year    Jan     Feb     Mar     Apr     May     Jun     Jul ... Year
+    1990   -8.5     0.9     2.4    -2.7     9.2    -0.9    -0.5    -8.2
+    1991    4.2     6.7     2.2     0.0     3.9    -4.8     4.5    26.3
+    &#34;&#34;&#34;
+    monthly_data = em.aggregate_returns(dbal.pct_change(),&#39;monthly&#39;)
+    yearly_data = em.aggregate_returns(dbal.pct_change(),&#39;yearly&#39;)
+
+    table_header = &#34;&#34;&#34;
+    &lt;table class=&#39;table table-hover table-condensed table-striped&#39;&gt;
+    &lt;thead&gt;
+    &lt;tr&gt;
+    &lt;th style=&#34;text-align:right&#34;&gt;Year&lt;/th&gt;
+    &lt;th style=&#34;text-align:right&#34;&gt;Jan&lt;/th&gt;
+    &lt;th style=&#34;text-align:right&#34;&gt;Feb&lt;/th&gt;
+    &lt;th style=&#34;text-align:right&#34;&gt;Mar&lt;/th&gt;
+    &lt;th style=&#34;text-align:right&#34;&gt;Apr&lt;/th&gt;
+    &lt;th style=&#34;text-align:right&#34;&gt;May&lt;/th&gt;
+    &lt;th style=&#34;text-align:right&#34;&gt;Jun&lt;/th&gt;
+    &lt;th style=&#34;text-align:right&#34;&gt;Jul&lt;/th&gt;
+    &lt;th style=&#34;text-align:right&#34;&gt;Aug&lt;/th&gt;
+    &lt;th style=&#34;text-align:right&#34;&gt;Sep&lt;/th&gt;
+    &lt;th style=&#34;text-align:right&#34;&gt;Oct&lt;/th&gt;
+    &lt;th style=&#34;text-align:right&#34;&gt;Nov&lt;/th&gt;
+    &lt;th style=&#34;text-align:right&#34;&gt;Dec&lt;/th&gt;
+    &lt;th style=&#34;text-align:right&#34;&gt;Year&lt;/th&gt;
+    &lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;
+    &lt;tr&gt;&#34;&#34;&#34;
+
+    first_year = True
+    first_month = True
+    year = 0
+    month = 0
+    year_count = 0
+    table = &#39;&#39;
+    for m, val in monthly_data.iteritems():
+        year = m[0]
+        month = m[1]
+
+        if first_month:
+            if year_count % 15 == 0:
+                table += table_header
+            table += &#34;&lt;td align=&#39;right&#39;&gt;&lt;b&gt;{}&lt;/b&gt;&lt;/td&gt;\n&#34;.format(year)
+            first_month = False
+
+        # Pad empty months for first year if sim doesn&#39;t start in Jan.
+        if first_year:
+            first_year = False
+            if month &gt; 1:
+                for _ in range(1, month):
+                    table += &#34;&lt;td align=&#39;right&#39;&gt;-&lt;/td&gt;\n&#34;
+
+        table += &#34;&lt;td align=&#39;right&#39;&gt;{:.1f}&lt;/td&gt;\n&#34;.format(val * 100)
+
+        # Check for dec and add yearly.
+        if month == 12:
+            table += &#34;&lt;td align=&#39;right&#39;&gt;&lt;b&gt;{:.1f}&lt;/b&gt;&lt;/td&gt;\n&#34;.format(
+                yearly_data[year] * 100)
+            table += &#39;&lt;/tr&gt;\n &lt;tr&gt; \n&#39;
+            first_month = True
+            year_count += 1
+
+    # Add padding for empty months and last year&#39;s value.
+    if month != 12:
+        for i in range(month+1, 13):
+            table += &#34;&lt;td align=&#39;right&#39;&gt;-&lt;/td&gt;\n&#34;
+            if i == 12:
+                table += &#34;&lt;td align=&#39;right&#39;&gt;&lt;b&gt;{:.1f}&lt;/b&gt;&lt;/td&gt;\n&#34;.format(
+                    yearly_data[year] * 100)
+                table += &#39;&lt;/tr&gt;\n &lt;tr&gt; \n&#39;
+    table += &#39;&lt;/tr&gt;\n &lt;/tbody&gt; \n &lt;/table&gt;&#39;
+    display(HTML(table))
+
+
+########################################################################
+# HOLDING PERIOD MAP
+
+def holding_period_map(dbal):
+    &#34;&#34;&#34;
+    Display holding period returns in a table.
+
+    Length of returns should be 30 or less, otherwise the output
+    will be jumbled.
+
+    Parameters
+    ----------
+    dbal : pd.Series
+        The daily closing balance indexed by date.
+
+    Returns
+    -------
+    None
+
+    Examples
+    --------
+    &gt;&gt;&gt; table = holding_period_map(dbal[&#39;close&#39;])
+    &gt;&gt;&gt; display(HTML(table))
+    Years    1   2   3   4   5   6   7   8
+    2013    30  20  13  12  13  10  12  12
+    2014    11   5   7  10   6  10   9
+    ...
+    2020     8
+    &#34;&#34;&#34;
+    year = em.aggregate_returns(dbal.pct_change(), &#39;yearly&#39;)
+    year_start = 0
+
+    table = &#34;&lt;table class=&#39;table table-hover table-condensed table-striped&#39;&gt;&#34;
+    table += &#34;&lt;tr&gt;&lt;th&gt;Years&lt;/th&gt;&#34;
+
+    for i in range(len(year)):
+        table += &#34;&lt;th&gt;{}&lt;/th&gt;&#34;.format(i+1)
+    table += &#34;&lt;/tr&gt;&#34;
+
+    for the_year, value in year.iteritems(): # Iterates years
+        table += &#34;&lt;tr&gt;&lt;th&gt;{}&lt;/th&gt;&#34;.format(the_year) # New table row
+
+        for years_held in (range(1, len(year)+1)): # Iterates years held
+            if years_held &lt;= len(year[year_start:year_start + years_held]):
+                ret = em.annual_return(year[year_start:year_start + years_held], &#39;yearly&#39;)
+                table += &#34;&lt;td&gt;{:.0f}&lt;/td&gt;&#34;.format(ret * 100)
+        table += &#34;&lt;/tr&gt;&#34;
+        year_start+=1
+    display(HTML(table))
+
+
+########################################################################
+# PRETTIER GRAPHS
+
+def _calc_corr(dbal, benchmark_dbal, window):
+    &#34;&#34;&#34;
+    Calculate the rollowing correlation between two returns.
+
+    Parameters
+    ----------
+    dbal : pd.Series
+        Strategy daily closing balance indexed by date.
+    benchmark_dbal : pd.Series
+        Benchmark daily closing balance indexed by date.
+    window : int
+        Size of the moving window. This is the number of observations
+        used for calculating the statistic.
+
+    Returns
+    -------
+    corr : pd.DataFrame
+        Window size rollowing correlation between `dbal` and
+        `benchmark_dbal`.
+    &#34;&#34;&#34;
+    ret = dbal.pct_change()
+    benchmark_ret = benchmark_dbal.pct_change()
+    corr = ret.rolling(window).corr(benchmark_ret)
+    return corr
+
+
+def prettier_graphs(dbal, benchmark_dbal, dbal_label=&#39;Strategy&#39;,
+                    benchmark_label=&#39;Benchmark&#39;, points_to_plot=None):
+    &#34;&#34;&#34;
+    Plot 3 subplots.
+
+    The first subplot will show a rebased comparison of the returns to
+    the benchmark returns, recalculated with the same starting value
+    of 1.  This will be shown on a semi logarithmic scale.  The second
+    subplot will show relative strength of the returns to the benchmark
+    returns, and the third the correlation between the two.
+
+    Parameters
+    ----------
+    dbal : pd.Series
+        Strategy daily closing balance indexed by date.
+    benchmark_dbal : pd.Series
+        Benchmark daily closing balance indexed by date.
+    label : str, optional
+        Label to use in graph for strategy (default is &#39;Strategy&#39;).
+    benchmark_label : str, optional
+        Label to use in graph for benchmark (default is &#39;Benchmark&#39;).
+    points_to_plot : int, optional
+        Define how many points (trading days) we intend to plot
+        (default is None, which implies plot all points or days).
+
+    Returns
+    -------
+    None
+
+    Examples
+    --------
+    &gt;&gt;&gt; prettier_graphs(dbal[&#39;close&#39;], benchmark_dbal[&#39;close&#39;],
+                        points_to_plot=5000)
+    &#34;&#34;&#34;
+    if points_to_plot is None:
+        points_to_plot = 0;
+
+    data = pd.DataFrame(dbal)
+    data[&#39;benchmark_dbal&#39;] = pd.DataFrame(benchmark_dbal)
+    data.columns = [&#39;dbal&#39;, &#39;benchmark_dbal&#39;]
+    data.head()
+
+    # Rebase the two series to the same point in time;
+    # starting where the plot will start.
+    for col in data:
+        data[col + &#39;_rebased&#39;] = \
+            (data[-points_to_plot:][col].pct_change() + 1).cumprod()
+
+    # Relative strength, strategy to benchmark.
+    data[&#39;relative_strength&#39;] = data[&#39;dbal&#39;] / data[&#39;benchmark_dbal&#39;]
+
+    # Calculate 100 day rolling correlation.
+    data[&#39;corr&#39;] = _calc_corr(data[&#39;dbal&#39;], data[&#39;benchmark_dbal&#39;], 100)
+
+    # After this, we slice the data, effectively discarding all but
+    # the last points_to_plot data points, using the slicing logic from
+    # before.  Slice the data, cut points we don&#39;t intend to plot.
+    plot_data = data[-points_to_plot:]
+
+    # Make new figure and set the size.
+    fig = plt.figure(figsize=(12, 8))
+
+    # The first subplot, planning for 3 plots high, 1 plot wide,
+    # this being the first.
+    ax = fig.add_subplot(311)
+    ax.set_title(&#39;Comparison&#39;)
+    ax.semilogy(plot_data[&#39;dbal_rebased&#39;], linestyle=&#39;-&#39;,
+                label=dbal_label, linewidth=3.0)
+    ax.semilogy(plot_data[&#39;benchmark_dbal_rebased&#39;], linestyle=&#39;--&#39;,
+                label=benchmark_label, linewidth=3.0)
+    ax.legend()
+    ax.grid(False)
+
+    # Second sub plot.
+    ax = fig.add_subplot(312)
+    label=&#39;Relative Strength, {} to {}&#39;.format(dbal_label, benchmark_label)
+    ax.plot(plot_data[&#39;relative_strength&#39;], label=label, linestyle=&#39;:&#39;, linewidth=3.0)
+    ax.legend()
+    ax.grid(True)
+
+    # Third subplot.
+    ax = fig.add_subplot(313)
+    label=&#39;Correlation between {} and {}&#39;.format(dbal_label, benchmark_label)
+    ax.plot(plot_data[&#39;corr&#39;], label=label, linestyle=&#39;-.&#39;, linewidth=3.0)
+    ax.legend()
+    ax.grid(True)
+
+
+########################################################################
+# VOLATILITY
+
+def volatility_graphs(dbals, labels, points_to_plot=None):
+    &#34;&#34;&#34;
+    Plot volatility graphs.
+    
+    The first graph is a boxplot showing the differences between
+    2 or more returns.  The second graph shows the volatility plotted
+    for 2 or more returns.
+
+    Parameters
+    ----------
+    dbals : list of pd.DataFrame
+        A list of daily closing balances (or daily instrument closing
+        prices) indexed by date.
+    labels : list of str
+        A list of labels.
+    points_to_plot : int, optional
+        Define how many points (trading days) we intend to plot
+        (default is None, which implies plot all points or days).
+
+    Returns
+    -------
+    pf.DataFrame
+        Statistics comparing the `dbals`.
+
+    Examples
+    --------
+    &gt;&gt;&gt; df = pf.volatility_graph([ts, dbal], [&#39;SPY&#39;, &#39;Strategy&#39;],
+                                 points_to_plot=5000)
+    &gt;&gt;&gt; df
+    &#34;&#34;&#34;
+    def _boxplot(volas, labels):
+        &#34;&#34;&#34;
+        Plot a volatility boxplot.
+        &#34;&#34;&#34;
+        fig = plt.figure(figsize=(12, 8))
+        axes = fig.add_subplot(111, ylabel=&#39;Volatility&#39;)
+        plt.ylim(0, 1)
+        plt.boxplot(volas, labels=labels)
+
+    def _volas_plot(volas, labels):
+        &#34;&#34;&#34;
+        Plot volatility.
+        &#34;&#34;&#34;
+        fig = plt.figure(figsize=(14,10))
+        axes = fig.add_subplot(111, ylabel=&#39;Volatility&#39;)
+        for i, vola in enumerate(volas):
+            axes.plot(vola, label=labels[i])
+        plt.legend(loc=&#39;best&#39;)
+
+    if points_to_plot is None:
+        points_to_plot = 0;
+
+    # Get volatility for each dbal set.
+    volas = []
+    for dbal in dbals:
+        volas.append(pf.VOLATILITY(dbal[-points_to_plot:]).dropna())
+
+    # Build metrics dataframe.
+    index = []
+    columns = labels
+    data = []
+    # Add metrics.
+    metrics = [&#39;avg&#39;, &#39;median&#39;, &#39;min&#39;, &#39;max&#39;, &#39;std&#39;, &#39;last&#39;]
+    for metric in metrics:
+        index.append(metric)
+        if   metric == &#39;avg&#39;: data.append(vola.mean() for vola in volas)
+        elif metric == &#39;median&#39;: data.append(vola.median() for vola in volas)
+        elif metric == &#39;min&#39;: data.append(vola.min() for vola in volas)
+        elif metric == &#39;max&#39;: data.append(vola.max() for vola in volas)
+        elif metric == &#39;std&#39;: data.append(vola.std() for vola in volas)
+        elif metric == &#39;last&#39;: data.append(vola[-1] for vola in volas)
+
+    df = pd.DataFrame(data, columns=columns, index=index)
+    _boxplot(volas, labels)
+    _volas_plot(volas, labels)
+    return df
+
+
+########################################################################
+# KELLY CRITERIAN
+
+def kelly_criterian(stats, benchmark_stats=None):
+    &#34;&#34;&#34;
+    Use this function to help with sizing of leverage.
+    
+    This function uses ideas based on the Kelly Criterian.
+
+    Parameters
+    ----------
+    stats : pd.Series
+        Statistics for the strategy.
+    bbenchmark_stats : pd.Series, optimal
+        Statistics for the benchmark (default is None, which implies
+        that a benchmark is not being used).
+
+    Returns
+    -------
+    s : pf.Series
+        Leverage statistics.
+
+         - `sharpe_ratio` is a measure of risk adjusted return.
+
+         - `sharpe_ratio_max` is the maximum expected sharpe ratio.
+
+         - `sharpe_ratio_min` is the minimum expected sharpe ratio.
+
+         - `strategy risk` is a measure of how risky a trading strategy
+            is, calculated as an annual standard deviation of returns.
+
+         - `instrument_risk` is a measure of how risky an instrument is
+            before any leverage is applied, calculated as an annual
+            standard deviation of returns.
+
+         - `optimal target risk` is equal to the expected sharpe ratio,
+            according to the Kelly criterian.  Target risk is the amount
+            of risk you expect to see when trading, calculated as an
+            annual standard deviation of returns.
+
+         - `half kelly criterian` is equal to half the expected
+            sharpe ratio.  It uses a conservative version of the
+            Kelly criterian known as half Kelly.
+
+         - `aggressive leverage` is the optimal target risk divided by
+            the instrument risk.  This is a aggrssive form of the
+            leverage factor, which is the cash value of a position
+            divided by your capital.
+
+         - `moderate leverage` is the leverage factor calculated using
+            half Kelly.
+
+         - `conservative leverage` is the leverage factor calculated
+            using half of the minimum sharpe ratio divided by 2.
+    &#34;&#34;&#34;
+    s = pd.Series(dtype=&#39;object&#39;)
+
+    s[&#39;sharpe_ratio&#39;] = stats[&#39;sharpe_ratio&#39;]
+    s[&#39;sharpe_ratio_max&#39;] = stats[&#39;sharpe_ratio_max&#39;]
+    s[&#39;sharpe_ratio_min&#39;] = stats[&#39;sharpe_ratio_min&#39;]
+    s[&#39;strategy risk&#39;] = stats[&#39;annual_std&#39;] / 100
+    s[&#39;instrument risk&#39;] = benchmark_stats[&#39;annual_std&#39;] / 100
+    s[&#39;optimal target risk&#39;] = s[&#39;sharpe_ratio&#39;]
+    s[&#39;half kelly criterian&#39;] = s[&#39;sharpe_ratio&#39;] / 2
+    s[&#39;aggressive leverage&#39;] = s[&#39;optimal target risk&#39;] / s[&#39;instrument risk&#39;]
+    s[&#39;moderate leverage&#39;] = s[&#39;half kelly criterian&#39;] / s[&#39;instrument risk&#39;]
+    s[&#39;conservative leverage&#39;] = (s[&#39;sharpe_ratio_min&#39;] / 2) / s[&#39;instrument risk&#39;]
+    return s</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="pinkfish.analysis.holding_period_map"><code class="name flex">
+<span>def <span class="ident">holding_period_map</span></span>(<span>dbal)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Display holding period returns in a table.</p>
+<p>Length of returns should be 30 or less, otherwise the output
+will be jumbled.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>dbal</code></strong> :&ensp;<code>pd.Series</code></dt>
+<dd>The daily closing balance indexed by date.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>None</code></dt>
+<dd>&nbsp;</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<pre><code class="language-python-repl">&gt;&gt;&gt; table = holding_period_map(dbal['close'])
+&gt;&gt;&gt; display(HTML(table))
+Years    1   2   3   4   5   6   7   8
+2013    30  20  13  12  13  10  12  12
+2014    11   5   7  10   6  10   9
+...
+2020     8
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def holding_period_map(dbal):
+    &#34;&#34;&#34;
+    Display holding period returns in a table.
+
+    Length of returns should be 30 or less, otherwise the output
+    will be jumbled.
+
+    Parameters
+    ----------
+    dbal : pd.Series
+        The daily closing balance indexed by date.
+
+    Returns
+    -------
+    None
+
+    Examples
+    --------
+    &gt;&gt;&gt; table = holding_period_map(dbal[&#39;close&#39;])
+    &gt;&gt;&gt; display(HTML(table))
+    Years    1   2   3   4   5   6   7   8
+    2013    30  20  13  12  13  10  12  12
+    2014    11   5   7  10   6  10   9
+    ...
+    2020     8
+    &#34;&#34;&#34;
+    year = em.aggregate_returns(dbal.pct_change(), &#39;yearly&#39;)
+    year_start = 0
+
+    table = &#34;&lt;table class=&#39;table table-hover table-condensed table-striped&#39;&gt;&#34;
+    table += &#34;&lt;tr&gt;&lt;th&gt;Years&lt;/th&gt;&#34;
+
+    for i in range(len(year)):
+        table += &#34;&lt;th&gt;{}&lt;/th&gt;&#34;.format(i+1)
+    table += &#34;&lt;/tr&gt;&#34;
+
+    for the_year, value in year.iteritems(): # Iterates years
+        table += &#34;&lt;tr&gt;&lt;th&gt;{}&lt;/th&gt;&#34;.format(the_year) # New table row
+
+        for years_held in (range(1, len(year)+1)): # Iterates years held
+            if years_held &lt;= len(year[year_start:year_start + years_held]):
+                ret = em.annual_return(year[year_start:year_start + years_held], &#39;yearly&#39;)
+                table += &#34;&lt;td&gt;{:.0f}&lt;/td&gt;&#34;.format(ret * 100)
+        table += &#34;&lt;/tr&gt;&#34;
+        year_start+=1
+    display(HTML(table))</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.analysis.kelly_criterian"><code class="name flex">
+<span>def <span class="ident">kelly_criterian</span></span>(<span>stats, benchmark_stats=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Use this function to help with sizing of leverage.</p>
+<p>This function uses ideas based on the Kelly Criterian.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>stats</code></strong> :&ensp;<code>pd.Series</code></dt>
+<dd>Statistics for the strategy.</dd>
+<dt><strong><code>bbenchmark_stats</code></strong> :&ensp;<code>pd.Series, optimal</code></dt>
+<dd>Statistics for the benchmark (default is None, which implies
+that a benchmark is not being used).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>s</code></strong> :&ensp;<code>pf.Series</code></dt>
+<dd>
+<p>Leverage statistics.</p>
+<ul>
+<li>
+<p><code>sharpe_ratio</code> is a measure of risk adjusted return.</p>
+</li>
+<li>
+<p><code>sharpe_ratio_max</code> is the maximum expected sharpe ratio.</p>
+</li>
+<li>
+<p><code>sharpe_ratio_min</code> is the minimum expected sharpe ratio.</p>
+</li>
+<li>
+<p><code>strategy risk</code> is a measure of how risky a trading strategy
+is, calculated as an annual standard deviation of returns.</p>
+</li>
+<li>
+<p><code>instrument_risk</code> is a measure of how risky an instrument is
+before any leverage is applied, calculated as an annual
+standard deviation of returns.</p>
+</li>
+<li>
+<p><code>optimal target risk</code> is equal to the expected sharpe ratio,
+according to the Kelly criterian.
+Target risk is the amount
+of risk you expect to see when trading, calculated as an
+annual standard deviation of returns.</p>
+</li>
+<li>
+<p><code>half kelly criterian</code> is equal to half the expected
+sharpe ratio.
+It uses a conservative version of the
+Kelly criterian known as half Kelly.</p>
+</li>
+<li>
+<p><code>aggressive leverage</code> is the optimal target risk divided by
+the instrument risk.
+This is a aggrssive form of the
+leverage factor, which is the cash value of a position
+divided by your capital.</p>
+</li>
+<li>
+<p><code>moderate leverage</code> is the leverage factor calculated using
+half Kelly.</p>
+</li>
+<li>
+<p><code>conservative leverage</code> is the leverage factor calculated
+using half of the minimum sharpe ratio divided by 2.</p>
+</li>
+</ul>
+</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def kelly_criterian(stats, benchmark_stats=None):
+    &#34;&#34;&#34;
+    Use this function to help with sizing of leverage.
+    
+    This function uses ideas based on the Kelly Criterian.
+
+    Parameters
+    ----------
+    stats : pd.Series
+        Statistics for the strategy.
+    bbenchmark_stats : pd.Series, optimal
+        Statistics for the benchmark (default is None, which implies
+        that a benchmark is not being used).
+
+    Returns
+    -------
+    s : pf.Series
+        Leverage statistics.
+
+         - `sharpe_ratio` is a measure of risk adjusted return.
+
+         - `sharpe_ratio_max` is the maximum expected sharpe ratio.
+
+         - `sharpe_ratio_min` is the minimum expected sharpe ratio.
+
+         - `strategy risk` is a measure of how risky a trading strategy
+            is, calculated as an annual standard deviation of returns.
+
+         - `instrument_risk` is a measure of how risky an instrument is
+            before any leverage is applied, calculated as an annual
+            standard deviation of returns.
+
+         - `optimal target risk` is equal to the expected sharpe ratio,
+            according to the Kelly criterian.  Target risk is the amount
+            of risk you expect to see when trading, calculated as an
+            annual standard deviation of returns.
+
+         - `half kelly criterian` is equal to half the expected
+            sharpe ratio.  It uses a conservative version of the
+            Kelly criterian known as half Kelly.
+
+         - `aggressive leverage` is the optimal target risk divided by
+            the instrument risk.  This is a aggrssive form of the
+            leverage factor, which is the cash value of a position
+            divided by your capital.
+
+         - `moderate leverage` is the leverage factor calculated using
+            half Kelly.
+
+         - `conservative leverage` is the leverage factor calculated
+            using half of the minimum sharpe ratio divided by 2.
+    &#34;&#34;&#34;
+    s = pd.Series(dtype=&#39;object&#39;)
+
+    s[&#39;sharpe_ratio&#39;] = stats[&#39;sharpe_ratio&#39;]
+    s[&#39;sharpe_ratio_max&#39;] = stats[&#39;sharpe_ratio_max&#39;]
+    s[&#39;sharpe_ratio_min&#39;] = stats[&#39;sharpe_ratio_min&#39;]
+    s[&#39;strategy risk&#39;] = stats[&#39;annual_std&#39;] / 100
+    s[&#39;instrument risk&#39;] = benchmark_stats[&#39;annual_std&#39;] / 100
+    s[&#39;optimal target risk&#39;] = s[&#39;sharpe_ratio&#39;]
+    s[&#39;half kelly criterian&#39;] = s[&#39;sharpe_ratio&#39;] / 2
+    s[&#39;aggressive leverage&#39;] = s[&#39;optimal target risk&#39;] / s[&#39;instrument risk&#39;]
+    s[&#39;moderate leverage&#39;] = s[&#39;half kelly criterian&#39;] / s[&#39;instrument risk&#39;]
+    s[&#39;conservative leverage&#39;] = (s[&#39;sharpe_ratio_min&#39;] / 2) / s[&#39;instrument risk&#39;]
+    return s</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.analysis.monthly_returns_map"><code class="name flex">
+<span>def <span class="ident">monthly_returns_map</span></span>(<span>dbal)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Display per month and per year returns in a table.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>dbal</code></strong> :&ensp;<code>pd.Series</code></dt>
+<dd>The daily closing balance indexed by date.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>None</code></dt>
+<dd>&nbsp;</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<pre><code class="language-python-repl">&gt;&gt;&gt; monthly_returns_map(dbal['close'])
+Year    Jan     Feb     Mar     Apr     May     Jun     Jul ... Year
+1990   -8.5     0.9     2.4    -2.7     9.2    -0.9    -0.5    -8.2
+1991    4.2     6.7     2.2     0.0     3.9    -4.8     4.5    26.3
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def monthly_returns_map(dbal):
+    &#34;&#34;&#34;
+    Display per month and per year returns in a table.
+
+    Parameters
+    ----------
+    dbal : pd.Series
+        The daily closing balance indexed by date.
+
+    Returns
+    -------
+    None
+
+    Examples
+    --------
+    &gt;&gt;&gt; monthly_returns_map(dbal[&#39;close&#39;])
+    Year    Jan     Feb     Mar     Apr     May     Jun     Jul ... Year
+    1990   -8.5     0.9     2.4    -2.7     9.2    -0.9    -0.5    -8.2
+    1991    4.2     6.7     2.2     0.0     3.9    -4.8     4.5    26.3
+    &#34;&#34;&#34;
+    monthly_data = em.aggregate_returns(dbal.pct_change(),&#39;monthly&#39;)
+    yearly_data = em.aggregate_returns(dbal.pct_change(),&#39;yearly&#39;)
+
+    table_header = &#34;&#34;&#34;
+    &lt;table class=&#39;table table-hover table-condensed table-striped&#39;&gt;
+    &lt;thead&gt;
+    &lt;tr&gt;
+    &lt;th style=&#34;text-align:right&#34;&gt;Year&lt;/th&gt;
+    &lt;th style=&#34;text-align:right&#34;&gt;Jan&lt;/th&gt;
+    &lt;th style=&#34;text-align:right&#34;&gt;Feb&lt;/th&gt;
+    &lt;th style=&#34;text-align:right&#34;&gt;Mar&lt;/th&gt;
+    &lt;th style=&#34;text-align:right&#34;&gt;Apr&lt;/th&gt;
+    &lt;th style=&#34;text-align:right&#34;&gt;May&lt;/th&gt;
+    &lt;th style=&#34;text-align:right&#34;&gt;Jun&lt;/th&gt;
+    &lt;th style=&#34;text-align:right&#34;&gt;Jul&lt;/th&gt;
+    &lt;th style=&#34;text-align:right&#34;&gt;Aug&lt;/th&gt;
+    &lt;th style=&#34;text-align:right&#34;&gt;Sep&lt;/th&gt;
+    &lt;th style=&#34;text-align:right&#34;&gt;Oct&lt;/th&gt;
+    &lt;th style=&#34;text-align:right&#34;&gt;Nov&lt;/th&gt;
+    &lt;th style=&#34;text-align:right&#34;&gt;Dec&lt;/th&gt;
+    &lt;th style=&#34;text-align:right&#34;&gt;Year&lt;/th&gt;
+    &lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;
+    &lt;tr&gt;&#34;&#34;&#34;
+
+    first_year = True
+    first_month = True
+    year = 0
+    month = 0
+    year_count = 0
+    table = &#39;&#39;
+    for m, val in monthly_data.iteritems():
+        year = m[0]
+        month = m[1]
+
+        if first_month:
+            if year_count % 15 == 0:
+                table += table_header
+            table += &#34;&lt;td align=&#39;right&#39;&gt;&lt;b&gt;{}&lt;/b&gt;&lt;/td&gt;\n&#34;.format(year)
+            first_month = False
+
+        # Pad empty months for first year if sim doesn&#39;t start in Jan.
+        if first_year:
+            first_year = False
+            if month &gt; 1:
+                for _ in range(1, month):
+                    table += &#34;&lt;td align=&#39;right&#39;&gt;-&lt;/td&gt;\n&#34;
+
+        table += &#34;&lt;td align=&#39;right&#39;&gt;{:.1f}&lt;/td&gt;\n&#34;.format(val * 100)
+
+        # Check for dec and add yearly.
+        if month == 12:
+            table += &#34;&lt;td align=&#39;right&#39;&gt;&lt;b&gt;{:.1f}&lt;/b&gt;&lt;/td&gt;\n&#34;.format(
+                yearly_data[year] * 100)
+            table += &#39;&lt;/tr&gt;\n &lt;tr&gt; \n&#39;
+            first_month = True
+            year_count += 1
+
+    # Add padding for empty months and last year&#39;s value.
+    if month != 12:
+        for i in range(month+1, 13):
+            table += &#34;&lt;td align=&#39;right&#39;&gt;-&lt;/td&gt;\n&#34;
+            if i == 12:
+                table += &#34;&lt;td align=&#39;right&#39;&gt;&lt;b&gt;{:.1f}&lt;/b&gt;&lt;/td&gt;\n&#34;.format(
+                    yearly_data[year] * 100)
+                table += &#39;&lt;/tr&gt;\n &lt;tr&gt; \n&#39;
+    table += &#39;&lt;/tr&gt;\n &lt;/tbody&gt; \n &lt;/table&gt;&#39;
+    display(HTML(table))</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.analysis.prettier_graphs"><code class="name flex">
+<span>def <span class="ident">prettier_graphs</span></span>(<span>dbal, benchmark_dbal, dbal_label='Strategy', benchmark_label='Benchmark', points_to_plot=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Plot 3 subplots.</p>
+<p>The first subplot will show a rebased comparison of the returns to
+the benchmark returns, recalculated with the same starting value
+of 1.
+This will be shown on a semi logarithmic scale.
+The second
+subplot will show relative strength of the returns to the benchmark
+returns, and the third the correlation between the two.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>dbal</code></strong> :&ensp;<code>pd.Series</code></dt>
+<dd>Strategy daily closing balance indexed by date.</dd>
+<dt><strong><code>benchmark_dbal</code></strong> :&ensp;<code>pd.Series</code></dt>
+<dd>Benchmark daily closing balance indexed by date.</dd>
+<dt><strong><code>label</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>Label to use in graph for strategy (default is 'Strategy').</dd>
+<dt><strong><code>benchmark_label</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>Label to use in graph for benchmark (default is 'Benchmark').</dd>
+<dt><strong><code>points_to_plot</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>Define how many points (trading days) we intend to plot
+(default is None, which implies plot all points or days).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>None</code></dt>
+<dd>&nbsp;</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<pre><code class="language-python-repl">&gt;&gt;&gt; prettier_graphs(dbal['close'], benchmark_dbal['close'],
+                    points_to_plot=5000)
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def prettier_graphs(dbal, benchmark_dbal, dbal_label=&#39;Strategy&#39;,
+                    benchmark_label=&#39;Benchmark&#39;, points_to_plot=None):
+    &#34;&#34;&#34;
+    Plot 3 subplots.
+
+    The first subplot will show a rebased comparison of the returns to
+    the benchmark returns, recalculated with the same starting value
+    of 1.  This will be shown on a semi logarithmic scale.  The second
+    subplot will show relative strength of the returns to the benchmark
+    returns, and the third the correlation between the two.
+
+    Parameters
+    ----------
+    dbal : pd.Series
+        Strategy daily closing balance indexed by date.
+    benchmark_dbal : pd.Series
+        Benchmark daily closing balance indexed by date.
+    label : str, optional
+        Label to use in graph for strategy (default is &#39;Strategy&#39;).
+    benchmark_label : str, optional
+        Label to use in graph for benchmark (default is &#39;Benchmark&#39;).
+    points_to_plot : int, optional
+        Define how many points (trading days) we intend to plot
+        (default is None, which implies plot all points or days).
+
+    Returns
+    -------
+    None
+
+    Examples
+    --------
+    &gt;&gt;&gt; prettier_graphs(dbal[&#39;close&#39;], benchmark_dbal[&#39;close&#39;],
+                        points_to_plot=5000)
+    &#34;&#34;&#34;
+    if points_to_plot is None:
+        points_to_plot = 0;
+
+    data = pd.DataFrame(dbal)
+    data[&#39;benchmark_dbal&#39;] = pd.DataFrame(benchmark_dbal)
+    data.columns = [&#39;dbal&#39;, &#39;benchmark_dbal&#39;]
+    data.head()
+
+    # Rebase the two series to the same point in time;
+    # starting where the plot will start.
+    for col in data:
+        data[col + &#39;_rebased&#39;] = \
+            (data[-points_to_plot:][col].pct_change() + 1).cumprod()
+
+    # Relative strength, strategy to benchmark.
+    data[&#39;relative_strength&#39;] = data[&#39;dbal&#39;] / data[&#39;benchmark_dbal&#39;]
+
+    # Calculate 100 day rolling correlation.
+    data[&#39;corr&#39;] = _calc_corr(data[&#39;dbal&#39;], data[&#39;benchmark_dbal&#39;], 100)
+
+    # After this, we slice the data, effectively discarding all but
+    # the last points_to_plot data points, using the slicing logic from
+    # before.  Slice the data, cut points we don&#39;t intend to plot.
+    plot_data = data[-points_to_plot:]
+
+    # Make new figure and set the size.
+    fig = plt.figure(figsize=(12, 8))
+
+    # The first subplot, planning for 3 plots high, 1 plot wide,
+    # this being the first.
+    ax = fig.add_subplot(311)
+    ax.set_title(&#39;Comparison&#39;)
+    ax.semilogy(plot_data[&#39;dbal_rebased&#39;], linestyle=&#39;-&#39;,
+                label=dbal_label, linewidth=3.0)
+    ax.semilogy(plot_data[&#39;benchmark_dbal_rebased&#39;], linestyle=&#39;--&#39;,
+                label=benchmark_label, linewidth=3.0)
+    ax.legend()
+    ax.grid(False)
+
+    # Second sub plot.
+    ax = fig.add_subplot(312)
+    label=&#39;Relative Strength, {} to {}&#39;.format(dbal_label, benchmark_label)
+    ax.plot(plot_data[&#39;relative_strength&#39;], label=label, linestyle=&#39;:&#39;, linewidth=3.0)
+    ax.legend()
+    ax.grid(True)
+
+    # Third subplot.
+    ax = fig.add_subplot(313)
+    label=&#39;Correlation between {} and {}&#39;.format(dbal_label, benchmark_label)
+    ax.plot(plot_data[&#39;corr&#39;], label=label, linestyle=&#39;-.&#39;, linewidth=3.0)
+    ax.legend()
+    ax.grid(True)</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.analysis.volatility_graphs"><code class="name flex">
+<span>def <span class="ident">volatility_graphs</span></span>(<span>dbals, labels, points_to_plot=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Plot volatility graphs.</p>
+<p>The first graph is a boxplot showing the differences between
+2 or more returns.
+The second graph shows the volatility plotted
+for 2 or more returns.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>dbals</code></strong> :&ensp;<code>list</code> of <code>pd.DataFrame</code></dt>
+<dd>A list of daily closing balances (or daily instrument closing
+prices) indexed by date.</dd>
+<dt><strong><code>labels</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>A list of labels.</dd>
+<dt><strong><code>points_to_plot</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>Define how many points (trading days) we intend to plot
+(default is None, which implies plot all points or days).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>pf.DataFrame</code></dt>
+<dd>Statistics comparing the <code>dbals</code>.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<pre><code class="language-python-repl">&gt;&gt;&gt; df = pf.volatility_graph([ts, dbal], ['SPY', 'Strategy'],
+                             points_to_plot=5000)
+&gt;&gt;&gt; df
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def volatility_graphs(dbals, labels, points_to_plot=None):
+    &#34;&#34;&#34;
+    Plot volatility graphs.
+    
+    The first graph is a boxplot showing the differences between
+    2 or more returns.  The second graph shows the volatility plotted
+    for 2 or more returns.
+
+    Parameters
+    ----------
+    dbals : list of pd.DataFrame
+        A list of daily closing balances (or daily instrument closing
+        prices) indexed by date.
+    labels : list of str
+        A list of labels.
+    points_to_plot : int, optional
+        Define how many points (trading days) we intend to plot
+        (default is None, which implies plot all points or days).
+
+    Returns
+    -------
+    pf.DataFrame
+        Statistics comparing the `dbals`.
+
+    Examples
+    --------
+    &gt;&gt;&gt; df = pf.volatility_graph([ts, dbal], [&#39;SPY&#39;, &#39;Strategy&#39;],
+                                 points_to_plot=5000)
+    &gt;&gt;&gt; df
+    &#34;&#34;&#34;
+    def _boxplot(volas, labels):
+        &#34;&#34;&#34;
+        Plot a volatility boxplot.
+        &#34;&#34;&#34;
+        fig = plt.figure(figsize=(12, 8))
+        axes = fig.add_subplot(111, ylabel=&#39;Volatility&#39;)
+        plt.ylim(0, 1)
+        plt.boxplot(volas, labels=labels)
+
+    def _volas_plot(volas, labels):
+        &#34;&#34;&#34;
+        Plot volatility.
+        &#34;&#34;&#34;
+        fig = plt.figure(figsize=(14,10))
+        axes = fig.add_subplot(111, ylabel=&#39;Volatility&#39;)
+        for i, vola in enumerate(volas):
+            axes.plot(vola, label=labels[i])
+        plt.legend(loc=&#39;best&#39;)
+
+    if points_to_plot is None:
+        points_to_plot = 0;
+
+    # Get volatility for each dbal set.
+    volas = []
+    for dbal in dbals:
+        volas.append(pf.VOLATILITY(dbal[-points_to_plot:]).dropna())
+
+    # Build metrics dataframe.
+    index = []
+    columns = labels
+    data = []
+    # Add metrics.
+    metrics = [&#39;avg&#39;, &#39;median&#39;, &#39;min&#39;, &#39;max&#39;, &#39;std&#39;, &#39;last&#39;]
+    for metric in metrics:
+        index.append(metric)
+        if   metric == &#39;avg&#39;: data.append(vola.mean() for vola in volas)
+        elif metric == &#39;median&#39;: data.append(vola.median() for vola in volas)
+        elif metric == &#39;min&#39;: data.append(vola.min() for vola in volas)
+        elif metric == &#39;max&#39;: data.append(vola.max() for vola in volas)
+        elif metric == &#39;std&#39;: data.append(vola.std() for vola in volas)
+        elif metric == &#39;last&#39;: data.append(vola[-1] for vola in volas)
+
+    df = pd.DataFrame(data, columns=columns, index=index)
+    _boxplot(volas, labels)
+    _volas_plot(volas, labels)
+    return df</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul>
+<li><a href="#farrell">Farrell</a></li>
+<li><a href="#ac">ac</a></li>
+</ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pinkfish" href="index.html">pinkfish</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="pinkfish.analysis.holding_period_map" href="#pinkfish.analysis.holding_period_map">holding_period_map</a></code></li>
+<li><code><a title="pinkfish.analysis.kelly_criterian" href="#pinkfish.analysis.kelly_criterian">kelly_criterian</a></code></li>
+<li><code><a title="pinkfish.analysis.monthly_returns_map" href="#pinkfish.analysis.monthly_returns_map">monthly_returns_map</a></code></li>
+<li><code><a title="pinkfish.analysis.prettier_graphs" href="#pinkfish.analysis.prettier_graphs">prettier_graphs</a></code></li>
+<li><code><a title="pinkfish.analysis.volatility_graphs" href="#pinkfish.analysis.volatility_graphs">volatility_graphs</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

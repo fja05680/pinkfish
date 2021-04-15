@@ -1,10 +1,9 @@
 pinkfish
 ======     
 
-ANNOUNCEMENT: I now have a youtube channel dedicated to Pinkfish.  First 4 videos already uploaded.  I'll try t post a new video every week.  Open to recommendations for video content.
-
-https://www.youtube.com/channel/UCsPHH2UBn8Fz0g0MGrZ2Ihw
-
+ANNOUNCEMENT: I updated the entire pinkfish API with docstrings, then used pdoc3 to generate html documentation.
+The pinkfish API documentation:
+https://fja05680.github.io/pinkfish/docs/html/pinkfish/index.html
 
 A backtester and spreadsheet library for security analysis.
 
@@ -33,5 +32,9 @@ https://fja05680.github.io/pinkfish/
  - [spreadsheet](https://fja05680.github.io/pinkfish/examples/spreadsheet.html) - read only spreadsheet within jupyter notebook
  - [momentum-gem](http://fja05680.github.io/pinkfish/examples/momentum-gem.html) - Gary Antonacci’s Dual Momentum strategy
  
- **IMPORTANT 08-25-2020: Pinkfish v1.0.0**  
-In case anyone has noticed...  there has been a flury of development on Pinkfish over this past year.  I first started Pinkfish over 5 years ago and initially all it could do was single long stock backtest and analysis.  Now it's capable of portfolio, short selling, and margin.  I've also added custom indicators, more statistics, and lots of analysis tools.  It now does pretty much everything you'd want for stocks on a daily timeframe.  That's why I have decided to offically stamp Pinkfish as v1.0.0.  (I will use semantic versioning.)  Eventually, I may add other timeframes and futures.  But now, I'm hitting the pause button and working on my personal investment strategies.  I'm glad that I built this tool.  It's helped me understand systematic trading much better.  In the near future, I plan to set up a youtube channel to demonstrate how to install and use Pinkish.  I feel this would be far more effective than documentation.  Stay tuned...
+## Documentation
+The pinkfish API documentation:
+https://fja05680.github.io/pinkfish/docs/html/pinkfish/index.html
+
+## Pinkfish on youtube
+https://www.youtube.com/channel/UCsPHH2UBn8Fz0g0MGrZ2Ihw

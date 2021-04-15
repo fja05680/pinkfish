@@ -48,7 +48,7 @@ from .indicator import (
     VOLATILITY
 )
 
-from .calendar import (
+from .pfcalendar import (
     calendar
 )
 
@@ -56,7 +56,7 @@ from .analysis import (
     monthly_returns_map,
     holding_period_map,
     prettier_graphs,
-    volatility_graph,
+    volatility_graphs,
     kelly_criterian
 )
 
@@ -67,8 +67,12 @@ from .utility import (
 )
 
 DEBUG = False
+"""
+bool : True to enable DBG() output.
+"""
 def DBG(s):
+    """
+    Debug print.  Enable by setting pf.DEBUG=True.
+    """
     if DEBUG: print(s)
     else:     pass
-
-

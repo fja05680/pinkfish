@@ -1,4 +1,6 @@
 '''
+Keep track of styles for cells/headers in PrettyTable.
+
 The MIT License (MIT)
 
 Copyright (c) 2014 Melissa Gymrek <mgymrek@mit.edu>
