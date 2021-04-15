@@ -732,7 +732,10 @@ def _sortino_ratio(rets, risk_free=0.00, period=TRADING_DAYS_PER_YEAR):
     mean = np.mean(rets, axis=0)
     negative_rets = rets[rets < 0]
     dev = np.std(negative_rets, axis=0)
-    sortino = (mean*period - risk_free) / (dev * np.sqrt(period))
+    if dev == 0:
+        sortino = 0
+    else:
+        sortino = (mean*period - risk_free) / (dev * np.sqrt(period))
     return sortino
 
 
@@ -831,9 +834,12 @@ def stats(ts, tlog, dbal, capital):
     stats['max_closed_out_drawdown_trough_date'] = dd['trough_date']
     stats['max_closed_out_drawdown_recovery_date'] = dd['recovery_date']
     stats['drawdown_loss_period'], stats['drawdown_recovery_period'] = \
-        _drawdown_loss_recovery_period(dd['peak_date'], dd['trough_date'],
-                                       dd['recovery_date'])
-    stats['annualized_return_over_max_drawdown'] = abs(cagr / dd['max'])
+    _drawdown_loss_recovery_period(dd['peak_date'], dd['trough_date'],
+                                   dd['recovery_date'])
+    if dd['max'] == 0:
+        stats['annualized_return_over_max_drawdown'] = 0
+    else:
+        stats['annualized_return_over_max_drawdown'] = abs(cagr / dd['max'])
     dd = _max_intra_day_drawdown(dbal['high'], dbal['low'])
     stats['max_intra_day_drawdown'] = dd['max']
     dd = _rolling_max_dd(dbal['close'], TRADING_DAYS_PER_YEAR)
@@ -859,29 +865,33 @@ def stats(ts, tlog, dbal, capital):
 
     # PERCENT CHANGE
     pc = _pct_change(dbal['close'], TRADING_DAYS_PER_YEAR)
-    stats['pct_profitable_years'] = (pc > 0).sum() / len(pc) * 100
-    stats['best_year'] = pc.max()
-    stats['worst_year'] = pc.min()
-    stats['avg_year'] = np.average(pc)
-    stats['annual_std'] = pc.std()
+    if len(pc) > 0:
+        stats['pct_profitable_years'] = (pc > 0).sum() / len(pc) * 100
+        stats['best_year'] = pc.max()
+        stats['worst_year'] = pc.min()
+        stats['avg_year'] = np.average(pc)
+        stats['annual_std'] = pc.std()
     pc = _pct_change(dbal['close'], TRADING_DAYS_PER_MONTH)
-    stats['pct_profitable_months'] = (pc > 0).sum() / len(pc) * 100
-    stats['best_month'] = pc.max()
-    stats['worst_month'] = pc.min()
-    stats['avg_month'] = np.average(pc)
-    stats['monthly_std'] = pc.std()
+    if len(pc) > 0:
+        stats['pct_profitable_months'] = (pc > 0).sum() / len(pc) * 100
+        stats['best_month'] = pc.max()
+        stats['worst_month'] = pc.min()
+        stats['avg_month'] = np.average(pc)
+        stats['monthly_std'] = pc.std()
     pc = _pct_change(dbal['close'], TRADING_DAYS_PER_WEEK)
-    stats['pct_profitable_weeks'] = (pc > 0).sum() / len(pc) * 100
-    stats['best_week'] = pc.max()
-    stats['worst_week'] = pc.min()
-    stats['avg_week'] = np.average(pc)
-    stats['weekly_std'] = pc.std()
+    if len(pc) > 0:
+        stats['pct_profitable_weeks'] = (pc > 0).sum() / len(pc) * 100
+        stats['best_week'] = pc.max()
+        stats['worst_week'] = pc.min()
+        stats['avg_week'] = np.average(pc)
+        stats['weekly_std'] = pc.std()
     pc = _pct_change(dbal['close'], 1)
-    stats['pct_profitable_days'] = (pc > 0).sum() / len(pc) * 100
-    stats['best_day'] = pc.max()
-    stats['worst_day'] = pc.min()
-    stats['avg_day'] = np.average(pc)
-    stats['daily_std'] = pc.std()
+    if len(pc) > 0:
+        stats['pct_profitable_days'] = (pc > 0).sum() / len(pc) * 100
+        stats['best_day'] = pc.max()
+        stats['worst_day'] = pc.min()
+        stats['avg_day'] = np.average(pc)
+        stats['daily_std'] = pc.std()
 
     # RATIOS
     sr = _sharpe_ratio(dbal['close'].pct_change())
