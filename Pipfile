@@ -68,7 +68,7 @@ Cycler = "==0.10.0"
 ipython_genutils = "==0.2.0"
 Jinja2 = "==2.11.3"
 MarkupSafe = "==1.1.1"
-Pillow = "==8.0.1"
+Pillow = "==8.1.1"
 Pygments = "==2.7.4"
 Send2Trash = "==1.5.0"
 
