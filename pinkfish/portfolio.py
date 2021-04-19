@@ -28,7 +28,7 @@ class Portfolio:
      - finalize_timeseries()  
        Finalize timeseries.
 
-     - get_row_column_value()  
+     - get_price()  
        Return price given row, symbol, and field.
 
      - get_prices()  
@@ -37,8 +37,8 @@ class Portfolio:
      - shares()  
        Return number of shares for given symbol in portfolio.
 
-     - positions()  
-       Return the active symbols in portfolio as a list.
+     - positions  
+       Gets the active symbols in portfolio as a list.
 
      - share_percent()  
        Return share value of symbol as a percentage of `total_funds`.
@@ -95,7 +95,8 @@ class Portfolio:
         return ts
 
     def fetch_timeseries(self, symbols, start, end,
-                         fields=['open', 'high', 'low', 'close'], use_cache=True):
+                         fields=['open', 'high', 'low', 'close'],
+                         use_cache=True, use_adj=True):
         """
         Read time series data for symbols.
 
@@ -113,6 +114,9 @@ class Portfolio:
         use_cache: bool, optional
             True to use data cache.  False to retrieve from the
             internet (default is True).
+        use_adj : bool, optional
+            True to adjust prices for dividends and splits
+            (default is False).
 
         Returns
         -------
@@ -123,14 +127,14 @@ class Portfolio:
 
             if i == 0:
                 ts = pf.fetch_timeseries(symbol, use_cache=use_cache)
-                ts = pf.select_tradeperiod(ts, start, end, use_adj=True)
+                ts = pf.select_tradeperiod(ts, start, end, use_adj=use_adj)
                 self._add_symbol_columns(ts, symbol, ts, fields)
                 ts.drop(columns=['open', 'high', 'low', 'close', 'volume', 'adj_close'],
                         inplace=True)
             else:
                 # Add another symbol.
                 _ts = pf.fetch_timeseries(symbol, use_cache=use_cache)
-                _ts = pf.select_tradeperiod(_ts, start, end, use_adj=True)
+                _ts = pf.select_tradeperiod(_ts, start, end, use_adj=use_adj)
                 self._add_symbol_columns(ts, symbol, _ts, fields)
 
         self.symbols = symbols
@@ -163,9 +167,9 @@ class Portfolio:
         ta_param : object
             The parameter for ta_func (typically an int).
         output_column_suffix : str
-            Output array column suffix to use for technical indicator. 
+            Output column suffix to use for technical indicator. 
         input_column_suffix : str, {'close', 'open', 'high', 'low'}
-            Input array column suffix to use for price
+            Input column suffix to use for price
             (default is 'close').
 
         Returns
@@ -203,16 +207,16 @@ class Portfolio:
         return pf.finalize_timeseries(ts, start)
 
     ####################################################################
-    # ADJUST POSITION (adjust_shares, adjust_value, adjust_percent, print_holdings)
-
-    def get_row_column_value(self, row, symbol, field='close'):
+    # GET PRICES (get_price, get_prices)
+    
+    def get_price(self, row, symbol, field='close'):
         """
         Return price given row, symbol, and field.
 
         Parameters
         ----------
         row : pd.Series
-            The timeseries of the portfolio.
+            The row of data from the timeseries of the portfolio.
         symbol : str
             The symbol for a security.
         field : str, optional {'close', 'open', 'high', 'low'}
@@ -242,7 +246,7 @@ class Portfolio:
         Parameters
         ----------
         row : pd.Series
-            The timeseries of the portfolio.
+            A row of data from the timeseries of the portfolio.
         fields : list, optional
             The list of fields to use for each symbol (default is
             ['open', 'high', 'low', 'close']).
@@ -256,9 +260,12 @@ class Portfolio:
         for symbol in self.symbols:
             d[symbol] = {}
             for field in fields:
-                value = self.get_row_column_value(row, symbol, field)
+                value = self.get_price(row, symbol, field)
                 d[symbol][field] = value
         return d
+
+    ####################################################################
+    # ADJUST POSITION (adjust_shares, adjust_value, adjust_percent, print_holdings)
 
     def _share_value(self, row):
         """
@@ -266,7 +273,7 @@ class Portfolio:
         """
         value = 0
         for symbol, tlog in pf.TradeLog.instance.items():
-            close = self.get_row_column_value(row, symbol)
+            close = self.get_price(row, symbol)
             value += tlog.share_value(close)
         return value
 
@@ -317,9 +324,13 @@ class Portfolio:
         tlog = pf.TradeLog.instance[symbol]
         return tlog.shares
 
+    @property
     def positions(self):
         """
         Return the active symbols in portfolio as a list.
+        
+        This returns only those symbols that currently have shares
+        allocated to them, either long or short.
 
         Parameters
         ----------
@@ -339,7 +350,7 @@ class Portfolio:
         Parameters
         ----------
         row : pd.Series
-            The timeseries of the portfolio.
+            A row of data from the timeseries of the portfolio.
         symbol : str
             The symbol for a security.
 
@@ -348,7 +359,7 @@ class Portfolio:
         float
             The share value as a percent.
         """
-        close = self.get_row_column_value(row, symbol)
+        close = self.get_price(row, symbol)
         tlog = pf.TradeLog.instance[symbol]
         value = tlog.share_value(close)
         return value / self._total_funds(row) * 100
@@ -361,7 +372,7 @@ class Portfolio:
                       + self._share_value(row) * (pf.TradeLog.margin -1))
         return buying_power
 
-    def _adjust_shares(self, date, price, shares, symbol, row, direction=pf.Direction.LONG):
+    def _adjust_shares(self, date, price, shares, symbol, row, direction):
         """
         Adjust shares.
         """
@@ -371,7 +382,7 @@ class Portfolio:
         pf.TradeLog.buying_power = None
         return shares
 
-    def _adjust_value(self, date, price, value, symbol, row, direction=pf.Direction.LONG):
+    def _adjust_value(self, date, price, value, symbol, row, direction):
         """
         Adjust value.
         """
@@ -396,9 +407,9 @@ class Portfolio:
         symbol : str
             The symbol for a security.
         row : pd.Series
-            The timeseries of the portfolio.
+            A row of data from the timeseries of the portfolio.
         direction : pf.Direction, optional
-            The direction of the trade (default is Direction.LONG).
+            The direction of the trade (default is `pf.Direction.LONG`).
 
         Returns
         -------
@@ -411,16 +422,74 @@ class Portfolio:
         shares = self._adjust_value(date, price, value, symbol, row, direction)
         return shares
 
+    def adjust_percents(self, date, prices, weights, row, directions=None):
+        """
+        Adjust symbols to a specified weight (percent) of portfolio.
+
+        This function assumes all positions are LONG and weights
+        is given for all symbols in the portfolio.
+
+        The ordering of the prices and weights dicts are unimportant.
+        They are both indexed by the symbol.
+
+        Parameters
+        ----------
+        date : str
+            The current date.
+        prices : dict of floats
+            Dict of key value pair of symbol:price.
+        weights : dict of floats
+            Dict of key value pair of symbol:weight.
+        row : pd.Series
+            A row of data from the timeseries of the portfolio.
+        directions : dict of pf.Direction, optional
+            The direction of the trades (default is None, which implies
+            that all positions are `pf.Direction.LONG`).
+
+        Returns
+        -------
+        w : dict of floats
+            Dict of key value pair of symbol:weight.
+        """
+        w = {}
+
+        # Get current weights
+        for symbol in self.symbols:
+            w[symbol] = self.share_percent(row, symbol)
+        
+        # If direction is None, this set all to pf.Direction.LONG
+        if directions is None:
+            directions = {symbol:pf.Direction.LONG for symbol in self.symbols}
+
+        # Reverse sort by weights.  We want current positions first so that
+        # if they need to reduced or closed out, then cash is freed for
+        # other symbols.
+        w = pf.sort_dict(w, reverse=True)
+
+        # Update weights with new values.
+        w.update(weights)
+        
+        # Call adjust_percents() for each symbol.
+        for symbol in self.symbols:
+            price = prices[symbol]
+            weight = w[symbol]
+            direction = directions[symbol]
+            self.adjust_percent(date, price, weight, symbol, row, direction)
+        return w
+
     def print_holdings(self, date, row):
         """
         Print snapshot of portfolio holding and values.
+
+        Includes all symbols regardless of whether a symbol has shares
+        currently allocated to it.
 
         Parameters
         ----------
         date : str
             The current date.
         row : pd.Series
-            The timeseries of the portfolio.
+            A row of data from the timeseries of the portfolio.
 
         Returns
         -------
@@ -443,7 +512,7 @@ class Portfolio:
 
         Parameters
         ----------
-        _ts : pd.DataFrame
+        ts : pd.DataFrame
             The timeseries of the portfolio.
         capital : int
             The amount of money available for trading.
@@ -466,13 +535,16 @@ class Portfolio:
     def record_daily_balance(self, date, row):
         """
         Append to daily balance list.
+        
+        The portfolio version of this function uses closing values
+        for the daily high, low, and close. 
 
         Parameters
         ----------
         date : str
             The current date.
         row : pd.Series
-            The timeseries of the portfolio.
+            A row of data from the timeseries of the portfolio.
 
         Returns
         -------
@@ -587,7 +659,7 @@ class Portfolio:
 
         Parameters
         ----------
-        _ts : pd.DataFrame
+        ts : pd.DataFrame
             The timeseries of the portfolio.
         method : str, optional {'price', 'log', 'returns'}
             Analysis done based on specified method (default is 'log').

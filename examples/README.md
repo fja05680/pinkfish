@@ -1,27 +1,3 @@
 # Example trading strategies
 
-- `buy-and-hold`: (strategy) simple buy and hold strategy; (dividend) dividend vs non-dividend
-- `double-7s`: buy on X day low, sell on X day high (use closing prices)
-- `double-7s-portfolio`: double-7s applied to a portfolio
-- `follow-trend`: apply the same trading strategy to multiple securites, one at a time, and compare them
-- `futures-forex-crypto`: basic futures example using daily futures data from yahoo finance
-- `golden-cross`: classic golden-cross/death-cross long term trading strategy
-- `merge-trades`: Compare regular trade log vs merged trade log using Scaling-in algorithm
-- `momentum`: stock that's going up tends to keep going up...until it doesn't
-- `momentum-dmsr`: Dual momentum sector rotation
-- `momentum-gem`: Global Equities Momentum
-- `percent-allocate`: maintain a certain percentage allocation to a security
-- `pinkfish-challenge`: buy on the close on the SAME day a new 20 day high is set
-- `portfolio`: backtest a portfolio of stocks; asset allocation model; correlation
-- `pyfolio-empyrical`: demonstrates integration with quantopian's pyfolio and empyrical libraries
-- `scaling-in`: scale in strategy
-- `scaling-in-out`: scale in and out strategy
-- `scaling-out`: scale out strategy
-- `sell-in-may-and-go-away`: demonstration of using the calendar module
-- `short-sell`: demonstrate shorting a security
-- `sma-percent-band`: trading strategy using price vs long term sma; percent band around sma used for hysteresis
-- `sp500-components-timeseries`: get timeseries of all components in sp500
-- `spreadsheet`: make a read only spreadsheet within jupyter notebook
-- `ta-lib-tutorial`: a tutorial on using the ta-lib technical analysis library
-- `trading-evolved`: monthly returns; holding period returns; prettier graphs
-- `update-cache-symbols`: utility to update all the symbols in your data cache
+TODO: update

@@ -16,15 +16,15 @@ from .trade import (
 )
 
 from .statistics import (
-    SP500_BEGIN,
     TRADING_DAYS_PER_YEAR,
     TRADING_DAYS_PER_MONTH,
     TRADING_DAYS_PER_WEEK,
+    ALPHA_BEGIN,
+    SP500_BEGIN,
+    currency_metrics,
     stats,
     currency,
-    summary,
-    default_metrics,
-    currency_metrics
+    summary
 )
 
 from .plot import (
@@ -63,7 +63,9 @@ from .analysis import (
 from .utility import (
     print_full,
     read_config,
-    is_last_row
+    is_last_row,
+    sort_dict,
+    set_dict_values
 )
 
 DEBUG = False

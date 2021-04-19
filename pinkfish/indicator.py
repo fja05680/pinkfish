@@ -111,7 +111,7 @@ def CROSSOVER(ts, timeperiod_fast=50, timeperiod_slow=200,
         {SMA, DEMA, EMA, KAMA, T3, TEMA, TRIMA, WMA}
         The talib function for slow moving average. (default is SMA).
         MAMA not compatible.
-    band : int, {0-100)
+    band : float, {0-100}
         Percent band around the slow moving average.
         (default is 0, which implies no band is used).
     price : str, {'close', 'open', 'high', 'low'}
@@ -135,9 +135,6 @@ def CROSSOVER(ts, timeperiod_fast=50, timeperiod_slow=200,
     --------
     >>> ts['regime'] = pf.CROSSOVER(ts, timeperiod_fast=50,
                                     timeperiod_slow=200)
-
-    >>> ts['crossover'] = CROSSOVER(ts, timeperiod_fast=1,
-                                    timeperiod_slow=50, prevday=True)
     """
     if (timeperiod_fast < 1 or timeperiod_slow < 2
         or timeperiod_fast >= timeperiod_slow):
@@ -263,7 +260,7 @@ def VOLATILITY(ts, lookback=20, time_frame='yearly', downside=False,
 
     Examples
     --------
-    >>> ts['vola'] = pf.MOMENTUM(ts, lookback=20, time_frame='yearly')
+    >>> ts['vola'] = pf.VOLATILITY(ts, lookback=20, time_frame='yearly')
     """
     if lookback < 1:
         raise ValueError('lookback must be positive')

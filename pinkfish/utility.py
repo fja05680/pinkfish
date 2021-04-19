@@ -35,3 +35,15 @@ def is_last_row(ts, index):
     Return True for last row, False otherwise.
     """
     return True if (index == len(ts) - 1) else False
+
+def sort_dict(d, reverse=False):
+    """
+    Return sorted dict; optionally reverse sort.
+    """
+    return dict(sorted(d.items(), key=lambda x: x[1], reverse=reverse))
+
+def set_dict_values(d, value):
+    """
+    Return dict with same keys as `d` and all values equal to `value'.
+    """
+    return dict.fromkeys(d, value)

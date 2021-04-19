@@ -142,6 +142,9 @@ def holding_period_map(dbal):
     """
     Display holding period returns in a table.
 
+    This shows what your annualized return would have been, had you
+    started this strategy at the start of a given year, as shown in
+    the leftmost column, and held it for a certain number of years.
     Length of returns should be 30 or less, otherwise the output
     will be jumbled.
 
@@ -445,7 +448,8 @@ def kelly_criterian(stats, benchmark_stats=None):
     s['sharpe_ratio_max'] = stats['sharpe_ratio_max']
     s['sharpe_ratio_min'] = stats['sharpe_ratio_min']
     s['strategy risk'] = stats['annual_std'] / 100
-    s['instrument risk'] = benchmark_stats['annual_std'] / 100
+    if benchmark_stats is not None:
+        s['instrument risk'] = benchmark_stats['annual_std'] / 100
     s['optimal target risk'] = s['sharpe_ratio']
     s['half kelly criterian'] = s['sharpe_ratio'] / 2
     s['aggressive leverage'] = s['optimal target risk'] / s['instrument risk']
