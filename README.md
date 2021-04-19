@@ -1,9 +1,7 @@
 pinkfish
 ======     
 
-ANNOUNCEMENT: I updated the entire pinkfish API with docstrings, then used pdoc3 to generate html documentation.
-The pinkfish API documentation:
-https://fja05680.github.io/pinkfish/docs/html/pinkfish/index.html
+ANNOUNCEMENT: I refreshed all of the examples to make them simplier and more consistent with each other.  They are also roughly ordered by complexity beginning with the easiest.  I'll be adding some additional examples over the coming days.  I added a TODO file that shows what else is planned for pinkfish.
 
 A backtester and spreadsheet library for security analysis.
 
