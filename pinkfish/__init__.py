@@ -57,7 +57,9 @@ from .analysis import (
     holding_period_map,
     prettier_graphs,
     volatility_graphs,
-    kelly_criterian
+    kelly_criterian,
+    optimizer_summary,
+    optimizer_plot_bar_graph
 )
 
 from .utility import (

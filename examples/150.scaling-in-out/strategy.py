@@ -130,33 +130,3 @@ class Strategy:
 
     def _get_stats(self):
         self.stats = pf.stats(self.ts, self.tlog, self.dbal, self.capital)
-
-def summary(strategies, metrics):
-    """
-    Stores stats summary in a DataFrame.
-
-    stats() must be called before calling this function.
-    """
-    index = []
-    columns = strategies.index
-    data = []
-    # Add metrics.
-    for metric in metrics:
-        index.append(metric)
-        data.append([strategy.stats[metric] for strategy in strategies])
-
-    df = pd.DataFrame(data, columns=columns, index=index)
-    return df
-
-def plot_bar_graph(df, metric):
-    """
-    Plot Bar Graph.
-
-    stats() must be called before calling this function.
-    """
-    df = df.loc[[metric]]
-    df = df.transpose()
-    fig = plt.figure()
-    axes = fig.add_subplot(111, ylabel=metric)
-    df.plot(kind='bar', ax=axes, legend=False)
-    axes.set_xticklabels(df.index, rotation=0)

@@ -1,20 +1,16 @@
-(1) Rework examples.
-(2) Move summary() and plot_bar_graph() within security.py files into pinkfish lib.  These are used with optimization but can go into statistics.py and plot.py.
-(2a) Look into using equlity graph of all results in optimizer, along with benchmark.  Put into pinkfish lib.
-(3) Bug current unrecovered drawdown may not be the worst.
-(4) Crytocurrency backtesting.
-(5) Futures backtesting.
-(6) Percent vs volatility stock/bond/tlt/gld rebalance portfolio, try with S&P500 sectors also.
-(7) Percent band s&p500 sell vs hold bonds with SP500/bond portfolio, rebalance both.
-(7a) Spreadsheet in double-7s folder to how how to use it to trade.
-(8) Re-examine dsmr and gem
-(9) Implement other straegies from "Trading strategies that work.
-(10) Move sma option out of double-7s example, put in strategies/ along with random
-(11) Re-work my strategies folder
-(12) update docs and example html files
-(13) clean up algos/
-(14) change all portfolio examples to use portfolio:adjust_percents()
-(15) Backtest holding all stocks in a portfolio, as an option
-(16) Calculate overall correlation for a portfolio
-(17) Compare several strategies.  Use strateg.py from different example dirs without copying them.
-(18) Average double 7s using portfolio, and different symbol name for each X day high/low
+(1) Look into using equlity graph of all results in optimizer, along with benchmark.  Put into pinkfish lib.
+(2) Bug current unrecovered drawdown may not be the worst.
+(3) Crytocurrency backtesting.
+(4) Futures backtesting.
+(5) Percent vs volatility stock/bond/tlt/gld rebalance portfolio, try with S&P500 sectors also.
+(6) Percent band s&p500 sell vs hold bonds with SP500/bond portfolio, rebalance both.
+(7) Spreadsheet in double-7s folder to how how to use it to trade.
+(8) Implement other straegies from "Trading strategies that work.
+(9) Move sma option out of double-7s example, put in strategies/ along with random
+(10) Re-work my strategies folder
+(11) update docs and example html files
+(12) clean up algos/
+(13) Backtest holding all stocks in a portfolio, as an option
+(14) Calculate overall correlation for a portfolio
+(15) Compare several strategies.  Use strateg.py from different example dirs without copying them.
+(16) Average double 7s using portfolio, and different symbol name for each X day high/low
