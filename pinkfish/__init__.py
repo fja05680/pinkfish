@@ -24,14 +24,16 @@ from .statistics import (
     currency_metrics,
     stats,
     currency,
-    summary
+    summary,
+    optimizer_summary
 )
 
 from .plot import (
     plot_equity_curve,
     plot_equity_curves,
     plot_trades,
-    plot_bar_graph
+    plot_bar_graph,
+    optimizer_plot_bar_graph
 )
 
 from .benchmark import (
@@ -57,9 +59,7 @@ from .analysis import (
     holding_period_map,
     prettier_graphs,
     volatility_graphs,
-    kelly_criterian,
-    optimizer_summary,
-    optimizer_plot_bar_graph
+    kelly_criterian
 )
 
 from .utility import (

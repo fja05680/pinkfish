@@ -1,17 +1,15 @@
-(1) Look into using equlity graph of all results in optimizer, along with benchmark.  Put into pinkfish lib.
-(2) Bug current unrecovered drawdown may not be the worst.
-(3) Crytocurrency backtesting.
-(4) Futures backtesting.
-(5) Percent vs volatility stock/bond/tlt/gld rebalance portfolio, try with S&P500 sectors also.
-(6) Percent band s&p500 sell vs hold bonds with SP500/bond portfolio, rebalance both.
-(7) Spreadsheet in double-7s folder to how how to use it to trade.
-(8) Implement other straegies from "Trading strategies that work.
-(9) Move sma option out of double-7s example, put in strategies/ along with random
-(10) Re-work my strategies folder
-(11) update docs and example html files
-(12) clean up algos/
-(13) Backtest holding all stocks in a portfolio, as an option
-(14) Calculate overall correlation for a portfolio
-(15) Compare several strategies.  Use strateg.py from different example dirs without copying them.
-(16) Average double 7s using portfolio, and different symbol name for each X day high/low
-
+(1) Bug current unrecovered drawdown may not be the worst.
+(2) Crytocurrency backtesting.
+(3) Futures backtesting.
+(4) Percent vs volatility stock/bond/tlt/gld rebalance portfolio, try with S&P500 sectors also.
+(5) Percent band s&p500 sell vs hold bonds with SP500/bond portfolio, rebalance both.
+(6) Spreadsheet in double-7s folder to how how to use it to trade.
+(7) Implement other straegies from "Trading strategies that work.
+(8) Move sma option out of double-7s example, put in strategies/ along with random
+(9) Re-work my strategies folder
+(10) update docs and example html files
+(11) clean up algos/
+(12) Backtest holding all stocks in a portfolio, as an option
+(13) Calculate overall correlation for a portfolio
+(14) Compare several strategies.  Use strategy.py from different example dirs without copying them.
+(15) Average double 7s using portfolio, and different symbol name for each X day high/low

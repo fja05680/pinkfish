@@ -1017,3 +1017,35 @@ def summary(stats, benchmark_stats=None, metrics=default_metrics, extras=None):
 
     df = pd.DataFrame(data, columns=columns, index=index)
     return df
+
+
+def optimizer_summary(strategies, metrics):
+    """
+    Generate summary dataframe of a set of strategies vs metrics.
+
+    This function is designed to be used in analysis of an
+    optimization of some parameter.  stats() must be called for
+    each strategy before calling this function.
+
+   Parameters
+    ----------
+    strategies : pd.Series
+        Series of strategy objects that have the `stats` attribute.
+    metrics : tuple
+        The metrics to be used in the summary.
+
+    Returns
+    -------
+    df : pf.DataFrame
+        Summary of strategies vs metrics.
+    """
+    index = []
+    columns = strategies.index
+    data = []
+    # Add metrics.
+    for metric in metrics:
+        index.append(metric)
+        data.append([strategy.stats[metric] for strategy in strategies])
+
+    df = pd.DataFrame(data, columns=columns, index=index)
+    return df

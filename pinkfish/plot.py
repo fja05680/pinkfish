@@ -38,7 +38,7 @@ def plot_equity_curve(strategy, benchmark=None, fname=None):
     if fname:
         plt.savefig(fname, bbox_inches='tight')
 
-def plot_equity_curves(strategies, fname=None):
+def plot_equity_curves(strategies, labels=None, fname=None):
     """
     Plot Equity Curve: multiple equity curves on same plot.
 
@@ -47,6 +47,9 @@ def plot_equity_curves(strategies, fname=None):
     strategies : pd.Series
         Container of strategy Daily balance (pd.Dataframe) for each
         symbol.
+    labels : list of str, optional
+        List of labels for each strategy (default is None, which implies
+        that `strategy.symbol` is used as the label.
     fname: str or path-like or file-like, optional
         Save the current figure to fname (default is None, which
         implies to not output the figure to a file).
@@ -57,8 +60,12 @@ def plot_equity_curves(strategies, fname=None):
     """
     fig = plt.figure(figsize=(16,12))
     axes = fig.add_subplot(111, ylabel='Portfolio value in $')
-    for strategy in strategies:
-        axes.plot(strategy.dbal['close'], label=strategy.symbol)
+    for i, strategy in enumerate(strategies):
+        if labels is None:
+            label = strategy.symbol
+        else:
+            label = labels[i]
+        axes.plot(strategy.dbal['close'], label=label)
     plt.legend(loc='best')
     if fname:
         plt.savefig(fname, bbox_inches='tight')
@@ -175,3 +182,26 @@ def plot_bar_graph(stats, benchmark_stats=None, metrics=default_metrics,
     if fname:
         plt.savefig(fname, bbox_inches='tight')
     return df
+
+
+def optimizer_plot_bar_graph(df, metric):
+    """
+    Plot Bar Graph of a metric for a set of strategies.
+
+    This function is designed to be used in analysis of an
+    optimization of some parameter.  First all optimizer_summary()
+    to generate the dataframe required by this function.
+
+    Parameters
+    ----------
+    df : pf.DataFrame
+        Summary of strategies vs metrics.
+    metric : str
+        The label for the metric to be used in the summary.
+    """
+    df = df.loc[[metric]]
+    df = df.transpose()
+    fig = plt.figure()
+    axes = fig.add_subplot(111, ylabel=metric)
+    df.plot(kind='bar', ax=axes, legend=False)
+    axes.set_xticklabels(df.index, rotation=0)
