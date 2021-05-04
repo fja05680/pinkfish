@@ -184,8 +184,8 @@ class Portfolio:
         >>>     return pd.Series(ts[input_column]).rolling(ta_param).max()
 
         >>> ts = portfolio.add_technical_indicator(
-        >>>     self.ts, ta_func =_period_high, ta_param=self.period,
-        >>>     output_column_suffix='period_high'+str(self.period),
+        >>>     ts, ta_func=_period_high, ta_param=period,
+        >>>     output_column_suffix='period_high'+str(period),
         >>>     input_column_suffix='close')
         """
         for symbol in self.symbols:

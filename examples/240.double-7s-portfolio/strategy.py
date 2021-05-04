@@ -16,7 +16,6 @@ parity weight (inverse volatility).
 """
 
 import datetime
-import random
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -62,7 +61,7 @@ class Strategy:
         # stop loss pct should range between 0 and 1, user may have
         # expressed this as a percentage 0-100
         if self.options['stop_loss_pct'] > 1:
-            self.options['stop_loss_pct'] /= 100;
+            self.options['stop_loss_pct'] /= 100
 
         period_high_field = 'period_high' + str(self.options['period'])
         period_low_field  = 'period_low'  + str(self.options['period'])

@@ -597,7 +597,7 @@ def _max_closed_out_drawdown(close):
     dd_max = min(0, cur_dd.min())
     idx = cur_dd.idxmin()
 
-    dd = pd.Series()
+    dd = pd.Series(dtype='object')
     dd['max'] = dd_max
     dd['peak'] = running_max[idx]
     dd['trough'] = close[idx]
@@ -622,7 +622,7 @@ def _max_intra_day_drawdown(high, low):
     dd_max = min(0, cur_dd.min())
     idx = cur_dd.idxmin()
 
-    dd = pd.Series()
+    dd = pd.Series(dtype='object')
     dd['max'] = dd_max
     dd['peak'] = running_max[idx]
     dd['trough'] = low[idx]
