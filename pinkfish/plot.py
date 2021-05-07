@@ -10,7 +10,7 @@ register_matplotlib_converters()
 import pinkfish as pf
 
 
-def plot_equity_curve(strategy, benchmark=None, fname=None):
+def plot_equity_curve(strategy, benchmark=None, yscale='linear', fname=None):
     """
     Plot Equity Curve: Strategy vs (optionally) Benchmark.
 
@@ -21,6 +21,8 @@ def plot_equity_curve(strategy, benchmark=None, fname=None):
     benchmark: pd.DataFrame, optional
         Daily balance for the benchmark (default is None, which implies
         that a benchmark is not being used).
+    yscale: str, {'linear', 'log', 'symlog', 'logit'}
+        The axis scale type to apply (default is 'linear')
     fname: str or path-like or file-like, optional
         Save the current figure to fname (default is None, which
         implies to not output the figure to a file).
@@ -32,13 +34,14 @@ def plot_equity_curve(strategy, benchmark=None, fname=None):
     fig = plt.figure()
     axes = fig.add_subplot(111, ylabel='Portfolio value in $')
     axes.plot(strategy['close'], label='strategy')
+    axes.set_yscale(yscale)
     if benchmark is not None:
         axes.plot(benchmark['close'], label='benchmark')
     plt.legend(loc='best')
     if fname:
         plt.savefig(fname, bbox_inches='tight')
 
-def plot_equity_curves(strategies, labels=None, fname=None):
+def plot_equity_curves(strategies, labels=None, yscale='linear', fname=None):
     """
     Plot Equity Curve: multiple equity curves on same plot.
 
@@ -50,6 +53,8 @@ def plot_equity_curves(strategies, labels=None, fname=None):
     labels : list of str, optional
         List of labels for each strategy (default is None, which implies
         that `strategy.symbol` is used as the label.
+    yscale: str, {'linear', 'log', 'symlog', 'logit'}
+        The axis scale type to apply (default is 'linear')
     fname: str or path-like or file-like, optional
         Save the current figure to fname (default is None, which
         implies to not output the figure to a file).
@@ -66,11 +71,12 @@ def plot_equity_curves(strategies, labels=None, fname=None):
         else:
             label = labels[i]
         axes.plot(strategy.dbal['close'], label=label)
+        axes.set_yscale(yscale)
     plt.legend(loc='best')
     if fname:
         plt.savefig(fname, bbox_inches='tight')
 
-def plot_trades(strategy, benchmark=None, fname=None):
+def plot_trades(strategy, benchmark=None, yscale='linear', fname=None):
     """
     Plot Trades.
 
@@ -83,6 +89,8 @@ def plot_trades(strategy, benchmark=None, fname=None):
         Daily balance for the strategy.
     benchmark: pd.DataFrame, optional
         Daily balance for the benchmark.
+    yscale: str, {'linear', 'log', 'symlog', 'logit'}
+        The axis scale type to apply (default is 'linear')
     fname: str or path-like or file-like, optional
         Save the current figure to fname (default is None, which
         implies to not output the figure to a file).
@@ -100,18 +108,21 @@ def plot_trades(strategy, benchmark=None, fname=None):
     fig = plt.figure()
     axes = fig.add_subplot(111, ylabel='Portfolio value in $')
     axes.plot(benchmark.index, benchmark['close'], label=label)
+    axes.set_yscale(yscale)
 
     # Buy trades.
     s = strategy['state'] == pf.TradeState.OPEN
     s = s.reindex_like(benchmark)
     buy = benchmark[s]
     axes.plot(buy.index, buy['close'], '^', markersize=10, color='k')
+    axes.set_yscale(yscale)
 
     # Sell trades.
     s = strategy['state'] == pf.TradeState.CLOSE
     s = s.reindex_like(benchmark)
     sell = benchmark[s]
     axes.plot(sell.index, sell['close'], 'v', markersize=10, color='r')
+    axes.set_yscale(yscale)
     plt.legend(loc='best')
     if fname:
         plt.savefig(fname, bbox_inches='tight')
