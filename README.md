@@ -13,7 +13,7 @@ Some of the key features of pinkfish:
  - uses daily data (vs minute or tick data) for intraday trading
  - uses free daily data from yahoo finance
  - simple to use python API
- - backtest single stock/ETF strategy or a portolio (basket of stocks/ETFs)
+ - backtest single stock/ETF strategy or a portfolio (basket of stocks/ETFs)
  - backtest short selling strategies and simulate trading with margin
  - write optimizers to select the best parameters
  - create spreadsheets within Jupyter Notebook by utilizing pandas dataframes and itable formatting
