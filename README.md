@@ -1,8 +1,6 @@
 pinkfish
 ======     
 
-ANNOUNCEMENT: I refreshed all of the examples to make them simplier and more consistent with each other.  They are also roughly ordered by complexity beginning with the easiest.  I'll be adding some additional examples over the coming days.  I added a TODO file that shows what else is planned for pinkfish.
-
 A backtester and spreadsheet library for security analysis.
 
 Why another python backtesting library?  How is pinkfish different?
@@ -29,6 +27,8 @@ https://fja05680.github.io/pinkfish/
  - [golden-cross](http://fja05680.github.io/pinkfish/examples/golden-cross.html) - classic long term trading algorithm
  - [spreadsheet](https://fja05680.github.io/pinkfish/examples/spreadsheet.html) - read only spreadsheet within jupyter notebook
  - [momentum-gem](http://fja05680.github.io/pinkfish/examples/momentum-gem.html) - Gary Antonacci’s Dual Momentum strategy
+
+Many more examples in `examples` folder.  They are roughly ordered by complexity beginning with the easiest.
  
 ## Documentation
 The pinkfish API documentation:
