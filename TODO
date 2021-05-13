@@ -1,14 +1,13 @@
 (1) Crytocurrency backtesting.
 (2) Futures backtesting.
 (3) Micro-futures backtesting.
-(4) Compare several strategies.  Use strategy.py from different example dirs without copying them.
-(5) Calculate overall correlation for a portfolio
-(6) Backtest holding all stocks in a portfolio, as an option
-(7) Update docs and example html files
+(4) Calculate overall correlation for a portfolio
+(5) Backtest holding all stocks in a portfolio, as an option
+(6) Update docs and example html files
 
-(8) Average double 7s using portfolio, and different symbol name for each X day high/low
-(9) Percent vs volatility stock/bond/tlt/gld rebalance portfolio, try with S&P500 sectors also.
-(10) Percent band s&p500 sell vs hold bonds with SP500/bond portfolio, rebalance both.
-(11) Implement other straegies from "Trading strategies that work.
-(12) What percent of time, if high/low price is closest to the open, then high/low price came first.  Need minute data for this.
-(13) Backtest intraday data, i.e. minute data
+(7) Average double 7s using portfolio, and different symbol name for each X day high/low
+(8) Percent vs volatility stock/bond/tlt/gld rebalance portfolio, try with S&P500 sectors also.
+(9) Percent band s&p500 sell vs hold bonds with SP500/bond portfolio, rebalance both.
+(10) Implement other straegies from "Trading strategies that work.
+(11) What percent of time, if high/low price is closest to the open, then high/low price came first.  Need minute data for this.
+(12) Backtest intraday data, i.e. minute data

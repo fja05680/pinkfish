@@ -3,11 +3,53 @@ Utility functions.
 """
 
 from configparser import ConfigParser
+import importlib.util
 import os
+from pathlib import Path
 
 import pandas as pd
 
 import pinkfish as pf
+
+
+ROOT = str(Path(os.getcwd().split('pinkfish')[0] + '/pinkfish'))
+"""
+str: Pinkfish project root dir.
+"""
+
+
+def import_strategy(strategy_name, top_level_dir='examples', module_name='strategy'):
+    """
+    Import a strategy from a python .py file.
+
+    Parameters
+    ----------
+    strategy_name : str
+        The leaf dir name that contains the strategy to import.
+    top_level_dir : str, optional
+        The top level dir name for the strategies.
+        (default is 'examples').
+    module_name: str, optional
+        The name of the python module (default is 'strategy').
+
+    Returns
+    -------
+    module
+        The imported module.
+
+    Examples
+    --------
+    >>> strategy = import_strategy(strategy_name='190.momentum-dmsr-portfolio')
+    """
+
+    strategy_location = (Path(ROOT) / Path(top_level_dir)
+                                    / Path(strategy_name)
+                                    / Path(module_name + '.py'))
+    print(strategy_location)
+    spec = importlib.util.spec_from_file_location(module_name, strategy_location) 
+    strategy = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(strategy)
+    return strategy
 
 
 def print_full(x):

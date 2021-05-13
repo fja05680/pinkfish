@@ -1045,7 +1045,7 @@ def optimizer_summary(strategies, metrics):
     # Add metrics.
     for metric in metrics:
         index.append(metric)
-        data.append([strategy.stats[metric] for strategy in strategies])
+        data.append([_get_metric_value(strategy.stats, metric) for strategy in strategies])
 
     df = pd.DataFrame(data, columns=columns, index=index)
     return df

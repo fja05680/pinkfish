@@ -113,3 +113,8 @@ class Benchmark:
         self._algo()
         self._get_logs()
         self._get_stats()
+
+Strategy = Benchmark
+"""
+class : Strategy is a class reference to Benchmark, i.e. an alias.
+"""

@@ -63,6 +63,8 @@ from .analysis import (
 )
 
 from .utility import (
+    ROOT,
+    import_strategy,
     print_full,
     read_config,
     is_last_row,
