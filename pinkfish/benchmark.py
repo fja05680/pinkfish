@@ -116,7 +116,7 @@ class Benchmark:
         self.ts = self.portfolio.calendar(self.ts)
 
         self.ts, self.start = self.portfolio.finalize_timeseries(self.ts, self.start)
-        self.portfolio.init_trade_logs(self.ts, self.capital, margin=pf.Margin.CASH)
+        self.portfolio.init_trade_logs(self.ts)
 
         self._algo()
         self._get_logs()

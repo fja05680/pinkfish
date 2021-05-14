@@ -159,7 +159,7 @@ class Strategy:
                 input_column_suffix='close')
 
         self.ts, self.start = self.portfolio.finalize_timeseries(self.ts, self.start)
-        self.portfolio.init_trade_logs(self.ts, self.capital, self.options['margin'])
+        self.portfolio.init_trade_logs(self.ts)
 
         self._algo()
         self._get_logs()

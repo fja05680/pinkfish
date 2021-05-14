@@ -506,7 +506,7 @@ class Portfolio:
     ####################################################################
     # LOGS (init_trade_logs, record_daily_balance, get_logs)
 
-    def init_trade_logs(self, ts, capital, margin=pf.Margin.CASH):
+    def init_trade_logs(self, ts):
         """
         Add a trade log for each symbol.
 
@@ -514,17 +514,11 @@ class Portfolio:
         ----------
         ts : pd.DataFrame
             The timeseries of the portfolio.
-        capital : int
-            The amount of money available for trading.
-        margin : float, optional
-            Margin percent (default is pf.Margin.CASH)
 
         Returns
         -------
         None
         """
-        pf.TradeLog.cash = capital
-        pf.TradeLog.margin = margin
         pf.TradeLog.seq_num = 0
         pf.TradeLog.instance.clear()
 

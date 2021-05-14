@@ -2,12 +2,11 @@
 (2) Futures backtesting.
 (3) Micro-futures backtesting.
 (4) Calculate overall correlation for a portfolio
-(5) Backtest holding all stocks in a portfolio, as an option
-(6) Update docs and example html files
+(5) Update docs and example html files
 
-(7) Average double 7s using portfolio, and different symbol name for each X day high/low
-(8) Percent vs volatility stock/bond/tlt/gld rebalance portfolio, try with S&P500 sectors also.
-(9) Percent band s&p500 sell vs hold bonds with SP500/bond portfolio, rebalance both.
-(10) Implement other straegies from "Trading strategies that work.
-(11) What percent of time, if high/low price is closest to the open, then high/low price came first.  Need minute data for this.
-(12) Backtest intraday data, i.e. minute data
+(6) Average double 7s using portfolio, and different symbol name for each X day high/low
+(7) Percent vs volatility stock/bond/tlt/gld rebalance portfolio, try with S&P500 sectors also.
+(8) Percent band s&p500 sell vs hold bonds with SP500/bond portfolio, rebalance both.
+(9) Implement other straegies from "Trading strategies that work.
+(10) What percent of time, if high/low price is closest to the open, then high/low price came first.  Need minute data for this.
+(11) Backtest intraday data, i.e. minute data

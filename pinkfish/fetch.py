@@ -240,7 +240,7 @@ def remove_cache_symbols(symbols=None, dir_name='data'):
 
     Parameters
     ----------
-    symbols : str or list, optional
+    symbols : str or list of str, optional
         The symbol(s) for which to remove cached timeseries (default
         is None, which imples remove timeseries for all symbols).
     dir_name : str, optional
