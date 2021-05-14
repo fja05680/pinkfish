@@ -1,8 +1,6 @@
 pinkfish
 ======     
 
-ANNOUNCEMENT: I refreshed all of the examples to make them simplier and more consistent with each other.  They are also roughly ordered by complexity beginning with the easiest.  I'll be adding some additional examples over the coming days.  I added a TODO file that shows what else is planned for pinkfish.
-
 A backtester and spreadsheet library for security analysis.
 
 Why another python backtesting library?  How is pinkfish different?
@@ -15,7 +13,7 @@ Some of the key features of pinkfish:
  - uses daily data (vs minute or tick data) for intraday trading
  - uses free daily data from yahoo finance
  - simple to use python API
- - backtest single stock/ETF strategy or a portolio (basket of stocks/ETFs)
+ - backtest single stock/ETF strategy or a portfolio (basket of stocks/ETFs)
  - backtest short selling strategies and simulate trading with margin
  - write optimizers to select the best parameters
  - create spreadsheets within Jupyter Notebook by utilizing pandas dataframes and itable formatting
@@ -29,6 +27,8 @@ https://fja05680.github.io/pinkfish/
  - [golden-cross](http://fja05680.github.io/pinkfish/examples/golden-cross.html) - classic long term trading algorithm
  - [spreadsheet](https://fja05680.github.io/pinkfish/examples/spreadsheet.html) - read only spreadsheet within jupyter notebook
  - [momentum-gem](http://fja05680.github.io/pinkfish/examples/momentum-gem.html) - Gary Antonacci’s Dual Momentum strategy
+
+Many more examples in `examples` folder.  They are roughly ordered by complexity beginning with the easiest.
  
 ## Documentation
 The pinkfish API documentation:
