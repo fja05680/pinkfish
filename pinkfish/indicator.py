@@ -1,7 +1,11 @@
 """
 Custom indicators.
+
+These indicators are meant to supplement the TA-Lib.  See:
+https://ta-lib.org/function.html
 """
 
+import math
 import numpy as np
 import pandas as pd
 from talib.abstract import *
@@ -101,20 +105,20 @@ def CROSSOVER(ts, timeperiod_fast=50, timeperiod_slow=200,
         A dataframe with 'open', 'high', 'low', 'close', 'volume'.
     timeperiod_fast : int, optional
         The timeperiod for the fast moving average (default is 50).
-    timeperiod_slow : int
+    timeperiod_slow : int, optional
         The timeperiod for the slow moving average (default is 200).
-    func_fast : ta_lib.Function,
+    func_fast : ta_lib.Function, optional
         {SMA, DEMA, EMA, KAMA, T3, TEMA, TRIMA, WMA}
         The talib function for fast moving average (default is SMA).
         MAMA not compatible.
-    func_slow : ta_lib.Function,
+    func_slow : ta_lib.Function, optional
         {SMA, DEMA, EMA, KAMA, T3, TEMA, TRIMA, WMA}
         The talib function for slow moving average. (default is SMA).
         MAMA not compatible.
-    band : float, {0-100}
+    band : float, {0-100}, optional
         Percent band around the slow moving average.
         (default is 0, which implies no band is used).
-    price : str, {'close', 'open', 'high', 'low'}
+    price : str, optional {'close', 'open', 'high', 'low'}
         Input_array column to use for price (default is 'close').
     prevday : bool, optional
         True will shift the series forward.  Unless you are buying
@@ -124,7 +128,7 @@ def CROSSOVER(ts, timeperiod_fast=50, timeperiod_slow=200,
     Returns
     -------
     s : pd.Series
-        A new column that contains the regime indicator values.
+        Series that contains the rolling regime indicator values.
 
     Raises
     ------
@@ -174,9 +178,9 @@ def MOMENTUM(ts, lookback=1, time_frame='monthly', price='close', prevday=False)
     lookback : int, optional
         The number of time frames to lookback, i.e. 2 months
         (default is 1).
-    timeframe : str, {'monthly', 'daily', 'weekly', 'yearly'}
+    timeframe : str, optional {'monthly', 'daily', 'weekly', 'yearly'}
         The unit or timeframe type of lookback (default is 'monthly').
-    price : str, {'close', 'open', 'high', 'low'}
+    price : str, optional {'close', 'open', 'high', 'low'}
         Input_array column to use for price (default is 'close').
     prevday : bool, optional
         True will shift the series forward.  Unless you are buying
@@ -186,7 +190,7 @@ def MOMENTUM(ts, lookback=1, time_frame='monthly', price='close', prevday=False)
     Returns
     -------
     s : pd.Series
-        A new column that contains the momentum indicator values.
+        Series that contains the rolling momentum indicator values.
 
     Raises
     ------
@@ -235,15 +239,18 @@ def VOLATILITY(ts, lookback=20, time_frame='yearly', downside=False,
     ts : pd.DateFrame
         A dataframe with 'open', 'high', 'low', 'close', 'volume'.
     lookback : int, optional
-        The number of time frames to lookback, i.e. 2 months
+        The number of time frames to lookback, e.g. 2 months
         (default is 1).
-    timeframe : str, {'yearly', 'daily', 'weekly', 'monthly'}
-        The unit or timeframe type of lookback (default is 'yearly').
+    timeframe : str, optional {'yearly', 'daily', 'weekly', 'monthly'}
+        The unit or timeframe used for scaling.  For example, if the
+        lookback is 20 and the timeframe is 'yearly', then we compute
+        the 20 day volatility and scale to 1 year.
+        (default is 'yearly').
     downside : bool, optional
         True to calculate the downside volatility (default is False).
-    price : str, {'close', 'open', 'high', 'low'}
+    price : str, optional {'close', 'open', 'high', 'low'}
         Input_array column to use for price (default is 'close').
-    prevday : bool 
+    prevday : bool, optional
         True will shift the series forward.  Unless you are buying
         on the close, you'll likely want to set this to True.
         It gives you the previous day's Volatility (default is False).
@@ -251,7 +258,7 @@ def VOLATILITY(ts, lookback=20, time_frame='yearly', downside=False,
     Returns
     -------
     s : pd.Series
-        A new column that contains the rollowing volatility.
+        A new column that contains the rolling volatility.
 
     Raises
     ------
@@ -277,6 +284,192 @@ def VOLATILITY(ts, lookback=20, time_frame='yearly', downside=False,
         s[s > 0] = 0
     s = s.rolling(window=lookback).std() * np.sqrt(factor)
 
+    if prevday:
+        s = s.shift()
+
+    return s
+
+
+########################################################################
+# ANNUALIZED_RETURNS
+
+def ANNUALIZED_RETURNS(ts, lookback=5, price='close', prevday=False):
+    """
+    Calculate the rolling annualized returns.
+
+    Parameters
+    ----------
+    ts : pd.DateFrame
+        A dataframe with 'open', 'high', 'low', 'close', 'volume'.
+    lookback : float, optional
+        The number of years to lookback, e.g. 5 years.  1/12 can be
+        used for 1 month.  Likewise 3/12 for 3 months, etc...
+        (default is 5).
+    price : str, optional {'close', 'open', 'high', 'low'}
+        Input_array column to use for price (default is 'close').
+    prevday : bool, optional
+        True will shift the series forward.  Unless you are buying
+        on the close, you'll likely want to set this to True.
+        It gives you the previous day's Volatility (default is False).
+
+    Returns
+    -------
+    s : pd.Series
+        Series that contains the rolling annualized returns.
+
+    Raises
+    ------
+    ValueError
+        If the lookback is not positive.
+
+    Examples
+    --------
+    >>> annual_returns_1mo = pf.ANNUALIZED_RETURNS(ts, lookback=1/12)
+    >>> annual_returns_3mo = pf.ANNUALIZED_RETURNS(ts, lookback=3/12)
+    >>> annual_returns_1yr = pf.ANNUALIZED_RETURNS(ts, lookback=1)
+    >>> annual_returns_3yr = pf.ANNUALIZED_RETURNS(ts, lookback=3)
+    >>> annual_returns_5yr = pf.ANNUALIZED_RETURNS(ts, lookback=5)
+    """
+    def _cagr(s):
+        """
+        Calculate compound annual growth rate.
+
+        B = end balance; A = begin balance; n = num years
+        """
+        A = s[0]
+        B = s[-1]
+        n = len(s)
+        if B < 0: B = 0
+        return (math.pow(B / A, 1 / n) - 1) * 100
+
+    if lookback <= 0:
+        raise ValueError('lookback must be positive')
+
+    window = int(lookback * pf.TRADING_DAYS_PER_YEAR)
+    s = pd.Series(ts[price]).rolling(window).apply(_cagr)
+    if prevday:
+        s = s.shift()
+
+    return s
+
+
+########################################################################
+# ANNUALIZED_STANDARD_DEVIATION
+
+def ANNUALIZED_STANDARD_DEVIATION(ts, lookback=3, price='close', prevday=False):
+    """
+    Calculate the rolling annualized standard deviation.
+
+    Parameters
+    ----------
+    ts : pd.DateFrame
+        A dataframe with 'open', 'high', 'low', 'close', 'volume'.
+    lookback : float, optional
+        The number of years to lookback, e.g. 5 years.  1/12 can be
+        used for 1 month.  Likewise 3/12 for 3 months, etc...
+        (default is 5).
+    price : str, optional {'close', 'open', 'high', 'low'}
+        Input_array column to use for price (default is 'close').
+    prevday : bool, optional
+        True will shift the series forward.  Unless you are buying
+        on the close, you'll likely want to set this to True.
+        It gives you the previous day's Volatility (default is False).
+
+    Returns
+    -------
+    s : pd.Series
+        Series that contains the rolling annualized standard deviation.
+
+    Raises
+    ------
+    ValueError
+        If the lookback is not positive.
+
+    Examples
+    --------
+    >>> std_dev_1mo = pf.ANNUALIZED_STANDARD_DEVIATION(ts,lookback=1/12)
+    >>> std_dev_3mo = pf.ANNUALIZED_STANDARD_DEVIATION(ts, lookback=3/12)
+    >>> std_dev_1yr = pf.ANNUALIZED_STANDARD_DEVIATION(ts, lookback=1)
+    >>> std_dev_3yr = pf.ANNUALIZED_STANDARD_DEVIATION(ts, lookback=3)
+    >>> std_dev_5yr = pf.ANNUALIZED_STANDARD_DEVIATION(ts, lookback=5)
+    """
+    def _std_dev(s):
+        """
+        Calculate the annualized standard deviation.
+        """
+        return np.std(s, axis=0) * math.sqrt(pf.TRADING_DAYS_PER_YEAR)
+
+    if lookback <= 0:
+        raise ValueError('lookback must be positive')
+
+    window = int(lookback * pf.TRADING_DAYS_PER_YEAR)
+    pc = ts[price].pct_change()
+    s = pd.Series(pc).rolling(window).apply(_std_dev)
+    if prevday:
+        s = s.shift()
+
+    return s
+
+
+########################################################################
+# ANNUALIZED_SHARPE_RATIO
+
+def ANNUALIZED_SHARPE_RATIO(ts, lookback=5, price='close', prevday=False,
+                            risk_free=0):
+    """
+    Calculate the rolling annualized sharpe ratio.
+
+    Parameters
+    ----------
+    ts : pd.DateFrame
+        A dataframe with 'open', 'high', 'low', 'close', 'volume'.
+    lookback : float, optional
+        The number of years to lookback, e.g. 5 years.  1/12 can be
+        used for 1 month.  Likewise 3/12 for 3 months, etc...
+        (default is 5).
+    price : str, optional {'close', 'open', 'high', 'low'}
+        Input_array column to use for price (default is 'close').
+    prevday : bool, optional
+        True will shift the series forward.  Unless you are buying
+        on the close, you'll likely want to set this to True.
+        It gives you the previous day's Volatility (default is False).
+    risk_free: float, optional
+        The risk free rate (default is 0).
+
+    Returns
+    -------
+    s : pd.Series
+        Series that contains the rolling annualized sharpe ratio.
+
+    Raises
+    ------
+    ValueError
+        If the lookback is not positive.
+
+    Examples
+    --------
+    >>> sharpe_ratio_1mo = pf.ANNUALIZED_SHARPE_RATIO(ts, lookback=1/12)
+    >>> sharpe_ratio_3mo = pf.ANNUALIZED_SHARPE_RATIO(ts, lookback=3/12)
+    >>> sharpe_ratio_1yr = pf.ANNUALIZED_SHARPE_RATIO(ts, lookback=1)
+    >>> sharpe_ratio_3yr = pf.ANNUALIZED_SHARPE_RATIO(ts, lookback=3)
+    >>> sharpe_ratio_5yr = pf.ANNUALIZED_SHARPE_RATIO(ts, lookback=5)
+    """
+    def _sharpe_ratio(s):
+        """
+        Calculate the annualized sharpe ratio.
+        """
+        dev = np.std(s, axis=0)
+        mean = np.mean(s, axis=0)
+        period = len(s)
+        sharpe = (mean*period - risk_free) / (dev * np.sqrt(period))
+        return sharpe
+
+    if lookback <= 0:
+        raise ValueError('lookback must be positive')
+
+    window = int(lookback*pf.TRADING_DAYS_PER_YEAR)
+    pc = ts[price].pct_change()
+    s = pd.Series(pc).rolling(window).apply(_sharpe_ratio)
     if prevday:
         s = s.shift()
 

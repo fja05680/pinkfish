@@ -47,7 +47,10 @@ from .portfolio import (
 from .indicator import (
     CROSSOVER,
     MOMENTUM,
-    VOLATILITY
+    VOLATILITY,
+    ANNUALIZED_RETURNS,
+    ANNUALIZED_STANDARD_DEVIATION,
+    ANNUALIZED_SHARPE_RATIO
 )
 
 from .pfcalendar import (
