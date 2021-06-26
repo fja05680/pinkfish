@@ -205,9 +205,9 @@ def MOMENTUM(ts, lookback=1, time_frame='monthly', price='close', prevday=False)
         raise ValueError('lookback must be positive')
 
     if   time_frame =='daily':   factor = 1
-    elif time_frame =='weekly':  factor = pf.TRADING_DAYS_PER_WEEK
-    elif time_frame =='monthly': factor = pf.TRADING_DAYS_PER_MONTH
-    elif time_frame =='yearly':  factor = pf.TRADING_DAYS_PER_YEAR
+    elif time_frame =='weekly':  factor = pf.statistics.TRADING_DAYS_PER_WEEK
+    elif time_frame =='monthly': factor = pf.statistics.TRADING_DAYS_PER_MONTH
+    elif time_frame =='yearly':  factor = pf.statistics.TRADING_DAYS_PER_YEAR
     else:
         raise ValueError('invalid time_frame "{}"'.format(time_frame))
 
@@ -273,9 +273,9 @@ def VOLATILITY(ts, lookback=20, time_frame='yearly', downside=False,
         raise ValueError('lookback must be positive')
 
     if   time_frame == 'daily':   factor = 1
-    elif time_frame == 'weekly':  factor = pf.TRADING_DAYS_PER_WEEK
-    elif time_frame == 'monthly': factor = pf.TRADING_DAYS_PER_MONTH
-    elif time_frame == 'yearly':  factor = pf.TRADING_DAYS_PER_YEAR
+    elif time_frame == 'weekly':  factor = pf.statistics.TRADING_DAYS_PER_WEEK
+    elif time_frame == 'monthly': factor = pf.statistics.TRADING_DAYS_PER_MONTH
+    elif time_frame == 'yearly':  factor = pf.statistics.TRADING_DAYS_PER_YEAR
     else:
         raise ValueError('invalid time_frame "{}"'.format(time_frame))
 
@@ -345,7 +345,7 @@ def ANNUALIZED_RETURNS(ts, lookback=5, price='close', prevday=False):
     if lookback <= 0:
         raise ValueError('lookback must be positive')
 
-    window = int(lookback * pf.TRADING_DAYS_PER_YEAR)
+    window = int(lookback * pf.statistics.TRADING_DAYS_PER_YEAR)
     s = pd.Series(ts[price]).rolling(window).apply(_cagr)
     if prevday:
         s = s.shift()
@@ -397,12 +397,12 @@ def ANNUALIZED_STANDARD_DEVIATION(ts, lookback=3, price='close', prevday=False):
         """
         Calculate the annualized standard deviation.
         """
-        return np.std(s, axis=0) * math.sqrt(pf.TRADING_DAYS_PER_YEAR)
+        return np.std(s, axis=0) * math.sqrt(pf.statistics.TRADING_DAYS_PER_YEAR)
 
     if lookback <= 0:
         raise ValueError('lookback must be positive')
 
-    window = int(lookback * pf.TRADING_DAYS_PER_YEAR)
+    window = int(lookback * pf.statistics.TRADING_DAYS_PER_YEAR)
     pc = ts[price].pct_change()
     s = pd.Series(pc).rolling(window).apply(_std_dev)
     if prevday:
@@ -467,9 +467,67 @@ def ANNUALIZED_SHARPE_RATIO(ts, lookback=5, price='close', prevday=False,
     if lookback <= 0:
         raise ValueError('lookback must be positive')
 
-    window = int(lookback*pf.TRADING_DAYS_PER_YEAR)
+    window = int(lookback * pf.statistics.TRADING_DAYS_PER_YEAR)
     pc = ts[price].pct_change()
     s = pd.Series(pc).rolling(window).apply(_sharpe_ratio)
+    if prevday:
+        s = s.shift()
+
+    return s
+
+
+# TODO: This function under development
+def SMA_ROC(ts, sma_timeperiod=20, roc_timeperiod=1, price='close', prevday=False):
+    """
+    This indicator is used to represent momentum is security prices.
+
+    Percent price change is used to calculate momentum.  Momentum
+    is positive if the price since the lookback period has increased.
+    Likewise, if price has decreased since the lookback period,
+    momentum is negative.  Percent change is used to normalize
+    asset prices for comparison.
+
+    Parameters
+    ----------
+    ts : pd.DateFrame
+        A dataframe with 'open', 'high', 'low', 'close', 'volume'.
+    lookback : int, optional
+        The number of time frames to lookback, i.e. 2 months
+        (default is 1).
+    timeframe : str, optional {'monthly', 'daily', 'weekly', 'yearly'}
+        The unit or timeframe type of lookback (default is 'monthly').
+    price : str, optional {'close', 'open', 'high', 'low'}
+        Input_array column to use for price (default is 'close').
+    prevday : bool, optional
+        True will shift the series forward.  Unless you are buying
+        on the close, you'll likely want to set this to True.
+        It gives you the previous day's Momentum (default is False).
+
+    Returns
+    -------
+    s : pd.Series
+        Series that contains the rolling momentum indicator values.
+
+    Raises
+    ------
+    ValueError
+        If the lookback is not positive or the time_frame is invalid.
+
+    Examples
+    --------
+    >>> ts['mom'] = pf.MOMENTUM(ts, lookback=6, time_frame='monthly')
+    """
+    if sma_timeperiod < 1 or roc_timeperiod < 1:
+        raise ValueError('lookback must be positive')
+
+    if   time_frame =='daily':   factor = 1
+    elif time_frame =='weekly':  factor = pf.statistics.TRADING_DAYS_PER_WEEK
+    elif time_frame =='monthly': factor = pf.statistics.TRADING_DAYS_PER_MONTH
+    elif time_frame =='yearly':  factor = pf.statistics.TRADING_DAYS_PER_YEAR
+    else:
+        raise ValueError('invalid time_frame "{}"'.format(time_frame))
+
+    s = ts[price].pct_change(periods=lookback*factor)
     if prevday:
         s = s.shift()
 

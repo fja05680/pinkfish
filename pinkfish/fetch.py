@@ -141,7 +141,8 @@ def _adj_prices(ts):
     return ts
 
 
-def select_tradeperiod(ts, start, end, use_adj=False):
+def select_tradeperiod(ts, start, end, use_adj=False,
+                       continuous_timeseries=False):
     """
     Select the trade period.
 
@@ -160,6 +161,10 @@ def select_tradeperiod(ts, start, end, use_adj=False):
     use_adj : bool, optional
         True to adjust prices for dividends and splits
         (default is False).
+    continuous_timeseries : bool, optional
+        True for trading 7 days a week.  False for 5 days a week.
+        Set to True if your timeseries has prices for every day of the
+        week, e.g. cryptocurrencies.  (default is False).
 
     Returns
     -------
@@ -169,7 +174,14 @@ def select_tradeperiod(ts, start, end, use_adj=False):
     """
     columns = ['high', 'low', 'open', 'close', 'adj_close']
     ts[columns] = ts[ts[columns] > 0][columns]
-    ts.dropna()
+
+    if continuous_timeseries:
+        pf.statistics.select_trading_days(is_continuous=True)
+    else:
+        index = pd.to_datetime(pf.stock_market_calendar)
+        ts = ts.reindex(index=index)
+
+    ts.dropna(inplace=True)
 
     if use_adj:
         _adj_prices(ts)

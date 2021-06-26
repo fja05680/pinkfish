@@ -96,7 +96,8 @@ class Portfolio:
 
     def fetch_timeseries(self, symbols, start, end,
                          fields=['open', 'high', 'low', 'close'],
-                         use_cache=True, use_adj=True):
+                         use_cache=True, use_adj=True,
+                         continuous_timeseries=False):
         """
         Read time series data for symbols.
 
@@ -117,6 +118,11 @@ class Portfolio:
         use_adj : bool, optional
             True to adjust prices for dividends and splits
             (default is False).
+        continuous_timeseries : bool, optional
+            True for trading 7 days a week.  False for 5 days a week.
+            Set to True only if ALL your investments in a portfolio has
+            prices for every day of the week, e.g. all cryptocurrencies
+            in portfolio (default is False).
 
         Returns
         -------
@@ -127,14 +133,16 @@ class Portfolio:
 
             if i == 0:
                 ts = pf.fetch_timeseries(symbol, use_cache=use_cache)
-                ts = pf.select_tradeperiod(ts, start, end, use_adj=use_adj)
+                ts = pf.select_tradeperiod(ts, start, end, use_adj=use_adj,
+                                           continuous_timeseries=continuous_timeseries)
                 self._add_symbol_columns(ts, symbol, ts, fields)
                 ts.drop(columns=['open', 'high', 'low', 'close', 'volume', 'adj_close'],
                         inplace=True)
             else:
                 # Add another symbol.
                 _ts = pf.fetch_timeseries(symbol, use_cache=use_cache)
-                _ts = pf.select_tradeperiod(_ts, start, end, use_adj=use_adj)
+                _ts = pf.select_tradeperiod(_ts, start, end, use_adj=use_adj,
+                                            continuous_timeseries=continuous_timeseries)
                 self._add_symbol_columns(ts, symbol, _ts, fields)
 
         self.symbols = symbols

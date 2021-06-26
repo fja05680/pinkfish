@@ -16,9 +16,6 @@ from .trade import (
 )
 
 from .statistics import (
-    TRADING_DAYS_PER_YEAR,
-    TRADING_DAYS_PER_MONTH,
-    TRADING_DAYS_PER_WEEK,
     ALPHA_BEGIN,
     SP500_BEGIN,
     currency_metrics,
@@ -55,6 +52,10 @@ from .indicator import (
 
 from .pfcalendar import (
     calendar
+)
+
+from .stock_market_calendar import (
+    stock_market_calendar
 )
 
 from .analysis import (

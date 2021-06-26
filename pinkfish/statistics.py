@@ -322,12 +322,16 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import math
 import operator
+import sys
 
 import numpy as np
 from numpy.lib.stride_tricks import as_strided
 import pandas as pd
 
 import pinkfish as pf
+
+# this is a pointer to the module object instance itself.
+__m = sys.modules[__name__]
 
 
 ########################################################################
@@ -353,6 +357,35 @@ SP500_BEGIN = (1957, 3, 4)
 """
 tuple : Use with `select_timeseries`, date the S&P500 began.
 """
+
+
+########################################################################
+# SELECT TRADING DAYS
+
+def select_trading_days(is_continuous):
+    """
+    Select between continuous and standard stock market days.
+
+    Use continuous if your timeseries is 7 days a week, e.g.
+    cryptocurrencies.
+
+    Parameters
+    ----------
+    is_continuous : bool
+        True for trading 7 days a week.
+
+    Returns
+    -------
+    None
+    """
+    if is_continuous:
+        __m.TRADING_DAYS_PER_YEAR = 365
+        __m.TRADING_DAYS_PER_MONTH = 30
+        __m.TRADING_DAYS_PER_WEEK = 7
+    else:
+        __m.TRADING_DAYS_PER_YEAR = 252
+        __m.TRADING_DAYS_PER_MONTH = 20
+        __m.TRADING_DAYS_PER_WEEK = 5
 
 
 ########################################################################
