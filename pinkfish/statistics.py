@@ -362,30 +362,31 @@ tuple : Use with `select_timeseries`, date the S&P500 began.
 ########################################################################
 # SELECT TRADING DAYS
 
-def select_trading_days(is_continuous):
+def select_trading_days(stock_market_calendar):
     """
     Select between continuous and standard stock market days.
 
-    Use continuous if your timeseries is 7 days a week, e.g.
-    cryptocurrencies.
+    Set stock_market_calendar=False if your timeseries is 7 days a week,
+    e.g. cryptocurrencies.
 
     Parameters
     ----------
-    is_continuous : bool
-        True for trading 7 days a week.
+    stock_market_calendar : bool
+        True for standard stock market calendar.  False for trading
+        7 days a week.
 
     Returns
     -------
     None
     """
-    if is_continuous:
-        __m.TRADING_DAYS_PER_YEAR = 365
-        __m.TRADING_DAYS_PER_MONTH = 30
-        __m.TRADING_DAYS_PER_WEEK = 7
-    else:
+    if stock_market_calendar:
         __m.TRADING_DAYS_PER_YEAR = 252
         __m.TRADING_DAYS_PER_MONTH = 20
         __m.TRADING_DAYS_PER_WEEK = 5
+    else:
+        __m.TRADING_DAYS_PER_YEAR = 365
+        __m.TRADING_DAYS_PER_MONTH = 30
+        __m.TRADING_DAYS_PER_WEEK = 7
 
 
 ########################################################################

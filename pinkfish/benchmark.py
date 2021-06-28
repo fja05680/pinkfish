@@ -54,6 +54,8 @@ class Benchmark:
         if not isinstance(symbols, list):
             symbols = [symbols]
 
+        symbols = list(set(symbols))
+
         self.symbols = symbols
         self.capital = capital
         self.start = start

@@ -96,8 +96,9 @@ class Portfolio:
 
     def fetch_timeseries(self, symbols, start, end,
                          fields=['open', 'high', 'low', 'close'],
+                         dir_name='data',
                          use_cache=True, use_adj=True,
-                         continuous_timeseries=False):
+                         stock_market_calendar=True):
         """
         Read time series data for symbols.
 
@@ -118,33 +119,34 @@ class Portfolio:
         use_adj : bool, optional
             True to adjust prices for dividends and splits
             (default is False).
-        continuous_timeseries : bool, optional
-            True for trading 7 days a week.  False for 5 days a week.
-            Set to True only if ALL your investments in a portfolio has
+        stock_market_calendar : bool, optional
+            Set to False only if ALL your investments in a portfolio has
             prices for every day of the week, e.g. all cryptocurrencies
-            in portfolio (default is False).
+            in portfolio (default is True).
 
         Returns
         -------
         pd.DataFrame
             The timeseries of the symbols.
         """
+        symbols = list(set(symbols))
         for i, symbol in enumerate(symbols):
 
             if i == 0:
-                ts = pf.fetch_timeseries(symbol, use_cache=use_cache)
+                ts = pf.fetch_timeseries(symbol, dir_name=dir_name, use_cache=use_cache)
                 ts = pf.select_tradeperiod(ts, start, end, use_adj=use_adj,
-                                           continuous_timeseries=continuous_timeseries)
+                                           stock_market_calendar=stock_market_calendar)
                 self._add_symbol_columns(ts, symbol, ts, fields)
                 ts.drop(columns=['open', 'high', 'low', 'close', 'volume', 'adj_close'],
                         inplace=True)
             else:
                 # Add another symbol.
-                _ts = pf.fetch_timeseries(symbol, use_cache=use_cache)
+                _ts = pf.fetch_timeseries(symbol, dir_name=dir_name, use_cache=use_cache)
                 _ts = pf.select_tradeperiod(_ts, start, end, use_adj=use_adj,
-                                            continuous_timeseries=continuous_timeseries)
+                                            stock_market_calendar=stock_market_calendar)
                 self._add_symbol_columns(ts, symbol, _ts, fields)
 
+        ts.dropna(inplace=True)
         self.symbols = symbols
         return ts
 

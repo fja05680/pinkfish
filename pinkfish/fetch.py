@@ -115,7 +115,7 @@ def fetch_timeseries(symbol, dir_name='data', use_cache=True, from_year=None):
 
     # Drop all rows that have nan column values. Remove rows that have
     # duplicated index.
-    ts = ts.dropna()
+    ts.dropna(inplace=True)
     ts = ts[~ts.index.duplicated(keep='first')]
     return ts
 
@@ -142,7 +142,7 @@ def _adj_prices(ts):
 
 
 def select_tradeperiod(ts, start, end, use_adj=False,
-                       continuous_timeseries=False):
+                       stock_market_calendar=True):
     """
     Select the trade period.
 
@@ -161,10 +161,11 @@ def select_tradeperiod(ts, start, end, use_adj=False,
     use_adj : bool, optional
         True to adjust prices for dividends and splits
         (default is False).
-    continuous_timeseries : bool, optional
-        True for trading 7 days a week.  False for 5 days a week.
-        Set to True if your timeseries has prices for every day of the
-        week, e.g. cryptocurrencies.  (default is False).
+    stock_market_calendar : bool, optional
+        True forces use of stock market calendar on timeseries.
+        You can set to False if the timeseries has prices for every
+        day of the week, e.g. all cryptocurrencies.
+        (default is True).
 
     Returns
     -------
@@ -175,8 +176,8 @@ def select_tradeperiod(ts, start, end, use_adj=False,
     columns = ['high', 'low', 'open', 'close', 'adj_close']
     ts[columns] = ts[ts[columns] > 0][columns]
 
-    if continuous_timeseries:
-        pf.statistics.select_trading_days(is_continuous=True)
+    if stock_market_calendar:
+        pf.statistics.select_trading_days(stock_market_calendar=True)
     else:
         index = pd.to_datetime(pf.stock_market_calendar)
         ts = ts.reindex(index=index)
@@ -214,7 +215,7 @@ def finalize_timeseries(ts, start):
     pd.DataFrame
         The timeseries of a symbol.
     """
-    ts = ts.dropna()
+    ts.dropna(inplace=True)
     ts = ts[start:]
     start = ts.index[0]
     return ts, start
