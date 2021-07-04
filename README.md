@@ -1,12 +1,9 @@
 pinkfish
 ======     
 
-IMPORTANT: 2021-07-02 I was unable to fetch data from yahoo finance this morning.  It appears that yahoo finance has changed  
-their HPPT response in some way, causing an exception within pandas-datareader.  I anticipate that either yahoo finance will  
-revert their change or pandas-datareader will quickly provide an update.  In the mean time, someone has proposed a solution  
-that I haven't tried yet.  
-https://github.com/pydata/pandas-datareader/issues/867
-
+IMPORTANT: 2021-07-03 Yahoo Finance changed their HTTP response and timeseries download for pandas-datareader stopped working.  I have implemented one of the suggested workarounds.  Below are the steps you should take:  
+(1) pip install yfinance  
+(2) git pull pinkfish  (from the pinkfish folder)
 
 A backtester and spreadsheet library for security analysis.
 
