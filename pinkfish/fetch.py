@@ -9,8 +9,13 @@ import sys
 import pandas as pd
 from pandas_datareader._utils import RemoteDataError
 import pandas_datareader.data as pdr
+import yfinance as yf
 
 import pinkfish as pf
+
+
+# Override pandas_datareader with yfinance
+yf.pdr_override()
 
 
 ########################################################################
@@ -107,7 +112,8 @@ def fetch_timeseries(symbol, dir_name='data', use_cache=True, from_year=None):
     if os.path.isfile(timeseries_cache) and use_cache:
         pass
     else:
-        ts = pdr.DataReader(symbol, 'yahoo', start=datetime.datetime(from_year, 1, 1))
+        ts = pdr.get_data_yahoo(symbol, start=datetime.datetime(from_year, 1, 1))
+        #ts = pdr.DataReader(symbol, 'yahoo', start=datetime.datetime(from_year, 1, 1))
         ts.to_csv(timeseries_cache, encoding='utf-8')
 
     ts = pd.read_csv(timeseries_cache, index_col='Date', parse_dates=True)
