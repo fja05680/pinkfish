@@ -120,6 +120,7 @@ class Portfolio:
             True to adjust prices for dividends and splits
             (default is False).
         stock_market_calendar : bool, optional
+            True forces use of stock market calendar on timeseries.
             Set to False only if ALL your investments in a portfolio has
             prices for every day of the week, e.g. all cryptocurrencies
             in portfolio (default is True).

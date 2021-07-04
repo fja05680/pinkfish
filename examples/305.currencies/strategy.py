@@ -134,7 +134,7 @@ class Strategy:
         self.ts = self.portfolio.fetch_timeseries(self.symbols, self.start, self.end,
             fields=['close'], use_cache=self.options['use_cache'],
             use_adj=self.options['use_adj'],
-            dir_name='cryptocurrencies',                                      
+            dir_name='currencies',                                      
             stock_market_calendar=self.options['stock_market_calendar'])
 
         # Add technical indicator: 200 sma regime filter for each symbol.
