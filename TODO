@@ -1,12 +1,8 @@
-(1) Crytocurrency backtesting.
-(2) Futures backtesting.
-(3) Micro-futures backtesting.
-(4) Calculate overall correlation for a portfolio
-(5) Update docs and example html files
+(1) Update docs and example html files
+(2) Youtube video of double-7s portfolio.  3 or 4 part video.
 
-(6) Average double 7s using portfolio, and different symbol name for each X day high/low
-(7) Percent vs volatility stock/bond/tlt/gld rebalance portfolio, try with S&P500 sectors also.
-(8) Percent band s&p500 sell vs hold bonds with SP500/bond portfolio, rebalance both.
-(9) Implement other straegies from "Trading strategies that work.
-(10) What percent of time, if high/low price is closest to the open, then high/low price came first.  Need minute data for this.
-(11) Backtest intraday data, i.e. minute data
+(2) Average double 7s using portfolio, and different symbol name for each X day high/low
+(3) Percent vs volatility stock/bond/tlt/gld rebalance portfolio, try with S&P500 sectors also.
+(4) Percent band s&p500 sell and hold bonds vs SP500/bond portfolio, rebalance both.
+(5) Implement other straegies from "Trading strategies that work.
+(6) What percent of time, if high/low price is closest to the open, then high/low price came first.  Need minute data for this.
