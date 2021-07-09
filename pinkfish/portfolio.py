@@ -290,7 +290,7 @@ class Portfolio:
 
     def _total_value(self, row):
         """
-        Return total_value = share_value +  cash (if cash > 0).
+        Return total_value = share_value + cash (if cash > 0).
         """
         total_value = self._share_value(row)
         if pf.TradeLog.cash > 0:
@@ -488,7 +488,7 @@ class Portfolio:
             self.adjust_percent(date, price, weight, symbol, row, direction)
         return w
 
-    def print_holdings(self, date, row):
+    def print_holdings(self, date, row, percent=False):
         """
         Print snapshot of portfolio holding and values.
 
@@ -501,18 +501,33 @@ class Portfolio:
             The current date.
         row : pd.Series
             A row of data from the timeseries of the portfolio.
+        percent : bool, optional
+            Show each holding as a percent instead of shares.
+            (default is False).
 
         Returns
         -------
         None
         """
-
-        # 2010-02-01 SPY: 54 TLT: 59 GLD:  9 cash:    84.20 total:  9,872.30
-        print(date.strftime('%Y-%m-%d'), end=' ')
-        for symbol, tlog in pf.TradeLog.instance.items():
-            print('{}:{:3}'.format(symbol, tlog.shares), end=' ')
-        print('cash: {:8,.2f}'.format(pf.TradeLog.cash), end=' ')
-        print('total: {:9,.2f}'.format(self._equity(row)))
+        if percent:
+            # 2007-11-20 SPY:24.1 TLT:24.9 GLD:24.6 QQQ:24.7 cash:  1.6 total: 100.0
+            print(date.strftime('%Y-%m-%d'), end=' ')
+            total = 0
+            for symbol, tlog in pf.TradeLog.instance.items():
+                pct = self.share_percent(row, symbol)
+                total += pct
+                print('{}:{:4,.1f}'.format(symbol, pct), end=' ')
+            pct = pf.TradeLog.cash / self._equity(row) * 100
+            total += abs(pct)
+            print('cash: {:4,.1f}'.format(pct), end=' ')
+            print('total: {:4,.1f}'.format(total))
+        else:
+            # 2010-02-01 SPY: 54 TLT: 59 GLD:  9 cash:    84.20 total:  9,872.30
+            print(date.strftime('%Y-%m-%d'), end=' ')
+            for symbol, tlog in pf.TradeLog.instance.items():
+                print('{}:{:3}'.format(symbol, tlog.shares), end=' ')
+            print('cash: {:8,.2f}'.format(pf.TradeLog.cash), end=' ')
+            print('total: {:9,.2f}'.format(self._equity(row)))
 
     ####################################################################
     # LOGS (init_trade_logs, record_daily_balance, get_logs)

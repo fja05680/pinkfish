@@ -402,10 +402,10 @@ def _total_net_profit(tlog):
     return tlog.iloc[-1]['cumul_total']
 
 def _gross_profit(tlog):
-    return tlog[tlog['pl_cash'] > 0].sum()['pl_cash']
+    return tlog[tlog['pl_cash'] > 0]['pl_cash'].sum()
 
 def _gross_loss(tlog):
-    return tlog[tlog['pl_cash'] < 0].sum()['pl_cash']
+    return tlog[tlog['pl_cash'] < 0]['pl_cash'].sum()
 
 def _profit_factor(tlog):
     if _gross_profit(tlog) == 0: return 0
@@ -520,11 +520,11 @@ def _largest_loss_losing_trade(tlog):
 
 def _num_winning_points(tlog):
     if _num_winning_trades(tlog) == 0: return 0
-    return tlog[tlog['pl_points'] > 0].sum()['pl_points']
+    return tlog[tlog['pl_points'] > 0]['pl_points'].sum()
 
 def _num_losing_points(tlog):
     if _num_losing_trades(tlog) == 0: return 0
-    return tlog[tlog['pl_points'] < 0].sum()['pl_points']
+    return tlog[tlog['pl_points'] < 0]['pl_points'].sum()
 
 def _total_net_points(tlog):
     return _num_winning_points(tlog) + _num_losing_points(tlog)

@@ -2,7 +2,5 @@
 (2) Youtube video of double-7s portfolio.  3 or 4 part video.
 
 (3) Average double 7s using portfolio, and different symbol name for each X day high/low
-(4) Percent vs volatility stock/bond/tlt/gld rebalance portfolio, try with S&P500 sectors also.
-(5) Percent band s&p500 sell and hold bonds vs SP500/bond portfolio, rebalance both.
-(6) Implement other straegies from "Trading strategies that work.
-(7) What percent of time, if high/low price is closest to the open, then high/low price came first.  Need minute data for this.
+(4) Implement other straegies from "Trading strategies that work.
+(5) What percent of time, if high/low price is closest to the open, then high/low price came first.  Need minute data for this.
