@@ -1,10 +1,11 @@
 pinkfish
 ======     
 
-IMPORTANT: 2021-07-03 Yahoo Finance changed their HTTP response and timeseries download for pandas-datareader stopped working.  I have implemented one of the suggested workarounds.  Below are the steps you should take:  
+IMPORTANT: 2021-07-03 Yahoo Finance changed their HTTP response and timeseries download for pandas-datareader stopped working.  I have implemented one of the suggested workarounds.  Below are the steps you should take for existing pinkfish installations:   
 (1) pip install yfinance  
 (2) pip install yfinance --upgrade (you need yfinance-0.1.63 or newer)  
-(3) git pull pinkfish  (from the pinkfish folder)
+(3) git pull pinkfish  (from the pinkfish folder)  
+If you are freshly installing pinkfish, just following the regular installation instructions.   
 
 A backtester and spreadsheet library for security analysis.
 
