@@ -10,7 +10,9 @@ class Benchmark:
     Portfolio Benchmark for comparison to a strategy.
     """
 
-    def __init__(self, symbols, capital, start, end, use_adj=False):
+    def __init__(self, symbols, capital, start, end, use_adj=False,
+                 use_continuous_calendar=False,
+                 force_stock_market_calendar=False):
         """
         Initialize instance variables.
 
@@ -27,6 +29,17 @@ class Benchmark:
         use_adj : bool, optional
             True to adjust prices for dividends and splits
             (default is False).
+        use_continuous_calendar: bool, optional
+            True if your timeseries has data for all seven days a week,
+            and you want to backtest trading every day, including weekends.
+            If this value is True, then `force_stock_market_calendar`
+            is set to False (default is False).
+        force_stock_market_calendar : bool, optional
+            True forces use of stock market calendar on timeseries.
+            Normally, you don't need to do this.  This setting is intended
+            to transform a continuous timeseries into a weekday timeseries.
+            If this value is True, then `use_continuous_calendar` is set
+            to False.
 
         Attributes
         ----------
@@ -40,6 +53,17 @@ class Benchmark:
             The desired end date for the benchmark.
         use_adj : bool, optional
             True to adjust prices for dividends and splits.
+        use_continuous_calendar: bool, optional
+            True if your timeseries has data for all seven days a week,
+            and you want to backtest trading every day, including weekends.
+            If this value is True, then `force_stock_market_calendar`
+            is set to False (default is False).
+        force_stock_market_calendar : bool, optional
+            True forces use of stock market calendar on timeseries.
+            Normally, you don't need to do this.  This setting is intended
+            to transform a continuous timeseries into a weekday timeseries.
+            If this value is True, then `use_continuous_calendar` is set
+            to False.
         ts : pd.DataFrame
             The timeseries of the symbol used in backtest.
         tlog : pd.DataFrame
@@ -61,6 +85,8 @@ class Benchmark:
         self.start = start
         self.end = end
         self.use_adj = use_adj
+        self.use_continuous_calendar = use_continuous_calendar
+        self.force_stock_market_calendar = force_stock_market_calendar
 
         self.ts = None
         self.tlog = None
@@ -112,8 +138,10 @@ class Benchmark:
 
     def run(self):
         self.portfolio = pf.Portfolio()
-        self.ts = self.portfolio.fetch_timeseries(self.symbols, self.start, self.end,
-                                                  use_adj=self.use_adj)
+        self.ts = self.portfolio.fetch_timeseries(
+            self.symbols, self.start, self.end, use_adj=self.use_adj,
+            use_continuous_calendar=self.use_continuous_calendar,
+            force_stock_market_calendar=self.force_stock_market_calendar)
         # Add calendar columns
         self.ts = self.portfolio.calendar(self.ts)
 

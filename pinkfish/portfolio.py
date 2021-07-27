@@ -98,7 +98,9 @@ class Portfolio:
                          fields=['open', 'high', 'low', 'close'],
                          dir_name='data',
                          use_cache=True, use_adj=True,
-                         stock_market_calendar=True):
+                         use_continuous_calendar=False,
+                         force_stock_market_calendar=False,
+                         check_fields=['close']):
         """
         Read time series data for symbols.
 
@@ -119,11 +121,20 @@ class Portfolio:
         use_adj : bool, optional
             True to adjust prices for dividends and splits
             (default is False).
-        stock_market_calendar : bool, optional
+        use_continuous_calendar: bool, optional
+            True if your timeseries has data for all seven days a week,
+            and you want to backtest trading every day, including weekends.
+            If this value is True, then `force_stock_market_calendar`
+            is set to False (default is False).
+        force_stock_market_calendar : bool, optional
             True forces use of stock market calendar on timeseries.
-            Set to False only if ALL your investments in a portfolio has
-            prices for every day of the week, e.g. all cryptocurrencies
-            in portfolio (default is True).
+            Normally, you don't need to do this.  This setting is intended
+            to transform a continuous timeseries into a weekday timeseries.
+            If this value is True, then `use_continuous_calendar` is set
+            to False.
+        check_fields : list of str {'high', 'low', 'open', 'close', 'adj_close'}
+            Fields to check for for NaN values.  If a NaN value is found
+            for one of these fields, the row is dropped.
 
         Returns
         -------
@@ -136,7 +147,9 @@ class Portfolio:
             if i == 0:
                 ts = pf.fetch_timeseries(symbol, dir_name=dir_name, use_cache=use_cache)
                 ts = pf.select_tradeperiod(ts, start, end, use_adj=use_adj,
-                                           stock_market_calendar=stock_market_calendar)
+                                           use_continuous_calendar=use_continuous_calendar,
+                                           force_stock_market_calendar=force_stock_market_calendar,
+                                           check_fields=check_fields)
                 self._add_symbol_columns(ts, symbol, ts, fields)
                 ts.drop(columns=['open', 'high', 'low', 'close', 'volume', 'adj_close'],
                         inplace=True)
@@ -144,7 +157,9 @@ class Portfolio:
                 # Add another symbol.
                 _ts = pf.fetch_timeseries(symbol, dir_name=dir_name, use_cache=use_cache)
                 _ts = pf.select_tradeperiod(_ts, start, end, use_adj=use_adj,
-                                            stock_market_calendar=stock_market_calendar)
+                                            use_continuous_calendar=use_continuous_calendar,
+                                            force_stock_market_calendar=force_stock_market_calendar,
+                                            check_fields=check_fields)
                 self._add_symbol_columns(ts, symbol, _ts, fields)
 
         ts.dropna(inplace=True)
@@ -211,11 +226,11 @@ class Portfolio:
         """
         return pf.calendar(ts)
 
-    def finalize_timeseries(self, ts, start):
+    def finalize_timeseries(self, ts, start, dropna=True):
         """
         Finalize timeseries.
         """
-        return pf.finalize_timeseries(ts, start)
+        return pf.finalize_timeseries(ts, start, dropna=dropna)
 
     ####################################################################
     # GET PRICES (get_price, get_prices)

@@ -5,6 +5,7 @@ Fetch time series data.
 import datetime
 import os
 import sys
+import warnings
 
 import pandas as pd
 from pandas_datareader._utils import RemoteDataError
@@ -119,9 +120,7 @@ def fetch_timeseries(symbol, dir_name='data', use_cache=True, from_year=None):
     ts = pd.read_csv(timeseries_cache, index_col='Date', parse_dates=True)
     ts = _adj_column_names(ts)
 
-    # Drop all rows that have nan column values. Remove rows that have
-    # duplicated index.
-    ts.dropna(inplace=True)
+    # Remove rows that have duplicated index.
     ts = ts[~ts.index.duplicated(keep='first')]
     return ts
 
@@ -148,7 +147,9 @@ def _adj_prices(ts):
 
 
 def select_tradeperiod(ts, start, end, use_adj=False,
-                       stock_market_calendar=True):
+                       use_continuous_calendar=False,
+                       force_stock_market_calendar=False,
+                       check_fields=['close']):
     """
     Select the trade period.
 
@@ -167,28 +168,52 @@ def select_tradeperiod(ts, start, end, use_adj=False,
     use_adj : bool, optional
         True to adjust prices for dividends and splits
         (default is False).
-    stock_market_calendar : bool, optional
+    use_continuous_calendar: bool, optional
+        True if your timeseries has data for all seven days a week,
+        and you want to backtest trading every day, including weekends.
+        If this value is True, then `force_stock_market_calendar`
+        is set to False (default is False).
+    force_stock_market_calendar : bool, optional
         True forces use of stock market calendar on timeseries.
-        You can set to False if the timeseries has prices for every
-        day of the week, e.g. all cryptocurrencies.
-        (default is True).
+        Normally, you don't need to do this.  This setting is intended
+        to transform a continuous timeseries into a weekday timeseries.
+        If this value is True, then `use_continuous_calendar` is set
+        to False.
+        (default is False).
+    check_fields : list of str {'high', 'low', 'open', 'close', 'adj_close'}
+        Fields to check for for NaN values.  If a NaN value is found
+        for one of these fields, the row is dropped.
 
     Returns
     -------
     pd.DataFrame
         The timeseries for specified start:end, optionally with prices
         adjusted.
+
+    Notes
+    -----
+    You should only set one of `use_continuous_calendar`=True or
+    `force_stock_market_calendar`=True for a continuous timeseries.
+    You should set neither of these to True if your timeseries is based
+    on the stock market.
     """
     columns = ['high', 'low', 'open', 'close', 'adj_close']
+    # Replace 0 value columns with NaN
     ts[columns] = ts[ts[columns] > 0][columns]
 
-    if stock_market_calendar:
-        pf.statistics.select_trading_days(stock_market_calendar=True)
-    else:
+    if use_continuous_calendar:
+        force_stock_market_calendar = False
+    if force_stock_market_calendar:
+        use_continuous_calendar = False
+
+    if use_continuous_calendar:
+        pf.statistics.select_trading_days(use_stock_market_calendar=False)
+
+    if force_stock_market_calendar:
         index = pd.to_datetime(pf.stock_market_calendar)
         ts = ts.reindex(index=index)
 
-    ts.dropna(inplace=True)
+    ts.dropna(subset=check_fields, inplace=True)
 
     if use_adj:
         _adj_prices(ts)
@@ -200,7 +225,7 @@ def select_tradeperiod(ts, start, end, use_adj=False,
     return ts
 
 
-def finalize_timeseries(ts, start):
+def finalize_timeseries(ts, start, dropna=False):
     """
     Finalize timeseries.
 
@@ -213,6 +238,9 @@ def finalize_timeseries(ts, start):
         The timeseries of a symbol.
     start : datetime.datetime
         The start date for backtest.
+    dropna : bool, optional
+        Drop rows that have a NaN value in one of it's columns
+        (default is True).
 
     Returns
     -------
@@ -221,7 +249,10 @@ def finalize_timeseries(ts, start):
     pd.DataFrame
         The timeseries of a symbol.
     """
-    ts.dropna(inplace=True)
+    if dropna:
+        ts.dropna(inplace=True)
+    elif ts.isnull().values.any(): 
+        warnings.warn("NaN value(s) detected in timeseries")
     ts = ts[start:]
     start = ts.index[0]
     return ts, start

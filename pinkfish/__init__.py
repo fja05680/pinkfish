@@ -73,7 +73,8 @@ from .utility import (
     read_config,
     is_last_row,
     sort_dict,
-    set_dict_values
+    set_dict_values,
+    find_nan_rows
 )
 
 DEBUG = False

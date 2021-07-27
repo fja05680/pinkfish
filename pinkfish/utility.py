@@ -89,3 +89,22 @@ def set_dict_values(d, value):
     Return dict with same keys as `d` and all values equal to `value'.
     """
     return dict.fromkeys(d, value)
+
+def find_nan_rows(ts):
+    """
+    Return a dataframe with the rows that contain NaN values.
+
+    This function can help you track down problems with a timeseries.
+    You may need to call `pd.set_option("display.max_columns", None)`
+    at the top of your notebook to display all columns.
+
+    Examples
+    --------
+    >>> pd.set_option("display.max_columns", None)
+    >>> df = pf.find_nan_rows(ts)
+    >>> df
+    """
+    is_NaN = ts.isnull()
+    row_has_NaN = is_NaN.any(axis=1)
+    rows_with_NaN = ts[row_has_NaN]
+    return rows_with_NaN

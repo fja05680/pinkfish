@@ -33,7 +33,7 @@ def SMA_ROC(ts, mom_lookback=1, sma_timeperiod=20, price='close'):
 default_options = {
     'use_adj' : False,
     'use_cache' : True,
-    'stock_market_calendar' : False,
+    'force_stock_market_calendar' : True,
     'stop_loss_pct' : 1.0,
     'margin' : 1,
     'lookback' : 1,
@@ -135,7 +135,7 @@ class Strategy:
             fields=['close'], use_cache=self.options['use_cache'],
             use_adj=self.options['use_adj'],
             dir_name='currencies',                                      
-            stock_market_calendar=self.options['stock_market_calendar'])
+            force_stock_market_calendar=self.options['force_stock_market_calendar'])
 
         # Add technical indicator: 200 sma regime filter for each symbol.
         def _crossover(ts, ta_param, input_column):
@@ -165,7 +165,7 @@ class Strategy:
             output_column_suffix='sma_roc', input_column_suffix='close')
 
         # Finalize timeseries.
-        self.ts, self.start = self.portfolio.finalize_timeseries(self.ts, self.start)
+        self.ts, self.start = self.portfolio.finalize_timeseries(self.ts, self.start, dropna=True)
 
         # Init trade log objects.
         self.portfolio.init_trade_logs(self.ts)
