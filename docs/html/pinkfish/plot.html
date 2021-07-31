@@ -39,7 +39,7 @@ register_matplotlib_converters()
 import pinkfish as pf
 
 
-def plot_equity_curve(strategy, benchmark=None, fname=None):
+def plot_equity_curve(strategy, benchmark=None, yscale=&#39;linear&#39;, fname=None):
     &#34;&#34;&#34;
     Plot Equity Curve: Strategy vs (optionally) Benchmark.
 
@@ -50,6 +50,8 @@ def plot_equity_curve(strategy, benchmark=None, fname=None):
     benchmark: pd.DataFrame, optional
         Daily balance for the benchmark (default is None, which implies
         that a benchmark is not being used).
+    yscale: str, {&#39;linear&#39;, &#39;log&#39;, &#39;symlog&#39;, &#39;logit&#39;}
+        The axis scale type to apply (default is &#39;linear&#39;)
     fname: str or path-like or file-like, optional
         Save the current figure to fname (default is None, which
         implies to not output the figure to a file).
@@ -61,13 +63,14 @@ def plot_equity_curve(strategy, benchmark=None, fname=None):
     fig = plt.figure()
     axes = fig.add_subplot(111, ylabel=&#39;Portfolio value in $&#39;)
     axes.plot(strategy[&#39;close&#39;], label=&#39;strategy&#39;)
+    axes.set_yscale(yscale)
     if benchmark is not None:
         axes.plot(benchmark[&#39;close&#39;], label=&#39;benchmark&#39;)
     plt.legend(loc=&#39;best&#39;)
     if fname:
         plt.savefig(fname, bbox_inches=&#39;tight&#39;)
 
-def plot_equity_curves(strategies, fname=None):
+def plot_equity_curves(strategies, labels=None, yscale=&#39;linear&#39;, fname=None):
     &#34;&#34;&#34;
     Plot Equity Curve: multiple equity curves on same plot.
 
@@ -76,6 +79,11 @@ def plot_equity_curves(strategies, fname=None):
     strategies : pd.Series
         Container of strategy Daily balance (pd.Dataframe) for each
         symbol.
+    labels : list of str, optional
+        List of labels for each strategy (default is None, which implies
+        that `strategy.symbol` is used as the label.
+    yscale: str, {&#39;linear&#39;, &#39;log&#39;, &#39;symlog&#39;, &#39;logit&#39;}
+        The axis scale type to apply (default is &#39;linear&#39;)
     fname: str or path-like or file-like, optional
         Save the current figure to fname (default is None, which
         implies to not output the figure to a file).
@@ -86,13 +94,18 @@ def plot_equity_curves(strategies, fname=None):
     &#34;&#34;&#34;
     fig = plt.figure(figsize=(16,12))
     axes = fig.add_subplot(111, ylabel=&#39;Portfolio value in $&#39;)
-    for strategy in strategies:
-        axes.plot(strategy.dbal[&#39;close&#39;], label=strategy.symbol)
+    for i, strategy in enumerate(strategies):
+        if labels is None:
+            label = strategy.symbol
+        else:
+            label = labels[i]
+        axes.plot(strategy.dbal[&#39;close&#39;], label=label)
+        axes.set_yscale(yscale)
     plt.legend(loc=&#39;best&#39;)
     if fname:
         plt.savefig(fname, bbox_inches=&#39;tight&#39;)
 
-def plot_trades(strategy, benchmark=None, fname=None):
+def plot_trades(strategy, benchmark=None, yscale=&#39;linear&#39;, fname=None):
     &#34;&#34;&#34;
     Plot Trades.
 
@@ -105,6 +118,8 @@ def plot_trades(strategy, benchmark=None, fname=None):
         Daily balance for the strategy.
     benchmark: pd.DataFrame, optional
         Daily balance for the benchmark.
+    yscale: str, {&#39;linear&#39;, &#39;log&#39;, &#39;symlog&#39;, &#39;logit&#39;}
+        The axis scale type to apply (default is &#39;linear&#39;)
     fname: str or path-like or file-like, optional
         Save the current figure to fname (default is None, which
         implies to not output the figure to a file).
@@ -122,18 +137,21 @@ def plot_trades(strategy, benchmark=None, fname=None):
     fig = plt.figure()
     axes = fig.add_subplot(111, ylabel=&#39;Portfolio value in $&#39;)
     axes.plot(benchmark.index, benchmark[&#39;close&#39;], label=label)
+    axes.set_yscale(yscale)
 
     # Buy trades.
     s = strategy[&#39;state&#39;] == pf.TradeState.OPEN
     s = s.reindex_like(benchmark)
     buy = benchmark[s]
     axes.plot(buy.index, buy[&#39;close&#39;], &#39;^&#39;, markersize=10, color=&#39;k&#39;)
+    axes.set_yscale(yscale)
 
     # Sell trades.
     s = strategy[&#39;state&#39;] == pf.TradeState.CLOSE
     s = s.reindex_like(benchmark)
     sell = benchmark[s]
     axes.plot(sell.index, sell[&#39;close&#39;], &#39;v&#39;, markersize=10, color=&#39;r&#39;)
+    axes.set_yscale(yscale)
     plt.legend(loc=&#39;best&#39;)
     if fname:
         plt.savefig(fname, bbox_inches=&#39;tight&#39;)
@@ -203,7 +221,30 @@ def plot_bar_graph(stats, benchmark_stats=None, metrics=default_metrics,
     plt.legend(loc=&#39;best&#39;)
     if fname:
         plt.savefig(fname, bbox_inches=&#39;tight&#39;)
-    return df</code></pre>
+    return df
+
+
+def optimizer_plot_bar_graph(df, metric):
+    &#34;&#34;&#34;
+    Plot Bar Graph of a metric for a set of strategies.
+
+    This function is designed to be used in analysis of an
+    optimization of some parameter.  First all optimizer_summary()
+    to generate the dataframe required by this function.
+
+    Parameters
+    ----------
+    df : pf.DataFrame
+        Summary of strategies vs metrics.
+    metric : str
+        The label for the metric to be used in the summary.
+    &#34;&#34;&#34;
+    df = df.loc[[metric]]
+    df = df.transpose()
+    fig = plt.figure()
+    axes = fig.add_subplot(111, ylabel=metric)
+    df.plot(kind=&#39;bar&#39;, ax=axes, legend=False)
+    axes.set_xticklabels(df.index, rotation=0)</code></pre>
 </details>
 </section>
 <section>
@@ -231,6 +272,49 @@ def plot_bar_graph(stats, benchmark_stats=None, metrics=default_metrics,
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
+<dt id="pinkfish.plot.optimizer_plot_bar_graph"><code class="name flex">
+<span>def <span class="ident">optimizer_plot_bar_graph</span></span>(<span>df, metric)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Plot Bar Graph of a metric for a set of strategies.</p>
+<p>This function is designed to be used in analysis of an
+optimization of some parameter.
+First all optimizer_summary()
+to generate the dataframe required by this function.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>pf.DataFrame</code></dt>
+<dd>Summary of strategies vs metrics.</dd>
+<dt><strong><code>metric</code></strong> :&ensp;<code>str</code></dt>
+<dd>The label for the metric to be used in the summary.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def optimizer_plot_bar_graph(df, metric):
+    &#34;&#34;&#34;
+    Plot Bar Graph of a metric for a set of strategies.
+
+    This function is designed to be used in analysis of an
+    optimization of some parameter.  First all optimizer_summary()
+    to generate the dataframe required by this function.
+
+    Parameters
+    ----------
+    df : pf.DataFrame
+        Summary of strategies vs metrics.
+    metric : str
+        The label for the metric to be used in the summary.
+    &#34;&#34;&#34;
+    df = df.loc[[metric]]
+    df = df.transpose()
+    fig = plt.figure()
+    axes = fig.add_subplot(111, ylabel=metric)
+    df.plot(kind=&#39;bar&#39;, ax=axes, legend=False)
+    axes.set_xticklabels(df.index, rotation=0)</code></pre>
+</details>
+</dd>
 <dt id="pinkfish.plot.plot_bar_graph"><code class="name flex">
 <span>def <span class="ident">plot_bar_graph</span></span>(<span>stats, benchmark_stats=None, metrics=('annual_return_rate', 'max_closed_out_drawdown', 'annualized_return_over_max_drawdown', 'best_month', 'worst_month', 'sharpe_ratio', 'sortino_ratio', 'monthly_std', 'annual_std'), extras=None, fname=None)</span>
 </code></dt>
@@ -302,7 +386,7 @@ implies to not output the figure to a file).</dd>
 </details>
 </dd>
 <dt id="pinkfish.plot.plot_equity_curve"><code class="name flex">
-<span>def <span class="ident">plot_equity_curve</span></span>(<span>strategy, benchmark=None, fname=None)</span>
+<span>def <span class="ident">plot_equity_curve</span></span>(<span>strategy, benchmark=None, yscale='linear', fname=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Plot Equity Curve: Strategy vs (optionally) Benchmark.</p>
@@ -313,6 +397,8 @@ implies to not output the figure to a file).</dd>
 <dt><strong><code>benchmark</code></strong> :&ensp;<code>pd.DataFrame</code>, optional</dt>
 <dd>Daily balance for the benchmark (default is None, which implies
 that a benchmark is not being used).</dd>
+<dt><strong><code>yscale</code></strong> :&ensp;<code>str, {'linear', 'log', 'symlog', 'logit'}</code></dt>
+<dd>The axis scale type to apply (default is 'linear')</dd>
 <dt><strong><code>fname</code></strong> :&ensp;<code>str</code> or <code>path-like</code> or <code>file-like</code>, optional</dt>
 <dd>Save the current figure to fname (default is None, which
 implies to not output the figure to a file).</dd>
@@ -326,7 +412,7 @@ implies to not output the figure to a file).</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def plot_equity_curve(strategy, benchmark=None, fname=None):
+<pre><code class="python">def plot_equity_curve(strategy, benchmark=None, yscale=&#39;linear&#39;, fname=None):
     &#34;&#34;&#34;
     Plot Equity Curve: Strategy vs (optionally) Benchmark.
 
@@ -337,6 +423,8 @@ implies to not output the figure to a file).</dd>
     benchmark: pd.DataFrame, optional
         Daily balance for the benchmark (default is None, which implies
         that a benchmark is not being used).
+    yscale: str, {&#39;linear&#39;, &#39;log&#39;, &#39;symlog&#39;, &#39;logit&#39;}
+        The axis scale type to apply (default is &#39;linear&#39;)
     fname: str or path-like or file-like, optional
         Save the current figure to fname (default is None, which
         implies to not output the figure to a file).
@@ -348,6 +436,7 @@ implies to not output the figure to a file).</dd>
     fig = plt.figure()
     axes = fig.add_subplot(111, ylabel=&#39;Portfolio value in $&#39;)
     axes.plot(strategy[&#39;close&#39;], label=&#39;strategy&#39;)
+    axes.set_yscale(yscale)
     if benchmark is not None:
         axes.plot(benchmark[&#39;close&#39;], label=&#39;benchmark&#39;)
     plt.legend(loc=&#39;best&#39;)
@@ -356,7 +445,7 @@ implies to not output the figure to a file).</dd>
 </details>
 </dd>
 <dt id="pinkfish.plot.plot_equity_curves"><code class="name flex">
-<span>def <span class="ident">plot_equity_curves</span></span>(<span>strategies, fname=None)</span>
+<span>def <span class="ident">plot_equity_curves</span></span>(<span>strategies, labels=None, yscale='linear', fname=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Plot Equity Curve: multiple equity curves on same plot.</p>
@@ -365,6 +454,11 @@ implies to not output the figure to a file).</dd>
 <dt><strong><code>strategies</code></strong> :&ensp;<code>pd.Series</code></dt>
 <dd>Container of strategy Daily balance (pd.Dataframe) for each
 symbol.</dd>
+<dt><strong><code>labels</code></strong> :&ensp;<code>list</code> of <code>str</code>, optional</dt>
+<dd>List of labels for each strategy (default is None, which implies
+that <code>strategy.symbol</code> is used as the label.</dd>
+<dt><strong><code>yscale</code></strong> :&ensp;<code>str, {'linear', 'log', 'symlog', 'logit'}</code></dt>
+<dd>The axis scale type to apply (default is 'linear')</dd>
 <dt><strong><code>fname</code></strong> :&ensp;<code>str</code> or <code>path-like</code> or <code>file-like</code>, optional</dt>
 <dd>Save the current figure to fname (default is None, which
 implies to not output the figure to a file).</dd>
@@ -378,7 +472,7 @@ implies to not output the figure to a file).</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def plot_equity_curves(strategies, fname=None):
+<pre><code class="python">def plot_equity_curves(strategies, labels=None, yscale=&#39;linear&#39;, fname=None):
     &#34;&#34;&#34;
     Plot Equity Curve: multiple equity curves on same plot.
 
@@ -387,6 +481,11 @@ implies to not output the figure to a file).</dd>
     strategies : pd.Series
         Container of strategy Daily balance (pd.Dataframe) for each
         symbol.
+    labels : list of str, optional
+        List of labels for each strategy (default is None, which implies
+        that `strategy.symbol` is used as the label.
+    yscale: str, {&#39;linear&#39;, &#39;log&#39;, &#39;symlog&#39;, &#39;logit&#39;}
+        The axis scale type to apply (default is &#39;linear&#39;)
     fname: str or path-like or file-like, optional
         Save the current figure to fname (default is None, which
         implies to not output the figure to a file).
@@ -397,15 +496,20 @@ implies to not output the figure to a file).</dd>
     &#34;&#34;&#34;
     fig = plt.figure(figsize=(16,12))
     axes = fig.add_subplot(111, ylabel=&#39;Portfolio value in $&#39;)
-    for strategy in strategies:
-        axes.plot(strategy.dbal[&#39;close&#39;], label=strategy.symbol)
+    for i, strategy in enumerate(strategies):
+        if labels is None:
+            label = strategy.symbol
+        else:
+            label = labels[i]
+        axes.plot(strategy.dbal[&#39;close&#39;], label=label)
+        axes.set_yscale(yscale)
     plt.legend(loc=&#39;best&#39;)
     if fname:
         plt.savefig(fname, bbox_inches=&#39;tight&#39;)</code></pre>
 </details>
 </dd>
 <dt id="pinkfish.plot.plot_trades"><code class="name flex">
-<span>def <span class="ident">plot_trades</span></span>(<span>strategy, benchmark=None, fname=None)</span>
+<span>def <span class="ident">plot_trades</span></span>(<span>strategy, benchmark=None, yscale='linear', fname=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Plot Trades.</p>
@@ -417,6 +521,8 @@ If not provided, strategy equity curve is used.</p>
 <dd>Daily balance for the strategy.</dd>
 <dt><strong><code>benchmark</code></strong> :&ensp;<code>pd.DataFrame</code>, optional</dt>
 <dd>Daily balance for the benchmark.</dd>
+<dt><strong><code>yscale</code></strong> :&ensp;<code>str, {'linear', 'log', 'symlog', 'logit'}</code></dt>
+<dd>The axis scale type to apply (default is 'linear')</dd>
 <dt><strong><code>fname</code></strong> :&ensp;<code>str</code> or <code>path-like</code> or <code>file-like</code>, optional</dt>
 <dd>Save the current figure to fname (default is None, which
 implies to not output the figure to a file).</dd>
@@ -430,7 +536,7 @@ implies to not output the figure to a file).</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def plot_trades(strategy, benchmark=None, fname=None):
+<pre><code class="python">def plot_trades(strategy, benchmark=None, yscale=&#39;linear&#39;, fname=None):
     &#34;&#34;&#34;
     Plot Trades.
 
@@ -443,6 +549,8 @@ implies to not output the figure to a file).</dd>
         Daily balance for the strategy.
     benchmark: pd.DataFrame, optional
         Daily balance for the benchmark.
+    yscale: str, {&#39;linear&#39;, &#39;log&#39;, &#39;symlog&#39;, &#39;logit&#39;}
+        The axis scale type to apply (default is &#39;linear&#39;)
     fname: str or path-like or file-like, optional
         Save the current figure to fname (default is None, which
         implies to not output the figure to a file).
@@ -460,18 +568,21 @@ implies to not output the figure to a file).</dd>
     fig = plt.figure()
     axes = fig.add_subplot(111, ylabel=&#39;Portfolio value in $&#39;)
     axes.plot(benchmark.index, benchmark[&#39;close&#39;], label=label)
+    axes.set_yscale(yscale)
 
     # Buy trades.
     s = strategy[&#39;state&#39;] == pf.TradeState.OPEN
     s = s.reindex_like(benchmark)
     buy = benchmark[s]
     axes.plot(buy.index, buy[&#39;close&#39;], &#39;^&#39;, markersize=10, color=&#39;k&#39;)
+    axes.set_yscale(yscale)
 
     # Sell trades.
     s = strategy[&#39;state&#39;] == pf.TradeState.CLOSE
     s = s.reindex_like(benchmark)
     sell = benchmark[s]
     axes.plot(sell.index, sell[&#39;close&#39;], &#39;v&#39;, markersize=10, color=&#39;r&#39;)
+    axes.set_yscale(yscale)
     plt.legend(loc=&#39;best&#39;)
     if fname:
         plt.savefig(fname, bbox_inches=&#39;tight&#39;)</code></pre>
@@ -500,6 +611,7 @@ implies to not output the figure to a file).</dd>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
+<li><code><a title="pinkfish.plot.optimizer_plot_bar_graph" href="#pinkfish.plot.optimizer_plot_bar_graph">optimizer_plot_bar_graph</a></code></li>
 <li><code><a title="pinkfish.plot.plot_bar_graph" href="#pinkfish.plot.plot_bar_graph">plot_bar_graph</a></code></li>
 <li><code><a title="pinkfish.plot.plot_equity_curve" href="#pinkfish.plot.plot_equity_curve">plot_equity_curve</a></code></li>
 <li><code><a title="pinkfish.plot.plot_equity_curves" href="#pinkfish.plot.plot_equity_curves">plot_equity_curves</a></code></li>

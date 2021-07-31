@@ -34,12 +34,18 @@ Fetch time series data.
 import datetime
 import os
 import sys
+import warnings
 
 import pandas as pd
 from pandas_datareader._utils import RemoteDataError
 import pandas_datareader.data as pdr
+import yfinance as yf
 
 import pinkfish as pf
+
+
+# Override pandas_datareader with yfinance
+yf.pdr_override()
 
 
 ########################################################################
@@ -136,15 +142,14 @@ def fetch_timeseries(symbol, dir_name=&#39;data&#39;, use_cache=True, from_year=
     if os.path.isfile(timeseries_cache) and use_cache:
         pass
     else:
-        ts = pdr.DataReader(symbol, &#39;yahoo&#39;, start=datetime.datetime(from_year, 1, 1))
+        ts = pdr.get_data_yahoo(symbol, start=datetime.datetime(from_year, 1, 1))
+        #ts = pdr.DataReader(symbol, &#39;yahoo&#39;, start=datetime.datetime(from_year, 1, 1))
         ts.to_csv(timeseries_cache, encoding=&#39;utf-8&#39;)
 
     ts = pd.read_csv(timeseries_cache, index_col=&#39;Date&#39;, parse_dates=True)
     ts = _adj_column_names(ts)
 
-    # Drop all rows that have nan column values. Remove rows that have
-    # duplicated index.
-    ts = ts.dropna()
+    # Remove rows that have duplicated index.
     ts = ts[~ts.index.duplicated(keep=&#39;first&#39;)]
     return ts
 
@@ -170,7 +175,10 @@ def _adj_prices(ts):
     return ts
 
 
-def select_tradeperiod(ts, start, end, use_adj=False):
+def select_tradeperiod(ts, start, end, use_adj=False,
+                       use_continuous_calendar=False,
+                       force_stock_market_calendar=False,
+                       check_fields=[&#39;close&#39;]):
     &#34;&#34;&#34;
     Select the trade period.
 
@@ -189,16 +197,52 @@ def select_tradeperiod(ts, start, end, use_adj=False):
     use_adj : bool, optional
         True to adjust prices for dividends and splits
         (default is False).
+    use_continuous_calendar: bool, optional
+        True if your timeseries has data for all seven days a week,
+        and you want to backtest trading every day, including weekends.
+        If this value is True, then `force_stock_market_calendar`
+        is set to False (default is False).
+    force_stock_market_calendar : bool, optional
+        True forces use of stock market calendar on timeseries.
+        Normally, you don&#39;t need to do this.  This setting is intended
+        to transform a continuous timeseries into a weekday timeseries.
+        If this value is True, then `use_continuous_calendar` is set
+        to False.
+        (default is False).
+    check_fields : list of str {&#39;high&#39;, &#39;low&#39;, &#39;open&#39;, &#39;close&#39;, &#39;adj_close&#39;}
+        Fields to check for for NaN values.  If a NaN value is found
+        for one of these fields, the row is dropped.
 
     Returns
     -------
     pd.DataFrame
         The timeseries for specified start:end, optionally with prices
         adjusted.
+
+    Notes
+    -----
+    You should only set one of `use_continuous_calendar`=True or
+    `force_stock_market_calendar`=True for a continuous timeseries.
+    You should set neither of these to True if your timeseries is based
+    on the stock market.
     &#34;&#34;&#34;
     columns = [&#39;high&#39;, &#39;low&#39;, &#39;open&#39;, &#39;close&#39;, &#39;adj_close&#39;]
+    # Replace 0 value columns with NaN
     ts[columns] = ts[ts[columns] &gt; 0][columns]
-    ts.dropna()
+
+    if use_continuous_calendar:
+        force_stock_market_calendar = False
+    if force_stock_market_calendar:
+        use_continuous_calendar = False
+
+    if use_continuous_calendar:
+        pf.statistics.select_trading_days(use_stock_market_calendar=False)
+
+    if force_stock_market_calendar:
+        index = pd.to_datetime(pf.stock_market_calendar)
+        ts = ts.reindex(index=index)
+
+    ts.dropna(subset=check_fields, inplace=True)
 
     if use_adj:
         _adj_prices(ts)
@@ -210,7 +254,7 @@ def select_tradeperiod(ts, start, end, use_adj=False):
     return ts
 
 
-def finalize_timeseries(ts, start):
+def finalize_timeseries(ts, start, dropna=False):
     &#34;&#34;&#34;
     Finalize timeseries.
 
@@ -223,6 +267,9 @@ def finalize_timeseries(ts, start):
         The timeseries of a symbol.
     start : datetime.datetime
         The start date for backtest.
+    dropna : bool, optional
+        Drop rows that have a NaN value in one of it&#39;s columns
+        (default is True).
 
     Returns
     -------
@@ -231,7 +278,10 @@ def finalize_timeseries(ts, start):
     pd.DataFrame
         The timeseries of a symbol.
     &#34;&#34;&#34;
-    ts = ts.dropna()
+    if dropna:
+        ts.dropna(inplace=True)
+    elif ts.isnull().values.any(): 
+        warnings.warn(&#34;NaN value(s) detected in timeseries&#34;)
     ts = ts[start:]
     start = ts.index[0]
     return ts, start
@@ -269,7 +319,7 @@ def remove_cache_symbols(symbols=None, dir_name=&#39;data&#39;):
 
     Parameters
     ----------
-    symbols : str or list, optional
+    symbols : str or list of str, optional
         The symbol(s) for which to remove cached timeseries (default
         is None, which imples remove timeseries for all symbols).
     dir_name : str, optional
@@ -491,21 +541,20 @@ which implies that all the available data is retrieved).</dd>
     if os.path.isfile(timeseries_cache) and use_cache:
         pass
     else:
-        ts = pdr.DataReader(symbol, &#39;yahoo&#39;, start=datetime.datetime(from_year, 1, 1))
+        ts = pdr.get_data_yahoo(symbol, start=datetime.datetime(from_year, 1, 1))
+        #ts = pdr.DataReader(symbol, &#39;yahoo&#39;, start=datetime.datetime(from_year, 1, 1))
         ts.to_csv(timeseries_cache, encoding=&#39;utf-8&#39;)
 
     ts = pd.read_csv(timeseries_cache, index_col=&#39;Date&#39;, parse_dates=True)
     ts = _adj_column_names(ts)
 
-    # Drop all rows that have nan column values. Remove rows that have
-    # duplicated index.
-    ts = ts.dropna()
+    # Remove rows that have duplicated index.
     ts = ts[~ts.index.duplicated(keep=&#39;first&#39;)]
     return ts</code></pre>
 </details>
 </dd>
 <dt id="pinkfish.fetch.finalize_timeseries"><code class="name flex">
-<span>def <span class="ident">finalize_timeseries</span></span>(<span>ts, start)</span>
+<span>def <span class="ident">finalize_timeseries</span></span>(<span>ts, start, dropna=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Finalize timeseries.</p>
@@ -518,6 +567,9 @@ at start.</p>
 <dd>The timeseries of a symbol.</dd>
 <dt><strong><code>start</code></strong> :&ensp;<code>datetime.datetime</code></dt>
 <dd>The start date for backtest.</dd>
+<dt><strong><code>dropna</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>Drop rows that have a NaN value in one of it's columns
+(default is True).</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
@@ -530,7 +582,7 @@ at start.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def finalize_timeseries(ts, start):
+<pre><code class="python">def finalize_timeseries(ts, start, dropna=False):
     &#34;&#34;&#34;
     Finalize timeseries.
 
@@ -543,6 +595,9 @@ at start.</p>
         The timeseries of a symbol.
     start : datetime.datetime
         The start date for backtest.
+    dropna : bool, optional
+        Drop rows that have a NaN value in one of it&#39;s columns
+        (default is True).
 
     Returns
     -------
@@ -551,7 +606,10 @@ at start.</p>
     pd.DataFrame
         The timeseries of a symbol.
     &#34;&#34;&#34;
-    ts = ts.dropna()
+    if dropna:
+        ts.dropna(inplace=True)
+    elif ts.isnull().values.any(): 
+        warnings.warn(&#34;NaN value(s) detected in timeseries&#34;)
     ts = ts[start:]
     start = ts.index[0]
     return ts, start</code></pre>
@@ -648,7 +706,7 @@ which implies that all the available data is retrieved).</dd>
 <p>Filter out any symbols prefixed with '__'.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>symbols</code></strong> :&ensp;<code>str</code> or <code>list</code>, optional</dt>
+<dt><strong><code>symbols</code></strong> :&ensp;<code>str</code> or <code>list</code> of <code>str</code>, optional</dt>
 <dd>The symbol(s) for which to remove cached timeseries (default
 is None, which imples remove timeseries for all symbols).</dd>
 <dt><strong><code>dir_name</code></strong> :&ensp;<code>str</code>, optional</dt>
@@ -671,7 +729,7 @@ is None, which imples remove timeseries for all symbols).</dd>
 
     Parameters
     ----------
-    symbols : str or list, optional
+    symbols : str or list of str, optional
         The symbol(s) for which to remove cached timeseries (default
         is None, which imples remove timeseries for all symbols).
     dir_name : str, optional
@@ -709,7 +767,7 @@ is None, which imples remove timeseries for all symbols).</dd>
 </details>
 </dd>
 <dt id="pinkfish.fetch.select_tradeperiod"><code class="name flex">
-<span>def <span class="ident">select_tradeperiod</span></span>(<span>ts, start, end, use_adj=False)</span>
+<span>def <span class="ident">select_tradeperiod</span></span>(<span>ts, start, end, use_adj=False, use_continuous_calendar=False, force_stock_market_calendar=False, check_fields=['close'])</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Select the trade period.</p>
@@ -728,18 +786,43 @@ to allow time for long term indicators, e.g. 200sma is become valid.</p>
 <dt><strong><code>use_adj</code></strong> :&ensp;<code>bool</code>, optional</dt>
 <dd>True to adjust prices for dividends and splits
 (default is False).</dd>
+<dt><strong><code>use_continuous_calendar</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>True if your timeseries has data for all seven days a week,
+and you want to backtest trading every day, including weekends.
+If this value is True, then <code>force_stock_market_calendar</code>
+is set to False (default is False).</dd>
+<dt><strong><code>force_stock_market_calendar</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>True forces use of stock market calendar on timeseries.
+Normally, you don't need to do this.
+This setting is intended
+to transform a continuous timeseries into a weekday timeseries.
+If this value is True, then <code>use_continuous_calendar</code> is set
+to False.
+(default is False).</dd>
+<dt><strong><code>check_fields</code></strong> :&ensp;<code>list</code> of <code>str {'high', 'low', 'open', 'close', 'adj_close'}</code></dt>
+<dd>Fields to check for for NaN values.
+If a NaN value is found
+for one of these fields, the row is dropped.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
 <dt><code>pd.DataFrame</code></dt>
 <dd>The timeseries for specified start:end, optionally with prices
 adjusted.</dd>
-</dl></div>
+</dl>
+<h2 id="notes">Notes</h2>
+<p>You should only set one of <code>use_continuous_calendar</code>=True or
+<code>force_stock_market_calendar</code>=True for a continuous timeseries.
+You should set neither of these to True if your timeseries is based
+on the stock market.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def select_tradeperiod(ts, start, end, use_adj=False):
+<pre><code class="python">def select_tradeperiod(ts, start, end, use_adj=False,
+                       use_continuous_calendar=False,
+                       force_stock_market_calendar=False,
+                       check_fields=[&#39;close&#39;]):
     &#34;&#34;&#34;
     Select the trade period.
 
@@ -758,16 +841,52 @@ adjusted.</dd>
     use_adj : bool, optional
         True to adjust prices for dividends and splits
         (default is False).
+    use_continuous_calendar: bool, optional
+        True if your timeseries has data for all seven days a week,
+        and you want to backtest trading every day, including weekends.
+        If this value is True, then `force_stock_market_calendar`
+        is set to False (default is False).
+    force_stock_market_calendar : bool, optional
+        True forces use of stock market calendar on timeseries.
+        Normally, you don&#39;t need to do this.  This setting is intended
+        to transform a continuous timeseries into a weekday timeseries.
+        If this value is True, then `use_continuous_calendar` is set
+        to False.
+        (default is False).
+    check_fields : list of str {&#39;high&#39;, &#39;low&#39;, &#39;open&#39;, &#39;close&#39;, &#39;adj_close&#39;}
+        Fields to check for for NaN values.  If a NaN value is found
+        for one of these fields, the row is dropped.
 
     Returns
     -------
     pd.DataFrame
         The timeseries for specified start:end, optionally with prices
         adjusted.
+
+    Notes
+    -----
+    You should only set one of `use_continuous_calendar`=True or
+    `force_stock_market_calendar`=True for a continuous timeseries.
+    You should set neither of these to True if your timeseries is based
+    on the stock market.
     &#34;&#34;&#34;
     columns = [&#39;high&#39;, &#39;low&#39;, &#39;open&#39;, &#39;close&#39;, &#39;adj_close&#39;]
+    # Replace 0 value columns with NaN
     ts[columns] = ts[ts[columns] &gt; 0][columns]
-    ts.dropna()
+
+    if use_continuous_calendar:
+        force_stock_market_calendar = False
+    if force_stock_market_calendar:
+        use_continuous_calendar = False
+
+    if use_continuous_calendar:
+        pf.statistics.select_trading_days(use_stock_market_calendar=False)
+
+    if force_stock_market_calendar:
+        index = pd.to_datetime(pf.stock_market_calendar)
+        ts = ts.reindex(index=index)
+
+    ts.dropna(subset=check_fields, inplace=True)
 
     if use_adj:
         _adj_prices(ts)

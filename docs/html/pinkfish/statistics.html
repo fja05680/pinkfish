@@ -26,7 +26,7 @@
 <p>The stats() function returns the following metrics in a pd.Series.</p>
 <ul>
 <li>
-<p>`start : str<br>
+<p><code>start</code> : str<br>
 The date when trading begins formatted as YY-MM-DD.</p>
 </li>
 <li>
@@ -459,7 +459,7 @@ Calculate trading statistics.
 
 The stats() function returns the following metrics in a pd.Series.
 
- - `start : str  
+ - `start` : str  
    The date when trading begins formatted as YY-MM-DD.
 
  - `end` : str  
@@ -778,12 +778,16 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import math
 import operator
+import sys
 
 import numpy as np
 from numpy.lib.stride_tricks import as_strided
 import pandas as pd
 
 import pinkfish as pf
+
+# this is a pointer to the module object instance itself.
+__m = sys.modules[__name__]
 
 
 ########################################################################
@@ -801,10 +805,44 @@ TRADING_DAYS_PER_WEEK = 5
 &#34;&#34;&#34;
 int : The number of trading days per week.
 &#34;&#34;&#34;
-SP500_BEGIN = &#39;1957-03-04&#39;
+ALPHA_BEGIN = (1900, 1, 1)
 &#34;&#34;&#34;
-str : The date the S&amp;P500 began.
+tuple : Use with `select_timeseries`, beginning data for any timeseries.
 &#34;&#34;&#34;
+SP500_BEGIN = (1957, 3, 4)
+&#34;&#34;&#34;
+tuple : Use with `select_timeseries`, date the S&amp;P500 began.
+&#34;&#34;&#34;
+
+
+########################################################################
+# SELECT TRADING DAYS
+
+def select_trading_days(use_stock_market_calendar):
+    &#34;&#34;&#34;
+    Select between continuous and standard stock market days.
+
+    Set use_stock_market_calendar=False if your timeseries is 7 days
+    a week, e.g. cryptocurrencies.
+
+    Parameters
+    ----------
+    use_stock_market_calendar : bool
+        True for standard stock market calendar.  False for trading
+        7 days a week.
+
+    Returns
+    -------
+    None
+    &#34;&#34;&#34;
+    if use_stock_market_calendar:
+        __m.TRADING_DAYS_PER_YEAR = 252
+        __m.TRADING_DAYS_PER_MONTH = 20
+        __m.TRADING_DAYS_PER_WEEK = 5
+    else:
+        __m.TRADING_DAYS_PER_YEAR = 365
+        __m.TRADING_DAYS_PER_MONTH = 30
+        __m.TRADING_DAYS_PER_WEEK = 7
 
 
 ########################################################################
@@ -820,10 +858,10 @@ def _total_net_profit(tlog):
     return tlog.iloc[-1][&#39;cumul_total&#39;]
 
 def _gross_profit(tlog):
-    return tlog[tlog[&#39;pl_cash&#39;] &gt; 0].sum()[&#39;pl_cash&#39;]
+    return tlog[tlog[&#39;pl_cash&#39;] &gt; 0][&#39;pl_cash&#39;].sum()
 
 def _gross_loss(tlog):
-    return tlog[tlog[&#39;pl_cash&#39;] &lt; 0].sum()[&#39;pl_cash&#39;]
+    return tlog[tlog[&#39;pl_cash&#39;] &lt; 0][&#39;pl_cash&#39;].sum()
 
 def _profit_factor(tlog):
     if _gross_profit(tlog) == 0: return 0
@@ -938,11 +976,11 @@ def _largest_loss_losing_trade(tlog):
 
 def _num_winning_points(tlog):
     if _num_winning_trades(tlog) == 0: return 0
-    return tlog[tlog[&#39;pl_points&#39;] &gt; 0].sum()[&#39;pl_points&#39;]
+    return tlog[tlog[&#39;pl_points&#39;] &gt; 0][&#39;pl_points&#39;].sum()
 
 def _num_losing_points(tlog):
     if _num_losing_trades(tlog) == 0: return 0
-    return tlog[tlog[&#39;pl_points&#39;] &lt; 0].sum()[&#39;pl_points&#39;]
+    return tlog[tlog[&#39;pl_points&#39;] &lt; 0][&#39;pl_points&#39;].sum()
 
 def _total_net_points(tlog):
     return _num_winning_points(tlog) + _num_losing_points(tlog)
@@ -1049,7 +1087,7 @@ def _max_closed_out_drawdown(close):
     dd_max = min(0, cur_dd.min())
     idx = cur_dd.idxmin()
 
-    dd = pd.Series()
+    dd = pd.Series(dtype=&#39;object&#39;)
     dd[&#39;max&#39;] = dd_max
     dd[&#39;peak&#39;] = running_max[idx]
     dd[&#39;trough&#39;] = close[idx]
@@ -1074,7 +1112,7 @@ def _max_intra_day_drawdown(high, low):
     dd_max = min(0, cur_dd.min())
     idx = cur_dd.idxmin()
 
-    dd = pd.Series()
+    dd = pd.Series(dtype=&#39;object&#39;)
     dd[&#39;max&#39;] = dd_max
     dd[&#39;peak&#39;] = running_max[idx]
     dd[&#39;trough&#39;] = low[idx]
@@ -1188,7 +1226,10 @@ def _sortino_ratio(rets, risk_free=0.00, period=TRADING_DAYS_PER_YEAR):
     mean = np.mean(rets, axis=0)
     negative_rets = rets[rets &lt; 0]
     dev = np.std(negative_rets, axis=0)
-    sortino = (mean*period - risk_free) / (dev * np.sqrt(period))
+    if dev == 0:
+        sortino = 0
+    else:
+        sortino = (mean*period - risk_free) / (dev * np.sqrt(period))
     return sortino
 
 
@@ -1287,9 +1328,12 @@ def stats(ts, tlog, dbal, capital):
     stats[&#39;max_closed_out_drawdown_trough_date&#39;] = dd[&#39;trough_date&#39;]
     stats[&#39;max_closed_out_drawdown_recovery_date&#39;] = dd[&#39;recovery_date&#39;]
     stats[&#39;drawdown_loss_period&#39;], stats[&#39;drawdown_recovery_period&#39;] = \
-        _drawdown_loss_recovery_period(dd[&#39;peak_date&#39;], dd[&#39;trough_date&#39;],
-                                       dd[&#39;recovery_date&#39;])
-    stats[&#39;annualized_return_over_max_drawdown&#39;] = abs(cagr / dd[&#39;max&#39;])
+    _drawdown_loss_recovery_period(dd[&#39;peak_date&#39;], dd[&#39;trough_date&#39;],
+                                   dd[&#39;recovery_date&#39;])
+    if dd[&#39;max&#39;] == 0:
+        stats[&#39;annualized_return_over_max_drawdown&#39;] = 0
+    else:
+        stats[&#39;annualized_return_over_max_drawdown&#39;] = abs(cagr / dd[&#39;max&#39;])
     dd = _max_intra_day_drawdown(dbal[&#39;high&#39;], dbal[&#39;low&#39;])
     stats[&#39;max_intra_day_drawdown&#39;] = dd[&#39;max&#39;]
     dd = _rolling_max_dd(dbal[&#39;close&#39;], TRADING_DAYS_PER_YEAR)
@@ -1315,29 +1359,33 @@ def stats(ts, tlog, dbal, capital):
 
     # PERCENT CHANGE
     pc = _pct_change(dbal[&#39;close&#39;], TRADING_DAYS_PER_YEAR)
-    stats[&#39;pct_profitable_years&#39;] = (pc &gt; 0).sum() / len(pc) * 100
-    stats[&#39;best_year&#39;] = pc.max()
-    stats[&#39;worst_year&#39;] = pc.min()
-    stats[&#39;avg_year&#39;] = np.average(pc)
-    stats[&#39;annual_std&#39;] = pc.std()
+    if len(pc) &gt; 0:
+        stats[&#39;pct_profitable_years&#39;] = (pc &gt; 0).sum() / len(pc) * 100
+        stats[&#39;best_year&#39;] = pc.max()
+        stats[&#39;worst_year&#39;] = pc.min()
+        stats[&#39;avg_year&#39;] = np.average(pc)
+        stats[&#39;annual_std&#39;] = pc.std()
     pc = _pct_change(dbal[&#39;close&#39;], TRADING_DAYS_PER_MONTH)
-    stats[&#39;pct_profitable_months&#39;] = (pc &gt; 0).sum() / len(pc) * 100
-    stats[&#39;best_month&#39;] = pc.max()
-    stats[&#39;worst_month&#39;] = pc.min()
-    stats[&#39;avg_month&#39;] = np.average(pc)
-    stats[&#39;monthly_std&#39;] = pc.std()
+    if len(pc) &gt; 0:
+        stats[&#39;pct_profitable_months&#39;] = (pc &gt; 0).sum() / len(pc) * 100
+        stats[&#39;best_month&#39;] = pc.max()
+        stats[&#39;worst_month&#39;] = pc.min()
+        stats[&#39;avg_month&#39;] = np.average(pc)
+        stats[&#39;monthly_std&#39;] = pc.std()
     pc = _pct_change(dbal[&#39;close&#39;], TRADING_DAYS_PER_WEEK)
-    stats[&#39;pct_profitable_weeks&#39;] = (pc &gt; 0).sum() / len(pc) * 100
-    stats[&#39;best_week&#39;] = pc.max()
-    stats[&#39;worst_week&#39;] = pc.min()
-    stats[&#39;avg_week&#39;] = np.average(pc)
-    stats[&#39;weekly_std&#39;] = pc.std()
+    if len(pc) &gt; 0:
+        stats[&#39;pct_profitable_weeks&#39;] = (pc &gt; 0).sum() / len(pc) * 100
+        stats[&#39;best_week&#39;] = pc.max()
+        stats[&#39;worst_week&#39;] = pc.min()
+        stats[&#39;avg_week&#39;] = np.average(pc)
+        stats[&#39;weekly_std&#39;] = pc.std()
     pc = _pct_change(dbal[&#39;close&#39;], 1)
-    stats[&#39;pct_profitable_days&#39;] = (pc &gt; 0).sum() / len(pc) * 100
-    stats[&#39;best_day&#39;] = pc.max()
-    stats[&#39;worst_day&#39;] = pc.min()
-    stats[&#39;avg_day&#39;] = np.average(pc)
-    stats[&#39;daily_std&#39;] = pc.std()
+    if len(pc) &gt; 0:
+        stats[&#39;pct_profitable_days&#39;] = (pc &gt; 0).sum() / len(pc) * 100
+        stats[&#39;best_day&#39;] = pc.max()
+        stats[&#39;worst_day&#39;] = pc.min()
+        stats[&#39;avg_day&#39;] = np.average(pc)
+        stats[&#39;daily_std&#39;] = pc.std()
 
     # RATIOS
     sr = _sharpe_ratio(dbal[&#39;close&#39;].pct_change())
@@ -1458,6 +1506,38 @@ def summary(stats, benchmark_stats=None, metrics=default_metrics, extras=None):
             data.append(_get_metric_value(stats, metric))
 
     df = pd.DataFrame(data, columns=columns, index=index)
+    return df
+
+
+def optimizer_summary(strategies, metrics):
+    &#34;&#34;&#34;
+    Generate summary dataframe of a set of strategies vs metrics.
+
+    This function is designed to be used in analysis of an
+    optimization of some parameter.  stats() must be called for
+    each strategy before calling this function.
+
+   Parameters
+    ----------
+    strategies : pd.Series
+        Series of strategy objects that have the `stats` attribute.
+    metrics : tuple
+        The metrics to be used in the summary.
+
+    Returns
+    -------
+    df : pf.DataFrame
+        Summary of strategies vs metrics.
+    &#34;&#34;&#34;
+    index = []
+    columns = strategies.index
+    data = []
+    # Add metrics.
+    for metric in metrics:
+        index.append(metric)
+        data.append([_get_metric_value(strategy.stats, metric) for strategy in strategies])
+
+    df = pd.DataFrame(data, columns=columns, index=index)
     return df</code></pre>
 </details>
 </section>
@@ -1466,9 +1546,13 @@ def summary(stats, benchmark_stats=None, metrics=default_metrics, extras=None):
 <section>
 <h2 class="section-title" id="header-variables">Global variables</h2>
 <dl>
+<dt id="pinkfish.statistics.ALPHA_BEGIN"><code class="name">var <span class="ident">ALPHA_BEGIN</span></code></dt>
+<dd>
+<div class="desc"><p>tuple : Use with <code>select_timeseries</code>, beginning data for any timeseries.</p></div>
+</dd>
 <dt id="pinkfish.statistics.SP500_BEGIN"><code class="name">var <span class="ident">SP500_BEGIN</span></code></dt>
 <dd>
-<div class="desc"><p>str : The date the S&amp;P500 began.</p></div>
+<div class="desc"><p>tuple : Use with <code>select_timeseries</code>, date the S&amp;P500 began.</p></div>
 </dd>
 <dt id="pinkfish.statistics.TRADING_DAYS_PER_MONTH"><code class="name">var <span class="ident">TRADING_DAYS_PER_MONTH</span></code></dt>
 <dd>
@@ -1529,6 +1613,111 @@ def summary(stats, benchmark_stats=None, metrics=default_metrics, extras=None):
         return &#39;${:,.2f}&#39;.format(amount)
     else:
         return &#39;-${:,.2f}&#39;.format(-amount)</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.statistics.optimizer_summary"><code class="name flex">
+<span>def <span class="ident">optimizer_summary</span></span>(<span>strategies, metrics)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Generate summary dataframe of a set of strategies vs metrics.</p>
+<p>This function is designed to be used in analysis of an
+optimization of some parameter.
+stats() must be called for
+each strategy before calling this function.</p>
+<p>Parameters</p>
+<hr>
+<p>strategies : pd.Series
+Series of strategy objects that have the <code><a title="pinkfish.statistics.stats" href="#pinkfish.statistics.stats">stats()</a></code> attribute.
+metrics : tuple
+The metrics to be used in the summary.</p>
+<p>Returns</p>
+<hr>
+<p>df : pf.DataFrame
+Summary of strategies vs metrics.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def optimizer_summary(strategies, metrics):
+    &#34;&#34;&#34;
+    Generate summary dataframe of a set of strategies vs metrics.
+
+    This function is designed to be used in analysis of an
+    optimization of some parameter.  stats() must be called for
+    each strategy before calling this function.
+
+   Parameters
+    ----------
+    strategies : pd.Series
+        Series of strategy objects that have the `stats` attribute.
+    metrics : tuple
+        The metrics to be used in the summary.
+
+    Returns
+    -------
+    df : pf.DataFrame
+        Summary of strategies vs metrics.
+    &#34;&#34;&#34;
+    index = []
+    columns = strategies.index
+    data = []
+    # Add metrics.
+    for metric in metrics:
+        index.append(metric)
+        data.append([_get_metric_value(strategy.stats, metric) for strategy in strategies])
+
+    df = pd.DataFrame(data, columns=columns, index=index)
+    return df</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.statistics.select_trading_days"><code class="name flex">
+<span>def <span class="ident">select_trading_days</span></span>(<span>use_stock_market_calendar)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Select between continuous and standard stock market days.</p>
+<p>Set use_stock_market_calendar=False if your timeseries is 7 days
+a week, e.g. cryptocurrencies.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>use_stock_market_calendar</code></strong> :&ensp;<code>bool</code></dt>
+<dd>True for standard stock market calendar.
+False for trading
+7 days a week.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>None</code></dt>
+<dd>&nbsp;</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def select_trading_days(use_stock_market_calendar):
+    &#34;&#34;&#34;
+    Select between continuous and standard stock market days.
+
+    Set use_stock_market_calendar=False if your timeseries is 7 days
+    a week, e.g. cryptocurrencies.
+
+    Parameters
+    ----------
+    use_stock_market_calendar : bool
+        True for standard stock market calendar.  False for trading
+        7 days a week.
+
+    Returns
+    -------
+    None
+    &#34;&#34;&#34;
+    if use_stock_market_calendar:
+        __m.TRADING_DAYS_PER_YEAR = 252
+        __m.TRADING_DAYS_PER_MONTH = 20
+        __m.TRADING_DAYS_PER_WEEK = 5
+    else:
+        __m.TRADING_DAYS_PER_YEAR = 365
+        __m.TRADING_DAYS_PER_MONTH = 30
+        __m.TRADING_DAYS_PER_WEEK = 7</code></pre>
 </details>
 </dd>
 <dt id="pinkfish.statistics.stats"><code class="name flex">
@@ -1651,9 +1840,12 @@ def summary(stats, benchmark_stats=None, metrics=default_metrics, extras=None):
     stats[&#39;max_closed_out_drawdown_trough_date&#39;] = dd[&#39;trough_date&#39;]
     stats[&#39;max_closed_out_drawdown_recovery_date&#39;] = dd[&#39;recovery_date&#39;]
     stats[&#39;drawdown_loss_period&#39;], stats[&#39;drawdown_recovery_period&#39;] = \
-        _drawdown_loss_recovery_period(dd[&#39;peak_date&#39;], dd[&#39;trough_date&#39;],
-                                       dd[&#39;recovery_date&#39;])
-    stats[&#39;annualized_return_over_max_drawdown&#39;] = abs(cagr / dd[&#39;max&#39;])
+    _drawdown_loss_recovery_period(dd[&#39;peak_date&#39;], dd[&#39;trough_date&#39;],
+                                   dd[&#39;recovery_date&#39;])
+    if dd[&#39;max&#39;] == 0:
+        stats[&#39;annualized_return_over_max_drawdown&#39;] = 0
+    else:
+        stats[&#39;annualized_return_over_max_drawdown&#39;] = abs(cagr / dd[&#39;max&#39;])
     dd = _max_intra_day_drawdown(dbal[&#39;high&#39;], dbal[&#39;low&#39;])
     stats[&#39;max_intra_day_drawdown&#39;] = dd[&#39;max&#39;]
     dd = _rolling_max_dd(dbal[&#39;close&#39;], TRADING_DAYS_PER_YEAR)
@@ -1679,29 +1871,33 @@ def summary(stats, benchmark_stats=None, metrics=default_metrics, extras=None):
 
     # PERCENT CHANGE
     pc = _pct_change(dbal[&#39;close&#39;], TRADING_DAYS_PER_YEAR)
-    stats[&#39;pct_profitable_years&#39;] = (pc &gt; 0).sum() / len(pc) * 100
-    stats[&#39;best_year&#39;] = pc.max()
-    stats[&#39;worst_year&#39;] = pc.min()
-    stats[&#39;avg_year&#39;] = np.average(pc)
-    stats[&#39;annual_std&#39;] = pc.std()
+    if len(pc) &gt; 0:
+        stats[&#39;pct_profitable_years&#39;] = (pc &gt; 0).sum() / len(pc) * 100
+        stats[&#39;best_year&#39;] = pc.max()
+        stats[&#39;worst_year&#39;] = pc.min()
+        stats[&#39;avg_year&#39;] = np.average(pc)
+        stats[&#39;annual_std&#39;] = pc.std()
     pc = _pct_change(dbal[&#39;close&#39;], TRADING_DAYS_PER_MONTH)
-    stats[&#39;pct_profitable_months&#39;] = (pc &gt; 0).sum() / len(pc) * 100
-    stats[&#39;best_month&#39;] = pc.max()
-    stats[&#39;worst_month&#39;] = pc.min()
-    stats[&#39;avg_month&#39;] = np.average(pc)
-    stats[&#39;monthly_std&#39;] = pc.std()
+    if len(pc) &gt; 0:
+        stats[&#39;pct_profitable_months&#39;] = (pc &gt; 0).sum() / len(pc) * 100
+        stats[&#39;best_month&#39;] = pc.max()
+        stats[&#39;worst_month&#39;] = pc.min()
+        stats[&#39;avg_month&#39;] = np.average(pc)
+        stats[&#39;monthly_std&#39;] = pc.std()
     pc = _pct_change(dbal[&#39;close&#39;], TRADING_DAYS_PER_WEEK)
-    stats[&#39;pct_profitable_weeks&#39;] = (pc &gt; 0).sum() / len(pc) * 100
-    stats[&#39;best_week&#39;] = pc.max()
-    stats[&#39;worst_week&#39;] = pc.min()
-    stats[&#39;avg_week&#39;] = np.average(pc)
-    stats[&#39;weekly_std&#39;] = pc.std()
+    if len(pc) &gt; 0:
+        stats[&#39;pct_profitable_weeks&#39;] = (pc &gt; 0).sum() / len(pc) * 100
+        stats[&#39;best_week&#39;] = pc.max()
+        stats[&#39;worst_week&#39;] = pc.min()
+        stats[&#39;avg_week&#39;] = np.average(pc)
+        stats[&#39;weekly_std&#39;] = pc.std()
     pc = _pct_change(dbal[&#39;close&#39;], 1)
-    stats[&#39;pct_profitable_days&#39;] = (pc &gt; 0).sum() / len(pc) * 100
-    stats[&#39;best_day&#39;] = pc.max()
-    stats[&#39;worst_day&#39;] = pc.min()
-    stats[&#39;avg_day&#39;] = np.average(pc)
-    stats[&#39;daily_std&#39;] = pc.std()
+    if len(pc) &gt; 0:
+        stats[&#39;pct_profitable_days&#39;] = (pc &gt; 0).sum() / len(pc) * 100
+        stats[&#39;best_day&#39;] = pc.max()
+        stats[&#39;worst_day&#39;] = pc.min()
+        stats[&#39;avg_day&#39;] = np.average(pc)
+        stats[&#39;daily_std&#39;] = pc.std()
 
     # RATIOS
     sr = _sharpe_ratio(dbal[&#39;close&#39;].pct_change())
@@ -1797,6 +1993,7 @@ which imples that no extra metrics are being used).</dd>
 </li>
 <li><h3><a href="#header-variables">Global variables</a></h3>
 <ul class="">
+<li><code><a title="pinkfish.statistics.ALPHA_BEGIN" href="#pinkfish.statistics.ALPHA_BEGIN">ALPHA_BEGIN</a></code></li>
 <li><code><a title="pinkfish.statistics.SP500_BEGIN" href="#pinkfish.statistics.SP500_BEGIN">SP500_BEGIN</a></code></li>
 <li><code><a title="pinkfish.statistics.TRADING_DAYS_PER_MONTH" href="#pinkfish.statistics.TRADING_DAYS_PER_MONTH">TRADING_DAYS_PER_MONTH</a></code></li>
 <li><code><a title="pinkfish.statistics.TRADING_DAYS_PER_WEEK" href="#pinkfish.statistics.TRADING_DAYS_PER_WEEK">TRADING_DAYS_PER_WEEK</a></code></li>
@@ -1808,6 +2005,8 @@ which imples that no extra metrics are being used).</dd>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
 <li><code><a title="pinkfish.statistics.currency" href="#pinkfish.statistics.currency">currency</a></code></li>
+<li><code><a title="pinkfish.statistics.optimizer_summary" href="#pinkfish.statistics.optimizer_summary">optimizer_summary</a></code></li>
+<li><code><a title="pinkfish.statistics.select_trading_days" href="#pinkfish.statistics.select_trading_days">select_trading_days</a></code></li>
 <li><code><a title="pinkfish.statistics.stats" href="#pinkfish.statistics.stats">stats</a></code></li>
 <li><code><a title="pinkfish.statistics.summary" href="#pinkfish.statistics.summary">summary</a></code></li>
 </ul>

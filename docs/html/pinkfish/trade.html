@@ -197,6 +197,7 @@ class TradeLog:
         &#34;&#34;&#34;
         return self.share_value(price) / self.total_funds(price) * 100
 
+    @property
     def num_open_trades(self):
         &#34;&#34;&#34;
         Return the number of open orders, i.e. not closed out
@@ -236,8 +237,8 @@ class TradeLog:
         # Margin should be equal to or greater than 1.
         if TradeLog.margin &lt; 1: TradeLog.margin = 1
 
-        # Calculate buying power.
-        #TODO: why is it done this way?
+        # Calculate buying power.  TradeLog.buying_power may have
+        # already been calculated in portfolio.
         if TradeLog.buying_power is not None:
             buying_power = TradeLog.buying_power
         else:
@@ -317,8 +318,8 @@ class TradeLog:
 
         Notes
         -----
-        The `buy&#39; alias can be used to call this function for opening a
-        long position.
+        The `buy&#39; alias can be used to call this function for increasing
+        or opening a long position.
         &#34;&#34;&#34;
         return self._enter_trade(entry_date=entry_date,
                                  entry_price=entry_price,
@@ -362,7 +363,7 @@ class TradeLog:
         &#34;&#34;&#34;
         Qty of an open trade by index.
         &#34;&#34;&#34;
-        if index &gt;= self.num_open_trades(): return 0
+        if index &gt;= self.num_open_trades: return 0
         return self._open_trades[index][&#39;qty&#39;]
 
     def _exit_trade(self, exit_date, exit_price, shares=None, direction=Direction.LONG):
@@ -372,15 +373,15 @@ class TradeLog:
         Record exit in trade log. return -shares exited.
         shares = None exits all shares
         shares &gt; 0 exits that number of shares
-        shares &lt; 0 indicates the number of positons to exit
+        shares &lt; 0 indicates the number of open_trades to exit
         &#34;&#34;&#34;
         if shares is None or shares &gt; self.shares:
             shares = self.shares
         elif shares &lt; 0:
-            positions = -shares
+            open_trades = -shares
             shares = 0
-            for position in range(positions):
-                shares += self._qty_open_trade(position)
+            for i in range(open_trades):
+                shares += self._qty_open_trade(i)
 
         if shares == 0:
             return 0
@@ -461,8 +462,8 @@ class TradeLog:
 
         Notes
         -----
-        The `sell&#39; alias can be used to call this function for closing
-        out a long position.
+        The `sell&#39; alias can be used to call this function for reducing
+        or closing out a long position.
         &#34;&#34;&#34;
         return self._exit_trade(exit_date=exit_date,
                                 exit_price=exit_price,
@@ -497,6 +498,59 @@ class TradeLog:
                                 exit_price=exit_price,
                                 shares=shares,
                                 direction=Direction.SHORT)
+
+    ####################################################################
+    # GET PRICES (get_price, get_prices)
+    
+    def get_price(self, row, field=&#39;close&#39;):
+        &#34;&#34;&#34;
+        Return price given row and field.
+
+        Parameters
+        ----------
+        row : pd.Series
+            The timeseries of the portfolio.
+        field : str, optional {&#39;close&#39;, &#39;open&#39;, &#39;high&#39;, &#39;low&#39;}
+            The price field (default is &#39;close&#39;).
+
+        Returns
+        -------
+        price : float
+            The current price.
+
+        &#34;&#34;&#34;
+        try:
+            price = getattr(row, field)
+        except AttributeError:
+            # This method is slower, but handles column names that
+            # don&#39;t conform to variable name rules, and thus aren&#39;t
+            # attributes.
+            date = row.Index.to_pydatetime()
+            price = self._ts.loc[date, field]
+        return price
+
+    def get_prices(self, row, fields=[&#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;]):
+        &#34;&#34;&#34;
+        Return dict of prices for all symbols given row and fields.
+
+        Parameters
+        ----------
+        row : pd.Series
+            The timeseries of the portfolio.
+        fields : list, optional
+            The list of fields to use (default is
+            [&#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;]).
+
+        Returns
+        -------
+        d : dict of floats
+            The price indexed by fields.
+        &#34;&#34;&#34;
+        d = {}
+        for field in fields:
+            value = self.get_price(row, field)
+            d[field] = value
+        return d
 
     ####################################################################
     # ADJUST POSITION (adjust_shares, adjust_value, adjust_percent)
@@ -610,26 +664,14 @@ class TradeLog:
         Merge like trades that occur on the same day.
         &#34;&#34;&#34;
 
-        def _merge_exits(tlog):
-            &#34;&#34;&#34;
-            Merge exit trades that occur on the same date.
-            &#34;&#34;&#34;
-            tlog[&#39;entry_date&#39;] = tlog[&#39;entry_date&#39;].head(1)
-            tlog[&#39;entry_price&#39;] = \
-                (tlog[&#39;entry_price&#39;] * tlog[&#39;qty&#39;]).sum() / tlog[&#39;qty&#39;].sum()
-            tlog[&#39;exit_price&#39;] = \
-                (tlog[&#39;exit_price&#39;] * tlog[&#39;qty&#39;]).sum() / tlog[&#39;qty&#39;].sum()
-            tlog[&#39;pl_points&#39;] = tlog[&#39;pl_points&#39;].sum()
-            tlog[&#39;pl_cash&#39;] = tlog[&#39;pl_cash&#39;].sum()
-            tlog[&#39;qty&#39;] = tlog[&#39;qty&#39;].sum()
-            tlog[&#39;cumul_total&#39;] = tlog[&#39;cumul_total&#39;].sum()
-            return tlog
-
-        def _merge_entrys(tlog):
+        def _merge(tlog, merge_type):
             &#34;&#34;&#34;
              Merge entry trades that occur on the same date.
              &#34;&#34;&#34;
-            tlog[&#39;exit_date&#39;] = tlog[&#39;exit_date&#39;].tail(1)
+            if merge_type == &#39;entry&#39;:
+                tlog[&#39;exit_date&#39;] = tlog[&#39;exit_date&#39;]
+            else:
+                tlog[&#39;entry_date&#39;] = tlog[&#39;entry_date&#39;]
             tlog[&#39;entry_price&#39;] = \
                 (tlog[&#39;entry_price&#39;] * tlog[&#39;qty&#39;]).sum() / tlog[&#39;qty&#39;].sum()
             tlog[&#39;exit_price&#39;] = \
@@ -637,11 +679,13 @@ class TradeLog:
             tlog[&#39;pl_points&#39;] = tlog[&#39;pl_points&#39;].sum()
             tlog[&#39;pl_cash&#39;] = tlog[&#39;pl_cash&#39;].sum()
             tlog[&#39;qty&#39;] = tlog[&#39;qty&#39;].sum()
-            tlog[&#39;cumul_total&#39;] = tlog[&#39;cumul_total&#39;].sum()
+            tlog[&#39;cumul_total&#39;] = tlog[&#39;cumul_total&#39;].tail(1)
             return tlog
 
-        tlog = tlog.groupby(&#39;entry_date&#39;).apply(_merge_entrys).dropna().reset_index(drop=True)
-        tlog = tlog.groupby(&#39;exit_date&#39;).apply(_merge_exits).dropna().reset_index(drop=True)
+        tlog = tlog.groupby(&#39;entry_date&#39;).apply(_merge, merge_type=&#39;entry&#39;) \
+                                         .dropna().reset_index(drop=True)
+        tlog = tlog.groupby(&#39;exit_date&#39;).apply(_merge, merge_type=&#39;exit&#39;) \
+                                        .dropna().reset_index(drop=True)
         return tlog
 
 
@@ -698,6 +742,9 @@ class TradeLog:
 class TradeState:
     &#34;&#34;&#34;
     The trade state of OPEN, HOLD, or CLOSE.
+    
+    In the Daily Balance log, trade state is given by these
+    characters: OPEN=&#39;O&#39;, HOLD=&#39;-&#39;, and CLOSE=&#39;X&#39;
     &#34;&#34;&#34;
     OPEN, HOLD, CLOSE = [&#39;O&#39;, &#39;-&#39;, &#39;X&#39;]
 
@@ -1292,6 +1339,7 @@ will become the official trade log.</dd>
         &#34;&#34;&#34;
         return self.share_value(price) / self.total_funds(price) * 100
 
+    @property
     def num_open_trades(self):
         &#34;&#34;&#34;
         Return the number of open orders, i.e. not closed out
@@ -1331,8 +1379,8 @@ will become the official trade log.</dd>
         # Margin should be equal to or greater than 1.
         if TradeLog.margin &lt; 1: TradeLog.margin = 1
 
-        # Calculate buying power.
-        #TODO: why is it done this way?
+        # Calculate buying power.  TradeLog.buying_power may have
+        # already been calculated in portfolio.
         if TradeLog.buying_power is not None:
             buying_power = TradeLog.buying_power
         else:
@@ -1412,8 +1460,8 @@ will become the official trade log.</dd>
 
         Notes
         -----
-        The `buy&#39; alias can be used to call this function for opening a
-        long position.
+        The `buy&#39; alias can be used to call this function for increasing
+        or opening a long position.
         &#34;&#34;&#34;
         return self._enter_trade(entry_date=entry_date,
                                  entry_price=entry_price,
@@ -1457,7 +1505,7 @@ will become the official trade log.</dd>
         &#34;&#34;&#34;
         Qty of an open trade by index.
         &#34;&#34;&#34;
-        if index &gt;= self.num_open_trades(): return 0
+        if index &gt;= self.num_open_trades: return 0
         return self._open_trades[index][&#39;qty&#39;]
 
     def _exit_trade(self, exit_date, exit_price, shares=None, direction=Direction.LONG):
@@ -1467,15 +1515,15 @@ will become the official trade log.</dd>
         Record exit in trade log. return -shares exited.
         shares = None exits all shares
         shares &gt; 0 exits that number of shares
-        shares &lt; 0 indicates the number of positons to exit
+        shares &lt; 0 indicates the number of open_trades to exit
         &#34;&#34;&#34;
         if shares is None or shares &gt; self.shares:
             shares = self.shares
         elif shares &lt; 0:
-            positions = -shares
+            open_trades = -shares
             shares = 0
-            for position in range(positions):
-                shares += self._qty_open_trade(position)
+            for i in range(open_trades):
+                shares += self._qty_open_trade(i)
 
         if shares == 0:
             return 0
@@ -1556,8 +1604,8 @@ will become the official trade log.</dd>
 
         Notes
         -----
-        The `sell&#39; alias can be used to call this function for closing
-        out a long position.
+        The `sell&#39; alias can be used to call this function for reducing
+        or closing out a long position.
         &#34;&#34;&#34;
         return self._exit_trade(exit_date=exit_date,
                                 exit_price=exit_price,
@@ -1592,6 +1640,59 @@ will become the official trade log.</dd>
                                 exit_price=exit_price,
                                 shares=shares,
                                 direction=Direction.SHORT)
+
+    ####################################################################
+    # GET PRICES (get_price, get_prices)
+    
+    def get_price(self, row, field=&#39;close&#39;):
+        &#34;&#34;&#34;
+        Return price given row and field.
+
+        Parameters
+        ----------
+        row : pd.Series
+            The timeseries of the portfolio.
+        field : str, optional {&#39;close&#39;, &#39;open&#39;, &#39;high&#39;, &#39;low&#39;}
+            The price field (default is &#39;close&#39;).
+
+        Returns
+        -------
+        price : float
+            The current price.
+
+        &#34;&#34;&#34;
+        try:
+            price = getattr(row, field)
+        except AttributeError:
+            # This method is slower, but handles column names that
+            # don&#39;t conform to variable name rules, and thus aren&#39;t
+            # attributes.
+            date = row.Index.to_pydatetime()
+            price = self._ts.loc[date, field]
+        return price
+
+    def get_prices(self, row, fields=[&#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;]):
+        &#34;&#34;&#34;
+        Return dict of prices for all symbols given row and fields.
+
+        Parameters
+        ----------
+        row : pd.Series
+            The timeseries of the portfolio.
+        fields : list, optional
+            The list of fields to use (default is
+            [&#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;]).
+
+        Returns
+        -------
+        d : dict of floats
+            The price indexed by fields.
+        &#34;&#34;&#34;
+        d = {}
+        for field in fields:
+            value = self.get_price(row, field)
+            d[field] = value
+        return d
 
     ####################################################################
     # ADJUST POSITION (adjust_shares, adjust_value, adjust_percent)
@@ -1705,26 +1806,14 @@ will become the official trade log.</dd>
         Merge like trades that occur on the same day.
         &#34;&#34;&#34;
 
-        def _merge_exits(tlog):
-            &#34;&#34;&#34;
-            Merge exit trades that occur on the same date.
-            &#34;&#34;&#34;
-            tlog[&#39;entry_date&#39;] = tlog[&#39;entry_date&#39;].head(1)
-            tlog[&#39;entry_price&#39;] = \
-                (tlog[&#39;entry_price&#39;] * tlog[&#39;qty&#39;]).sum() / tlog[&#39;qty&#39;].sum()
-            tlog[&#39;exit_price&#39;] = \
-                (tlog[&#39;exit_price&#39;] * tlog[&#39;qty&#39;]).sum() / tlog[&#39;qty&#39;].sum()
-            tlog[&#39;pl_points&#39;] = tlog[&#39;pl_points&#39;].sum()
-            tlog[&#39;pl_cash&#39;] = tlog[&#39;pl_cash&#39;].sum()
-            tlog[&#39;qty&#39;] = tlog[&#39;qty&#39;].sum()
-            tlog[&#39;cumul_total&#39;] = tlog[&#39;cumul_total&#39;].sum()
-            return tlog
-
-        def _merge_entrys(tlog):
+        def _merge(tlog, merge_type):
             &#34;&#34;&#34;
              Merge entry trades that occur on the same date.
              &#34;&#34;&#34;
-            tlog[&#39;exit_date&#39;] = tlog[&#39;exit_date&#39;].tail(1)
+            if merge_type == &#39;entry&#39;:
+                tlog[&#39;exit_date&#39;] = tlog[&#39;exit_date&#39;]
+            else:
+                tlog[&#39;entry_date&#39;] = tlog[&#39;entry_date&#39;]
             tlog[&#39;entry_price&#39;] = \
                 (tlog[&#39;entry_price&#39;] * tlog[&#39;qty&#39;]).sum() / tlog[&#39;qty&#39;].sum()
             tlog[&#39;exit_price&#39;] = \
@@ -1732,11 +1821,13 @@ will become the official trade log.</dd>
             tlog[&#39;pl_points&#39;] = tlog[&#39;pl_points&#39;].sum()
             tlog[&#39;pl_cash&#39;] = tlog[&#39;pl_cash&#39;].sum()
             tlog[&#39;qty&#39;] = tlog[&#39;qty&#39;].sum()
-            tlog[&#39;cumul_total&#39;] = tlog[&#39;cumul_total&#39;].sum()
+            tlog[&#39;cumul_total&#39;] = tlog[&#39;cumul_total&#39;].tail(1)
             return tlog
 
-        tlog = tlog.groupby(&#39;entry_date&#39;).apply(_merge_entrys).dropna().reset_index(drop=True)
-        tlog = tlog.groupby(&#39;exit_date&#39;).apply(_merge_exits).dropna().reset_index(drop=True)
+        tlog = tlog.groupby(&#39;entry_date&#39;).apply(_merge, merge_type=&#39;entry&#39;) \
+                                         .dropna().reset_index(drop=True)
+        tlog = tlog.groupby(&#39;exit_date&#39;).apply(_merge, merge_type=&#39;exit&#39;) \
+                                        .dropna().reset_index(drop=True)
         return tlog
 
 
@@ -1814,6 +1905,24 @@ Used only with futures.</p></div>
 <dt id="pinkfish.trade.TradeLog.seq_num"><code class="name">var <span class="ident">seq_num</span></code></dt>
 <dd>
 <div class="desc"><p>int : Sequential number used to order trades in Portfolio class.</p></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="pinkfish.trade.TradeLog.num_open_trades"><code class="name">var <span class="ident">num_open_trades</span></code></dt>
+<dd>
+<div class="desc"><p>Return the number of open orders, i.e. not closed out</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def num_open_trades(self):
+    &#34;&#34;&#34;
+    Return the number of open orders, i.e. not closed out
+    &#34;&#34;&#34;
+    return len(self._open_trades)</code></pre>
+</details>
 </dd>
 </dl>
 <h3>Methods</h3>
@@ -2033,8 +2142,8 @@ buying power).</dd>
 <dd>The number of shares bought.</dd>
 </dl>
 <h2 id="notes">Notes</h2>
-<p>The `buy' alias can be used to call this function for opening a
-long position.</p></div>
+<p>The `buy' alias can be used to call this function for increasing
+or opening a long position.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2061,8 +2170,8 @@ long position.</p></div>
 
     Notes
     -----
-    The `buy&#39; alias can be used to call this function for opening a
-    long position.
+    The `buy&#39; alias can be used to call this function for increasing
+    or opening a long position.
     &#34;&#34;&#34;
     return self._enter_trade(entry_date=entry_date,
                              entry_price=entry_price,
@@ -2182,8 +2291,8 @@ cash amount.</dd>
     # Margin should be equal to or greater than 1.
     if TradeLog.margin &lt; 1: TradeLog.margin = 1
 
-    # Calculate buying power.
-    #TODO: why is it done this way?
+    # Calculate buying power.  TradeLog.buying_power may have
+    # already been calculated in portfolio.
     if TradeLog.buying_power is not None:
         buying_power = TradeLog.buying_power
     else:
@@ -2223,8 +2332,8 @@ buying power).</dd>
 <dd>The number of shares bought.</dd>
 </dl>
 <h2 id="notes">Notes</h2>
-<p>The `buy' alias can be used to call this function for opening a
-long position.</p></div>
+<p>The `buy' alias can be used to call this function for increasing
+or opening a long position.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2251,8 +2360,8 @@ long position.</p></div>
 
     Notes
     -----
-    The `buy&#39; alias can be used to call this function for opening a
-    long position.
+    The `buy&#39; alias can be used to call this function for increasing
+    or opening a long position.
     &#34;&#34;&#34;
     return self._enter_trade(entry_date=entry_date,
                              entry_price=entry_price,
@@ -2302,8 +2411,8 @@ sell all the shares).</dd>
 <dd>The number of shares sold.</dd>
 </dl>
 <h2 id="notes">Notes</h2>
-<p>The `sell' alias can be used to call this function for closing
-out a long position.</p></div>
+<p>The `sell' alias can be used to call this function for reducing
+or closing out a long position.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2329,8 +2438,8 @@ out a long position.</p></div>
 
     Notes
     -----
-    The `sell&#39; alias can be used to call this function for closing
-    out a long position.
+    The `sell&#39; alias can be used to call this function for reducing
+    or closing out a long position.
     &#34;&#34;&#34;
     return self._exit_trade(exit_date=exit_date,
                             exit_price=exit_price,
@@ -2428,6 +2537,101 @@ out a long position.</p></div>
     return rlog</code></pre>
 </details>
 </dd>
+<dt id="pinkfish.trade.TradeLog.get_price"><code class="name flex">
+<span>def <span class="ident">get_price</span></span>(<span>self, row, field='close')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return price given row and field.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>row</code></strong> :&ensp;<code>pd.Series</code></dt>
+<dd>The timeseries of the portfolio.</dd>
+<dt><strong><code>field</code></strong> :&ensp;<code>str</code>, optional <code>{'close', 'open', 'high', 'low'}</code></dt>
+<dd>The price field (default is 'close').</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>price</code></strong> :&ensp;<code>float</code></dt>
+<dd>The current price.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_price(self, row, field=&#39;close&#39;):
+    &#34;&#34;&#34;
+    Return price given row and field.
+
+    Parameters
+    ----------
+    row : pd.Series
+        The timeseries of the portfolio.
+    field : str, optional {&#39;close&#39;, &#39;open&#39;, &#39;high&#39;, &#39;low&#39;}
+        The price field (default is &#39;close&#39;).
+
+    Returns
+    -------
+    price : float
+        The current price.
+
+    &#34;&#34;&#34;
+    try:
+        price = getattr(row, field)
+    except AttributeError:
+        # This method is slower, but handles column names that
+        # don&#39;t conform to variable name rules, and thus aren&#39;t
+        # attributes.
+        date = row.Index.to_pydatetime()
+        price = self._ts.loc[date, field]
+    return price</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.trade.TradeLog.get_prices"><code class="name flex">
+<span>def <span class="ident">get_prices</span></span>(<span>self, row, fields=['open', 'high', 'low', 'close'])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return dict of prices for all symbols given row and fields.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>row</code></strong> :&ensp;<code>pd.Series</code></dt>
+<dd>The timeseries of the portfolio.</dd>
+<dt><strong><code>fields</code></strong> :&ensp;<code>list</code>, optional</dt>
+<dd>The list of fields to use (default is
+['open', 'high', 'low', 'close']).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>d</code></strong> :&ensp;<code>dict</code> of <code>floats</code></dt>
+<dd>The price indexed by fields.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_prices(self, row, fields=[&#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;]):
+    &#34;&#34;&#34;
+    Return dict of prices for all symbols given row and fields.
+
+    Parameters
+    ----------
+    row : pd.Series
+        The timeseries of the portfolio.
+    fields : list, optional
+        The list of fields to use (default is
+        [&#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;]).
+
+    Returns
+    -------
+    d : dict of floats
+        The price indexed by fields.
+    &#34;&#34;&#34;
+    d = {}
+    for field in fields:
+        value = self.get_price(row, field)
+        d[field] = value
+    return d</code></pre>
+</details>
+</dd>
 <dt id="pinkfish.trade.TradeLog.leverage"><code class="name flex">
 <span>def <span class="ident">leverage</span></span>(<span>self, price)</span>
 </code></dt>
@@ -2442,22 +2646,6 @@ out a long position.</p></div>
     Return the leverage factor of the position.
     &#34;&#34;&#34;
     return self.total_value(price) / self.equity(price)</code></pre>
-</details>
-</dd>
-<dt id="pinkfish.trade.TradeLog.num_open_trades"><code class="name flex">
-<span>def <span class="ident">num_open_trades</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Return the number of open orders, i.e. not closed out</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def num_open_trades(self):
-    &#34;&#34;&#34;
-    Return the number of open orders, i.e. not closed out
-    &#34;&#34;&#34;
-    return len(self._open_trades)</code></pre>
 </details>
 </dd>
 <dt id="pinkfish.trade.TradeLog.sell"><code class="name flex">
@@ -2481,8 +2669,8 @@ sell all the shares).</dd>
 <dd>The number of shares sold.</dd>
 </dl>
 <h2 id="notes">Notes</h2>
-<p>The `sell' alias can be used to call this function for closing
-out a long position.</p></div>
+<p>The `sell' alias can be used to call this function for reducing
+or closing out a long position.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2508,8 +2696,8 @@ out a long position.</p></div>
 
     Notes
     -----
-    The `sell&#39; alias can be used to call this function for closing
-    out a long position.
+    The `sell&#39; alias can be used to call this function for reducing
+    or closing out a long position.
     &#34;&#34;&#34;
     return self._exit_trade(exit_date=exit_date,
                             exit_price=exit_price,
@@ -2686,7 +2874,9 @@ possible).</dd>
 <span>class <span class="ident">TradeState</span></span>
 </code></dt>
 <dd>
-<div class="desc"><p>The trade state of OPEN, HOLD, or CLOSE.</p></div>
+<div class="desc"><p>The trade state of OPEN, HOLD, or CLOSE.</p>
+<p>In the Daily Balance log, trade state is given by these
+characters: OPEN='O', HOLD='-', and CLOSE='X'</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2694,6 +2884,9 @@ possible).</dd>
 <pre><code class="python">class TradeState:
     &#34;&#34;&#34;
     The trade state of OPEN, HOLD, or CLOSE.
+    
+    In the Daily Balance log, trade state is given by these
+    characters: OPEN=&#39;O&#39;, HOLD=&#39;-&#39;, and CLOSE=&#39;X&#39;
     &#34;&#34;&#34;
     OPEN, HOLD, CLOSE = [&#39;O&#39;, &#39;-&#39;, &#39;X&#39;]</code></pre>
 </details>
@@ -2768,6 +2961,8 @@ possible).</dd>
 <li><code><a title="pinkfish.trade.TradeLog.exit_trade" href="#pinkfish.trade.TradeLog.exit_trade">exit_trade</a></code></li>
 <li><code><a title="pinkfish.trade.TradeLog.get_log" href="#pinkfish.trade.TradeLog.get_log">get_log</a></code></li>
 <li><code><a title="pinkfish.trade.TradeLog.get_log_raw" href="#pinkfish.trade.TradeLog.get_log_raw">get_log_raw</a></code></li>
+<li><code><a title="pinkfish.trade.TradeLog.get_price" href="#pinkfish.trade.TradeLog.get_price">get_price</a></code></li>
+<li><code><a title="pinkfish.trade.TradeLog.get_prices" href="#pinkfish.trade.TradeLog.get_prices">get_prices</a></code></li>
 <li><code><a title="pinkfish.trade.TradeLog.instance" href="#pinkfish.trade.TradeLog.instance">instance</a></code></li>
 <li><code><a title="pinkfish.trade.TradeLog.leverage" href="#pinkfish.trade.TradeLog.leverage">leverage</a></code></li>
 <li><code><a title="pinkfish.trade.TradeLog.margin" href="#pinkfish.trade.TradeLog.margin">margin</a></code></li>

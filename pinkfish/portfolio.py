@@ -115,6 +115,8 @@ class Portfolio:
         fields : list, optional
             The list of fields to use for each symbol (default is
             ['open', 'high', 'low', 'close']).
+        dir_name : str, optional
+            The leaf data dir name (default is 'data').
         use_cache: bool, optional
             True to use data cache.  False to retrieve from the
             internet (default is True).

@@ -10,7 +10,9 @@ class Benchmark:
     Portfolio Benchmark for comparison to a strategy.
     """
 
-    def __init__(self, symbols, capital, start, end, use_adj=False,
+    def __init__(self, symbols, capital, start, end,
+                 dir_name='data',
+                 use_adj=False,
                  use_continuous_calendar=False,
                  force_stock_market_calendar=False):
         """
@@ -26,6 +28,8 @@ class Benchmark:
             The desired start date for the benchmark.
         end : datetime.datetime
             The desired end date for the benchmark.
+        dir_name : str, optional
+            The leaf data dir name (default is 'data').
         use_adj : bool, optional
             True to adjust prices for dividends and splits
             (default is False).
@@ -51,6 +55,8 @@ class Benchmark:
             The desired start date for the benchmark.
         end : datetime.datetime
             The desired end date for the benchmark.
+        dir_name : str, optional
+            The leaf data dir name (default is 'data').
         use_adj : bool, optional
             True to adjust prices for dividends and splits.
         use_continuous_calendar: bool, optional
@@ -84,6 +90,7 @@ class Benchmark:
         self.capital = capital
         self.start = start
         self.end = end
+        self.dir_name = dir_name
         self.use_adj = use_adj
         self.use_continuous_calendar = use_continuous_calendar
         self.force_stock_market_calendar = force_stock_market_calendar
@@ -139,7 +146,8 @@ class Benchmark:
     def run(self):
         self.portfolio = pf.Portfolio()
         self.ts = self.portfolio.fetch_timeseries(
-            self.symbols, self.start, self.end, use_adj=self.use_adj,
+            self.symbols, self.start, self.end,
+            dir_name=self.dir_name, use_adj=self.use_adj,
             use_continuous_calendar=self.use_continuous_calendar,
             force_stock_market_calendar=self.force_stock_market_calendar)
         # Add calendar columns

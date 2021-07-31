@@ -44,22 +44,21 @@ from .trade import (
 )
 
 from .statistics import (
+    ALPHA_BEGIN,
     SP500_BEGIN,
-    TRADING_DAYS_PER_YEAR,
-    TRADING_DAYS_PER_MONTH,
-    TRADING_DAYS_PER_WEEK,
+    currency_metrics,
     stats,
     currency,
     summary,
-    default_metrics,
-    currency_metrics
+    optimizer_summary
 )
 
 from .plot import (
     plot_equity_curve,
     plot_equity_curves,
     plot_trades,
-    plot_bar_graph
+    plot_bar_graph,
+    optimizer_plot_bar_graph
 )
 
 from .benchmark import (
@@ -73,11 +72,18 @@ from .portfolio import (
 from .indicator import (
     CROSSOVER,
     MOMENTUM,
-    VOLATILITY
+    VOLATILITY,
+    ANNUALIZED_RETURNS,
+    ANNUALIZED_STANDARD_DEVIATION,
+    ANNUALIZED_SHARPE_RATIO
 )
 
 from .pfcalendar import (
     calendar
+)
+
+from .stock_market_calendar import (
+    stock_market_calendar
 )
 
 from .analysis import (
@@ -89,9 +95,14 @@ from .analysis import (
 )
 
 from .utility import (
+    ROOT,
+    import_strategy,
     print_full,
     read_config,
-    is_last_row
+    is_last_row,
+    sort_dict,
+    set_dict_values,
+    find_nan_rows
 )
 
 DEBUG = False
@@ -123,7 +134,7 @@ def DBG(s):
 </dd>
 <dt><code class="name"><a title="pinkfish.indicator" href="indicator.html">pinkfish.indicator</a></code></dt>
 <dd>
-<div class="desc"><p>Custom indicators.</p></div>
+<div class="desc"><p>Custom indicators …</p></div>
 </dd>
 <dt><code class="name"><a title="pinkfish.itable" href="itable.html">pinkfish.itable</a></code></dt>
 <dd>
@@ -144,6 +155,10 @@ def DBG(s):
 <dt><code class="name"><a title="pinkfish.statistics" href="statistics.html">pinkfish.statistics</a></code></dt>
 <dd>
 <div class="desc"><p>Calculate trading statistics …</p></div>
+</dd>
+<dt><code class="name"><a title="pinkfish.stock_market_calendar" href="stock_market_calendar.html">pinkfish.stock_market_calendar</a></code></dt>
+<dd>
+<div class="desc"><p>Past and Future dates when the stock market is open from 1928 to 2024.</p></div>
 </dd>
 <dt><code class="name"><a title="pinkfish.trade" href="trade.html">pinkfish.trade</a></code></dt>
 <dd>
@@ -207,6 +222,7 @@ Enable by setting pf.DEBUG=True.</p></div>
 <li><code><a title="pinkfish.plot" href="plot.html">pinkfish.plot</a></code></li>
 <li><code><a title="pinkfish.portfolio" href="portfolio.html">pinkfish.portfolio</a></code></li>
 <li><code><a title="pinkfish.statistics" href="statistics.html">pinkfish.statistics</a></code></li>
+<li><code><a title="pinkfish.stock_market_calendar" href="stock_market_calendar.html">pinkfish.stock_market_calendar</a></code></li>
 <li><code><a title="pinkfish.trade" href="trade.html">pinkfish.trade</a></code></li>
 <li><code><a title="pinkfish.utility" href="utility.html">pinkfish.utility</a></code></li>
 </ul>

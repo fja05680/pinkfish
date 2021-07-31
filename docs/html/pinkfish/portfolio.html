@@ -57,7 +57,7 @@ class Portfolio:
      - finalize_timeseries()  
        Finalize timeseries.
 
-     - get_row_column_value()  
+     - get_price()  
        Return price given row, symbol, and field.
 
      - get_prices()  
@@ -66,8 +66,8 @@ class Portfolio:
      - shares()  
        Return number of shares for given symbol in portfolio.
 
-     - positions()  
-       Return the active symbols in portfolio as a list.
+     - positions  
+       Gets the active symbols in portfolio as a list.
 
      - share_percent()  
        Return share value of symbol as a percentage of `total_funds`.
@@ -124,7 +124,12 @@ class Portfolio:
         return ts
 
     def fetch_timeseries(self, symbols, start, end,
-                         fields=[&#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;], use_cache=True):
+                         fields=[&#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;],
+                         dir_name=&#39;data&#39;,
+                         use_cache=True, use_adj=True,
+                         use_continuous_calendar=False,
+                         force_stock_market_calendar=False,
+                         check_fields=[&#39;close&#39;]):
         &#34;&#34;&#34;
         Read time series data for symbols.
 
@@ -139,29 +144,56 @@ class Portfolio:
         fields : list, optional
             The list of fields to use for each symbol (default is
             [&#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;]).
+        dir_name : str, optional
+            The leaf data dir name (default is &#39;data&#39;).
         use_cache: bool, optional
             True to use data cache.  False to retrieve from the
             internet (default is True).
+        use_adj : bool, optional
+            True to adjust prices for dividends and splits
+            (default is False).
+        use_continuous_calendar: bool, optional
+            True if your timeseries has data for all seven days a week,
+            and you want to backtest trading every day, including weekends.
+            If this value is True, then `force_stock_market_calendar`
+            is set to False (default is False).
+        force_stock_market_calendar : bool, optional
+            True forces use of stock market calendar on timeseries.
+            Normally, you don&#39;t need to do this.  This setting is intended
+            to transform a continuous timeseries into a weekday timeseries.
+            If this value is True, then `use_continuous_calendar` is set
+            to False.
+        check_fields : list of str {&#39;high&#39;, &#39;low&#39;, &#39;open&#39;, &#39;close&#39;, &#39;adj_close&#39;}
+            Fields to check for for NaN values.  If a NaN value is found
+            for one of these fields, the row is dropped.
 
         Returns
         -------
         pd.DataFrame
             The timeseries of the symbols.
         &#34;&#34;&#34;
+        symbols = list(set(symbols))
         for i, symbol in enumerate(symbols):
 
             if i == 0:
-                ts = pf.fetch_timeseries(symbol, use_cache=use_cache)
-                ts = pf.select_tradeperiod(ts, start, end, use_adj=True)
+                ts = pf.fetch_timeseries(symbol, dir_name=dir_name, use_cache=use_cache)
+                ts = pf.select_tradeperiod(ts, start, end, use_adj=use_adj,
+                                           use_continuous_calendar=use_continuous_calendar,
+                                           force_stock_market_calendar=force_stock_market_calendar,
+                                           check_fields=check_fields)
                 self._add_symbol_columns(ts, symbol, ts, fields)
                 ts.drop(columns=[&#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;, &#39;volume&#39;, &#39;adj_close&#39;],
                         inplace=True)
             else:
                 # Add another symbol.
-                _ts = pf.fetch_timeseries(symbol, use_cache=use_cache)
-                _ts = pf.select_tradeperiod(_ts, start, end, use_adj=True)
+                _ts = pf.fetch_timeseries(symbol, dir_name=dir_name, use_cache=use_cache)
+                _ts = pf.select_tradeperiod(_ts, start, end, use_adj=use_adj,
+                                            use_continuous_calendar=use_continuous_calendar,
+                                            force_stock_market_calendar=force_stock_market_calendar,
+                                            check_fields=check_fields)
                 self._add_symbol_columns(ts, symbol, _ts, fields)
 
+        ts.dropna(inplace=True)
         self.symbols = symbols
         return ts
 
@@ -192,9 +224,9 @@ class Portfolio:
         ta_param : object
             The parameter for ta_func (typically an int).
         output_column_suffix : str
-            Output array column suffix to use for technical indicator. 
+            Output column suffix to use for technical indicator. 
         input_column_suffix : str, {&#39;close&#39;, &#39;open&#39;, &#39;high&#39;, &#39;low&#39;}
-            Input array column suffix to use for price
+            Input column suffix to use for price
             (default is &#39;close&#39;).
 
         Returns
@@ -209,8 +241,8 @@ class Portfolio:
         &gt;&gt;&gt;     return pd.Series(ts[input_column]).rolling(ta_param).max()
 
         &gt;&gt;&gt; ts = portfolio.add_technical_indicator(
-        &gt;&gt;&gt;     self.ts, ta_func =_period_high, ta_param=self.period,
-        &gt;&gt;&gt;     output_column_suffix=&#39;period_high&#39;+str(self.period),
+        &gt;&gt;&gt;     ts, ta_func=_period_high, ta_param=period,
+        &gt;&gt;&gt;     output_column_suffix=&#39;period_high&#39;+str(period),
         &gt;&gt;&gt;     input_column_suffix=&#39;close&#39;)
         &#34;&#34;&#34;
         for symbol in self.symbols:
@@ -225,23 +257,23 @@ class Portfolio:
         &#34;&#34;&#34;
         return pf.calendar(ts)
 
-    def finalize_timeseries(self, ts, start):
+    def finalize_timeseries(self, ts, start, dropna=True):
         &#34;&#34;&#34;
         Finalize timeseries.
         &#34;&#34;&#34;
-        return pf.finalize_timeseries(ts, start)
+        return pf.finalize_timeseries(ts, start, dropna=dropna)
 
     ####################################################################
-    # ADJUST POSITION (adjust_shares, adjust_value, adjust_percent, print_holdings)
-
-    def get_row_column_value(self, row, symbol, field=&#39;close&#39;):
+    # GET PRICES (get_price, get_prices)
+    
+    def get_price(self, row, symbol, field=&#39;close&#39;):
         &#34;&#34;&#34;
         Return price given row, symbol, and field.
 
         Parameters
         ----------
         row : pd.Series
-            The timeseries of the portfolio.
+            The row of data from the timeseries of the portfolio.
         symbol : str
             The symbol for a security.
         field : str, optional {&#39;close&#39;, &#39;open&#39;, &#39;high&#39;, &#39;low&#39;}
@@ -271,7 +303,7 @@ class Portfolio:
         Parameters
         ----------
         row : pd.Series
-            The timeseries of the portfolio.
+            A row of data from the timeseries of the portfolio.
         fields : list, optional
             The list of fields to use for each symbol (default is
             [&#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;]).
@@ -285,9 +317,12 @@ class Portfolio:
         for symbol in self.symbols:
             d[symbol] = {}
             for field in fields:
-                value = self.get_row_column_value(row, symbol, field)
+                value = self.get_price(row, symbol, field)
                 d[symbol][field] = value
         return d
+
+    ####################################################################
+    # ADJUST POSITION (adjust_shares, adjust_value, adjust_percent, print_holdings)
 
     def _share_value(self, row):
         &#34;&#34;&#34;
@@ -295,13 +330,13 @@ class Portfolio:
         &#34;&#34;&#34;
         value = 0
         for symbol, tlog in pf.TradeLog.instance.items():
-            close = self.get_row_column_value(row, symbol)
+            close = self.get_price(row, symbol)
             value += tlog.share_value(close)
         return value
 
     def _total_value(self, row):
         &#34;&#34;&#34;
-        Return total_value = share_value +  cash (if cash &gt; 0).
+        Return total_value = share_value + cash (if cash &gt; 0).
         &#34;&#34;&#34;
         total_value = self._share_value(row)
         if pf.TradeLog.cash &gt; 0:
@@ -346,9 +381,13 @@ class Portfolio:
         tlog = pf.TradeLog.instance[symbol]
         return tlog.shares
 
+    @property
     def positions(self):
         &#34;&#34;&#34;
         Return the active symbols in portfolio as a list.
+        
+        This returns only those symbols that currently have shares
+        allocated to them, either long or short.
 
         Parameters
         ----------
@@ -368,7 +407,7 @@ class Portfolio:
         Parameters
         ----------
         row : pd.Series
-            The timeseries of the portfolio.
+            A row of data from the timeseries of the portfolio.
         symbol : str
             The symbol for a security.
 
@@ -377,7 +416,7 @@ class Portfolio:
         float
             The share value as a percent.
         &#34;&#34;&#34;
-        close = self.get_row_column_value(row, symbol)
+        close = self.get_price(row, symbol)
         tlog = pf.TradeLog.instance[symbol]
         value = tlog.share_value(close)
         return value / self._total_funds(row) * 100
@@ -390,7 +429,7 @@ class Portfolio:
                       + self._share_value(row) * (pf.TradeLog.margin -1))
         return buying_power
 
-    def _adjust_shares(self, date, price, shares, symbol, row, direction=pf.Direction.LONG):
+    def _adjust_shares(self, date, price, shares, symbol, row, direction):
         &#34;&#34;&#34;
         Adjust shares.
         &#34;&#34;&#34;
@@ -400,7 +439,7 @@ class Portfolio:
         pf.TradeLog.buying_power = None
         return shares
 
-    def _adjust_value(self, date, price, value, symbol, row, direction=pf.Direction.LONG):
+    def _adjust_value(self, date, price, value, symbol, row, direction):
         &#34;&#34;&#34;
         Adjust value.
         &#34;&#34;&#34;
@@ -425,9 +464,9 @@ class Portfolio:
         symbol : str
             The symbol for a security.
         row : pd.Series
-            The timeseries of the portfolio.
+            A row of data from the timeseries of the portfolio.
         direction : pf.Direction, optional
-            The direction of the trade (default is Direction.LONG).
+            The direction of the trade (default is `pf.Direction.LONG`).
 
         Returns
         -------
@@ -440,51 +479,118 @@ class Portfolio:
         shares = self._adjust_value(date, price, value, symbol, row, direction)
         return shares
 
-    def print_holdings(self, date, row):
+    def adjust_percents(self, date, prices, weights, row, directions=None):
+        &#34;&#34;&#34;
+        Adjust symbols to a specified weight (percent) of portfolio.
+
+        This function assumes all positions are LONG and weights
+        is given for all symbols in the portfolio.
+
+        The ordering of the prices and weights dicts are unimportant.
+        They are both indexed by the symbol.
+
+        Parameters
+        ----------
+        date : str
+            The current date.
+        prices : dict of floats
+            Dict of key value pair of symbol:price.
+        weights : dict of floats
+            Dict of key value pair of symbol:weight.
+        row : pd.Series
+            A row of data from the timeseries of the portfolio.
+        directions : dict of pf.Direction, optional
+            The direction of the trades (default is None, which implies
+            that all positions are `pf.Direction.LONG`).
+
+        Returns
+        -------
+        w : dict of floats
+            Dict of key value pair of symbol:weight.
+        &#34;&#34;&#34;
+        w = {}
+
+        # Get current weights
+        for symbol in self.symbols:
+            w[symbol] = self.share_percent(row, symbol)
+        
+        # If direction is None, this set all to pf.Direction.LONG
+        if directions is None:
+            directions = {symbol:pf.Direction.LONG for symbol in self.symbols}
+
+        # Reverse sort by weights.  We want current positions first so that
+        # if they need to reduced or closed out, then cash is freed for
+        # other symbols.
+        w = pf.sort_dict(w, reverse=True)
+
+        # Update weights with new values.
+        w.update(weights)
+        
+        # Call adjust_percents() for each symbol.
+        for symbol in self.symbols:
+            price = prices[symbol]
+            weight = w[symbol]
+            direction = directions[symbol]
+            self.adjust_percent(date, price, weight, symbol, row, direction)
+        return w
+
+    def print_holdings(self, date, row, percent=False):
         &#34;&#34;&#34;
         Print snapshot of portfolio holding and values.
+
+        Includes all symbols regardless of whether a symbol has shares
+        currently allocated to it.
 
         Parameters
         ----------
         date : str
             The current date.
         row : pd.Series
-            The timeseries of the portfolio.
+            A row of data from the timeseries of the portfolio.
+        percent : bool, optional
+            Show each holding as a percent instead of shares.
+            (default is False).
 
         Returns
         -------
         None
         &#34;&#34;&#34;
-
-        # 2010-02-01 SPY: 54 TLT: 59 GLD:  9 cash:    84.20 total:  9,872.30
-        print(date.strftime(&#39;%Y-%m-%d&#39;), end=&#39; &#39;)
-        for symbol, tlog in pf.TradeLog.instance.items():
-            print(&#39;{}:{:3}&#39;.format(symbol, tlog.shares), end=&#39; &#39;)
-        print(&#39;cash: {:8,.2f}&#39;.format(pf.TradeLog.cash), end=&#39; &#39;)
-        print(&#39;total: {:9,.2f}&#39;.format(self._equity(row)))
+        if percent:
+            # 2007-11-20 SPY:24.1 TLT:24.9 GLD:24.6 QQQ:24.7 cash:  1.6 total: 100.0
+            print(date.strftime(&#39;%Y-%m-%d&#39;), end=&#39; &#39;)
+            total = 0
+            for symbol, tlog in pf.TradeLog.instance.items():
+                pct = self.share_percent(row, symbol)
+                total += pct
+                print(&#39;{}:{:4,.1f}&#39;.format(symbol, pct), end=&#39; &#39;)
+            pct = pf.TradeLog.cash / self._equity(row) * 100
+            total += abs(pct)
+            print(&#39;cash: {:4,.1f}&#39;.format(pct), end=&#39; &#39;)
+            print(&#39;total: {:4,.1f}&#39;.format(total))
+        else:
+            # 2010-02-01 SPY: 54 TLT: 59 GLD:  9 cash:    84.20 total:  9,872.30
+            print(date.strftime(&#39;%Y-%m-%d&#39;), end=&#39; &#39;)
+            for symbol, tlog in pf.TradeLog.instance.items():
+                print(&#39;{}:{:3}&#39;.format(symbol, tlog.shares), end=&#39; &#39;)
+            print(&#39;cash: {:8,.2f}&#39;.format(pf.TradeLog.cash), end=&#39; &#39;)
+            print(&#39;total: {:9,.2f}&#39;.format(self._equity(row)))
 
     ####################################################################
     # LOGS (init_trade_logs, record_daily_balance, get_logs)
 
-    def init_trade_logs(self, ts, capital, margin=pf.Margin.CASH):
+    def init_trade_logs(self, ts):
         &#34;&#34;&#34;
         Add a trade log for each symbol.
 
         Parameters
         ----------
-        _ts : pd.DataFrame
+        ts : pd.DataFrame
             The timeseries of the portfolio.
-        capital : int
-            The amount of money available for trading.
-        margin : float, optional
-            Margin percent (default is pf.Margin.CASH)
 
         Returns
         -------
         None
         &#34;&#34;&#34;
-        pf.TradeLog.cash = capital
-        pf.TradeLog.margin = margin
         pf.TradeLog.seq_num = 0
         pf.TradeLog.instance.clear()
 
@@ -495,13 +601,16 @@ class Portfolio:
     def record_daily_balance(self, date, row):
         &#34;&#34;&#34;
         Append to daily balance list.
+        
+        The portfolio version of this function uses closing values
+        for the daily high, low, and close. 
 
         Parameters
         ----------
         date : str
             The current date.
         row : pd.Series
-            The timeseries of the portfolio.
+            A row of data from the timeseries of the portfolio.
 
         Returns
         -------
@@ -616,7 +725,7 @@ class Portfolio:
 
         Parameters
         ----------
-        _ts : pd.DataFrame
+        ts : pd.DataFrame
             The timeseries of the portfolio.
         method : str, optional {&#39;price&#39;, &#39;log&#39;, &#39;returns&#39;}
             Analysis done based on specified method (default is &#39;log&#39;).
@@ -694,7 +803,7 @@ Add calendar columns.</p>
 Finalize timeseries.</p>
 </li>
 <li>
-<p>get_row_column_value()<br>
+<p>get_price()<br>
 Return price given row, symbol, and field.</p>
 </li>
 <li>
@@ -706,8 +815,8 @@ Return dict of prices for all symbols given row and fields.</p>
 Return number of shares for given symbol in portfolio.</p>
 </li>
 <li>
-<p>positions()<br>
-Return the active symbols in portfolio as a list.</p>
+<p>positions<br>
+Gets the active symbols in portfolio as a list.</p>
 </li>
 <li>
 <p>share_percent()<br>
@@ -774,7 +883,7 @@ Show correlation map between symbols.</p>
      - finalize_timeseries()  
        Finalize timeseries.
 
-     - get_row_column_value()  
+     - get_price()  
        Return price given row, symbol, and field.
 
      - get_prices()  
@@ -783,8 +892,8 @@ Show correlation map between symbols.</p>
      - shares()  
        Return number of shares for given symbol in portfolio.
 
-     - positions()  
-       Return the active symbols in portfolio as a list.
+     - positions  
+       Gets the active symbols in portfolio as a list.
 
      - share_percent()  
        Return share value of symbol as a percentage of `total_funds`.
@@ -841,7 +950,12 @@ Show correlation map between symbols.</p>
         return ts
 
     def fetch_timeseries(self, symbols, start, end,
-                         fields=[&#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;], use_cache=True):
+                         fields=[&#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;],
+                         dir_name=&#39;data&#39;,
+                         use_cache=True, use_adj=True,
+                         use_continuous_calendar=False,
+                         force_stock_market_calendar=False,
+                         check_fields=[&#39;close&#39;]):
         &#34;&#34;&#34;
         Read time series data for symbols.
 
@@ -856,29 +970,56 @@ Show correlation map between symbols.</p>
         fields : list, optional
             The list of fields to use for each symbol (default is
             [&#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;]).
+        dir_name : str, optional
+            The leaf data dir name (default is &#39;data&#39;).
         use_cache: bool, optional
             True to use data cache.  False to retrieve from the
             internet (default is True).
+        use_adj : bool, optional
+            True to adjust prices for dividends and splits
+            (default is False).
+        use_continuous_calendar: bool, optional
+            True if your timeseries has data for all seven days a week,
+            and you want to backtest trading every day, including weekends.
+            If this value is True, then `force_stock_market_calendar`
+            is set to False (default is False).
+        force_stock_market_calendar : bool, optional
+            True forces use of stock market calendar on timeseries.
+            Normally, you don&#39;t need to do this.  This setting is intended
+            to transform a continuous timeseries into a weekday timeseries.
+            If this value is True, then `use_continuous_calendar` is set
+            to False.
+        check_fields : list of str {&#39;high&#39;, &#39;low&#39;, &#39;open&#39;, &#39;close&#39;, &#39;adj_close&#39;}
+            Fields to check for for NaN values.  If a NaN value is found
+            for one of these fields, the row is dropped.
 
         Returns
         -------
         pd.DataFrame
             The timeseries of the symbols.
         &#34;&#34;&#34;
+        symbols = list(set(symbols))
         for i, symbol in enumerate(symbols):
 
             if i == 0:
-                ts = pf.fetch_timeseries(symbol, use_cache=use_cache)
-                ts = pf.select_tradeperiod(ts, start, end, use_adj=True)
+                ts = pf.fetch_timeseries(symbol, dir_name=dir_name, use_cache=use_cache)
+                ts = pf.select_tradeperiod(ts, start, end, use_adj=use_adj,
+                                           use_continuous_calendar=use_continuous_calendar,
+                                           force_stock_market_calendar=force_stock_market_calendar,
+                                           check_fields=check_fields)
                 self._add_symbol_columns(ts, symbol, ts, fields)
                 ts.drop(columns=[&#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;, &#39;volume&#39;, &#39;adj_close&#39;],
                         inplace=True)
             else:
                 # Add another symbol.
-                _ts = pf.fetch_timeseries(symbol, use_cache=use_cache)
-                _ts = pf.select_tradeperiod(_ts, start, end, use_adj=True)
+                _ts = pf.fetch_timeseries(symbol, dir_name=dir_name, use_cache=use_cache)
+                _ts = pf.select_tradeperiod(_ts, start, end, use_adj=use_adj,
+                                            use_continuous_calendar=use_continuous_calendar,
+                                            force_stock_market_calendar=force_stock_market_calendar,
+                                            check_fields=check_fields)
                 self._add_symbol_columns(ts, symbol, _ts, fields)
 
+        ts.dropna(inplace=True)
         self.symbols = symbols
         return ts
 
@@ -909,9 +1050,9 @@ Show correlation map between symbols.</p>
         ta_param : object
             The parameter for ta_func (typically an int).
         output_column_suffix : str
-            Output array column suffix to use for technical indicator. 
+            Output column suffix to use for technical indicator. 
         input_column_suffix : str, {&#39;close&#39;, &#39;open&#39;, &#39;high&#39;, &#39;low&#39;}
-            Input array column suffix to use for price
+            Input column suffix to use for price
             (default is &#39;close&#39;).
 
         Returns
@@ -926,8 +1067,8 @@ Show correlation map between symbols.</p>
         &gt;&gt;&gt;     return pd.Series(ts[input_column]).rolling(ta_param).max()
 
         &gt;&gt;&gt; ts = portfolio.add_technical_indicator(
-        &gt;&gt;&gt;     self.ts, ta_func =_period_high, ta_param=self.period,
-        &gt;&gt;&gt;     output_column_suffix=&#39;period_high&#39;+str(self.period),
+        &gt;&gt;&gt;     ts, ta_func=_period_high, ta_param=period,
+        &gt;&gt;&gt;     output_column_suffix=&#39;period_high&#39;+str(period),
         &gt;&gt;&gt;     input_column_suffix=&#39;close&#39;)
         &#34;&#34;&#34;
         for symbol in self.symbols:
@@ -942,23 +1083,23 @@ Show correlation map between symbols.</p>
         &#34;&#34;&#34;
         return pf.calendar(ts)
 
-    def finalize_timeseries(self, ts, start):
+    def finalize_timeseries(self, ts, start, dropna=True):
         &#34;&#34;&#34;
         Finalize timeseries.
         &#34;&#34;&#34;
-        return pf.finalize_timeseries(ts, start)
+        return pf.finalize_timeseries(ts, start, dropna=dropna)
 
     ####################################################################
-    # ADJUST POSITION (adjust_shares, adjust_value, adjust_percent, print_holdings)
-
-    def get_row_column_value(self, row, symbol, field=&#39;close&#39;):
+    # GET PRICES (get_price, get_prices)
+    
+    def get_price(self, row, symbol, field=&#39;close&#39;):
         &#34;&#34;&#34;
         Return price given row, symbol, and field.
 
         Parameters
         ----------
         row : pd.Series
-            The timeseries of the portfolio.
+            The row of data from the timeseries of the portfolio.
         symbol : str
             The symbol for a security.
         field : str, optional {&#39;close&#39;, &#39;open&#39;, &#39;high&#39;, &#39;low&#39;}
@@ -988,7 +1129,7 @@ Show correlation map between symbols.</p>
         Parameters
         ----------
         row : pd.Series
-            The timeseries of the portfolio.
+            A row of data from the timeseries of the portfolio.
         fields : list, optional
             The list of fields to use for each symbol (default is
             [&#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;]).
@@ -1002,9 +1143,12 @@ Show correlation map between symbols.</p>
         for symbol in self.symbols:
             d[symbol] = {}
             for field in fields:
-                value = self.get_row_column_value(row, symbol, field)
+                value = self.get_price(row, symbol, field)
                 d[symbol][field] = value
         return d
+
+    ####################################################################
+    # ADJUST POSITION (adjust_shares, adjust_value, adjust_percent, print_holdings)
 
     def _share_value(self, row):
         &#34;&#34;&#34;
@@ -1012,13 +1156,13 @@ Show correlation map between symbols.</p>
         &#34;&#34;&#34;
         value = 0
         for symbol, tlog in pf.TradeLog.instance.items():
-            close = self.get_row_column_value(row, symbol)
+            close = self.get_price(row, symbol)
             value += tlog.share_value(close)
         return value
 
     def _total_value(self, row):
         &#34;&#34;&#34;
-        Return total_value = share_value +  cash (if cash &gt; 0).
+        Return total_value = share_value + cash (if cash &gt; 0).
         &#34;&#34;&#34;
         total_value = self._share_value(row)
         if pf.TradeLog.cash &gt; 0:
@@ -1063,9 +1207,13 @@ Show correlation map between symbols.</p>
         tlog = pf.TradeLog.instance[symbol]
         return tlog.shares
 
+    @property
     def positions(self):
         &#34;&#34;&#34;
         Return the active symbols in portfolio as a list.
+        
+        This returns only those symbols that currently have shares
+        allocated to them, either long or short.
 
         Parameters
         ----------
@@ -1085,7 +1233,7 @@ Show correlation map between symbols.</p>
         Parameters
         ----------
         row : pd.Series
-            The timeseries of the portfolio.
+            A row of data from the timeseries of the portfolio.
         symbol : str
             The symbol for a security.
 
@@ -1094,7 +1242,7 @@ Show correlation map between symbols.</p>
         float
             The share value as a percent.
         &#34;&#34;&#34;
-        close = self.get_row_column_value(row, symbol)
+        close = self.get_price(row, symbol)
         tlog = pf.TradeLog.instance[symbol]
         value = tlog.share_value(close)
         return value / self._total_funds(row) * 100
@@ -1107,7 +1255,7 @@ Show correlation map between symbols.</p>
                       + self._share_value(row) * (pf.TradeLog.margin -1))
         return buying_power
 
-    def _adjust_shares(self, date, price, shares, symbol, row, direction=pf.Direction.LONG):
+    def _adjust_shares(self, date, price, shares, symbol, row, direction):
         &#34;&#34;&#34;
         Adjust shares.
         &#34;&#34;&#34;
@@ -1117,7 +1265,7 @@ Show correlation map between symbols.</p>
         pf.TradeLog.buying_power = None
         return shares
 
-    def _adjust_value(self, date, price, value, symbol, row, direction=pf.Direction.LONG):
+    def _adjust_value(self, date, price, value, symbol, row, direction):
         &#34;&#34;&#34;
         Adjust value.
         &#34;&#34;&#34;
@@ -1142,9 +1290,9 @@ Show correlation map between symbols.</p>
         symbol : str
             The symbol for a security.
         row : pd.Series
-            The timeseries of the portfolio.
+            A row of data from the timeseries of the portfolio.
         direction : pf.Direction, optional
-            The direction of the trade (default is Direction.LONG).
+            The direction of the trade (default is `pf.Direction.LONG`).
 
         Returns
         -------
@@ -1157,51 +1305,118 @@ Show correlation map between symbols.</p>
         shares = self._adjust_value(date, price, value, symbol, row, direction)
         return shares
 
-    def print_holdings(self, date, row):
+    def adjust_percents(self, date, prices, weights, row, directions=None):
+        &#34;&#34;&#34;
+        Adjust symbols to a specified weight (percent) of portfolio.
+
+        This function assumes all positions are LONG and weights
+        is given for all symbols in the portfolio.
+
+        The ordering of the prices and weights dicts are unimportant.
+        They are both indexed by the symbol.
+
+        Parameters
+        ----------
+        date : str
+            The current date.
+        prices : dict of floats
+            Dict of key value pair of symbol:price.
+        weights : dict of floats
+            Dict of key value pair of symbol:weight.
+        row : pd.Series
+            A row of data from the timeseries of the portfolio.
+        directions : dict of pf.Direction, optional
+            The direction of the trades (default is None, which implies
+            that all positions are `pf.Direction.LONG`).
+
+        Returns
+        -------
+        w : dict of floats
+            Dict of key value pair of symbol:weight.
+        &#34;&#34;&#34;
+        w = {}
+
+        # Get current weights
+        for symbol in self.symbols:
+            w[symbol] = self.share_percent(row, symbol)
+        
+        # If direction is None, this set all to pf.Direction.LONG
+        if directions is None:
+            directions = {symbol:pf.Direction.LONG for symbol in self.symbols}
+
+        # Reverse sort by weights.  We want current positions first so that
+        # if they need to reduced or closed out, then cash is freed for
+        # other symbols.
+        w = pf.sort_dict(w, reverse=True)
+
+        # Update weights with new values.
+        w.update(weights)
+        
+        # Call adjust_percents() for each symbol.
+        for symbol in self.symbols:
+            price = prices[symbol]
+            weight = w[symbol]
+            direction = directions[symbol]
+            self.adjust_percent(date, price, weight, symbol, row, direction)
+        return w
+
+    def print_holdings(self, date, row, percent=False):
         &#34;&#34;&#34;
         Print snapshot of portfolio holding and values.
+
+        Includes all symbols regardless of whether a symbol has shares
+        currently allocated to it.
 
         Parameters
         ----------
         date : str
             The current date.
         row : pd.Series
-            The timeseries of the portfolio.
+            A row of data from the timeseries of the portfolio.
+        percent : bool, optional
+            Show each holding as a percent instead of shares.
+            (default is False).
 
         Returns
         -------
         None
         &#34;&#34;&#34;
-
-        # 2010-02-01 SPY: 54 TLT: 59 GLD:  9 cash:    84.20 total:  9,872.30
-        print(date.strftime(&#39;%Y-%m-%d&#39;), end=&#39; &#39;)
-        for symbol, tlog in pf.TradeLog.instance.items():
-            print(&#39;{}:{:3}&#39;.format(symbol, tlog.shares), end=&#39; &#39;)
-        print(&#39;cash: {:8,.2f}&#39;.format(pf.TradeLog.cash), end=&#39; &#39;)
-        print(&#39;total: {:9,.2f}&#39;.format(self._equity(row)))
+        if percent:
+            # 2007-11-20 SPY:24.1 TLT:24.9 GLD:24.6 QQQ:24.7 cash:  1.6 total: 100.0
+            print(date.strftime(&#39;%Y-%m-%d&#39;), end=&#39; &#39;)
+            total = 0
+            for symbol, tlog in pf.TradeLog.instance.items():
+                pct = self.share_percent(row, symbol)
+                total += pct
+                print(&#39;{}:{:4,.1f}&#39;.format(symbol, pct), end=&#39; &#39;)
+            pct = pf.TradeLog.cash / self._equity(row) * 100
+            total += abs(pct)
+            print(&#39;cash: {:4,.1f}&#39;.format(pct), end=&#39; &#39;)
+            print(&#39;total: {:4,.1f}&#39;.format(total))
+        else:
+            # 2010-02-01 SPY: 54 TLT: 59 GLD:  9 cash:    84.20 total:  9,872.30
+            print(date.strftime(&#39;%Y-%m-%d&#39;), end=&#39; &#39;)
+            for symbol, tlog in pf.TradeLog.instance.items():
+                print(&#39;{}:{:3}&#39;.format(symbol, tlog.shares), end=&#39; &#39;)
+            print(&#39;cash: {:8,.2f}&#39;.format(pf.TradeLog.cash), end=&#39; &#39;)
+            print(&#39;total: {:9,.2f}&#39;.format(self._equity(row)))
 
     ####################################################################
     # LOGS (init_trade_logs, record_daily_balance, get_logs)
 
-    def init_trade_logs(self, ts, capital, margin=pf.Margin.CASH):
+    def init_trade_logs(self, ts):
         &#34;&#34;&#34;
         Add a trade log for each symbol.
 
         Parameters
         ----------
-        _ts : pd.DataFrame
+        ts : pd.DataFrame
             The timeseries of the portfolio.
-        capital : int
-            The amount of money available for trading.
-        margin : float, optional
-            Margin percent (default is pf.Margin.CASH)
 
         Returns
         -------
         None
         &#34;&#34;&#34;
-        pf.TradeLog.cash = capital
-        pf.TradeLog.margin = margin
         pf.TradeLog.seq_num = 0
         pf.TradeLog.instance.clear()
 
@@ -1212,13 +1427,16 @@ Show correlation map between symbols.</p>
     def record_daily_balance(self, date, row):
         &#34;&#34;&#34;
         Append to daily balance list.
+        
+        The portfolio version of this function uses closing values
+        for the daily high, low, and close. 
 
         Parameters
         ----------
         date : str
             The current date.
         row : pd.Series
-            The timeseries of the portfolio.
+            A row of data from the timeseries of the portfolio.
 
         Returns
         -------
@@ -1333,7 +1551,7 @@ Show correlation map between symbols.</p>
 
         Parameters
         ----------
-        _ts : pd.DataFrame
+        ts : pd.DataFrame
             The timeseries of the portfolio.
         method : str, optional {&#39;price&#39;, &#39;log&#39;, &#39;returns&#39;}
             Analysis done based on specified method (default is &#39;log&#39;).
@@ -1377,6 +1595,48 @@ Show correlation map between symbols.</p>
         plt.xticks(rotation=90)
         return df</code></pre>
 </details>
+<h3>Instance variables</h3>
+<dl>
+<dt id="pinkfish.portfolio.Portfolio.positions"><code class="name">var <span class="ident">positions</span></code></dt>
+<dd>
+<div class="desc"><p>Return the active symbols in portfolio as a list.</p>
+<p>This returns only those symbols that currently have shares
+allocated to them, either long or short.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>None</code></strong></dt>
+<dd>&nbsp;</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>list</code> of <code>str</code></dt>
+<dd>The active symbols in portfolio.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def positions(self):
+    &#34;&#34;&#34;
+    Return the active symbols in portfolio as a list.
+    
+    This returns only those symbols that currently have shares
+    allocated to them, either long or short.
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    list of str
+        The active symbols in portfolio.
+    &#34;&#34;&#34;
+    return [symbol for symbol in self.symbols if self.shares(symbol) &gt; 0]</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="pinkfish.portfolio.Portfolio.add_technical_indicator"><code class="name flex">
@@ -1409,9 +1669,9 @@ you could make ta_param a dict.</p>
 <dt><strong><code>ta_param</code></strong> :&ensp;<code>object</code></dt>
 <dd>The parameter for ta_func (typically an int).</dd>
 <dt><strong><code>output_column_suffix</code></strong> :&ensp;<code>str</code></dt>
-<dd>Output array column suffix to use for technical indicator.</dd>
+<dd>Output column suffix to use for technical indicator.</dd>
 <dt><strong><code>input_column_suffix</code></strong> :&ensp;<code>str, {'close', 'open', 'high', 'low'}</code></dt>
-<dd>Input array column suffix to use for price
+<dd>Input column suffix to use for price
 (default is 'close').</dd>
 </dl>
 <h2 id="returns">Returns</h2>
@@ -1425,8 +1685,8 @@ you could make ta_param a dict.</p>
 &gt;&gt;&gt;     return pd.Series(ts[input_column]).rolling(ta_param).max()
 </code></pre>
 <pre><code class="language-python-repl">&gt;&gt;&gt; ts = portfolio.add_technical_indicator(
-&gt;&gt;&gt;     self.ts, ta_func =_period_high, ta_param=self.period,
-&gt;&gt;&gt;     output_column_suffix='period_high'+str(self.period),
+&gt;&gt;&gt;     ts, ta_func=_period_high, ta_param=period,
+&gt;&gt;&gt;     output_column_suffix='period_high'+str(period),
 &gt;&gt;&gt;     input_column_suffix='close')
 </code></pre></div>
 <details class="source">
@@ -1460,9 +1720,9 @@ you could make ta_param a dict.</p>
     ta_param : object
         The parameter for ta_func (typically an int).
     output_column_suffix : str
-        Output array column suffix to use for technical indicator. 
+        Output column suffix to use for technical indicator. 
     input_column_suffix : str, {&#39;close&#39;, &#39;open&#39;, &#39;high&#39;, &#39;low&#39;}
-        Input array column suffix to use for price
+        Input column suffix to use for price
         (default is &#39;close&#39;).
 
     Returns
@@ -1477,8 +1737,8 @@ you could make ta_param a dict.</p>
     &gt;&gt;&gt;     return pd.Series(ts[input_column]).rolling(ta_param).max()
 
     &gt;&gt;&gt; ts = portfolio.add_technical_indicator(
-    &gt;&gt;&gt;     self.ts, ta_func =_period_high, ta_param=self.period,
-    &gt;&gt;&gt;     output_column_suffix=&#39;period_high&#39;+str(self.period),
+    &gt;&gt;&gt;     ts, ta_func=_period_high, ta_param=period,
+    &gt;&gt;&gt;     output_column_suffix=&#39;period_high&#39;+str(period),
     &gt;&gt;&gt;     input_column_suffix=&#39;close&#39;)
     &#34;&#34;&#34;
     for symbol in self.symbols:
@@ -1504,9 +1764,9 @@ you could make ta_param a dict.</p>
 <dt><strong><code>symbol</code></strong> :&ensp;<code>str</code></dt>
 <dd>The symbol for a security.</dd>
 <dt><strong><code>row</code></strong> :&ensp;<code>pd.Series</code></dt>
-<dd>The timeseries of the portfolio.</dd>
+<dd>A row of data from the timeseries of the portfolio.</dd>
 <dt><strong><code>direction</code></strong> :&ensp;<code>pf.Direction</code>, optional</dt>
-<dd>The direction of the trade (default is Direction.LONG).</dd>
+<dd>The direction of the trade (default is <code>pf.Direction.LONG</code>).</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
@@ -1533,9 +1793,9 @@ you could make ta_param a dict.</p>
     symbol : str
         The symbol for a security.
     row : pd.Series
-        The timeseries of the portfolio.
+        A row of data from the timeseries of the portfolio.
     direction : pf.Direction, optional
-        The direction of the trade (default is Direction.LONG).
+        The direction of the trade (default is `pf.Direction.LONG`).
 
     Returns
     -------
@@ -1547,6 +1807,94 @@ you could make ta_param a dict.</p>
     value = total_funds * weight
     shares = self._adjust_value(date, price, value, symbol, row, direction)
     return shares</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.portfolio.Portfolio.adjust_percents"><code class="name flex">
+<span>def <span class="ident">adjust_percents</span></span>(<span>self, date, prices, weights, row, directions=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Adjust symbols to a specified weight (percent) of portfolio.</p>
+<p>This function assumes all positions are LONG and weights
+is given for all symbols in the portfolio.</p>
+<p>The ordering of the prices and weights dicts are unimportant.
+They are both indexed by the symbol.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>date</code></strong> :&ensp;<code>str</code></dt>
+<dd>The current date.</dd>
+<dt><strong><code>prices</code></strong> :&ensp;<code>dict</code> of <code>floats</code></dt>
+<dd>Dict of key value pair of symbol:price.</dd>
+<dt><strong><code>weights</code></strong> :&ensp;<code>dict</code> of <code>floats</code></dt>
+<dd>Dict of key value pair of symbol:weight.</dd>
+<dt><strong><code>row</code></strong> :&ensp;<code>pd.Series</code></dt>
+<dd>A row of data from the timeseries of the portfolio.</dd>
+<dt><strong><code>directions</code></strong> :&ensp;<code>dict</code> of <code>pf.Direction</code>, optional</dt>
+<dd>The direction of the trades (default is None, which implies
+that all positions are <code>pf.Direction.LONG</code>).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>w</code></strong> :&ensp;<code>dict</code> of <code>floats</code></dt>
+<dd>Dict of key value pair of symbol:weight.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def adjust_percents(self, date, prices, weights, row, directions=None):
+    &#34;&#34;&#34;
+    Adjust symbols to a specified weight (percent) of portfolio.
+
+    This function assumes all positions are LONG and weights
+    is given for all symbols in the portfolio.
+
+    The ordering of the prices and weights dicts are unimportant.
+    They are both indexed by the symbol.
+
+    Parameters
+    ----------
+    date : str
+        The current date.
+    prices : dict of floats
+        Dict of key value pair of symbol:price.
+    weights : dict of floats
+        Dict of key value pair of symbol:weight.
+    row : pd.Series
+        A row of data from the timeseries of the portfolio.
+    directions : dict of pf.Direction, optional
+        The direction of the trades (default is None, which implies
+        that all positions are `pf.Direction.LONG`).
+
+    Returns
+    -------
+    w : dict of floats
+        Dict of key value pair of symbol:weight.
+    &#34;&#34;&#34;
+    w = {}
+
+    # Get current weights
+    for symbol in self.symbols:
+        w[symbol] = self.share_percent(row, symbol)
+    
+    # If direction is None, this set all to pf.Direction.LONG
+    if directions is None:
+        directions = {symbol:pf.Direction.LONG for symbol in self.symbols}
+
+    # Reverse sort by weights.  We want current positions first so that
+    # if they need to reduced or closed out, then cash is freed for
+    # other symbols.
+    w = pf.sort_dict(w, reverse=True)
+
+    # Update weights with new values.
+    w.update(weights)
+    
+    # Call adjust_percents() for each symbol.
+    for symbol in self.symbols:
+        price = prices[symbol]
+        weight = w[symbol]
+        direction = directions[symbol]
+        self.adjust_percent(date, price, weight, symbol, row, direction)
+    return w</code></pre>
 </details>
 </dd>
 <dt id="pinkfish.portfolio.Portfolio.calendar"><code class="name flex">
@@ -1572,7 +1920,7 @@ you could make ta_param a dict.</p>
 <div class="desc"><p>Show correlation map between symbols.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>_ts</code></strong> :&ensp;<code>pd.DataFrame</code></dt>
+<dt><strong><code>ts</code></strong> :&ensp;<code>pd.DataFrame</code></dt>
 <dd>The timeseries of the portfolio.</dd>
 <dt><strong><code>method</code></strong> :&ensp;<code>str</code>, optional <code>{'price', 'log', 'returns'}</code></dt>
 <dd>Analysis done based on specified method (default is 'log').</dd>
@@ -1596,7 +1944,7 @@ in the portfolio.</dd>
 
     Parameters
     ----------
-    _ts : pd.DataFrame
+    ts : pd.DataFrame
         The timeseries of the portfolio.
     method : str, optional {&#39;price&#39;, &#39;log&#39;, &#39;returns&#39;}
         Analysis done based on specified method (default is &#39;log&#39;).
@@ -1642,7 +1990,7 @@ in the portfolio.</dd>
 </details>
 </dd>
 <dt id="pinkfish.portfolio.Portfolio.fetch_timeseries"><code class="name flex">
-<span>def <span class="ident">fetch_timeseries</span></span>(<span>self, symbols, start, end, fields=['open', 'high', 'low', 'close'], use_cache=True)</span>
+<span>def <span class="ident">fetch_timeseries</span></span>(<span>self, symbols, start, end, fields=['open', 'high', 'low', 'close'], dir_name='data', use_cache=True, use_adj=True, use_continuous_calendar=False, force_stock_market_calendar=False, check_fields=['close'])</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Read time series data for symbols.</p>
@@ -1657,10 +2005,31 @@ in the portfolio.</dd>
 <dt><strong><code>fields</code></strong> :&ensp;<code>list</code>, optional</dt>
 <dd>The list of fields to use for each symbol (default is
 ['open', 'high', 'low', 'close']).</dd>
+<dt><strong><code>dir_name</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>The leaf data dir name (default is 'data').</dd>
 <dt><strong><code>use_cache</code></strong> :&ensp;<code>bool</code>, optional</dt>
 <dd>True to use data cache.
 False to retrieve from the
 internet (default is True).</dd>
+<dt><strong><code>use_adj</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>True to adjust prices for dividends and splits
+(default is False).</dd>
+<dt><strong><code>use_continuous_calendar</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>True if your timeseries has data for all seven days a week,
+and you want to backtest trading every day, including weekends.
+If this value is True, then <code>force_stock_market_calendar</code>
+is set to False (default is False).</dd>
+<dt><strong><code>force_stock_market_calendar</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>True forces use of stock market calendar on timeseries.
+Normally, you don't need to do this.
+This setting is intended
+to transform a continuous timeseries into a weekday timeseries.
+If this value is True, then <code>use_continuous_calendar</code> is set
+to False.</dd>
+<dt><strong><code>check_fields</code></strong> :&ensp;<code>list</code> of <code>str {'high', 'low', 'open', 'close', 'adj_close'}</code></dt>
+<dd>Fields to check for for NaN values.
+If a NaN value is found
+for one of these fields, the row is dropped.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
@@ -1672,7 +2041,12 @@ internet (default is True).</dd>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def fetch_timeseries(self, symbols, start, end,
-                     fields=[&#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;], use_cache=True):
+                     fields=[&#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;],
+                     dir_name=&#39;data&#39;,
+                     use_cache=True, use_adj=True,
+                     use_continuous_calendar=False,
+                     force_stock_market_calendar=False,
+                     check_fields=[&#39;close&#39;]):
     &#34;&#34;&#34;
     Read time series data for symbols.
 
@@ -1687,35 +2061,62 @@ internet (default is True).</dd>
     fields : list, optional
         The list of fields to use for each symbol (default is
         [&#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;]).
+    dir_name : str, optional
+        The leaf data dir name (default is &#39;data&#39;).
     use_cache: bool, optional
         True to use data cache.  False to retrieve from the
         internet (default is True).
+    use_adj : bool, optional
+        True to adjust prices for dividends and splits
+        (default is False).
+    use_continuous_calendar: bool, optional
+        True if your timeseries has data for all seven days a week,
+        and you want to backtest trading every day, including weekends.
+        If this value is True, then `force_stock_market_calendar`
+        is set to False (default is False).
+    force_stock_market_calendar : bool, optional
+        True forces use of stock market calendar on timeseries.
+        Normally, you don&#39;t need to do this.  This setting is intended
+        to transform a continuous timeseries into a weekday timeseries.
+        If this value is True, then `use_continuous_calendar` is set
+        to False.
+    check_fields : list of str {&#39;high&#39;, &#39;low&#39;, &#39;open&#39;, &#39;close&#39;, &#39;adj_close&#39;}
+        Fields to check for for NaN values.  If a NaN value is found
+        for one of these fields, the row is dropped.
 
     Returns
     -------
     pd.DataFrame
         The timeseries of the symbols.
     &#34;&#34;&#34;
+    symbols = list(set(symbols))
     for i, symbol in enumerate(symbols):
 
         if i == 0:
-            ts = pf.fetch_timeseries(symbol, use_cache=use_cache)
-            ts = pf.select_tradeperiod(ts, start, end, use_adj=True)
+            ts = pf.fetch_timeseries(symbol, dir_name=dir_name, use_cache=use_cache)
+            ts = pf.select_tradeperiod(ts, start, end, use_adj=use_adj,
+                                       use_continuous_calendar=use_continuous_calendar,
+                                       force_stock_market_calendar=force_stock_market_calendar,
+                                       check_fields=check_fields)
             self._add_symbol_columns(ts, symbol, ts, fields)
             ts.drop(columns=[&#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;, &#39;volume&#39;, &#39;adj_close&#39;],
                     inplace=True)
         else:
             # Add another symbol.
-            _ts = pf.fetch_timeseries(symbol, use_cache=use_cache)
-            _ts = pf.select_tradeperiod(_ts, start, end, use_adj=True)
+            _ts = pf.fetch_timeseries(symbol, dir_name=dir_name, use_cache=use_cache)
+            _ts = pf.select_tradeperiod(_ts, start, end, use_adj=use_adj,
+                                        use_continuous_calendar=use_continuous_calendar,
+                                        force_stock_market_calendar=force_stock_market_calendar,
+                                        check_fields=check_fields)
             self._add_symbol_columns(ts, symbol, _ts, fields)
 
+    ts.dropna(inplace=True)
     self.symbols = symbols
     return ts</code></pre>
 </details>
 </dd>
 <dt id="pinkfish.portfolio.Portfolio.finalize_timeseries"><code class="name flex">
-<span>def <span class="ident">finalize_timeseries</span></span>(<span>self, ts, start)</span>
+<span>def <span class="ident">finalize_timeseries</span></span>(<span>self, ts, start, dropna=True)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Finalize timeseries.</p></div>
@@ -1723,11 +2124,11 @@ internet (default is True).</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def finalize_timeseries(self, ts, start):
+<pre><code class="python">def finalize_timeseries(self, ts, start, dropna=True):
     &#34;&#34;&#34;
     Finalize timeseries.
     &#34;&#34;&#34;
-    return pf.finalize_timeseries(ts, start)</code></pre>
+    return pf.finalize_timeseries(ts, start, dropna=dropna)</code></pre>
 </details>
 </dd>
 <dt id="pinkfish.portfolio.Portfolio.get_logs"><code class="name flex">
@@ -1786,63 +2187,15 @@ internet (default is True).</dd>
     return rlog, tlog, dbal</code></pre>
 </details>
 </dd>
-<dt id="pinkfish.portfolio.Portfolio.get_prices"><code class="name flex">
-<span>def <span class="ident">get_prices</span></span>(<span>self, row, fields=['open', 'high', 'low', 'close'])</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Return dict of prices for all symbols given row and fields.</p>
-<h2 id="parameters">Parameters</h2>
-<dl>
-<dt><strong><code>row</code></strong> :&ensp;<code>pd.Series</code></dt>
-<dd>The timeseries of the portfolio.</dd>
-<dt><strong><code>fields</code></strong> :&ensp;<code>list</code>, optional</dt>
-<dd>The list of fields to use for each symbol (default is
-['open', 'high', 'low', 'close']).</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><strong><code>d</code></strong> :&ensp;<code>dict</code> of <code>floats</code></dt>
-<dd>The price indexed by symbol and field.</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_prices(self, row, fields=[&#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;]):
-    &#34;&#34;&#34;
-    Return dict of prices for all symbols given row and fields.
-
-    Parameters
-    ----------
-    row : pd.Series
-        The timeseries of the portfolio.
-    fields : list, optional
-        The list of fields to use for each symbol (default is
-        [&#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;]).
-
-    Returns
-    -------
-    d : dict of floats
-        The price indexed by symbol and field.
-    &#34;&#34;&#34;
-    d = {}
-    for symbol in self.symbols:
-        d[symbol] = {}
-        for field in fields:
-            value = self.get_row_column_value(row, symbol, field)
-            d[symbol][field] = value
-    return d</code></pre>
-</details>
-</dd>
-<dt id="pinkfish.portfolio.Portfolio.get_row_column_value"><code class="name flex">
-<span>def <span class="ident">get_row_column_value</span></span>(<span>self, row, symbol, field='close')</span>
+<dt id="pinkfish.portfolio.Portfolio.get_price"><code class="name flex">
+<span>def <span class="ident">get_price</span></span>(<span>self, row, symbol, field='close')</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Return price given row, symbol, and field.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>row</code></strong> :&ensp;<code>pd.Series</code></dt>
-<dd>The timeseries of the portfolio.</dd>
+<dd>The row of data from the timeseries of the portfolio.</dd>
 <dt><strong><code>symbol</code></strong> :&ensp;<code>str</code></dt>
 <dd>The symbol for a security.</dd>
 <dt><strong><code>field</code></strong> :&ensp;<code>str</code>, optional <code>{'close', 'open', 'high', 'low'}</code></dt>
@@ -1857,14 +2210,14 @@ internet (default is True).</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_row_column_value(self, row, symbol, field=&#39;close&#39;):
+<pre><code class="python">def get_price(self, row, symbol, field=&#39;close&#39;):
     &#34;&#34;&#34;
     Return price given row, symbol, and field.
 
     Parameters
     ----------
     row : pd.Series
-        The timeseries of the portfolio.
+        The row of data from the timeseries of the portfolio.
     symbol : str
         The symbol for a security.
     field : str, optional {&#39;close&#39;, &#39;open&#39;, &#39;high&#39;, &#39;low&#39;}
@@ -1888,19 +2241,63 @@ internet (default is True).</dd>
     return price</code></pre>
 </details>
 </dd>
+<dt id="pinkfish.portfolio.Portfolio.get_prices"><code class="name flex">
+<span>def <span class="ident">get_prices</span></span>(<span>self, row, fields=['open', 'high', 'low', 'close'])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return dict of prices for all symbols given row and fields.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>row</code></strong> :&ensp;<code>pd.Series</code></dt>
+<dd>A row of data from the timeseries of the portfolio.</dd>
+<dt><strong><code>fields</code></strong> :&ensp;<code>list</code>, optional</dt>
+<dd>The list of fields to use for each symbol (default is
+['open', 'high', 'low', 'close']).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>d</code></strong> :&ensp;<code>dict</code> of <code>floats</code></dt>
+<dd>The price indexed by symbol and field.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_prices(self, row, fields=[&#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;]):
+    &#34;&#34;&#34;
+    Return dict of prices for all symbols given row and fields.
+
+    Parameters
+    ----------
+    row : pd.Series
+        A row of data from the timeseries of the portfolio.
+    fields : list, optional
+        The list of fields to use for each symbol (default is
+        [&#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;]).
+
+    Returns
+    -------
+    d : dict of floats
+        The price indexed by symbol and field.
+    &#34;&#34;&#34;
+    d = {}
+    for symbol in self.symbols:
+        d[symbol] = {}
+        for field in fields:
+            value = self.get_price(row, symbol, field)
+            d[symbol][field] = value
+    return d</code></pre>
+</details>
+</dd>
 <dt id="pinkfish.portfolio.Portfolio.init_trade_logs"><code class="name flex">
-<span>def <span class="ident">init_trade_logs</span></span>(<span>self, ts, capital, margin=1)</span>
+<span>def <span class="ident">init_trade_logs</span></span>(<span>self, ts)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Add a trade log for each symbol.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>_ts</code></strong> :&ensp;<code>pd.DataFrame</code></dt>
+<dt><strong><code>ts</code></strong> :&ensp;<code>pd.DataFrame</code></dt>
 <dd>The timeseries of the portfolio.</dd>
-<dt><strong><code>capital</code></strong> :&ensp;<code>int</code></dt>
-<dd>The amount of money available for trading.</dd>
-<dt><strong><code>margin</code></strong> :&ensp;<code>float</code>, optional</dt>
-<dd>Margin percent (default is pf.Margin.CASH)</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
@@ -1911,25 +2308,19 @@ internet (default is True).</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def init_trade_logs(self, ts, capital, margin=pf.Margin.CASH):
+<pre><code class="python">def init_trade_logs(self, ts):
     &#34;&#34;&#34;
     Add a trade log for each symbol.
 
     Parameters
     ----------
-    _ts : pd.DataFrame
+    ts : pd.DataFrame
         The timeseries of the portfolio.
-    capital : int
-        The amount of money available for trading.
-    margin : float, optional
-        Margin percent (default is pf.Margin.CASH)
 
     Returns
     -------
     None
     &#34;&#34;&#34;
-    pf.TradeLog.cash = capital
-    pf.TradeLog.margin = margin
     pf.TradeLog.seq_num = 0
     pf.TradeLog.instance.clear()
 
@@ -2015,52 +2406,22 @@ portfolio.</dd>
     return df</code></pre>
 </details>
 </dd>
-<dt id="pinkfish.portfolio.Portfolio.positions"><code class="name flex">
-<span>def <span class="ident">positions</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Return the active symbols in portfolio as a list.</p>
-<h2 id="parameters">Parameters</h2>
-<dl>
-<dt><strong><code>None</code></strong></dt>
-<dd>&nbsp;</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>list</code> of <code>str</code></dt>
-<dd>The active symbols in portfolio.</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def positions(self):
-    &#34;&#34;&#34;
-    Return the active symbols in portfolio as a list.
-
-    Parameters
-    ----------
-    None
-
-    Returns
-    -------
-    list of str
-        The active symbols in portfolio.
-    &#34;&#34;&#34;
-    return [symbol for symbol in self.symbols if self.shares(symbol) &gt; 0]</code></pre>
-</details>
-</dd>
 <dt id="pinkfish.portfolio.Portfolio.print_holdings"><code class="name flex">
-<span>def <span class="ident">print_holdings</span></span>(<span>self, date, row)</span>
+<span>def <span class="ident">print_holdings</span></span>(<span>self, date, row, percent=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Print snapshot of portfolio holding and values.</p>
+<p>Includes all symbols regardless of whether a symbol has shares
+currently allocated to it.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>date</code></strong> :&ensp;<code>str</code></dt>
 <dd>The current date.</dd>
 <dt><strong><code>row</code></strong> :&ensp;<code>pd.Series</code></dt>
-<dd>The timeseries of the portfolio.</dd>
+<dd>A row of data from the timeseries of the portfolio.</dd>
+<dt><strong><code>percent</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>Show each holding as a percent instead of shares.
+(default is False).</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
@@ -2071,28 +2432,46 @@ portfolio.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def print_holdings(self, date, row):
+<pre><code class="python">def print_holdings(self, date, row, percent=False):
     &#34;&#34;&#34;
     Print snapshot of portfolio holding and values.
+
+    Includes all symbols regardless of whether a symbol has shares
+    currently allocated to it.
 
     Parameters
     ----------
     date : str
         The current date.
     row : pd.Series
-        The timeseries of the portfolio.
+        A row of data from the timeseries of the portfolio.
+    percent : bool, optional
+        Show each holding as a percent instead of shares.
+        (default is False).
 
     Returns
     -------
     None
     &#34;&#34;&#34;
-
-    # 2010-02-01 SPY: 54 TLT: 59 GLD:  9 cash:    84.20 total:  9,872.30
-    print(date.strftime(&#39;%Y-%m-%d&#39;), end=&#39; &#39;)
-    for symbol, tlog in pf.TradeLog.instance.items():
-        print(&#39;{}:{:3}&#39;.format(symbol, tlog.shares), end=&#39; &#39;)
-    print(&#39;cash: {:8,.2f}&#39;.format(pf.TradeLog.cash), end=&#39; &#39;)
-    print(&#39;total: {:9,.2f}&#39;.format(self._equity(row)))</code></pre>
+    if percent:
+        # 2007-11-20 SPY:24.1 TLT:24.9 GLD:24.6 QQQ:24.7 cash:  1.6 total: 100.0
+        print(date.strftime(&#39;%Y-%m-%d&#39;), end=&#39; &#39;)
+        total = 0
+        for symbol, tlog in pf.TradeLog.instance.items():
+            pct = self.share_percent(row, symbol)
+            total += pct
+            print(&#39;{}:{:4,.1f}&#39;.format(symbol, pct), end=&#39; &#39;)
+        pct = pf.TradeLog.cash / self._equity(row) * 100
+        total += abs(pct)
+        print(&#39;cash: {:4,.1f}&#39;.format(pct), end=&#39; &#39;)
+        print(&#39;total: {:4,.1f}&#39;.format(total))
+    else:
+        # 2010-02-01 SPY: 54 TLT: 59 GLD:  9 cash:    84.20 total:  9,872.30
+        print(date.strftime(&#39;%Y-%m-%d&#39;), end=&#39; &#39;)
+        for symbol, tlog in pf.TradeLog.instance.items():
+            print(&#39;{}:{:3}&#39;.format(symbol, tlog.shares), end=&#39; &#39;)
+        print(&#39;cash: {:8,.2f}&#39;.format(pf.TradeLog.cash), end=&#39; &#39;)
+        print(&#39;total: {:9,.2f}&#39;.format(self._equity(row)))</code></pre>
 </details>
 </dd>
 <dt id="pinkfish.portfolio.Portfolio.record_daily_balance"><code class="name flex">
@@ -2100,12 +2479,14 @@ portfolio.</dd>
 </code></dt>
 <dd>
 <div class="desc"><p>Append to daily balance list.</p>
+<p>The portfolio version of this function uses closing values
+for the daily high, low, and close. </p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>date</code></strong> :&ensp;<code>str</code></dt>
 <dd>The current date.</dd>
 <dt><strong><code>row</code></strong> :&ensp;<code>pd.Series</code></dt>
-<dd>The timeseries of the portfolio.</dd>
+<dd>A row of data from the timeseries of the portfolio.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
@@ -2119,13 +2500,16 @@ portfolio.</dd>
 <pre><code class="python">def record_daily_balance(self, date, row):
     &#34;&#34;&#34;
     Append to daily balance list.
+    
+    The portfolio version of this function uses closing values
+    for the daily high, low, and close. 
 
     Parameters
     ----------
     date : str
         The current date.
     row : pd.Series
-        The timeseries of the portfolio.
+        A row of data from the timeseries of the portfolio.
 
     Returns
     -------
@@ -2152,7 +2536,7 @@ portfolio.</dd>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>row</code></strong> :&ensp;<code>pd.Series</code></dt>
-<dd>The timeseries of the portfolio.</dd>
+<dd>A row of data from the timeseries of the portfolio.</dd>
 <dt><strong><code>symbol</code></strong> :&ensp;<code>str</code></dt>
 <dd>The symbol for a security.</dd>
 </dl>
@@ -2172,7 +2556,7 @@ portfolio.</dd>
     Parameters
     ----------
     row : pd.Series
-        The timeseries of the portfolio.
+        A row of data from the timeseries of the portfolio.
     symbol : str
         The symbol for a security.
 
@@ -2181,7 +2565,7 @@ portfolio.</dd>
     float
         The share value as a percent.
     &#34;&#34;&#34;
-    close = self.get_row_column_value(row, symbol)
+    close = self.get_price(row, symbol)
     tlog = pf.TradeLog.instance[symbol]
     value = tlog.share_value(close)
     return value / self._total_funds(row) * 100</code></pre>
@@ -2247,13 +2631,14 @@ portfolio.</dd>
 <ul class="">
 <li><code><a title="pinkfish.portfolio.Portfolio.add_technical_indicator" href="#pinkfish.portfolio.Portfolio.add_technical_indicator">add_technical_indicator</a></code></li>
 <li><code><a title="pinkfish.portfolio.Portfolio.adjust_percent" href="#pinkfish.portfolio.Portfolio.adjust_percent">adjust_percent</a></code></li>
+<li><code><a title="pinkfish.portfolio.Portfolio.adjust_percents" href="#pinkfish.portfolio.Portfolio.adjust_percents">adjust_percents</a></code></li>
 <li><code><a title="pinkfish.portfolio.Portfolio.calendar" href="#pinkfish.portfolio.Portfolio.calendar">calendar</a></code></li>
 <li><code><a title="pinkfish.portfolio.Portfolio.correlation_map" href="#pinkfish.portfolio.Portfolio.correlation_map">correlation_map</a></code></li>
 <li><code><a title="pinkfish.portfolio.Portfolio.fetch_timeseries" href="#pinkfish.portfolio.Portfolio.fetch_timeseries">fetch_timeseries</a></code></li>
 <li><code><a title="pinkfish.portfolio.Portfolio.finalize_timeseries" href="#pinkfish.portfolio.Portfolio.finalize_timeseries">finalize_timeseries</a></code></li>
 <li><code><a title="pinkfish.portfolio.Portfolio.get_logs" href="#pinkfish.portfolio.Portfolio.get_logs">get_logs</a></code></li>
+<li><code><a title="pinkfish.portfolio.Portfolio.get_price" href="#pinkfish.portfolio.Portfolio.get_price">get_price</a></code></li>
 <li><code><a title="pinkfish.portfolio.Portfolio.get_prices" href="#pinkfish.portfolio.Portfolio.get_prices">get_prices</a></code></li>
-<li><code><a title="pinkfish.portfolio.Portfolio.get_row_column_value" href="#pinkfish.portfolio.Portfolio.get_row_column_value">get_row_column_value</a></code></li>
 <li><code><a title="pinkfish.portfolio.Portfolio.init_trade_logs" href="#pinkfish.portfolio.Portfolio.init_trade_logs">init_trade_logs</a></code></li>
 <li><code><a title="pinkfish.portfolio.Portfolio.performance_per_symbol" href="#pinkfish.portfolio.Portfolio.performance_per_symbol">performance_per_symbol</a></code></li>
 <li><code><a title="pinkfish.portfolio.Portfolio.positions" href="#pinkfish.portfolio.Portfolio.positions">positions</a></code></li>
