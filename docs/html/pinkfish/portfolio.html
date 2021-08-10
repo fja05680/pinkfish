@@ -31,12 +31,72 @@
 Portfolio backtesting.
 &#34;&#34;&#34;
 
+from functools import wraps
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn
 
 import pinkfish as pf
+
+
+def technical_indicator(symbols, output_column_suffix,
+                        input_column_suffix=&#39;close&#39;):
+    &#34;&#34;&#34;
+    Decorator for adding a technical indicator to portfolio symbols.
+
+    A new column will be added for each symbol.  The name of the
+    new column will be the symbol name, an underscore, and the
+    `output_column_suffix`.  For example, &#39;SPY_MA30&#39; is the symbol
+    SPY with `output_column_suffix` equal to MA30.
+
+    `func` is a wrapper for a technical analysis function.  The
+    actual technical analysis function could be from ta-lib,
+    pandas, pinkfish indicator, or a custom user function.
+
+    &#39;func&#39; must have the positional argument `ts` and keyword argument
+    `input_column`.  &#39;ts` is passed in, but input_column (args[1]) is
+    assigned in the wrapper before `func` is called.
+
+    Parameters
+    ----------
+    symbols : list
+        The symbols that constitute the portfolio.
+    output_column_suffix : str
+        Output column suffix to use for technical indicator. 
+    input_column_suffix : str, {&#39;close&#39;, &#39;open&#39;, &#39;high&#39;, &#39;low&#39;}
+        Input column suffix to use for price (default is &#39;close&#39;).
+
+    Returns
+    -------
+    decorator : function
+        A wrapper that adds technical indicators to portfolio
+        symbols.
+
+    Examples
+    --------
+    &gt;&gt;&gt; # Technical indicator: volatility.
+    &gt;&gt;&gt; @pf.technical_indicator(symbols, &#39;vola&#39;, &#39;close&#39;) 
+    &gt;&gt;&gt; def _volatility(ts, input_column=None):
+    ...     return pf.VOLATILITY(ts, price=input_column)
+    &gt;&gt;&gt; ts = _volatility(ts)
+            
+    &#34;&#34;&#34;
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            assert len(args) &gt;= 1, f&#39;func requires at least 1 args, detected {len(args)}&#39;
+            assert type(args[0]) == pd.DataFrame, f&#39;args[0] not a pd.DataFrame&#39;
+            ts = args[0]
+            for symbol in symbols:
+                input_column = symbol + &#39;_&#39; + input_column_suffix
+                output_column = symbol + &#39;_&#39; + output_column_suffix
+                kwargs[&#39;input_column&#39;] = input_column
+                ts[output_column] = func(*args, **kwargs)
+            return ts
+        return wrapper
+    return decorator
 
 
 class Portfolio:
@@ -46,7 +106,7 @@ class Portfolio:
     Methods
     -------
      - fetch_timeseries()  
-       Read time series data for symbols.
+       Get time series data for symbols.
 
      - add_technical_indicator()  
        Add a technical indicator for each symbol in the portfolio.
@@ -131,7 +191,7 @@ class Portfolio:
                          force_stock_market_calendar=False,
                          check_fields=[&#39;close&#39;]):
         &#34;&#34;&#34;
-        Read time series data for symbols.
+        Fetch time series data for symbols.
 
         Parameters
         ----------
@@ -162,10 +222,12 @@ class Portfolio:
             Normally, you don&#39;t need to do this.  This setting is intended
             to transform a continuous timeseries into a weekday timeseries.
             If this value is True, then `use_continuous_calendar` is set
-            to False.
-        check_fields : list of str {&#39;high&#39;, &#39;low&#39;, &#39;open&#39;, &#39;close&#39;, &#39;adj_close&#39;}
+            to False (default is False).
+        check_fields : list of str, optional {&#39;high&#39;, &#39;low&#39;, &#39;open&#39;,
+            &#39;close&#39;, &#39;adj_close&#39;}
             Fields to check for for NaN values.  If a NaN value is found
-            for one of these fields, the row is dropped.
+            for one of these fields, that row is dropped
+            (default is [&#39;close&#39;]).
 
         Returns
         -------
@@ -207,13 +269,13 @@ class Portfolio:
         `output_column_suffix`.  For example, &#39;SPY_MA30&#39; is the symbol
         SPY with `output_column_suffix` equal to MA30.
 
-        ta_func is a wrapper for a technical analysis function.  The
+        `ta_func` is a wrapper for a technical analysis function.  The
         actual technical analysis function could be from ta-lib,
         pandas, pinkfish indicator, or a custom user function.
-        ta_param is used to pass 1 parameter to the ta_func.  Other
+        `ta_param` is used to pass 1 parameter to `ta_func`.  Other
         parameters could be passed to the technical indicator within
-        ta_func.  If you need to mass more than 1 paramters to ta_func,
-        you could make ta_param a dict.
+        `ta_func`.  If you need to mass more than 1 paramters to
+        `ta_func`, you could make `ta_param` a dict.
 
         Parameters
         ----------
@@ -222,12 +284,11 @@ class Portfolio:
         ta_func : function
             A wrapper for a technical analysis function.
         ta_param : object
-            The parameter for ta_func (typically an int).
+            The parameter for `ta_func` (typically an int).
         output_column_suffix : str
             Output column suffix to use for technical indicator. 
         input_column_suffix : str, {&#39;close&#39;, &#39;open&#39;, &#39;high&#39;, &#39;low&#39;}
-            Input column suffix to use for price
-            (default is &#39;close&#39;).
+            Input column suffix to use for price (default is &#39;close&#39;).
 
         Returns
         -------
@@ -252,20 +313,50 @@ class Portfolio:
         return ts
 
     def calendar(self, ts):
-        &#34;&#34;&#34;
-        Add calendar columns.
+        &#34;&#34;&#34; 
+        Add calendar columns to a timeseries.
+
+        Parameters
+        ----------
+        ts : pd.DataFrame
+            The timeseries of a symbol.
+
+        Returns
+        -------
+        pd.DataFrame
+            The timeseries with calendar columns added.
         &#34;&#34;&#34;
         return pf.calendar(ts)
 
     def finalize_timeseries(self, ts, start, dropna=True):
         &#34;&#34;&#34;
         Finalize timeseries.
+
+        Drop all rows that have nan column values.  Set timeseries to begin
+        at start.
+
+        Parameters
+        ----------
+        ts : pd.DataFrame
+            The timeseries of a symbol.
+        start : datetime.datetime
+            The start date for backtest.
+        dropna : bool, optional
+            Drop rows that have a NaN value in one of it&#39;s columns
+            (default is True).
+
+        Returns
+        -------
+        datetime.datetime
+            The start date.
+        pd.DataFrame
+            The timeseries of a symbol.
         &#34;&#34;&#34;
         return pf.finalize_timeseries(ts, start, dropna=dropna)
 
     ####################################################################
     # GET PRICES (get_price, get_prices)
-    
+
     def get_price(self, row, symbol, field=&#39;close&#39;):
         &#34;&#34;&#34;
         Return price given row, symbol, and field.
@@ -283,7 +374,6 @@ class Portfolio:
         -------
         price : float
             The current price.
-        
         &#34;&#34;&#34;
         symbol += &#39;_&#39; + field
         try:
@@ -483,11 +573,10 @@ class Portfolio:
         &#34;&#34;&#34;
         Adjust symbols to a specified weight (percent) of portfolio.
 
-        This function assumes all positions are LONG and weights
-        is given for all symbols in the portfolio.
-
-        The ordering of the prices and weights dicts are unimportant.
-        They are both indexed by the symbol.
+        This function assumes all positions are LONG.  Prices and
+        weights are given for all symbols in the portfolio.  The
+        ordering of the prices and weights dicts are unimportant.
+        They are dicts which are indexed by the symbol.
 
         Parameters
         ----------
@@ -500,8 +589,9 @@ class Portfolio:
         row : pd.Series
             A row of data from the timeseries of the portfolio.
         directions : dict of pf.Direction, optional
-            The direction of the trades (default is None, which implies
-            that all positions are `pf.Direction.LONG`).
+            Dict of key value pair of symbol:direction.  The direction
+            of the trades (default is None, which implies that all
+            positions are long).
 
         Returns
         -------
@@ -601,7 +691,7 @@ class Portfolio:
     def record_daily_balance(self, date, row):
         &#34;&#34;&#34;
         Append to daily balance list.
-        
+
         The portfolio version of this function uses closing values
         for the daily high, low, and close. 
 
@@ -731,7 +821,7 @@ class Portfolio:
             Analysis done based on specified method (default is &#39;log&#39;).
         days : int
             How many days to use for correlation (default is None,
-            which implies all days.
+            which implies all days).
 
         Returns
         -------
@@ -775,6 +865,112 @@ class Portfolio:
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="pinkfish.portfolio.technical_indicator"><code class="name flex">
+<span>def <span class="ident">technical_indicator</span></span>(<span>symbols, output_column_suffix, input_column_suffix='close')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Decorator for adding a technical indicator to portfolio symbols.</p>
+<p>A new column will be added for each symbol.
+The name of the
+new column will be the symbol name, an underscore, and the
+<code>output_column_suffix</code>.
+For example, 'SPY_MA30' is the symbol
+SPY with <code>output_column_suffix</code> equal to MA30.</p>
+<p><code>func</code> is a wrapper for a technical analysis function.
+The
+actual technical analysis function could be from ta-lib,
+pandas, pinkfish indicator, or a custom user function.</p>
+<p>'func' must have the positional argument <code>ts</code> and keyword argument
+<code>input_column</code>.
+'ts` is passed in, but input_column (args[1]) is
+assigned in the wrapper before <code>func</code> is called.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>symbols</code></strong> :&ensp;<code>list</code></dt>
+<dd>The symbols that constitute the portfolio.</dd>
+<dt><strong><code>output_column_suffix</code></strong> :&ensp;<code>str</code></dt>
+<dd>Output column suffix to use for technical indicator.</dd>
+<dt><strong><code>input_column_suffix</code></strong> :&ensp;<code>str, {'close', 'open', 'high', 'low'}</code></dt>
+<dd>Input column suffix to use for price (default is 'close').</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>decorator</code></strong> :&ensp;<code>function</code></dt>
+<dd>A wrapper that adds technical indicators to portfolio
+symbols.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<pre><code class="language-python-repl">&gt;&gt;&gt; # Technical indicator: volatility.
+&gt;&gt;&gt; @pf.technical_indicator(symbols, 'vola', 'close') 
+&gt;&gt;&gt; def _volatility(ts, input_column=None):
+...     return pf.VOLATILITY(ts, price=input_column)
+&gt;&gt;&gt; ts = _volatility(ts)
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def technical_indicator(symbols, output_column_suffix,
+                        input_column_suffix=&#39;close&#39;):
+    &#34;&#34;&#34;
+    Decorator for adding a technical indicator to portfolio symbols.
+
+    A new column will be added for each symbol.  The name of the
+    new column will be the symbol name, an underscore, and the
+    `output_column_suffix`.  For example, &#39;SPY_MA30&#39; is the symbol
+    SPY with `output_column_suffix` equal to MA30.
+
+    `func` is a wrapper for a technical analysis function.  The
+    actual technical analysis function could be from ta-lib,
+    pandas, pinkfish indicator, or a custom user function.
+
+    &#39;func&#39; must have the positional argument `ts` and keyword argument
+    `input_column`.  &#39;ts` is passed in, but input_column (args[1]) is
+    assigned in the wrapper before `func` is called.
+
+    Parameters
+    ----------
+    symbols : list
+        The symbols that constitute the portfolio.
+    output_column_suffix : str
+        Output column suffix to use for technical indicator. 
+    input_column_suffix : str, {&#39;close&#39;, &#39;open&#39;, &#39;high&#39;, &#39;low&#39;}
+        Input column suffix to use for price (default is &#39;close&#39;).
+
+    Returns
+    -------
+    decorator : function
+        A wrapper that adds technical indicators to portfolio
+        symbols.
+
+    Examples
+    --------
+    &gt;&gt;&gt; # Technical indicator: volatility.
+    &gt;&gt;&gt; @pf.technical_indicator(symbols, &#39;vola&#39;, &#39;close&#39;) 
+    &gt;&gt;&gt; def _volatility(ts, input_column=None):
+    ...     return pf.VOLATILITY(ts, price=input_column)
+    &gt;&gt;&gt; ts = _volatility(ts)
+            
+    &#34;&#34;&#34;
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            assert len(args) &gt;= 1, f&#39;func requires at least 1 args, detected {len(args)}&#39;
+            assert type(args[0]) == pd.DataFrame, f&#39;args[0] not a pd.DataFrame&#39;
+            ts = args[0]
+            for symbol in symbols:
+                input_column = symbol + &#39;_&#39; + input_column_suffix
+                output_column = symbol + &#39;_&#39; + output_column_suffix
+                kwargs[&#39;input_column&#39;] = input_column
+                ts[output_column] = func(*args, **kwargs)
+            return ts
+        return wrapper
+    return decorator</code></pre>
+</details>
+</dd>
+</dl>
 </section>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
@@ -788,7 +984,7 @@ class Portfolio:
 <ul>
 <li>
 <p>fetch_timeseries()<br>
-Read time series data for symbols.</p>
+Get time series data for symbols.</p>
 </li>
 <li>
 <p>add_technical_indicator()<br>
@@ -872,7 +1068,7 @@ Show correlation map between symbols.</p>
     Methods
     -------
      - fetch_timeseries()  
-       Read time series data for symbols.
+       Get time series data for symbols.
 
      - add_technical_indicator()  
        Add a technical indicator for each symbol in the portfolio.
@@ -957,7 +1153,7 @@ Show correlation map between symbols.</p>
                          force_stock_market_calendar=False,
                          check_fields=[&#39;close&#39;]):
         &#34;&#34;&#34;
-        Read time series data for symbols.
+        Fetch time series data for symbols.
 
         Parameters
         ----------
@@ -988,10 +1184,12 @@ Show correlation map between symbols.</p>
             Normally, you don&#39;t need to do this.  This setting is intended
             to transform a continuous timeseries into a weekday timeseries.
             If this value is True, then `use_continuous_calendar` is set
-            to False.
-        check_fields : list of str {&#39;high&#39;, &#39;low&#39;, &#39;open&#39;, &#39;close&#39;, &#39;adj_close&#39;}
+            to False (default is False).
+        check_fields : list of str, optional {&#39;high&#39;, &#39;low&#39;, &#39;open&#39;,
+            &#39;close&#39;, &#39;adj_close&#39;}
             Fields to check for for NaN values.  If a NaN value is found
-            for one of these fields, the row is dropped.
+            for one of these fields, that row is dropped
+            (default is [&#39;close&#39;]).
 
         Returns
         -------
@@ -1033,13 +1231,13 @@ Show correlation map between symbols.</p>
         `output_column_suffix`.  For example, &#39;SPY_MA30&#39; is the symbol
         SPY with `output_column_suffix` equal to MA30.
 
-        ta_func is a wrapper for a technical analysis function.  The
+        `ta_func` is a wrapper for a technical analysis function.  The
         actual technical analysis function could be from ta-lib,
         pandas, pinkfish indicator, or a custom user function.
-        ta_param is used to pass 1 parameter to the ta_func.  Other
+        `ta_param` is used to pass 1 parameter to `ta_func`.  Other
         parameters could be passed to the technical indicator within
-        ta_func.  If you need to mass more than 1 paramters to ta_func,
-        you could make ta_param a dict.
+        `ta_func`.  If you need to mass more than 1 paramters to
+        `ta_func`, you could make `ta_param` a dict.
 
         Parameters
         ----------
@@ -1048,12 +1246,11 @@ Show correlation map between symbols.</p>
         ta_func : function
             A wrapper for a technical analysis function.
         ta_param : object
-            The parameter for ta_func (typically an int).
+            The parameter for `ta_func` (typically an int).
         output_column_suffix : str
             Output column suffix to use for technical indicator. 
         input_column_suffix : str, {&#39;close&#39;, &#39;open&#39;, &#39;high&#39;, &#39;low&#39;}
-            Input column suffix to use for price
-            (default is &#39;close&#39;).
+            Input column suffix to use for price (default is &#39;close&#39;).
 
         Returns
         -------
@@ -1078,20 +1275,50 @@ Show correlation map between symbols.</p>
         return ts
 
     def calendar(self, ts):
-        &#34;&#34;&#34;
-        Add calendar columns.
+        &#34;&#34;&#34; 
+        Add calendar columns to a timeseries.
+
+        Parameters
+        ----------
+        ts : pd.DataFrame
+            The timeseries of a symbol.
+
+        Returns
+        -------
+        pd.DataFrame
+            The timeseries with calendar columns added.
         &#34;&#34;&#34;
         return pf.calendar(ts)
 
     def finalize_timeseries(self, ts, start, dropna=True):
         &#34;&#34;&#34;
         Finalize timeseries.
+
+        Drop all rows that have nan column values.  Set timeseries to begin
+        at start.
+
+        Parameters
+        ----------
+        ts : pd.DataFrame
+            The timeseries of a symbol.
+        start : datetime.datetime
+            The start date for backtest.
+        dropna : bool, optional
+            Drop rows that have a NaN value in one of it&#39;s columns
+            (default is True).
+
+        Returns
+        -------
+        datetime.datetime
+            The start date.
+        pd.DataFrame
+            The timeseries of a symbol.
         &#34;&#34;&#34;
         return pf.finalize_timeseries(ts, start, dropna=dropna)
 
     ####################################################################
     # GET PRICES (get_price, get_prices)
-    
+
     def get_price(self, row, symbol, field=&#39;close&#39;):
         &#34;&#34;&#34;
         Return price given row, symbol, and field.
@@ -1109,7 +1336,6 @@ Show correlation map between symbols.</p>
         -------
         price : float
             The current price.
-        
         &#34;&#34;&#34;
         symbol += &#39;_&#39; + field
         try:
@@ -1309,11 +1535,10 @@ Show correlation map between symbols.</p>
         &#34;&#34;&#34;
         Adjust symbols to a specified weight (percent) of portfolio.
 
-        This function assumes all positions are LONG and weights
-        is given for all symbols in the portfolio.
-
-        The ordering of the prices and weights dicts are unimportant.
-        They are both indexed by the symbol.
+        This function assumes all positions are LONG.  Prices and
+        weights are given for all symbols in the portfolio.  The
+        ordering of the prices and weights dicts are unimportant.
+        They are dicts which are indexed by the symbol.
 
         Parameters
         ----------
@@ -1326,8 +1551,9 @@ Show correlation map between symbols.</p>
         row : pd.Series
             A row of data from the timeseries of the portfolio.
         directions : dict of pf.Direction, optional
-            The direction of the trades (default is None, which implies
-            that all positions are `pf.Direction.LONG`).
+            Dict of key value pair of symbol:direction.  The direction
+            of the trades (default is None, which implies that all
+            positions are long).
 
         Returns
         -------
@@ -1427,7 +1653,7 @@ Show correlation map between symbols.</p>
     def record_daily_balance(self, date, row):
         &#34;&#34;&#34;
         Append to daily balance list.
-        
+
         The portfolio version of this function uses closing values
         for the daily high, low, and close. 
 
@@ -1557,7 +1783,7 @@ Show correlation map between symbols.</p>
             Analysis done based on specified method (default is &#39;log&#39;).
         days : int
             How many days to use for correlation (default is None,
-            which implies all days.
+            which implies all days).
 
         Returns
         -------
@@ -1650,16 +1876,16 @@ new column will be the symbol name, an underscore, and the
 <code>output_column_suffix</code>.
 For example, 'SPY_MA30' is the symbol
 SPY with <code>output_column_suffix</code> equal to MA30.</p>
-<p>ta_func is a wrapper for a technical analysis function.
+<p><code>ta_func</code> is a wrapper for a technical analysis function.
 The
 actual technical analysis function could be from ta-lib,
 pandas, pinkfish indicator, or a custom user function.
-ta_param is used to pass 1 parameter to the ta_func.
+<code>ta_param</code> is used to pass 1 parameter to <code>ta_func</code>.
 Other
 parameters could be passed to the technical indicator within
-ta_func.
-If you need to mass more than 1 paramters to ta_func,
-you could make ta_param a dict.</p>
+<code>ta_func</code>.
+If you need to mass more than 1 paramters to
+<code>ta_func</code>, you could make <code>ta_param</code> a dict.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>ts</code></strong> :&ensp;<code>pd.DataFrame</code></dt>
@@ -1667,12 +1893,11 @@ you could make ta_param a dict.</p>
 <dt><strong><code>ta_func</code></strong> :&ensp;<code>function</code></dt>
 <dd>A wrapper for a technical analysis function.</dd>
 <dt><strong><code>ta_param</code></strong> :&ensp;<code>object</code></dt>
-<dd>The parameter for ta_func (typically an int).</dd>
+<dd>The parameter for <code>ta_func</code> (typically an int).</dd>
 <dt><strong><code>output_column_suffix</code></strong> :&ensp;<code>str</code></dt>
 <dd>Output column suffix to use for technical indicator.</dd>
 <dt><strong><code>input_column_suffix</code></strong> :&ensp;<code>str, {'close', 'open', 'high', 'low'}</code></dt>
-<dd>Input column suffix to use for price
-(default is 'close').</dd>
+<dd>Input column suffix to use for price (default is 'close').</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
@@ -1703,13 +1928,13 @@ you could make ta_param a dict.</p>
     `output_column_suffix`.  For example, &#39;SPY_MA30&#39; is the symbol
     SPY with `output_column_suffix` equal to MA30.
 
-    ta_func is a wrapper for a technical analysis function.  The
+    `ta_func` is a wrapper for a technical analysis function.  The
     actual technical analysis function could be from ta-lib,
     pandas, pinkfish indicator, or a custom user function.
-    ta_param is used to pass 1 parameter to the ta_func.  Other
+    `ta_param` is used to pass 1 parameter to `ta_func`.  Other
     parameters could be passed to the technical indicator within
-    ta_func.  If you need to mass more than 1 paramters to ta_func,
-    you could make ta_param a dict.
+    `ta_func`.  If you need to mass more than 1 paramters to
+    `ta_func`, you could make `ta_param` a dict.
 
     Parameters
     ----------
@@ -1718,12 +1943,11 @@ you could make ta_param a dict.</p>
     ta_func : function
         A wrapper for a technical analysis function.
     ta_param : object
-        The parameter for ta_func (typically an int).
+        The parameter for `ta_func` (typically an int).
     output_column_suffix : str
         Output column suffix to use for technical indicator. 
     input_column_suffix : str, {&#39;close&#39;, &#39;open&#39;, &#39;high&#39;, &#39;low&#39;}
-        Input column suffix to use for price
-        (default is &#39;close&#39;).
+        Input column suffix to use for price (default is &#39;close&#39;).
 
     Returns
     -------
@@ -1814,10 +2038,12 @@ you could make ta_param a dict.</p>
 </code></dt>
 <dd>
 <div class="desc"><p>Adjust symbols to a specified weight (percent) of portfolio.</p>
-<p>This function assumes all positions are LONG and weights
-is given for all symbols in the portfolio.</p>
-<p>The ordering of the prices and weights dicts are unimportant.
-They are both indexed by the symbol.</p>
+<p>This function assumes all positions are LONG.
+Prices and
+weights are given for all symbols in the portfolio.
+The
+ordering of the prices and weights dicts are unimportant.
+They are dicts which are indexed by the symbol.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>date</code></strong> :&ensp;<code>str</code></dt>
@@ -1829,8 +2055,10 @@ They are both indexed by the symbol.</p>
 <dt><strong><code>row</code></strong> :&ensp;<code>pd.Series</code></dt>
 <dd>A row of data from the timeseries of the portfolio.</dd>
 <dt><strong><code>directions</code></strong> :&ensp;<code>dict</code> of <code>pf.Direction</code>, optional</dt>
-<dd>The direction of the trades (default is None, which implies
-that all positions are <code>pf.Direction.LONG</code>).</dd>
+<dd>Dict of key value pair of symbol:direction.
+The direction
+of the trades (default is None, which implies that all
+positions are long).</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
@@ -1845,11 +2073,10 @@ that all positions are <code>pf.Direction.LONG</code>).</dd>
     &#34;&#34;&#34;
     Adjust symbols to a specified weight (percent) of portfolio.
 
-    This function assumes all positions are LONG and weights
-    is given for all symbols in the portfolio.
-
-    The ordering of the prices and weights dicts are unimportant.
-    They are both indexed by the symbol.
+    This function assumes all positions are LONG.  Prices and
+    weights are given for all symbols in the portfolio.  The
+    ordering of the prices and weights dicts are unimportant.
+    They are dicts which are indexed by the symbol.
 
     Parameters
     ----------
@@ -1862,8 +2089,9 @@ that all positions are <code>pf.Direction.LONG</code>).</dd>
     row : pd.Series
         A row of data from the timeseries of the portfolio.
     directions : dict of pf.Direction, optional
-        The direction of the trades (default is None, which implies
-        that all positions are `pf.Direction.LONG`).
+        Dict of key value pair of symbol:direction.  The direction
+        of the trades (default is None, which implies that all
+        positions are long).
 
     Returns
     -------
@@ -1901,14 +2129,34 @@ that all positions are <code>pf.Direction.LONG</code>).</dd>
 <span>def <span class="ident">calendar</span></span>(<span>self, ts)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Add calendar columns.</p></div>
+<div class="desc"><p>Add calendar columns to a timeseries.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>ts</code></strong> :&ensp;<code>pd.DataFrame</code></dt>
+<dd>The timeseries of a symbol.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>pd.DataFrame</code></dt>
+<dd>The timeseries with calendar columns added.</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def calendar(self, ts):
-    &#34;&#34;&#34;
-    Add calendar columns.
+    &#34;&#34;&#34; 
+    Add calendar columns to a timeseries.
+
+    Parameters
+    ----------
+    ts : pd.DataFrame
+        The timeseries of a symbol.
+
+    Returns
+    -------
+    pd.DataFrame
+        The timeseries with calendar columns added.
     &#34;&#34;&#34;
     return pf.calendar(ts)</code></pre>
 </details>
@@ -1926,7 +2174,7 @@ that all positions are <code>pf.Direction.LONG</code>).</dd>
 <dd>Analysis done based on specified method (default is 'log').</dd>
 <dt><strong><code>days</code></strong> :&ensp;<code>int</code></dt>
 <dd>How many days to use for correlation (default is None,
-which implies all days.</dd>
+which implies all days).</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
@@ -1950,7 +2198,7 @@ in the portfolio.</dd>
         Analysis done based on specified method (default is &#39;log&#39;).
     days : int
         How many days to use for correlation (default is None,
-        which implies all days.
+        which implies all days).
 
     Returns
     -------
@@ -1993,7 +2241,7 @@ in the portfolio.</dd>
 <span>def <span class="ident">fetch_timeseries</span></span>(<span>self, symbols, start, end, fields=['open', 'high', 'low', 'close'], dir_name='data', use_cache=True, use_adj=True, use_continuous_calendar=False, force_stock_market_calendar=False, check_fields=['close'])</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Read time series data for symbols.</p>
+<div class="desc"><p>Fetch time series data for symbols.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>symbols</code></strong> :&ensp;<code>list</code></dt>
@@ -2025,11 +2273,13 @@ Normally, you don't need to do this.
 This setting is intended
 to transform a continuous timeseries into a weekday timeseries.
 If this value is True, then <code>use_continuous_calendar</code> is set
-to False.</dd>
-<dt><strong><code>check_fields</code></strong> :&ensp;<code>list</code> of <code>str {'high', 'low', 'open', 'close', 'adj_close'}</code></dt>
-<dd>Fields to check for for NaN values.
+to False (default is False).</dd>
+<dt><strong><code>check_fields</code></strong> :&ensp;<code>list</code> of <code>str</code>, optional <code>{'high', 'low', 'open',</code></dt>
+<dd>'close', 'adj_close'}
+Fields to check for for NaN values.
 If a NaN value is found
-for one of these fields, the row is dropped.</dd>
+for one of these fields, that row is dropped
+(default is ['close']).</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
@@ -2048,7 +2298,7 @@ for one of these fields, the row is dropped.</dd>
                      force_stock_market_calendar=False,
                      check_fields=[&#39;close&#39;]):
     &#34;&#34;&#34;
-    Read time series data for symbols.
+    Fetch time series data for symbols.
 
     Parameters
     ----------
@@ -2079,10 +2329,12 @@ for one of these fields, the row is dropped.</dd>
         Normally, you don&#39;t need to do this.  This setting is intended
         to transform a continuous timeseries into a weekday timeseries.
         If this value is True, then `use_continuous_calendar` is set
-        to False.
-    check_fields : list of str {&#39;high&#39;, &#39;low&#39;, &#39;open&#39;, &#39;close&#39;, &#39;adj_close&#39;}
+        to False (default is False).
+    check_fields : list of str, optional {&#39;high&#39;, &#39;low&#39;, &#39;open&#39;,
+        &#39;close&#39;, &#39;adj_close&#39;}
         Fields to check for for NaN values.  If a NaN value is found
-        for one of these fields, the row is dropped.
+        for one of these fields, that row is dropped
+        (default is [&#39;close&#39;]).
 
     Returns
     -------
@@ -2119,7 +2371,27 @@ for one of these fields, the row is dropped.</dd>
 <span>def <span class="ident">finalize_timeseries</span></span>(<span>self, ts, start, dropna=True)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Finalize timeseries.</p></div>
+<div class="desc"><p>Finalize timeseries.</p>
+<p>Drop all rows that have nan column values.
+Set timeseries to begin
+at start.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>ts</code></strong> :&ensp;<code>pd.DataFrame</code></dt>
+<dd>The timeseries of a symbol.</dd>
+<dt><strong><code>start</code></strong> :&ensp;<code>datetime.datetime</code></dt>
+<dd>The start date for backtest.</dd>
+<dt><strong><code>dropna</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>Drop rows that have a NaN value in one of it's columns
+(default is True).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>datetime.datetime</code></dt>
+<dd>The start date.</dd>
+<dt><code>pd.DataFrame</code></dt>
+<dd>The timeseries of a symbol.</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2127,6 +2399,26 @@ for one of these fields, the row is dropped.</dd>
 <pre><code class="python">def finalize_timeseries(self, ts, start, dropna=True):
     &#34;&#34;&#34;
     Finalize timeseries.
+
+    Drop all rows that have nan column values.  Set timeseries to begin
+    at start.
+
+    Parameters
+    ----------
+    ts : pd.DataFrame
+        The timeseries of a symbol.
+    start : datetime.datetime
+        The start date for backtest.
+    dropna : bool, optional
+        Drop rows that have a NaN value in one of it&#39;s columns
+        (default is True).
+
+    Returns
+    -------
+    datetime.datetime
+        The start date.
+    pd.DataFrame
+        The timeseries of a symbol.
     &#34;&#34;&#34;
     return pf.finalize_timeseries(ts, start, dropna=dropna)</code></pre>
 </details>
@@ -2227,7 +2519,6 @@ for one of these fields, the row is dropped.</dd>
     -------
     price : float
         The current price.
-    
     &#34;&#34;&#34;
     symbol += &#39;_&#39; + field
     try:
@@ -2500,7 +2791,7 @@ for the daily high, low, and close. </p>
 <pre><code class="python">def record_daily_balance(self, date, row):
     &#34;&#34;&#34;
     Append to daily balance list.
-    
+
     The portfolio version of this function uses closing values
     for the daily high, low, and close. 
 
@@ -2622,6 +2913,11 @@ for the daily high, low, and close. </p>
 <li><h3>Super-module</h3>
 <ul>
 <li><code><a title="pinkfish" href="index.html">pinkfish</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="pinkfish.portfolio.technical_indicator" href="#pinkfish.portfolio.technical_indicator">technical_indicator</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>

@@ -171,8 +171,8 @@ class TradeLog:
 
     def equity(self, price):
         &#34;&#34;&#34;
-        Return the equity which is the total value minus loan
-        (loan is negative cash).
+        Return the equity which is the total value minus loan.
+        Loan is negative cash.
         &#34;&#34;&#34;
         equity = self.total_value(price)
         if TradeLog.cash &lt; 0:
@@ -181,26 +181,26 @@ class TradeLog:
 
     def leverage(self, price):
         &#34;&#34;&#34;
-        Return the leverage factor of the position.
+        Return the leverage factor of the position given current price.
         &#34;&#34;&#34;
         return self.total_value(price) / self.equity(price)
         
     def total_funds(self, price):
         &#34;&#34;&#34;
-        Return the total account funds for trading.
+        Return the total account funds for trading given current price.
         &#34;&#34;&#34;
         return self.equity(price) * TradeLog.margin
 
     def share_percent(self, price):
         &#34;&#34;&#34;
-        Return the share value as a percentage of total funds
+        Return the share value as a percentage of total funds.
         &#34;&#34;&#34;
         return self.share_value(price) / self.total_funds(price) * 100
 
     @property
     def num_open_trades(self):
         &#34;&#34;&#34;
-        Return the number of open orders, i.e. not closed out
+        Return the number of open orders, i.e. not closed out.
         &#34;&#34;&#34;
         return len(self._open_trades)
 
@@ -696,7 +696,7 @@ class TradeLog:
         The trade log consists of the following columns:
         &#39;entry_date&#39;, &#39;entry_price&#39;, &#39;exit_date&#39;, &#39;exit_price&#39;,
         &#39;pl_points&#39;, &#39;pl_cash&#39;, &#39;qty&#39;, &#39;cumul_total&#39;,
-        &#39;direction&#39;, &#39;symbol&#39;
+        &#39;direction&#39;, &#39;symbol&#39;.
 
         Parameters
         ----------
@@ -725,7 +725,7 @@ class TradeLog:
         
         The trade log consists of the following columns:
         &#39;date&#39;, &#39;seq_num&#39;, &#39;price&#39;, &#39;shares&#39;, &#39;entry_exit&#39;,
-        &#39;direction&#39;, &#39;symbol&#39;
+        &#39;direction&#39;, &#39;symbol&#39;.
 
         Returns
         -------
@@ -1313,8 +1313,8 @@ will become the official trade log.</dd>
 
     def equity(self, price):
         &#34;&#34;&#34;
-        Return the equity which is the total value minus loan
-        (loan is negative cash).
+        Return the equity which is the total value minus loan.
+        Loan is negative cash.
         &#34;&#34;&#34;
         equity = self.total_value(price)
         if TradeLog.cash &lt; 0:
@@ -1323,26 +1323,26 @@ will become the official trade log.</dd>
 
     def leverage(self, price):
         &#34;&#34;&#34;
-        Return the leverage factor of the position.
+        Return the leverage factor of the position given current price.
         &#34;&#34;&#34;
         return self.total_value(price) / self.equity(price)
         
     def total_funds(self, price):
         &#34;&#34;&#34;
-        Return the total account funds for trading.
+        Return the total account funds for trading given current price.
         &#34;&#34;&#34;
         return self.equity(price) * TradeLog.margin
 
     def share_percent(self, price):
         &#34;&#34;&#34;
-        Return the share value as a percentage of total funds
+        Return the share value as a percentage of total funds.
         &#34;&#34;&#34;
         return self.share_value(price) / self.total_funds(price) * 100
 
     @property
     def num_open_trades(self):
         &#34;&#34;&#34;
-        Return the number of open orders, i.e. not closed out
+        Return the number of open orders, i.e. not closed out.
         &#34;&#34;&#34;
         return len(self._open_trades)
 
@@ -1838,7 +1838,7 @@ will become the official trade log.</dd>
         The trade log consists of the following columns:
         &#39;entry_date&#39;, &#39;entry_price&#39;, &#39;exit_date&#39;, &#39;exit_price&#39;,
         &#39;pl_points&#39;, &#39;pl_cash&#39;, &#39;qty&#39;, &#39;cumul_total&#39;,
-        &#39;direction&#39;, &#39;symbol&#39;
+        &#39;direction&#39;, &#39;symbol&#39;.
 
         Parameters
         ----------
@@ -1867,7 +1867,7 @@ will become the official trade log.</dd>
         
         The trade log consists of the following columns:
         &#39;date&#39;, &#39;seq_num&#39;, &#39;price&#39;, &#39;shares&#39;, &#39;entry_exit&#39;,
-        &#39;direction&#39;, &#39;symbol&#39;
+        &#39;direction&#39;, &#39;symbol&#39;.
 
         Returns
         -------
@@ -1911,7 +1911,7 @@ Used only with futures.</p></div>
 <dl>
 <dt id="pinkfish.trade.TradeLog.num_open_trades"><code class="name">var <span class="ident">num_open_trades</span></code></dt>
 <dd>
-<div class="desc"><p>Return the number of open orders, i.e. not closed out</p></div>
+<div class="desc"><p>Return the number of open orders, i.e. not closed out.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1919,7 +1919,7 @@ Used only with futures.</p></div>
 <pre><code class="python">@property
 def num_open_trades(self):
     &#34;&#34;&#34;
-    Return the number of open orders, i.e. not closed out
+    Return the number of open orders, i.e. not closed out.
     &#34;&#34;&#34;
     return len(self._open_trades)</code></pre>
 </details>
@@ -2373,16 +2373,16 @@ or opening a long position.</p></div>
 <span>def <span class="ident">equity</span></span>(<span>self, price)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Return the equity which is the total value minus loan
-(loan is negative cash).</p></div>
+<div class="desc"><p>Return the equity which is the total value minus loan.
+Loan is negative cash.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def equity(self, price):
     &#34;&#34;&#34;
-    Return the equity which is the total value minus loan
-    (loan is negative cash).
+    Return the equity which is the total value minus loan.
+    Loan is negative cash.
     &#34;&#34;&#34;
     equity = self.total_value(price)
     if TradeLog.cash &lt; 0:
@@ -2455,7 +2455,7 @@ or closing out a long position.</p></div>
 <p>The trade log consists of the following columns:
 'entry_date', 'entry_price', 'exit_date', 'exit_price',
 'pl_points', 'pl_cash', 'qty', 'cumul_total',
-'direction', 'symbol'</p>
+'direction', 'symbol'.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>merge_trade</code></strong> :&ensp;<code>bool</code>, optional</dt>
@@ -2478,7 +2478,7 @@ or closing out a long position.</p></div>
     The trade log consists of the following columns:
     &#39;entry_date&#39;, &#39;entry_price&#39;, &#39;exit_date&#39;, &#39;exit_price&#39;,
     &#39;pl_points&#39;, &#39;pl_cash&#39;, &#39;qty&#39;, &#39;cumul_total&#39;,
-    &#39;direction&#39;, &#39;symbol&#39;
+    &#39;direction&#39;, &#39;symbol&#39;.
 
     Parameters
     ----------
@@ -2509,7 +2509,7 @@ or closing out a long position.</p></div>
 <div class="desc"><p>Return the raw trade log.</p>
 <p>The trade log consists of the following columns:
 'date', 'seq_num', 'price', 'shares', 'entry_exit',
-'direction', 'symbol'</p>
+'direction', 'symbol'.</p>
 <h2 id="returns">Returns</h2>
 <dl>
 <dt><strong><code>rlog</code></strong> :&ensp;<code>pd.DataFrame</code></dt>
@@ -2525,7 +2525,7 @@ or closing out a long position.</p></div>
     
     The trade log consists of the following columns:
     &#39;date&#39;, &#39;seq_num&#39;, &#39;price&#39;, &#39;shares&#39;, &#39;entry_exit&#39;,
-    &#39;direction&#39;, &#39;symbol&#39;
+    &#39;direction&#39;, &#39;symbol&#39;.
 
     Returns
     -------
@@ -2636,14 +2636,14 @@ or closing out a long position.</p></div>
 <span>def <span class="ident">leverage</span></span>(<span>self, price)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Return the leverage factor of the position.</p></div>
+<div class="desc"><p>Return the leverage factor of the position given current price.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def leverage(self, price):
     &#34;&#34;&#34;
-    Return the leverage factor of the position.
+    Return the leverage factor of the position given current price.
     &#34;&#34;&#34;
     return self.total_value(price) / self.equity(price)</code></pre>
 </details>
@@ -2760,14 +2760,14 @@ possible).</dd>
 <span>def <span class="ident">share_percent</span></span>(<span>self, price)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Return the share value as a percentage of total funds</p></div>
+<div class="desc"><p>Return the share value as a percentage of total funds.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def share_percent(self, price):
     &#34;&#34;&#34;
-    Return the share value as a percentage of total funds
+    Return the share value as a percentage of total funds.
     &#34;&#34;&#34;
     return self.share_value(price) / self.total_funds(price) * 100</code></pre>
 </details>
@@ -2817,14 +2817,14 @@ possible).</dd>
 <span>def <span class="ident">total_funds</span></span>(<span>self, price)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Return the total account funds for trading.</p></div>
+<div class="desc"><p>Return the total account funds for trading given current price.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def total_funds(self, price):
     &#34;&#34;&#34;
-    Return the total account funds for trading.
+    Return the total account funds for trading given current price.
     &#34;&#34;&#34;
     return self.equity(price) * TradeLog.margin</code></pre>
 </details>

@@ -144,6 +144,9 @@ class Benchmark:
             self.portfolio.record_daily_balance(date, row)
 
     def run(self):
+        """
+        Run the strategy.
+        """
         self.portfolio = pf.Portfolio()
         self.ts = self.portfolio.fetch_timeseries(
             self.symbols, self.start, self.end,
@@ -161,9 +164,15 @@ class Benchmark:
         self._get_stats()
 
     def _get_logs(self):
+        """
+        Get the logs.
+        """
         self.rlog, self.tlog, self.dbal = self.portfolio.get_logs()
 
     def _get_stats(self):
+        """
+        Get the stats.
+        """
         self.stats = pf.stats(self.ts, self.tlog, self.dbal, self.capital)
 
 Strategy = Benchmark

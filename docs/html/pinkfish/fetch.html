@@ -207,11 +207,12 @@ def select_tradeperiod(ts, start, end, use_adj=False,
         Normally, you don&#39;t need to do this.  This setting is intended
         to transform a continuous timeseries into a weekday timeseries.
         If this value is True, then `use_continuous_calendar` is set
-        to False.
-        (default is False).
-    check_fields : list of str {&#39;high&#39;, &#39;low&#39;, &#39;open&#39;, &#39;close&#39;, &#39;adj_close&#39;}
+        to False (default is False).
+    check_fields : list of str, optional {&#39;high&#39;, &#39;low&#39;, &#39;open&#39;,
+        &#39;close&#39;, &#39;adj_close&#39;}
         Fields to check for for NaN values.  If a NaN value is found
-        for one of these fields, the row is dropped.
+        for one of these fields, that row is dropped
+        (default is [&#39;close&#39;]).
 
     Returns
     -------
@@ -227,7 +228,7 @@ def select_tradeperiod(ts, start, end, use_adj=False,
     on the stock market.
     &#34;&#34;&#34;
     columns = [&#39;high&#39;, &#39;low&#39;, &#39;open&#39;, &#39;close&#39;, &#39;adj_close&#39;]
-    # Replace 0 value columns with NaN
+    # Replace 0 value columns with NaN.
     ts[columns] = ts[ts[columns] &gt; 0][columns]
 
     if use_continuous_calendar:
@@ -365,8 +366,8 @@ def update_cache_symbols(symbols=None, dir_name=&#39;data&#39;, from_year=None):
     Parameters
     ----------
     symbols : str or list, optional
-        The symbol(s) for which to remove cached timeseries (default
-        is None, which imples remove timeseries for all symbols).
+        The symbol(s) for which to update cached timeseries (default
+        is None, which imples update timeseries for all symbols).
     dir_name : str, optional
         The leaf data dir name (default is &#39;data).
     from_year: int, optional
@@ -415,8 +416,8 @@ def get_symbol_metadata(symbols=None, dir_name=&#39;data&#39;, from_year=None):
     Parameters
     ----------
     symbols : str or list, optional
-        The symbol(s) for which to remove cached timeseries (default
-        is None, which imples remove timeseries for all symbols).
+        The symbol(s) for which to get symbol metadata (default
+        is None, which imples get symbol metadata for all symbols).
     dir_name : str, optional
         The leaf data dir name (default is &#39;data).
     from_year: int, optional
@@ -624,8 +625,8 @@ at start.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>symbols</code></strong> :&ensp;<code>str</code> or <code>list</code>, optional</dt>
-<dd>The symbol(s) for which to remove cached timeseries (default
-is None, which imples remove timeseries for all symbols).</dd>
+<dd>The symbol(s) for which to get symbol metadata (default
+is None, which imples get symbol metadata for all symbols).</dd>
 <dt><strong><code>dir_name</code></strong> :&ensp;<code>str</code>, optional</dt>
 <dd>The leaf data dir name (default is 'data).</dd>
 <dt><strong><code>from_year</code></strong> :&ensp;<code>int</code>, optional</dt>
@@ -650,8 +651,8 @@ which implies that all the available data is retrieved).</dd>
     Parameters
     ----------
     symbols : str or list, optional
-        The symbol(s) for which to remove cached timeseries (default
-        is None, which imples remove timeseries for all symbols).
+        The symbol(s) for which to get symbol metadata (default
+        is None, which imples get symbol metadata for all symbols).
     dir_name : str, optional
         The leaf data dir name (default is &#39;data).
     from_year: int, optional
@@ -797,12 +798,13 @@ Normally, you don't need to do this.
 This setting is intended
 to transform a continuous timeseries into a weekday timeseries.
 If this value is True, then <code>use_continuous_calendar</code> is set
-to False.
-(default is False).</dd>
-<dt><strong><code>check_fields</code></strong> :&ensp;<code>list</code> of <code>str {'high', 'low', 'open', 'close', 'adj_close'}</code></dt>
-<dd>Fields to check for for NaN values.
+to False (default is False).</dd>
+<dt><strong><code>check_fields</code></strong> :&ensp;<code>list</code> of <code>str</code>, optional <code>{'high', 'low', 'open',</code></dt>
+<dd>'close', 'adj_close'}
+Fields to check for for NaN values.
 If a NaN value is found
-for one of these fields, the row is dropped.</dd>
+for one of these fields, that row is dropped
+(default is ['close']).</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
@@ -851,11 +853,12 @@ on the stock market.</p></div>
         Normally, you don&#39;t need to do this.  This setting is intended
         to transform a continuous timeseries into a weekday timeseries.
         If this value is True, then `use_continuous_calendar` is set
-        to False.
-        (default is False).
-    check_fields : list of str {&#39;high&#39;, &#39;low&#39;, &#39;open&#39;, &#39;close&#39;, &#39;adj_close&#39;}
+        to False (default is False).
+    check_fields : list of str, optional {&#39;high&#39;, &#39;low&#39;, &#39;open&#39;,
+        &#39;close&#39;, &#39;adj_close&#39;}
         Fields to check for for NaN values.  If a NaN value is found
-        for one of these fields, the row is dropped.
+        for one of these fields, that row is dropped
+        (default is [&#39;close&#39;]).
 
     Returns
     -------
@@ -871,7 +874,7 @@ on the stock market.</p></div>
     on the stock market.
     &#34;&#34;&#34;
     columns = [&#39;high&#39;, &#39;low&#39;, &#39;open&#39;, &#39;close&#39;, &#39;adj_close&#39;]
-    # Replace 0 value columns with NaN
+    # Replace 0 value columns with NaN.
     ts[columns] = ts[ts[columns] &gt; 0][columns]
 
     if use_continuous_calendar:
@@ -907,8 +910,8 @@ on the stock market.</p></div>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>symbols</code></strong> :&ensp;<code>str</code> or <code>list</code>, optional</dt>
-<dd>The symbol(s) for which to remove cached timeseries (default
-is None, which imples remove timeseries for all symbols).</dd>
+<dd>The symbol(s) for which to update cached timeseries (default
+is None, which imples update timeseries for all symbols).</dd>
 <dt><strong><code>dir_name</code></strong> :&ensp;<code>str</code>, optional</dt>
 <dd>The leaf data dir name (default is 'data).</dd>
 <dt><strong><code>from_year</code></strong> :&ensp;<code>int</code>, optional</dt>
@@ -933,8 +936,8 @@ which implies that all the available data is retrieved).</dd>
     Parameters
     ----------
     symbols : str or list, optional
-        The symbol(s) for which to remove cached timeseries (default
-        is None, which imples remove timeseries for all symbols).
+        The symbol(s) for which to update cached timeseries (default
+        is None, which imples update timeseries for all symbols).
     dir_name : str, optional
         The leaf data dir name (default is &#39;data).
     from_year: int, optional

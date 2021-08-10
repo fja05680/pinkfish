@@ -208,7 +208,7 @@ This function uses ideas based on the Kelly Criterian.
         Kelly criterian known as half Kelly.
 
      - <code>aggressive leverage</code> is the optimal target risk divided by
-        the instrument risk.  This is a aggrssive form of the
+        the instrument risk.  This is an aggressive form of the
         leverage factor, which is the cash value of a position
         divided by your capital.
 
@@ -517,7 +517,7 @@ Initialize instance variables.
 >     )
 
 
-
+Run the strategy.
 
     
 ### Class `Strategy` {#pinkfish.benchmark.Benchmark}
@@ -661,7 +661,7 @@ Initialize instance variables.
 >     )
 
 
-
+Run the strategy.
 
 
 
@@ -785,8 +785,8 @@ Filter out any filename prefixed with '__'.
 ###### Parameters
 
 **```symbols```** :&ensp;<code>str</code> or <code>list</code>, optional
-:   The symbol(s) for which to remove cached timeseries (default
-    is None, which imples remove timeseries for all symbols).
+:   The symbol(s) for which to get symbol metadata (default
+    is None, which imples get symbol metadata for all symbols).
 
 
 **```dir_name```** :&ensp;<code>str</code>, optional
@@ -891,13 +891,14 @@ to allow time for long term indicators, e.g. 200sma is become valid.
     Normally, you don't need to do this.  This setting is intended
     to transform a continuous timeseries into a weekday timeseries.
     If this value is True, then <code>use\_continuous\_calendar</code> is set
-    to False.
-    (default is False).
+    to False (default is False).
 
 
-**```check_fields```** :&ensp;<code>list</code> of `str {'high', 'low', 'open', 'close', 'adj_close'}`
-:   Fields to check for for NaN values.  If a NaN value is found
-    for one of these fields, the row is dropped.
+**```check_fields```** :&ensp;<code>list</code> of <code>str</code>, optional `{'high', 'low', 'open',`
+:   'close', 'adj_close'}
+    Fields to check for for NaN values.  If a NaN value is found
+    for one of these fields, that row is dropped
+    (default is ['close']).
 
 ###### Returns
 
@@ -932,8 +933,8 @@ Filter out any filename prefixed with '__'.
 ###### Parameters
 
 **```symbols```** :&ensp;<code>str</code> or <code>list</code>, optional
-:   The symbol(s) for which to remove cached timeseries (default
-    is None, which imples remove timeseries for all symbols).
+:   The symbol(s) for which to update cached timeseries (default
+    is None, which imples update timeseries for all symbols).
 
 
 **```dir_name```** :&ensp;<code>str</code>, optional
@@ -1265,7 +1266,7 @@ asset prices for comparison.
 
 
 **```lookback```** :&ensp;<code>int</code>, optional
-:   The number of time frames to lookback, i.e. 2 months
+:   The number of time frames to lookback, e.g. 2 months
     (default is 1).
 
 
@@ -1928,7 +1929,7 @@ The metrics are:
 Plot Bar Graph of a metric for a set of strategies.
 
 This function is designed to be used in analysis of an
-optimization of some parameter.  First all optimizer_summary()
+optimization of some parameter.  First call optimizer_summary()
 to generate the dataframe required by this function.
 
 ###### Parameters
@@ -1938,7 +1939,7 @@ to generate the dataframe required by this function.
 
 
 **```metric```** :&ensp;<code>str</code>
-:   The label for the metric to be used in the summary.
+:   The metric to be used in the summary.
 
 
 
@@ -2004,7 +2005,7 @@ Plot Bar Graph: Strategy vs Benchmark (optional).
 >     )
 
 
-Plot Equity Curve: Strategy vs (optionally) Benchmark.
+Plot Equity Curve: Strategy and (optionally) Benchmark.
 
 ###### Parameters
 
@@ -2046,13 +2047,12 @@ Plot Equity Curve: Strategy vs (optionally) Benchmark.
 >     )
 
 
-Plot Equity Curve: multiple equity curves on same plot.
+Plot one or more equity curves on the same plot.
 
 ###### Parameters
 
-**```strategies```** :&ensp;<code>pd.Series</code>
-:   Container of strategy Daily balance (pd.Dataframe) for each
-    symbol.
+**```strategies```** :&ensp;<code>pd.Series</code> of <code>pd.Dataframe</code>
+:   Container of strategy daily balance for each symbol.
 
 
 **```labels```** :&ensp;<code>list</code> of <code>str</code>, optional
@@ -2130,6 +2130,68 @@ Portfolio backtesting.
 
 
 
+    
+## Functions
+
+
+    
+### Function `technical_indicator` {#pinkfish.portfolio.technical_indicator}
+
+
+
+
+>     def technical_indicator(
+>         symbols,
+>         output_column_suffix,
+>         input_column_suffix='close'
+>     )
+
+
+Decorator for adding a technical indicator to portfolio symbols.
+
+A new column will be added for each symbol.  The name of the
+new column will be the symbol name, an underscore, and the
+<code>output\_column\_suffix</code>.  For example, 'SPY_MA30' is the symbol
+SPY with <code>output\_column\_suffix</code> equal to MA30.
+
+<code>func</code> is a wrapper for a technical analysis function.  The
+actual technical analysis function could be from ta-lib,
+pandas, pinkfish indicator, or a custom user function.
+
+'func' must have the positional argument <code>ts</code> and keyword argument
+<code>input\_column</code>.  'ts` is passed in, but input_column (args[1]) is
+assigned in the wrapper before <code>func</code> is called.
+
+###### Parameters
+
+**```symbols```** :&ensp;<code>list</code>
+:   The symbols that constitute the portfolio.
+
+
+**```output_column_suffix```** :&ensp;<code>str</code>
+:   Output column suffix to use for technical indicator.
+
+
+**```input_column_suffix```** :&ensp;`str, {'close', 'open', 'high', 'low'}`
+:   Input column suffix to use for price (default is 'close').
+
+###### Returns
+
+**```decorator```** :&ensp;<code>function</code>
+:   A wrapper that adds technical indicators to portfolio
+    symbols.
+
+###### Examples
+
+```python-repl
+>>> # Technical indicator: volatility.
+>>> @pf.technical_indicator(symbols, 'vola', 'close') 
+>>> def _volatility(ts, input_column=None):
+...     return pf.VOLATILITY(ts, price=input_column)
+>>> ts = _volatility(ts)
+```
+
+
 
     
 ## Classes
@@ -2149,7 +2211,7 @@ A portfolio or collection of securities.
 #### Methods
 
  - fetch_timeseries()  
-   Read time series data for symbols.
+   Get time series data for symbols.
 
  - add_technical_indicator()  
    Add a technical indicator for each symbol in the portfolio.
@@ -2273,13 +2335,13 @@ new column will be the symbol name, an underscore, and the
 <code>output\_column\_suffix</code>.  For example, 'SPY_MA30' is the symbol
 SPY with <code>output\_column\_suffix</code> equal to MA30.
 
-ta_func is a wrapper for a technical analysis function.  The
+<code>ta\_func</code> is a wrapper for a technical analysis function.  The
 actual technical analysis function could be from ta-lib,
 pandas, pinkfish indicator, or a custom user function.
-ta_param is used to pass 1 parameter to the ta_func.  Other
+<code>ta\_param</code> is used to pass 1 parameter to <code>ta\_func</code>.  Other
 parameters could be passed to the technical indicator within
-ta_func.  If you need to mass more than 1 paramters to ta_func,
-you could make ta_param a dict.
+<code>ta\_func</code>.  If you need to mass more than 1 paramters to
+<code>ta\_func</code>, you could make <code>ta\_param</code> a dict.
 
 ###### Parameters
 
@@ -2292,7 +2354,7 @@ you could make ta_param a dict.
 
 
 **```ta_param```** :&ensp;<code>object</code>
-:   The parameter for ta_func (typically an int).
+:   The parameter for <code>ta\_func</code> (typically an int).
 
 
 **```output_column_suffix```** :&ensp;<code>str</code>
@@ -2300,8 +2362,7 @@ you could make ta_param a dict.
 
 
 **```input_column_suffix```** :&ensp;`str, {'close', 'open', 'high', 'low'}`
-:   Input column suffix to use for price
-    (default is 'close').
+:   Input column suffix to use for price (default is 'close').
 
 ###### Returns
 
@@ -2394,11 +2455,10 @@ Adjust symbol to a specified weight (percent) of portfolio.
 
 Adjust symbols to a specified weight (percent) of portfolio.
 
-This function assumes all positions are LONG and weights
-is given for all symbols in the portfolio.
-
-The ordering of the prices and weights dicts are unimportant.
-They are both indexed by the symbol.
+This function assumes all positions are LONG.  Prices and
+weights are given for all symbols in the portfolio.  The
+ordering of the prices and weights dicts are unimportant.
+They are dicts which are indexed by the symbol.
 
 ###### Parameters
 
@@ -2419,8 +2479,9 @@ They are both indexed by the symbol.
 
 
 **```directions```** :&ensp;<code>dict</code> of <code>pf.Direction</code>, optional
-:   The direction of the trades (default is None, which implies
-    that all positions are <code>pf.Direction.LONG</code>).
+:   Dict of key value pair of symbol:direction.  The direction
+    of the trades (default is None, which implies that all
+    positions are long).
 
 ###### Returns
 
@@ -2441,7 +2502,19 @@ They are both indexed by the symbol.
 >     )
 
 
-Add calendar columns.
+Add calendar columns to a timeseries.
+
+###### Parameters
+
+**```ts```** :&ensp;<code>pd.DataFrame</code>
+:   The timeseries of a symbol.
+
+###### Returns
+
+<code>pd.DataFrame</code>
+:   The timeseries with calendar columns added.
+
+
 
     
 ##### Method `correlation_map` {#pinkfish.portfolio.Portfolio.correlation_map}
@@ -2471,7 +2544,7 @@ Show correlation map between symbols.
 
 **```days```** :&ensp;<code>int</code>
 :   How many days to use for correlation (default is None,
-    which implies all days.
+    which implies all days).
 
 ###### Returns
 
@@ -2502,7 +2575,7 @@ Show correlation map between symbols.
 >     )
 
 
-Read time series data for symbols.
+Fetch time series data for symbols.
 
 ###### Parameters
 
@@ -2549,12 +2622,14 @@ Read time series data for symbols.
     Normally, you don't need to do this.  This setting is intended
     to transform a continuous timeseries into a weekday timeseries.
     If this value is True, then <code>use\_continuous\_calendar</code> is set
-    to False.
+    to False (default is False).
 
 
-**```check_fields```** :&ensp;<code>list</code> of `str {'high', 'low', 'open', 'close', 'adj_close'}`
-:   Fields to check for for NaN values.  If a NaN value is found
-    for one of these fields, the row is dropped.
+**```check_fields```** :&ensp;<code>list</code> of <code>str</code>, optional `{'high', 'low', 'open',`
+:   'close', 'adj_close'}
+    Fields to check for for NaN values.  If a NaN value is found
+    for one of these fields, that row is dropped
+    (default is ['close']).
 
 ###### Returns
 
@@ -2578,6 +2653,34 @@ Read time series data for symbols.
 
 
 Finalize timeseries.
+
+Drop all rows that have nan column values.  Set timeseries to begin
+at start.
+
+###### Parameters
+
+**```ts```** :&ensp;<code>pd.DataFrame</code>
+:   The timeseries of a symbol.
+
+
+**```start```** :&ensp;<code>datetime.datetime</code>
+:   The start date for backtest.
+
+
+**```dropna```** :&ensp;<code>bool</code>, optional
+:   Drop rows that have a NaN value in one of it's columns
+    (default is True).
+
+###### Returns
+
+<code>datetime.datetime</code>
+:   The start date.
+
+
+<code>pd.DataFrame</code>
+:   The timeseries of a symbol.
+
+
 
     
 ##### Method `get_logs` {#pinkfish.portfolio.Portfolio.get_logs}
@@ -3286,6 +3389,18 @@ The metrics are:
 
 Returns the dollar amount in US currency format.
 
+###### Parameters
+
+**```amount```** :&ensp;<code>float</code>
+:   The dollar amount to convert.
+
+###### Returns
+
+<code>str</code>
+:   the dollar amount in US currency format.
+
+
+
     
 ### Function `optimizer_summary` {#pinkfish.statistics.optimizer_summary}
 
@@ -3300,21 +3415,25 @@ Returns the dollar amount in US currency format.
 
 Generate summary dataframe of a set of strategies vs metrics.
 
- This function is designed to be used in analysis of an
- optimization of some parameter.  stats() must be called for
- each strategy before calling this function.
+This function is designed to be used in analysis of an
+optimization of some parameter.  <code>[stats()](#pinkfish.statistics.stats "pinkfish.statistics.stats")</code> must be called for
+each strategy before calling this function.
 
-Parameters
- ----------
- strategies : pd.Series
-     Series of strategy objects that have the <code>[stats()](#pinkfish.statistics.stats "pinkfish.statistics.stats")</code> attribute.
- metrics : tuple
-     The metrics to be used in the summary.
+###### Parameters
 
- Returns
- -------
- df : pf.DataFrame
-     Summary of strategies vs metrics.
+**```strategies```** :&ensp;<code>pd.Series</code>
+:   Series of strategy objects that have the <code>[stats()](#pinkfish.statistics.stats "pinkfish.statistics.stats")</code> attribute.
+
+
+**```metrics```** :&ensp;<code>tuple</code>
+:   The metrics to be used in the summary.
+
+###### Returns
+
+**```df```** :&ensp;<code>pf.DataFrame</code>
+:   Summary of strategies vs metrics.
+
+
 
     
 ### Function `select_trading_days` {#pinkfish.statistics.select_trading_days}
@@ -3408,7 +3527,7 @@ Compute trading stats.
 
 Returns stats summary.
 
-IMPORTANT: stats() must be called before calling this function.
+<code>[stats()](#pinkfish.statistics.stats "pinkfish.statistics.stats")</code> must be called before calling this function.
 
 ###### Parameters
 
@@ -3770,7 +3889,7 @@ int : Sequential number used to order trades in Portfolio class.
 
 
 
-Return the number of open orders, i.e. not closed out
+Return the number of open orders, i.e. not closed out.
 
 
 
@@ -4096,8 +4215,8 @@ or opening a long position.
 >     )
 
 
-Return the equity which is the total value minus loan
-(loan is negative cash).
+Return the equity which is the total value minus loan.
+Loan is negative cash.
 
     
 ##### Method `exit_trade` {#pinkfish.trade.TradeLog.exit_trade}
@@ -4156,7 +4275,7 @@ Return the trade log.
 The trade log consists of the following columns:
 'entry_date', 'entry_price', 'exit_date', 'exit_price',
 'pl_points', 'pl_cash', 'qty', 'cumul_total',
-'direction', 'symbol'
+'direction', 'symbol'.
 
 ###### Parameters
 
@@ -4186,7 +4305,7 @@ Return the raw trade log.
 
 The trade log consists of the following columns:
 'date', 'seq_num', 'price', 'shares', 'entry_exit',
-'direction', 'symbol'
+'direction', 'symbol'.
 
 ###### Returns
 
@@ -4270,7 +4389,7 @@ Return dict of prices for all symbols given row and fields.
 >     )
 
 
-Return the leverage factor of the position.
+Return the leverage factor of the position given current price.
 
     
 ##### Method `sell` {#pinkfish.trade.TradeLog.sell}
@@ -4362,7 +4481,7 @@ Enter a trade on the short side.
 >     )
 
 
-Return the share value as a percentage of total funds
+Return the share value as a percentage of total funds.
 
     
 ##### Method `share_value` {#pinkfish.trade.TradeLog.share_value}
@@ -4402,7 +4521,7 @@ Return the total value of shares of the security.
 >     )
 
 
-Return the total account funds for trading.
+Return the total account funds for trading given current price.
 
     
 ##### Method `total_value` {#pinkfish.trade.TradeLog.total_value}
@@ -4497,7 +4616,7 @@ Utility functions.
 
 
 
-str: Pinkfish project root dir.
+str: pinkfish project root dir.
 
 
     
@@ -4543,7 +4662,7 @@ at the top of your notebook to display all columns.
 >     )
 
 
-Import a strategy from a python .py file.
+Import a strategy from a python <code>.py</code> file.
 
 ###### Parameters
 
@@ -4552,7 +4671,7 @@ Import a strategy from a python .py file.
 
 
 **```top_level_dir```** :&ensp;<code>str</code>, optional
-:   The top level dir name for the strategies.
+:   The top level dir name for the strategies 
     (default is 'examples').
 
 

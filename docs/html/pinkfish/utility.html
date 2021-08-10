@@ -43,20 +43,20 @@ import pinkfish as pf
 
 ROOT = str(Path(os.getcwd().split(&#39;pinkfish&#39;)[0] + &#39;/pinkfish&#39;))
 &#34;&#34;&#34;
-str: Pinkfish project root dir.
+str: pinkfish project root dir.
 &#34;&#34;&#34;
 
 
 def import_strategy(strategy_name, top_level_dir=&#39;examples&#39;, module_name=&#39;strategy&#39;):
     &#34;&#34;&#34;
-    Import a strategy from a python .py file.
+    Import a strategy from a python `.py` file.
 
     Parameters
     ----------
     strategy_name : str
         The leaf dir name that contains the strategy to import.
     top_level_dir : str, optional
-        The top level dir name for the strategies.
+        The top level dir name for the strategies 
         (default is &#39;examples&#39;).
     module_name: str, optional
         The name of the python module (default is &#39;strategy&#39;).
@@ -146,7 +146,7 @@ def find_nan_rows(ts):
 <dl>
 <dt id="pinkfish.utility.ROOT"><code class="name">var <span class="ident">ROOT</span></code></dt>
 <dd>
-<div class="desc"><p>str: Pinkfish project root dir.</p></div>
+<div class="desc"><p>str: pinkfish project root dir.</p></div>
 </dd>
 </dl>
 </section>
@@ -194,13 +194,13 @@ at the top of your notebook to display all columns.</p>
 <span>def <span class="ident">import_strategy</span></span>(<span>strategy_name, top_level_dir='examples', module_name='strategy')</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Import a strategy from a python .py file.</p>
+<div class="desc"><p>Import a strategy from a python <code>.py</code> file.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>strategy_name</code></strong> :&ensp;<code>str</code></dt>
 <dd>The leaf dir name that contains the strategy to import.</dd>
 <dt><strong><code>top_level_dir</code></strong> :&ensp;<code>str</code>, optional</dt>
-<dd>The top level dir name for the strategies.
+<dd>The top level dir name for the strategies
 (default is 'examples').</dd>
 <dt><strong><code>module_name</code></strong> :&ensp;<code>str</code>, optional</dt>
 <dd>The name of the python module (default is 'strategy').</dd>
@@ -219,14 +219,14 @@ at the top of your notebook to display all columns.</p>
 </summary>
 <pre><code class="python">def import_strategy(strategy_name, top_level_dir=&#39;examples&#39;, module_name=&#39;strategy&#39;):
     &#34;&#34;&#34;
-    Import a strategy from a python .py file.
+    Import a strategy from a python `.py` file.
 
     Parameters
     ----------
     strategy_name : str
         The leaf dir name that contains the strategy to import.
     top_level_dir : str, optional
-        The top level dir name for the strategies.
+        The top level dir name for the strategies 
         (default is &#39;examples&#39;).
     module_name: str, optional
         The name of the python module (default is &#39;strategy&#39;).

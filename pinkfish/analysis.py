@@ -432,7 +432,7 @@ def kelly_criterian(stats, benchmark_stats=None):
             Kelly criterian known as half Kelly.
 
          - `aggressive leverage` is the optimal target risk divided by
-            the instrument risk.  This is a aggrssive form of the
+            the instrument risk.  This is an aggressive form of the
             leverage factor, which is the cash value of a position
             divided by your capital.
 

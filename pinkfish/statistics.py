@@ -947,6 +947,16 @@ def stats(ts, tlog, dbal, capital):
 def currency(amount):
     """
     Returns the dollar amount in US currency format.
+
+    Parameters
+    ----------
+    amount : float
+        The dollar amount to convert.
+
+    Returns
+    -------
+    str
+        the dollar amount in US currency format.
     """
     if amount >= 0:
         return '${:,.2f}'.format(amount)
@@ -1015,7 +1025,7 @@ def summary(stats, benchmark_stats=None, metrics=default_metrics, extras=None):
     """
     Returns stats summary.
 
-    IMPORTANT: stats() must be called before calling this function.
+    `stats()` must be called before calling this function.
 
     Parameters
     ----------
@@ -1058,10 +1068,10 @@ def optimizer_summary(strategies, metrics):
     Generate summary dataframe of a set of strategies vs metrics.
 
     This function is designed to be used in analysis of an
-    optimization of some parameter.  stats() must be called for
+    optimization of some parameter.  `stats()` must be called for
     each strategy before calling this function.
 
-   Parameters
+    Parameters
     ----------
     strategies : pd.Series
         Series of strategy objects that have the `stats` attribute.

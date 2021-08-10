@@ -125,41 +125,36 @@ class Strategy:
         self.portfolio = pf.Portfolio()
         self.ts = self.portfolio.fetch_timeseries(self.symbols, self.start, self.end,
             use_cache=self.options['use_cache'], use_adj=self.options['use_adj'])
-
-        # Add technical indicator: 200 sma regime filter for each symbol.
-        def _crossover(ts, ta_param, input_column):
+        
+        # Technical indicator functions.
+        @pf.technical_indicator(self.symbols, 'regime', 'close')
+        def _crossover(ts, input_column=None):
+            """ Technical indicator: 200 sma regime filter for each symbol. """
             return pf.CROSSOVER(ts, timeperiod_fast=1, timeperiod_slow=200,
                                 price=input_column, prevday=False)
 
-        self.ts = self.portfolio.add_technical_indicator(
-            self.ts, ta_func=_crossover, ta_param=None,
-            output_column_suffix='regime', input_column_suffix='close')
-        
-        # Add technical indicator: volatility.
-        def _volatility(ts, ta_param, input_column):
+        @pf.technical_indicator(self.symbols, 'vola', 'close') 
+        def _volatility(ts, input_column=None):
+            """ Technical indicator: volatility. """
             return pf.VOLATILITY(ts, price=input_column)
-        
-        self.ts = self.portfolio.add_technical_indicator(
-            self.ts, ta_func=_volatility, ta_param=None,
-            output_column_suffix='vola', input_column_suffix='close')
 
-        # Add technical indicator: X day high.
-        def _period_high(ts, ta_param, input_column):
-            return pd.Series(ts[input_column]).rolling(ta_param).max()
+        period = self.options['period']
 
-        self.ts = self.portfolio.add_technical_indicator(
-            self.ts, ta_func=_period_high, ta_param=self.options['period'],
-            output_column_suffix='period_high'+str(self.options['period']),
-            input_column_suffix='close')
+        @pf.technical_indicator(self.symbols, 'period_high'+str(period), 'close')
+        def _period_high(ts, input_column=None):
+            """ Technical indicator: X day high. """ 
+            return pd.Series(ts[input_column]).rolling(period).max()
 
-        # Add technical indicator: X day low.
-        def _period_low(ts, ta_param, input_column):
-            return pd.Series(ts[input_column]).rolling(ta_param).min()
+        @pf.technical_indicator(self.symbols, 'period_low'+str(period), 'close')
+        def _period_low(ts, input_column=None):
+            """ Technical indicator: X day low. """
+            return pd.Series(ts[input_column]).rolling(period).min()
 
-        self.ts = self.portfolio.add_technical_indicator(
-            self.ts, ta_func=_period_low, ta_param=self.options['period'],
-            output_column_suffix='period_low'+str(self.options['period']),
-            input_column_suffix='close')
+        # Add technical indicators.
+        self.ts = _crossover(self.ts)
+        self.ts = _volatility(self.ts)
+        self.ts = _period_high(self.ts)
+        self.ts = _period_low(self.ts)
 
         # Finalize timeseries.
         self.ts, self.start = self.portfolio.finalize_timeseries(self.ts, self.start)

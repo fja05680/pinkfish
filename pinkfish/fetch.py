@@ -178,11 +178,12 @@ def select_tradeperiod(ts, start, end, use_adj=False,
         Normally, you don't need to do this.  This setting is intended
         to transform a continuous timeseries into a weekday timeseries.
         If this value is True, then `use_continuous_calendar` is set
-        to False.
-        (default is False).
-    check_fields : list of str {'high', 'low', 'open', 'close', 'adj_close'}
+        to False (default is False).
+    check_fields : list of str, optional {'high', 'low', 'open',
+        'close', 'adj_close'}
         Fields to check for for NaN values.  If a NaN value is found
-        for one of these fields, the row is dropped.
+        for one of these fields, that row is dropped
+        (default is ['close']).
 
     Returns
     -------
@@ -198,7 +199,7 @@ def select_tradeperiod(ts, start, end, use_adj=False,
     on the stock market.
     """
     columns = ['high', 'low', 'open', 'close', 'adj_close']
-    # Replace 0 value columns with NaN
+    # Replace 0 value columns with NaN.
     ts[columns] = ts[ts[columns] > 0][columns]
 
     if use_continuous_calendar:
@@ -336,8 +337,8 @@ def update_cache_symbols(symbols=None, dir_name='data', from_year=None):
     Parameters
     ----------
     symbols : str or list, optional
-        The symbol(s) for which to remove cached timeseries (default
-        is None, which imples remove timeseries for all symbols).
+        The symbol(s) for which to update cached timeseries (default
+        is None, which imples update timeseries for all symbols).
     dir_name : str, optional
         The leaf data dir name (default is 'data).
     from_year: int, optional
@@ -386,8 +387,8 @@ def get_symbol_metadata(symbols=None, dir_name='data', from_year=None):
     Parameters
     ----------
     symbols : str or list, optional
-        The symbol(s) for which to remove cached timeseries (default
-        is None, which imples remove timeseries for all symbols).
+        The symbol(s) for which to get symbol metadata (default
+        is None, which imples get symbol metadata for all symbols).
     dir_name : str, optional
         The leaf data dir name (default is 'data).
     from_year: int, optional

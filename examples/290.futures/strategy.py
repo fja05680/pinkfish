@@ -113,23 +113,22 @@ class Strategy:
             dir_name='futures',                                      
             force_stock_market_calendar=self.options['force_stock_market_calendar'])
 
-        # Add technical indicator: 50/100 sma regime filter for each symbol.
-        def _crossover(ts, ta_param, input_column):
+        # Technical indicator functions.
+        @pf.technical_indicator(self.symbols, 'regime', 'close')
+        def _crossover(ts, input_column=None):
+            """ Technical indicator: 50/100 sma regime filter for each symbol. """
             return pf.CROSSOVER(ts, timeperiod_fast=self.options['sma_timeperiod_fast'],
                                 timeperiod_slow=self.options['sma_timeperiod_slow'],
                                 price=input_column, prevday=False)
 
-        self.ts = self.portfolio.add_technical_indicator(
-            self.ts, ta_func=_crossover, ta_param=None,
-            output_column_suffix='regime', input_column_suffix='close')
-        
-        # Add technical indicator: volatility.
-        def _volatility(ts, ta_param, input_column):
+        @pf.technical_indicator(self.symbols, 'vola', 'close')
+        def _volatility(ts, input_column=None):
+            """ Technical indicator: volatility. """
             return pf.VOLATILITY(ts, price=input_column)
-        
-        self.ts = self.portfolio.add_technical_indicator(
-            self.ts, ta_func=_volatility, ta_param=None,
-            output_column_suffix='vola', input_column_suffix='close')
+
+        # Add technical indicators.
+        self.ts = _crossover(self.ts)
+        self.ts = _volatility(self.ts)
 
         # Finalize timeseries.
         self.ts, self.start = self.portfolio.finalize_timeseries(self.ts, self.start, dropna=True)

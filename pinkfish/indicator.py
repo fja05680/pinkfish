@@ -176,7 +176,7 @@ def MOMENTUM(ts, lookback=1, time_frame='monthly', price='close', prevday=False)
     ts : pd.DateFrame
         A dataframe with 'open', 'high', 'low', 'close', 'volume'.
     lookback : int, optional
-        The number of time frames to lookback, i.e. 2 months
+        The number of time frames to lookback, e.g. 2 months
         (default is 1).
     timeframe : str, optional {'monthly', 'daily', 'weekly', 'yearly'}
         The unit or timeframe type of lookback (default is 'monthly').

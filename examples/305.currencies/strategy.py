@@ -137,32 +137,29 @@ class Strategy:
             dir_name='currencies',                                      
             force_stock_market_calendar=self.options['force_stock_market_calendar'])
 
-        # Add technical indicator: 200 sma regime filter for each symbol.
-        def _crossover(ts, ta_param, input_column):
+        # Technical indicator functions.
+        @pf.technical_indicator(self.symbols, 'regime', 'close')
+        def _crossover(ts, input_column=None):
+            """ Technical indicator: 200 sma regime filter for each symbol. """
             return pf.CROSSOVER(ts, timeperiod_fast=1, timeperiod_slow=200,
                                 price=input_column, prevday=False)
-
-        self.ts = self.portfolio.add_technical_indicator(
-            self.ts, ta_func=_crossover, ta_param=None,
-            output_column_suffix='regime', input_column_suffix='close')
         
-        # Add technical indicator: volatility.
-        def _volatility(ts, ta_param, input_column):
+        @pf.technical_indicator(self.symbols, 'vola', 'close')
+        def _volatility(ts, input_column=None):
+            """ Technical indicator: volatility. """
             return pf.VOLATILITY(ts, price=input_column)
         
-        self.ts = self.portfolio.add_technical_indicator(
-            self.ts, ta_func=_volatility, ta_param=None,
-            output_column_suffix='vola', input_column_suffix='close')
-        
-        # Add techincal indicator: X day SMA_ROC.
-        def _sma_roc(ts, ta_param, input_column):
+        @pf.technical_indicator(self.symbols, 'sma_roc', 'close')
+        def _sma_roc(ts, input_column=None):
+            """ Techincal indicator: X day SMA_ROC. """
             return SMA_ROC(ts, mom_lookback=self.options['lookback'],
                            sma_timeperiod=self.options['sma_timeperiod'],
                            price=input_column)
 
-        self.ts = self.portfolio.add_technical_indicator(
-            self.ts, ta_func=_sma_roc, ta_param=None,
-            output_column_suffix='sma_roc', input_column_suffix='close')
+        # Add technical indicators.
+        self.ts = _crossover(self.ts)
+        self.ts = _volatility(self.ts)
+        self.ts = _sma_roc(self.ts)
 
         # Finalize timeseries.
         self.ts, self.start = self.portfolio.finalize_timeseries(self.ts, self.start, dropna=True)

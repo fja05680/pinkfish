@@ -14,20 +14,20 @@ import pinkfish as pf
 
 ROOT = str(Path(os.getcwd().split('pinkfish')[0] + '/pinkfish'))
 """
-str: Pinkfish project root dir.
+str: pinkfish project root dir.
 """
 
 
 def import_strategy(strategy_name, top_level_dir='examples', module_name='strategy'):
     """
-    Import a strategy from a python .py file.
+    Import a strategy from a python `.py` file.
 
     Parameters
     ----------
     strategy_name : str
         The leaf dir name that contains the strategy to import.
     top_level_dir : str, optional
-        The top level dir name for the strategies.
+        The top level dir name for the strategies 
         (default is 'examples').
     module_name: str, optional
         The name of the python module (default is 'strategy').

@@ -12,7 +12,7 @@ import pinkfish as pf
 
 def plot_equity_curve(strategy, benchmark=None, yscale='linear', fname=None):
     """
-    Plot Equity Curve: Strategy vs (optionally) Benchmark.
+    Plot Equity Curve: Strategy and (optionally) Benchmark.
 
     Parameters
     ----------
@@ -43,13 +43,12 @@ def plot_equity_curve(strategy, benchmark=None, yscale='linear', fname=None):
 
 def plot_equity_curves(strategies, labels=None, yscale='linear', fname=None):
     """
-    Plot Equity Curve: multiple equity curves on same plot.
+    Plot one or more equity curves on the same plot.
 
     Parameters
     ----------
-    strategies : pd.Series
-        Container of strategy Daily balance (pd.Dataframe) for each
-        symbol.
+    strategies : pd.Series of pd.Dataframe
+        Container of strategy daily balance for each symbol.
     labels : list of str, optional
         List of labels for each strategy (default is None, which implies
         that `strategy.symbol` is used as the label.
@@ -200,7 +199,7 @@ def optimizer_plot_bar_graph(df, metric):
     Plot Bar Graph of a metric for a set of strategies.
 
     This function is designed to be used in analysis of an
-    optimization of some parameter.  First all optimizer_summary()
+    optimization of some parameter.  First call optimizer_summary()
     to generate the dataframe required by this function.
 
     Parameters
@@ -208,7 +207,7 @@ def optimizer_plot_bar_graph(df, metric):
     df : pf.DataFrame
         Summary of strategies vs metrics.
     metric : str
-        The label for the metric to be used in the summary.
+        The metric to be used in the summary.
     """
     df = df.loc[[metric]]
     df = df.transpose()

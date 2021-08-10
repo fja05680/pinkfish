@@ -136,68 +136,62 @@ class Strategy:
         self.ts = self.portfolio.fetch_timeseries(self.symbols, self.start, self.end,
             fields=['close'], use_cache=self.options['use_cache'],
              use_adj=self.options['use_adj'])
-        
+
         # Check weight_by for valid value.
         weight_by = self.options['weight_by']
         weight_by_choices = ('equal', 'sharpe', 'ret', 'sd', 'vola', 'ds_vola')
         assert weight_by in weight_by_choices, \
             "Invalid weight_by '{}'".format(weight_by)
-        
+
         # Check rebalance for valid value.
         rebalance = self.options['rebalance']
         rebalance_choices = ('yearly', 'monthly', 'weekly', 'daily')
         assert rebalance in rebalance_choices, \
             "Invalid rebalance '{}'".format(rebalance)
-        
+
         # Add calendar columns.
         self.ts = pf.calendar(self.ts)
 
-        # Add technical indicator: 200 sma regime filter for each symbol.
-        def _crossover(ts, ta_param, input_column):
+        # Technical indicator functions.
+        @pf.technical_indicator(self.symbols, 'regime', 'close')
+        def _crossover(ts, input_column=None):
+            """ Technical indicator: 200 sma regime filter for each symbol. """
             return pf.CROSSOVER(ts, timeperiod_fast=1, timeperiod_slow=200,
                                 price=input_column, prevday=False)
 
-        self.ts = self.portfolio.add_technical_indicator(
-            self.ts, ta_func=_crossover, ta_param=None,
-            output_column_suffix='regime', input_column_suffix='close')
-        
-        # Add technical indicator: Sharpe Ratio (3 yr annualized).
-        def _sharpe_ratio(ts, ta_param, input_column):
+        @pf.technical_indicator(self.symbols, 'sharpe', 'close')
+        def _sharpe_ratio(ts, input_column=None):
+            """ Technical indicator: Sharpe Ratio (3 yr annualized). """
             return pf.ANNUALIZED_SHARPE_RATIO(ts, lookback=3, price=input_column)
-        
-        self.ts = self.portfolio.add_technical_indicator(
-            self.ts, ta_func=_sharpe_ratio, ta_param=None,
-            output_column_suffix='sharpe', input_column_suffix='close')
-        
-        # Add technical indicator: Return (1 yr annualized).
-        def _annual_return(ts, ta_param, input_column):
-            return pf.ANNUALIZED_RETURNS(ts, lookback=1, price=input_column)
-        
-        self.ts = self.portfolio.add_technical_indicator(
-            self.ts, ta_func=_annual_return, ta_param=None,
-            output_column_suffix='ret', input_column_suffix='close')
-        
-        # Add technical indicator: Standard Deviation (3 yr annualized).
-        def _std_dev(ts, ta_param, input_column):
-            return pf.ANNUALIZED_STANDARD_DEVIATION(ts, lookback=3, price=input_column)
-        
-        self.ts = self.portfolio.add_technical_indicator(
-            self.ts, ta_func=_std_dev, ta_param=None,
-            output_column_suffix='sd', input_column_suffix='close')
 
-        # Add technical indicator: volatility (20 day annualized).
-        def _volatility(ts, ta_param, input_column):
-            return pf.VOLATILITY(ts, lookback=20, downside=ta_param, price=input_column)
-        
-        self.ts = self.portfolio.add_technical_indicator(
-            self.ts, ta_func=_volatility, ta_param=False,
-            output_column_suffix='vola', input_column_suffix='close')
-        
-        # Add technical indicator: downside volatility (20 day annualized).
-        self.ts = self.portfolio.add_technical_indicator(
-            self.ts, ta_func=_volatility, ta_param=True,
-            output_column_suffix='ds_vola', input_column_suffix='close')
-        
+        @pf.technical_indicator(self.symbols, 'ret', 'close')
+        def _annual_return(ts, input_column=None):
+            """ Technical indicator: Return (1 yr annualized). """
+            return pf.ANNUALIZED_RETURNS(ts, lookback=1, price=input_column)        
+
+        @pf.technical_indicator(self.symbols, 'sd', 'close')
+        def _std_dev(ts, input_column=None):
+            """ Technical indicator: Standard Deviation (3 yr annualized). """
+            return pf.ANNUALIZED_STANDARD_DEVIATION(ts, lookback=3, price=input_column)
+
+        @pf.technical_indicator(self.symbols, 'vola', 'close')
+        def _volatility(ts, input_column=None):
+            """ Technical indicator: volatility (20 day annualized). """
+            return pf.VOLATILITY(ts, lookback=20, downside=False, price=input_column)
+
+        @pf.technical_indicator(self.symbols, 'ds_vola', 'close')
+        def _downside_volatility(ts, input_column=None):
+            """ Technical indicator: downside volatility (20 day annualized). """
+            return pf.VOLATILITY(ts, lookback=20, downside=True, price=input_column)      
+
+        # Add technical indicators.
+        self.ts = _crossover(self.ts)
+        self.ts = _sharpe_ratio(self.ts)
+        self.ts = _annual_return(self.ts)
+        self.ts = _std_dev(self.ts)
+        self.ts = _volatility(self.ts)
+        self.ts = _downside_volatility(self.ts)
+
         # Finalize timeseries.
         self.ts, self.start = self.portfolio.finalize_timeseries(self.ts, self.start)
 
@@ -213,4 +207,3 @@ class Strategy:
 
     def _get_stats(self):
         self.stats = pf.stats(self.ts, self.tlog, self.dbal, self.capital)
-

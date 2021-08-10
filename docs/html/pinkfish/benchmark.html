@@ -173,6 +173,9 @@ class Benchmark:
             self.portfolio.record_daily_balance(date, row)
 
     def run(self):
+        &#34;&#34;&#34;
+        Run the strategy.
+        &#34;&#34;&#34;
         self.portfolio = pf.Portfolio()
         self.ts = self.portfolio.fetch_timeseries(
             self.symbols, self.start, self.end,
@@ -190,9 +193,15 @@ class Benchmark:
         self._get_stats()
 
     def _get_logs(self):
+        &#34;&#34;&#34;
+        Get the logs.
+        &#34;&#34;&#34;
         self.rlog, self.tlog, self.dbal = self.portfolio.get_logs()
 
     def _get_stats(self):
+        &#34;&#34;&#34;
+        Get the stats.
+        &#34;&#34;&#34;
         self.stats = pf.stats(self.ts, self.tlog, self.dbal, self.capital)
 
 Strategy = Benchmark
@@ -423,6 +432,9 @@ to False.</dd>
             self.portfolio.record_daily_balance(date, row)
 
     def run(self):
+        &#34;&#34;&#34;
+        Run the strategy.
+        &#34;&#34;&#34;
         self.portfolio = pf.Portfolio()
         self.ts = self.portfolio.fetch_timeseries(
             self.symbols, self.start, self.end,
@@ -440,9 +452,15 @@ to False.</dd>
         self._get_stats()
 
     def _get_logs(self):
+        &#34;&#34;&#34;
+        Get the logs.
+        &#34;&#34;&#34;
         self.rlog, self.tlog, self.dbal = self.portfolio.get_logs()
 
     def _get_stats(self):
+        &#34;&#34;&#34;
+        Get the stats.
+        &#34;&#34;&#34;
         self.stats = pf.stats(self.ts, self.tlog, self.dbal, self.capital)</code></pre>
 </details>
 <h3>Methods</h3>
@@ -451,12 +469,15 @@ to False.</dd>
 <span>def <span class="ident">run</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Run the strategy.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def run(self):
+    &#34;&#34;&#34;
+    Run the strategy.
+    &#34;&#34;&#34;
     self.portfolio = pf.Portfolio()
     self.ts = self.portfolio.fetch_timeseries(
         self.symbols, self.start, self.end,
@@ -689,6 +710,9 @@ to False.</dd>
             self.portfolio.record_daily_balance(date, row)
 
     def run(self):
+        &#34;&#34;&#34;
+        Run the strategy.
+        &#34;&#34;&#34;
         self.portfolio = pf.Portfolio()
         self.ts = self.portfolio.fetch_timeseries(
             self.symbols, self.start, self.end,
@@ -706,9 +730,15 @@ to False.</dd>
         self._get_stats()
 
     def _get_logs(self):
+        &#34;&#34;&#34;
+        Get the logs.
+        &#34;&#34;&#34;
         self.rlog, self.tlog, self.dbal = self.portfolio.get_logs()
 
     def _get_stats(self):
+        &#34;&#34;&#34;
+        Get the stats.
+        &#34;&#34;&#34;
         self.stats = pf.stats(self.ts, self.tlog, self.dbal, self.capital)</code></pre>
 </details>
 <h3>Methods</h3>
@@ -717,12 +747,15 @@ to False.</dd>
 <span>def <span class="ident">run</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Run the strategy.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def run(self):
+    &#34;&#34;&#34;
+    Run the strategy.
+    &#34;&#34;&#34;
     self.portfolio = pf.Portfolio()
     self.ts = self.portfolio.fetch_timeseries(
         self.symbols, self.start, self.end,
