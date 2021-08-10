@@ -32,11 +32,53 @@ Utility functions.
 &#34;&#34;&#34;
 
 from configparser import ConfigParser
+import importlib.util
 import os
+from pathlib import Path
 
 import pandas as pd
 
 import pinkfish as pf
+
+
+ROOT = str(Path(os.getcwd().split(&#39;pinkfish&#39;)[0] + &#39;/pinkfish&#39;))
+&#34;&#34;&#34;
+str: pinkfish project root dir.
+&#34;&#34;&#34;
+
+
+def import_strategy(strategy_name, top_level_dir=&#39;examples&#39;, module_name=&#39;strategy&#39;):
+    &#34;&#34;&#34;
+    Import a strategy from a python `.py` file.
+
+    Parameters
+    ----------
+    strategy_name : str
+        The leaf dir name that contains the strategy to import.
+    top_level_dir : str, optional
+        The top level dir name for the strategies 
+        (default is &#39;examples&#39;).
+    module_name: str, optional
+        The name of the python module (default is &#39;strategy&#39;).
+
+    Returns
+    -------
+    module
+        The imported module.
+
+    Examples
+    --------
+    &gt;&gt;&gt; strategy = import_strategy(strategy_name=&#39;190.momentum-dmsr-portfolio&#39;)
+    &#34;&#34;&#34;
+
+    strategy_location = (Path(ROOT) / Path(top_level_dir)
+                                    / Path(strategy_name)
+                                    / Path(module_name + &#39;.py&#39;))
+    print(strategy_location)
+    spec = importlib.util.spec_from_file_location(module_name, strategy_location) 
+    strategy = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(strategy)
+    return strategy
 
 
 def print_full(x):
@@ -63,16 +105,152 @@ def is_last_row(ts, index):
     &#34;&#34;&#34;
     Return True for last row, False otherwise.
     &#34;&#34;&#34;
-    return True if (index == len(ts) - 1) else False</code></pre>
+    return True if (index == len(ts) - 1) else False
+
+def sort_dict(d, reverse=False):
+    &#34;&#34;&#34;
+    Return sorted dict; optionally reverse sort.
+    &#34;&#34;&#34;
+    return dict(sorted(d.items(), key=lambda x: x[1], reverse=reverse))
+
+def set_dict_values(d, value):
+    &#34;&#34;&#34;
+    Return dict with same keys as `d` and all values equal to `value&#39;.
+    &#34;&#34;&#34;
+    return dict.fromkeys(d, value)
+
+def find_nan_rows(ts):
+    &#34;&#34;&#34;
+    Return a dataframe with the rows that contain NaN values.
+
+    This function can help you track down problems with a timeseries.
+    You may need to call `pd.set_option(&#34;display.max_columns&#34;, None)`
+    at the top of your notebook to display all columns.
+
+    Examples
+    --------
+    &gt;&gt;&gt; pd.set_option(&#34;display.max_columns&#34;, None)
+    &gt;&gt;&gt; df = pf.find_nan_rows(ts)
+    &gt;&gt;&gt; df
+    &#34;&#34;&#34;
+    is_NaN = ts.isnull()
+    row_has_NaN = is_NaN.any(axis=1)
+    rows_with_NaN = ts[row_has_NaN]
+    return rows_with_NaN</code></pre>
 </details>
 </section>
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-variables">Global variables</h2>
+<dl>
+<dt id="pinkfish.utility.ROOT"><code class="name">var <span class="ident">ROOT</span></code></dt>
+<dd>
+<div class="desc"><p>str: pinkfish project root dir.</p></div>
+</dd>
+</dl>
 </section>
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
+<dt id="pinkfish.utility.find_nan_rows"><code class="name flex">
+<span>def <span class="ident">find_nan_rows</span></span>(<span>ts)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a dataframe with the rows that contain NaN values.</p>
+<p>This function can help you track down problems with a timeseries.
+You may need to call <code>pd.set_option("display.max_columns", None)</code>
+at the top of your notebook to display all columns.</p>
+<h2 id="examples">Examples</h2>
+<pre><code class="language-python-repl">&gt;&gt;&gt; pd.set_option(&quot;display.max_columns&quot;, None)
+&gt;&gt;&gt; df = pf.find_nan_rows(ts)
+&gt;&gt;&gt; df
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def find_nan_rows(ts):
+    &#34;&#34;&#34;
+    Return a dataframe with the rows that contain NaN values.
+
+    This function can help you track down problems with a timeseries.
+    You may need to call `pd.set_option(&#34;display.max_columns&#34;, None)`
+    at the top of your notebook to display all columns.
+
+    Examples
+    --------
+    &gt;&gt;&gt; pd.set_option(&#34;display.max_columns&#34;, None)
+    &gt;&gt;&gt; df = pf.find_nan_rows(ts)
+    &gt;&gt;&gt; df
+    &#34;&#34;&#34;
+    is_NaN = ts.isnull()
+    row_has_NaN = is_NaN.any(axis=1)
+    rows_with_NaN = ts[row_has_NaN]
+    return rows_with_NaN</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.utility.import_strategy"><code class="name flex">
+<span>def <span class="ident">import_strategy</span></span>(<span>strategy_name, top_level_dir='examples', module_name='strategy')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Import a strategy from a python <code>.py</code> file.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>strategy_name</code></strong> :&ensp;<code>str</code></dt>
+<dd>The leaf dir name that contains the strategy to import.</dd>
+<dt><strong><code>top_level_dir</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>The top level dir name for the strategies
+(default is 'examples').</dd>
+<dt><strong><code>module_name</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>The name of the python module (default is 'strategy').</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>module</code></dt>
+<dd>The imported module.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<pre><code class="language-python-repl">&gt;&gt;&gt; strategy = import_strategy(strategy_name='190.momentum-dmsr-portfolio')
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def import_strategy(strategy_name, top_level_dir=&#39;examples&#39;, module_name=&#39;strategy&#39;):
+    &#34;&#34;&#34;
+    Import a strategy from a python `.py` file.
+
+    Parameters
+    ----------
+    strategy_name : str
+        The leaf dir name that contains the strategy to import.
+    top_level_dir : str, optional
+        The top level dir name for the strategies 
+        (default is &#39;examples&#39;).
+    module_name: str, optional
+        The name of the python module (default is &#39;strategy&#39;).
+
+    Returns
+    -------
+    module
+        The imported module.
+
+    Examples
+    --------
+    &gt;&gt;&gt; strategy = import_strategy(strategy_name=&#39;190.momentum-dmsr-portfolio&#39;)
+    &#34;&#34;&#34;
+
+    strategy_location = (Path(ROOT) / Path(top_level_dir)
+                                    / Path(strategy_name)
+                                    / Path(module_name + &#39;.py&#39;))
+    print(strategy_location)
+    spec = importlib.util.spec_from_file_location(module_name, strategy_location) 
+    strategy = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(strategy)
+    return strategy</code></pre>
+</details>
+</dd>
 <dt id="pinkfish.utility.is_last_row"><code class="name flex">
 <span>def <span class="ident">is_last_row</span></span>(<span>ts, index)</span>
 </code></dt>
@@ -127,6 +305,38 @@ def is_last_row(ts, index):
     return conf</code></pre>
 </details>
 </dd>
+<dt id="pinkfish.utility.set_dict_values"><code class="name flex">
+<span>def <span class="ident">set_dict_values</span></span>(<span>d, value)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return dict with same keys as <code>d</code> and all values equal to `value'.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_dict_values(d, value):
+    &#34;&#34;&#34;
+    Return dict with same keys as `d` and all values equal to `value&#39;.
+    &#34;&#34;&#34;
+    return dict.fromkeys(d, value)</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.utility.sort_dict"><code class="name flex">
+<span>def <span class="ident">sort_dict</span></span>(<span>d, reverse=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return sorted dict; optionally reverse sort.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sort_dict(d, reverse=False):
+    &#34;&#34;&#34;
+    Return sorted dict; optionally reverse sort.
+    &#34;&#34;&#34;
+    return dict(sorted(d.items(), key=lambda x: x[1], reverse=reverse))</code></pre>
+</details>
+</dd>
 </dl>
 </section>
 <section>
@@ -143,11 +353,20 @@ def is_last_row(ts, index):
 <li><code><a title="pinkfish" href="index.html">pinkfish</a></code></li>
 </ul>
 </li>
-<li><h3><a href="#header-functions">Functions</a></h3>
+<li><h3><a href="#header-variables">Global variables</a></h3>
 <ul class="">
+<li><code><a title="pinkfish.utility.ROOT" href="#pinkfish.utility.ROOT">ROOT</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="two-column">
+<li><code><a title="pinkfish.utility.find_nan_rows" href="#pinkfish.utility.find_nan_rows">find_nan_rows</a></code></li>
+<li><code><a title="pinkfish.utility.import_strategy" href="#pinkfish.utility.import_strategy">import_strategy</a></code></li>
 <li><code><a title="pinkfish.utility.is_last_row" href="#pinkfish.utility.is_last_row">is_last_row</a></code></li>
 <li><code><a title="pinkfish.utility.print_full" href="#pinkfish.utility.print_full">print_full</a></code></li>
 <li><code><a title="pinkfish.utility.read_config" href="#pinkfish.utility.read_config">read_config</a></code></li>
+<li><code><a title="pinkfish.utility.set_dict_values" href="#pinkfish.utility.set_dict_values">set_dict_values</a></code></li>
+<li><code><a title="pinkfish.utility.sort_dict" href="#pinkfish.utility.sort_dict">sort_dict</a></code></li>
 </ul>
 </li>
 </ul>

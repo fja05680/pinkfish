@@ -193,6 +193,9 @@ def holding_period_map(dbal):
     &#34;&#34;&#34;
     Display holding period returns in a table.
 
+    This shows what your annualized return would have been, had you
+    started this strategy at the start of a given year, as shown in
+    the leftmost column, and held it for a certain number of years.
     Length of returns should be 30 or less, otherwise the output
     will be jumbled.
 
@@ -480,7 +483,7 @@ def kelly_criterian(stats, benchmark_stats=None):
             Kelly criterian known as half Kelly.
 
          - `aggressive leverage` is the optimal target risk divided by
-            the instrument risk.  This is a aggrssive form of the
+            the instrument risk.  This is an aggressive form of the
             leverage factor, which is the cash value of a position
             divided by your capital.
 
@@ -496,7 +499,8 @@ def kelly_criterian(stats, benchmark_stats=None):
     s[&#39;sharpe_ratio_max&#39;] = stats[&#39;sharpe_ratio_max&#39;]
     s[&#39;sharpe_ratio_min&#39;] = stats[&#39;sharpe_ratio_min&#39;]
     s[&#39;strategy risk&#39;] = stats[&#39;annual_std&#39;] / 100
-    s[&#39;instrument risk&#39;] = benchmark_stats[&#39;annual_std&#39;] / 100
+    if benchmark_stats is not None:
+        s[&#39;instrument risk&#39;] = benchmark_stats[&#39;annual_std&#39;] / 100
     s[&#39;optimal target risk&#39;] = s[&#39;sharpe_ratio&#39;]
     s[&#39;half kelly criterian&#39;] = s[&#39;sharpe_ratio&#39;] / 2
     s[&#39;aggressive leverage&#39;] = s[&#39;optimal target risk&#39;] / s[&#39;instrument risk&#39;]
@@ -517,7 +521,10 @@ def kelly_criterian(stats, benchmark_stats=None):
 </code></dt>
 <dd>
 <div class="desc"><p>Display holding period returns in a table.</p>
-<p>Length of returns should be 30 or less, otherwise the output
+<p>This shows what your annualized return would have been, had you
+started this strategy at the start of a given year, as shown in
+the leftmost column, and held it for a certain number of years.
+Length of returns should be 30 or less, otherwise the output
 will be jumbled.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
@@ -546,6 +553,9 @@ Years    1   2   3   4   5   6   7   8
     &#34;&#34;&#34;
     Display holding period returns in a table.
 
+    This shows what your annualized return would have been, had you
+    started this strategy at the start of a given year, as shown in
+    the leftmost column, and held it for a certain number of years.
     Length of returns should be 30 or less, otherwise the output
     will be jumbled.
 
@@ -644,7 +654,7 @@ Kelly criterian known as half Kelly.</p>
 <li>
 <p><code>aggressive leverage</code> is the optimal target risk divided by
 the instrument risk.
-This is a aggrssive form of the
+This is an aggressive form of the
 leverage factor, which is the cash value of a position
 divided by your capital.</p>
 </li>
@@ -705,7 +715,7 @@ using half of the minimum sharpe ratio divided by 2.</p>
             Kelly criterian known as half Kelly.
 
          - `aggressive leverage` is the optimal target risk divided by
-            the instrument risk.  This is a aggrssive form of the
+            the instrument risk.  This is an aggressive form of the
             leverage factor, which is the cash value of a position
             divided by your capital.
 
@@ -721,7 +731,8 @@ using half of the minimum sharpe ratio divided by 2.</p>
     s[&#39;sharpe_ratio_max&#39;] = stats[&#39;sharpe_ratio_max&#39;]
     s[&#39;sharpe_ratio_min&#39;] = stats[&#39;sharpe_ratio_min&#39;]
     s[&#39;strategy risk&#39;] = stats[&#39;annual_std&#39;] / 100
-    s[&#39;instrument risk&#39;] = benchmark_stats[&#39;annual_std&#39;] / 100
+    if benchmark_stats is not None:
+        s[&#39;instrument risk&#39;] = benchmark_stats[&#39;annual_std&#39;] / 100
     s[&#39;optimal target risk&#39;] = s[&#39;sharpe_ratio&#39;]
     s[&#39;half kelly criterian&#39;] = s[&#39;sharpe_ratio&#39;] / 2
     s[&#39;aggressive leverage&#39;] = s[&#39;optimal target risk&#39;] / s[&#39;instrument risk&#39;]
