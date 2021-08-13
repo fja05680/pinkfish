@@ -1,7 +1,7 @@
 pinkfish
 ======     
 
-ANNOUNCEMENT: 2021-08-03 New youtube tutorial: `05 Pinkfish example Double 7s strategy - Pt 1 Algorithm`.  In this video, I explain the implementation of the `Double 7s` strategy.   
+ANNOUNCEMENT: 2021-13-03 New youtube tutorial: `06 Pinkfish example Double 7s strategy - Pt 2 Run and Analyze`.   
 
 A backtester and spreadsheet library for security analysis.
 
