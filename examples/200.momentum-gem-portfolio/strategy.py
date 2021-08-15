@@ -142,18 +142,15 @@ class Strategy:
 
         # Add calendar columns
         self.ts = self.portfolio.calendar(self.ts)
-        
-        # Add technical indicator Momenteum for all symbols in portfolio.
-        def _momentum(ts, ta_param, input_column):
-            return pf.MOMENTUM(ts, lookback=ta_param, time_frame='monthly',
-                               price=input_column, prevday=False)
 
+        # Add technical indicator Momenteum for all symbols in portfolio.
         lookbacks = range(3, 18+1)
         for lookback in lookbacks:
-            self.ts = self.portfolio.add_technical_indicator(
-                self.ts, ta_func=_momentum, ta_param=lookback,
-                output_column_suffix='mom'+str(lookback),
-                input_column_suffix='close')
+            @pf.technical_indicator(self.symbols.values(), 'mom'+str(lookback), 'close')
+            def _momentum(ts, input_column=None):
+                return pf.MOMENTUM(ts, lookback=lookback, time_frame='monthly',
+                                   price=input_column, prevday=False)
+            self.ts = _momentum(self.ts)
 
         self.ts, self.start = self.portfolio.finalize_timeseries(self.ts, self.start)
         self.portfolio.init_trade_logs(self.ts)

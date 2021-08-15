@@ -1,6 +1,5 @@
-(1) Update docs and example html files
-(2) Youtube video of double-7s portfolio.  3 or 4 part video.
-
-(3) Average double 7s using portfolio, and different symbol name for each X day high/low
-(4) Implement other straegies from "Trading strategies that work.
-(5) What percent of time, if high/low price is closest to the open, then high/low price came first.  Need minute data for this.
+(1) Youtube video of double-7s portfolio.  3 or 4 part video.
+(2) Average double 7s using portfolio, and different symbol name for each X day high/low
+(3) Implement other strategies from "Trading strategies that work.
+(4) What percent of time, if high/low price is closest to the open, then high/low price came first.
+Need minute data for this.
