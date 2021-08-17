@@ -28,7 +28,7 @@ pf.DEBUG = False
 
 default_options = {
     'use_adj' : False,
-    'use_cache' : False,
+    'use_cache' : True,
     'stop_loss_pct' : 1.0,
     'margin' : 1,
     'period' : 7,
@@ -105,7 +105,7 @@ class Strategy:
         self.ts['period_low'] =  pd.Series(self.ts.close).rolling(self.options['period']).min()
         
         # Finalize timeseries.
-        self.ts, self.start = pf.finalize_timeseries(self.ts, self.start)
+        self.ts, self.start = pf.finalize_timeseries(self.ts, self.start, dropna=True)
         
         # Create tlog and dbal objects.
         self.tlog = pf.TradeLog(self.symbol)

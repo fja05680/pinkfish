@@ -388,13 +388,13 @@ def volatility_graphs(dbals, labels, points_to_plot=None):
 
 
 ########################################################################
-# KELLY CRITERIAN
+# KELLY CRITERION
 
-def kelly_criterian(stats, benchmark_stats=None):
+def kelly_criterion(stats, benchmark_stats=None):
     """
     Use this function to help with sizing of leverage.
     
-    This function uses ideas based on the Kelly Criterian.
+    This function uses ideas based on the Kelly Criterion.
 
     Parameters
     ----------
@@ -423,13 +423,13 @@ def kelly_criterian(stats, benchmark_stats=None):
             standard deviation of returns.
 
          - `optimal target risk` is equal to the expected sharpe ratio,
-            according to the Kelly criterian.  Target risk is the amount
+            according to the Kelly criterion.  Target risk is the amount
             of risk you expect to see when trading, calculated as an
             annual standard deviation of returns.
 
-         - `half kelly criterian` is equal to half the expected
+         - `half kelly criterion` is equal to half the expected
             sharpe ratio.  It uses a conservative version of the
-            Kelly criterian known as half Kelly.
+            Kelly criterion known as half Kelly.
 
          - `aggressive leverage` is the optimal target risk divided by
             the instrument risk.  This is an aggressive form of the
@@ -451,8 +451,8 @@ def kelly_criterian(stats, benchmark_stats=None):
     if benchmark_stats is not None:
         s['instrument risk'] = benchmark_stats['annual_std'] / 100
     s['optimal target risk'] = s['sharpe_ratio']
-    s['half kelly criterian'] = s['sharpe_ratio'] / 2
+    s['half kelly criterion'] = s['sharpe_ratio'] / 2
     s['aggressive leverage'] = s['optimal target risk'] / s['instrument risk']
-    s['moderate leverage'] = s['half kelly criterian'] / s['instrument risk']
+    s['moderate leverage'] = s['half kelly criterion'] / s['instrument risk']
     s['conservative leverage'] = (s['sharpe_ratio_min'] / 2) / s['instrument risk']
     return s

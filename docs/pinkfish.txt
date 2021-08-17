@@ -155,12 +155,12 @@ Years    1   2   3   4   5   6   7   8
 
 
     
-### Function `kelly_criterian` {#pinkfish.analysis.kelly_criterian}
+### Function `kelly_criterion` {#pinkfish.analysis.kelly_criterion}
 
 
 
 
->     def kelly_criterian(
+>     def kelly_criterion(
 >         stats,
 >         benchmark_stats=None
 >     )
@@ -199,13 +199,13 @@ This function uses ideas based on the Kelly Criterian.
         standard deviation of returns.
 
      - <code>optimal target risk</code> is equal to the expected sharpe ratio,
-        according to the Kelly criterian.  Target risk is the amount
+        according to the Kelly criterion.  Target risk is the amount
         of risk you expect to see when trading, calculated as an
         annual standard deviation of returns.
 
-     - <code>half kelly criterian</code> is equal to half the expected
+     - <code>half kelly criterion</code> is equal to half the expected
         sharpe ratio.  It uses a conservative version of the
-        Kelly criterian known as half Kelly.
+        Kelly criterion known as half Kelly.
 
      - <code>aggressive leverage</code> is the optimal target risk divided by
         the instrument risk.  This is an aggressive form of the

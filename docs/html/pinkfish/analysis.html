@@ -441,7 +441,7 @@ def volatility_graphs(dbals, labels, points_to_plot=None):
 ########################################################################
 # KELLY CRITERIAN
 
-def kelly_criterian(stats, benchmark_stats=None):
+def kelly_criterion(stats, benchmark_stats=None):
     &#34;&#34;&#34;
     Use this function to help with sizing of leverage.
     
@@ -474,13 +474,13 @@ def kelly_criterian(stats, benchmark_stats=None):
             standard deviation of returns.
 
          - `optimal target risk` is equal to the expected sharpe ratio,
-            according to the Kelly criterian.  Target risk is the amount
+            according to the Kelly criterion.  Target risk is the amount
             of risk you expect to see when trading, calculated as an
             annual standard deviation of returns.
 
-         - `half kelly criterian` is equal to half the expected
+         - `half kelly criterion` is equal to half the expected
             sharpe ratio.  It uses a conservative version of the
-            Kelly criterian known as half Kelly.
+            Kelly criterion known as half Kelly.
 
          - `aggressive leverage` is the optimal target risk divided by
             the instrument risk.  This is an aggressive form of the
@@ -502,9 +502,9 @@ def kelly_criterian(stats, benchmark_stats=None):
     if benchmark_stats is not None:
         s[&#39;instrument risk&#39;] = benchmark_stats[&#39;annual_std&#39;] / 100
     s[&#39;optimal target risk&#39;] = s[&#39;sharpe_ratio&#39;]
-    s[&#39;half kelly criterian&#39;] = s[&#39;sharpe_ratio&#39;] / 2
+    s[&#39;half kelly criterion&#39;] = s[&#39;sharpe_ratio&#39;] / 2
     s[&#39;aggressive leverage&#39;] = s[&#39;optimal target risk&#39;] / s[&#39;instrument risk&#39;]
-    s[&#39;moderate leverage&#39;] = s[&#39;half kelly criterian&#39;] / s[&#39;instrument risk&#39;]
+    s[&#39;moderate leverage&#39;] = s[&#39;half kelly criterion&#39;] / s[&#39;instrument risk&#39;]
     s[&#39;conservative leverage&#39;] = (s[&#39;sharpe_ratio_min&#39;] / 2) / s[&#39;instrument risk&#39;]
     return s</code></pre>
 </details>
@@ -600,8 +600,8 @@ Years    1   2   3   4   5   6   7   8
     display(HTML(table))</code></pre>
 </details>
 </dd>
-<dt id="pinkfish.analysis.kelly_criterian"><code class="name flex">
-<span>def <span class="ident">kelly_criterian</span></span>(<span>stats, benchmark_stats=None)</span>
+<dt id="pinkfish.analysis.kelly_criterion"><code class="name flex">
+<span>def <span class="ident">kelly_criterion</span></span>(<span>stats, benchmark_stats=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Use this function to help with sizing of leverage.</p>
@@ -640,16 +640,16 @@ standard deviation of returns.</p>
 </li>
 <li>
 <p><code>optimal target risk</code> is equal to the expected sharpe ratio,
-according to the Kelly criterian.
+according to the Kelly criterion.
 Target risk is the amount
 of risk you expect to see when trading, calculated as an
 annual standard deviation of returns.</p>
 </li>
 <li>
-<p><code>half kelly criterian</code> is equal to half the expected
+<p><code>half kelly criterion</code> is equal to half the expected
 sharpe ratio.
 It uses a conservative version of the
-Kelly criterian known as half Kelly.</p>
+Kelly criterion known as half Kelly.</p>
 </li>
 <li>
 <p><code>aggressive leverage</code> is the optimal target risk divided by
@@ -673,7 +673,7 @@ using half of the minimum sharpe ratio divided by 2.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def kelly_criterian(stats, benchmark_stats=None):
+<pre><code class="python">def kelly_criterion(stats, benchmark_stats=None):
     &#34;&#34;&#34;
     Use this function to help with sizing of leverage.
     
@@ -706,13 +706,13 @@ using half of the minimum sharpe ratio divided by 2.</p>
             standard deviation of returns.
 
          - `optimal target risk` is equal to the expected sharpe ratio,
-            according to the Kelly criterian.  Target risk is the amount
+            according to the Kelly criterion.  Target risk is the amount
             of risk you expect to see when trading, calculated as an
             annual standard deviation of returns.
 
-         - `half kelly criterian` is equal to half the expected
+         - `half kelly criterion` is equal to half the expected
             sharpe ratio.  It uses a conservative version of the
-            Kelly criterian known as half Kelly.
+            Kelly criterion known as half Kelly.
 
          - `aggressive leverage` is the optimal target risk divided by
             the instrument risk.  This is an aggressive form of the
@@ -734,9 +734,9 @@ using half of the minimum sharpe ratio divided by 2.</p>
     if benchmark_stats is not None:
         s[&#39;instrument risk&#39;] = benchmark_stats[&#39;annual_std&#39;] / 100
     s[&#39;optimal target risk&#39;] = s[&#39;sharpe_ratio&#39;]
-    s[&#39;half kelly criterian&#39;] = s[&#39;sharpe_ratio&#39;] / 2
+    s[&#39;half kelly criterion&#39;] = s[&#39;sharpe_ratio&#39;] / 2
     s[&#39;aggressive leverage&#39;] = s[&#39;optimal target risk&#39;] / s[&#39;instrument risk&#39;]
-    s[&#39;moderate leverage&#39;] = s[&#39;half kelly criterian&#39;] / s[&#39;instrument risk&#39;]
+    s[&#39;moderate leverage&#39;] = s[&#39;half kelly criterion&#39;] / s[&#39;instrument risk&#39;]
     s[&#39;conservative leverage&#39;] = (s[&#39;sharpe_ratio_min&#39;] / 2) / s[&#39;instrument risk&#39;]
     return s</code></pre>
 </details>
@@ -1118,7 +1118,7 @@ prices) indexed by date.</dd>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
 <li><code><a title="pinkfish.analysis.holding_period_map" href="#pinkfish.analysis.holding_period_map">holding_period_map</a></code></li>
-<li><code><a title="pinkfish.analysis.kelly_criterian" href="#pinkfish.analysis.kelly_criterian">kelly_criterian</a></code></li>
+<li><code><a title="pinkfish.analysis.kelly_criterion" href="#pinkfish.analysis.kelly_criterion">kelly_criterion</a></code></li>
 <li><code><a title="pinkfish.analysis.monthly_returns_map" href="#pinkfish.analysis.monthly_returns_map">monthly_returns_map</a></code></li>
 <li><code><a title="pinkfish.analysis.prettier_graphs" href="#pinkfish.analysis.prettier_graphs">prettier_graphs</a></code></li>
 <li><code><a title="pinkfish.analysis.volatility_graphs" href="#pinkfish.analysis.volatility_graphs">volatility_graphs</a></code></li>
