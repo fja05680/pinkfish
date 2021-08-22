@@ -88,7 +88,7 @@ class Strategy:
 
                 month_count -= 1
                 
-                  # Get prices for current row
+                # Get prices for current row
                 mom_field = 'mom' + str(lookback)
                 p = self.portfolio.get_prices(row, fields=['close', mom_field])
 
