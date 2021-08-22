@@ -1,7 +1,7 @@
 pinkfish
 ======     
 
-ANNOUNCEMENT: 2021-08-22 New youtube tutorial: `06 Pinkfish example Double 7s strategy - Pt 3 Optimization`.   
+ANNOUNCEMENT: 2021-08-22 New youtube tutorial: `07 Pinkfish example Double 7s strategy - Pt 3 Optimization`.   
 
 A backtester and spreadsheet library for security analysis.
 
