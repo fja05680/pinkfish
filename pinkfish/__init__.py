@@ -43,6 +43,8 @@ from .portfolio import (
 )
 
 from .indicator import (
+    SMA_,
+    EMA_,
     CROSSOVER,
     MOMENTUM,
     VOLATILITY,

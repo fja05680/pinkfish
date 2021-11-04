@@ -40,6 +40,11 @@ import seaborn
 
 import pinkfish as pf
 
+# TODO: The following will ignore a new Performance Warning from Pandas.
+# Will try to find a better solution later.
+from warnings import simplefilter
+simplefilter(action=&#34;ignore&#34;, category=pd.errors.PerformanceWarning)
+
 
 def technical_indicator(symbols, output_column_suffix,
                         input_column_suffix=&#39;close&#39;):

@@ -168,7 +168,7 @@ Years    1   2   3   4   5   6   7   8
 
 Use this function to help with sizing of leverage.
 
-This function uses ideas based on the Kelly Criterian.
+This function uses ideas based on the Kelly Criterion.
 
 ###### Parameters
 
@@ -1159,8 +1159,8 @@ Calculate the rolling annualized standard deviation.
 >         ts,
 >         timeperiod_fast=50,
 >         timeperiod_slow=200,
->         func_fast={'name': 'SMA', 'group': 'Overlap Studies', 'display_name': 'Simple Moving Average', 'function_flags': ['Output scale same as input'], 'input_names': OrderedDict([('price', 'close')]), 'parameters': OrderedDict([('timeperiod', 30)]), 'output_flags': OrderedDict([('real', ['Line'])]), 'output_names': ['real']},
->         func_slow={'name': 'SMA', 'group': 'Overlap Studies', 'display_name': 'Simple Moving Average', 'function_flags': ['Output scale same as input'], 'input_names': OrderedDict([('price', 'close')]), 'parameters': OrderedDict([('timeperiod', 30)]), 'output_flags': OrderedDict([('real', ['Line'])]), 'output_names': ['real']},
+>         func_fast=<function SMA_>,
+>         func_slow=<function SMA_>,
 >         band=0,
 >         price='close',
 >         prevday=False
@@ -1192,15 +1192,17 @@ moving average is below the slow moving average.
 :   The timeperiod for the slow moving average (default is 200).
 
 
-**```func_fast```** :&ensp;<code>ta\_lib.Function</code>, optional
-:   {SMA, DEMA, EMA, KAMA, T3, TEMA, TRIMA, WMA}
-    The talib function for fast moving average (default is SMA).
+**```func_fast```** :&ensp;<code>Function</code>, optional
+:   {SMA_, EMA_} (pinkfish functions) or
+    {SMA, DEMA, EMA, KAMA, T3, TEMA, TRIMA, WMA} (ta-lib functions)
+    The function for fast moving average (default is SMA_).
     MAMA not compatible.
 
 
-**```func_slow```** :&ensp;<code>ta\_lib.Function</code>, optional
-:   {SMA, DEMA, EMA, KAMA, T3, TEMA, TRIMA, WMA}
-    The talib function for slow moving average. (default is SMA).
+**```func_slow```** :&ensp;<code>Function</code>, optional
+:   {SMA_, EMA_} (pinkfish functions) or
+    {SMA, DEMA, EMA, KAMA, T3, TEMA, TRIMA, WMA} (ta-lib functions)
+    The function for fast moving average (default is SMA_).
     MAMA not compatible.
 
 
@@ -1233,6 +1235,42 @@ moving average is below the slow moving average.
 ```python-repl
 >>> ts['regime'] = pf.CROSSOVER(ts, timeperiod_fast=50,
                                 timeperiod_slow=200)
+```
+
+
+    
+### Function `EMA_` {#pinkfish.indicator.EMA_}
+
+
+
+
+>     def EMA_(
+>         ts,
+>         timeperiod=30,
+>         price='close'
+>     )
+
+
+This indicator computes an exponential moving average.
+
+Can be used in place of talib EMA.
+
+ts : pd.DateFrame
+    A dataframe with 'open', 'high', 'low', 'close', 'volume'.
+timeperiod: int, optional
+    The timeperiod for the moving average (default is 30).
+price : str, optional {'close', 'open', 'high', 'low'}
+    Input_array column to use for price (default is 'close').
+
+###### Returns
+
+<code>pd.Series</code>
+:   Series that contains the simple moving average.
+
+###### Examples
+
+```python-repl
+>>> ts['ema50'] = EMA_(ts, timeperiod=50)
 ```
 
 
@@ -1297,6 +1335,42 @@ asset prices for comparison.
 
 ```python-repl
 >>> ts['mom'] = pf.MOMENTUM(ts, lookback=6, time_frame='monthly')
+```
+
+
+    
+### Function `SMA_` {#pinkfish.indicator.SMA_}
+
+
+
+
+>     def SMA_(
+>         ts,
+>         timeperiod=30,
+>         price='close'
+>     )
+
+
+This indicator computes a simple moving average.
+
+Can be used in place of talib SMA.
+
+ts : pd.DateFrame
+    A dataframe with 'open', 'high', 'low', 'close', 'volume'.
+timeperiod: int, optional
+    The timeperiod for the moving average (default is 30).
+price : str, optional {'close', 'open', 'high', 'low'}
+    Input_array column to use for price (default is 'close').
+
+###### Returns
+
+<code>pd.Series</code>
+:   Series that contains the simple moving average.
+
+###### Examples
+
+```python-repl
+>>> ts['sma50'] = SMA_(ts, timeperiod=50)
 ```
 
 

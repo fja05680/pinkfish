@@ -40,7 +40,6 @@ https://ta-lib.org/function.html
 import math
 import numpy as np
 import pandas as pd
-from talib.abstract import *
 
 import pinkfish as pf
 
@@ -49,6 +48,63 @@ class IndicatorError(Exception):
     &#34;&#34;&#34;
     Base indicator exception.
     &#34;&#34;&#34;
+    pass
+
+
+########################################################################
+# SMA_
+
+def SMA_(ts, timeperiod=30, price=&#39;close&#39;):
+    &#34;&#34;&#34;
+    This indicator computes a simple moving average.
+
+    Can be used in place of talib SMA.
+
+    ts : pd.DateFrame
+        A dataframe with &#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;, &#39;volume&#39;.
+    timeperiod: int, optional
+        The timeperiod for the moving average (default is 30).
+    price : str, optional {&#39;close&#39;, &#39;open&#39;, &#39;high&#39;, &#39;low&#39;}
+        Input_array column to use for price (default is &#39;close&#39;).
+
+    Returns
+    -------
+    pd.Series
+        Series that contains the simple moving average.
+
+    Examples
+    --------
+    &gt;&gt;&gt; ts[&#39;sma50&#39;] = SMA_(ts, timeperiod=50)
+    &#34;&#34;&#34;
+    return ts[price].rolling(timeperiod).mean()
+
+
+########################################################################
+# EMA_
+
+def EMA_(ts, timeperiod=30, price=&#39;close&#39;):
+    &#34;&#34;&#34;
+    This indicator computes an exponential moving average.
+
+    Can be used in place of talib EMA.
+
+    ts : pd.DateFrame
+        A dataframe with &#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;, &#39;volume&#39;.
+    timeperiod: int, optional
+        The timeperiod for the moving average (default is 30).
+    price : str, optional {&#39;close&#39;, &#39;open&#39;, &#39;high&#39;, &#39;low&#39;}
+        Input_array column to use for price (default is &#39;close&#39;).
+
+    Returns
+    -------
+    pd.Series
+        Series that contains the simple moving average.
+
+    Examples
+    --------
+    &gt;&gt;&gt; ts[&#39;ema50&#39;] = EMA_(ts, timeperiod=50)
+    &#34;&#34;&#34;
+    return ts[price].ewm(span=timeperiod, min_periods=timeperiod, adjust=False).mean()
 
 
 ########################################################################
@@ -58,6 +114,7 @@ class TradeCrossOverError(IndicatorError):
     &#34;&#34;&#34;
     Invalid timeperiod specified.
     &#34;&#34;&#34;
+    pass
 
 
 class _CrossOver:
@@ -117,7 +174,7 @@ class _CrossOver:
 
 
 def CROSSOVER(ts, timeperiod_fast=50, timeperiod_slow=200,
-              func_fast=SMA, func_slow=SMA, band=0,
+              func_fast=SMA_, func_slow=SMA_, band=0,
               price=&#39;close&#39;, prevday=False):
     &#34;&#34;&#34;
     This indicator is used to represent regime direction and duration.
@@ -139,13 +196,15 @@ def CROSSOVER(ts, timeperiod_fast=50, timeperiod_slow=200,
         The timeperiod for the fast moving average (default is 50).
     timeperiod_slow : int, optional
         The timeperiod for the slow moving average (default is 200).
-    func_fast : ta_lib.Function, optional
-        {SMA, DEMA, EMA, KAMA, T3, TEMA, TRIMA, WMA}
-        The talib function for fast moving average (default is SMA).
+    func_fast : Function, optional
+        {SMA_, EMA_} (pinkfish functions) or
+        {SMA, DEMA, EMA, KAMA, T3, TEMA, TRIMA, WMA} (ta-lib functions)
+        The function for fast moving average (default is SMA_).
         MAMA not compatible.
-    func_slow : ta_lib.Function, optional
-        {SMA, DEMA, EMA, KAMA, T3, TEMA, TRIMA, WMA}
-        The talib function for slow moving average. (default is SMA).
+    func_slow : Function, optional
+         {SMA_, EMA_} (pinkfish functions) or
+        {SMA, DEMA, EMA, KAMA, T3, TEMA, TRIMA, WMA} (ta-lib functions)
+        The function for fast moving average (default is SMA_).
         MAMA not compatible.
     band : float, {0-100}, optional
         Percent band around the slow moving average.
@@ -827,7 +886,7 @@ It gives you the previous day's Volatility (default is False).</dd>
 </details>
 </dd>
 <dt id="pinkfish.indicator.CROSSOVER"><code class="name flex">
-<span>def <span class="ident">CROSSOVER</span></span>(<span>ts, timeperiod_fast=50, timeperiod_slow=200, func_fast={'name': 'SMA', 'group': 'Overlap Studies', 'display_name': 'Simple Moving Average', 'function_flags': ['Output scale same as input'], 'input_names': OrderedDict([('price', 'close')]), 'parameters': OrderedDict([('timeperiod', 30)]), 'output_flags': OrderedDict([('real', ['Line'])]), 'output_names': ['real']}, func_slow={'name': 'SMA', 'group': 'Overlap Studies', 'display_name': 'Simple Moving Average', 'function_flags': ['Output scale same as input'], 'input_names': OrderedDict([('price', 'close')]), 'parameters': OrderedDict([('timeperiod', 30)]), 'output_flags': OrderedDict([('real', ['Line'])]), 'output_names': ['real']}, band=0, price='close', prevday=False)</span>
+<span>def <span class="ident">CROSSOVER</span></span>(<span>ts, timeperiod_fast=50, timeperiod_slow=200, func_fast=&lt;function SMA_&gt;, func_slow=&lt;function SMA_&gt;, band=0, price='close', prevday=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>This indicator is used to represent regime direction and duration.</p>
@@ -847,13 +906,15 @@ moving average is below the slow moving average.</p>
 <dd>The timeperiod for the fast moving average (default is 50).</dd>
 <dt><strong><code>timeperiod_slow</code></strong> :&ensp;<code>int</code>, optional</dt>
 <dd>The timeperiod for the slow moving average (default is 200).</dd>
-<dt><strong><code>func_fast</code></strong> :&ensp;<code>ta_lib.Function</code>, optional</dt>
-<dd>{SMA, DEMA, EMA, KAMA, T3, TEMA, TRIMA, WMA}
-The talib function for fast moving average (default is SMA).
+<dt><strong><code>func_fast</code></strong> :&ensp;<code>Function</code>, optional</dt>
+<dd>{SMA_, EMA_} (pinkfish functions) or
+{SMA, DEMA, EMA, KAMA, T3, TEMA, TRIMA, WMA} (ta-lib functions)
+The function for fast moving average (default is SMA_).
 MAMA not compatible.</dd>
-<dt><strong><code>func_slow</code></strong> :&ensp;<code>ta_lib.Function</code>, optional</dt>
-<dd>{SMA, DEMA, EMA, KAMA, T3, TEMA, TRIMA, WMA}
-The talib function for slow moving average. (default is SMA).
+<dt><strong><code>func_slow</code></strong> :&ensp;<code>Function</code>, optional</dt>
+<dd>{SMA_, EMA_} (pinkfish functions) or
+{SMA, DEMA, EMA, KAMA, T3, TEMA, TRIMA, WMA} (ta-lib functions)
+The function for fast moving average (default is SMA_).
 MAMA not compatible.</dd>
 <dt><strong><code>band</code></strong> :&ensp;<code>float, {0-100}</code>, optional</dt>
 <dd>Percent band around the slow moving average.
@@ -885,7 +946,7 @@ It gives you the previous day's CrossOver (default is False).</dd>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def CROSSOVER(ts, timeperiod_fast=50, timeperiod_slow=200,
-              func_fast=SMA, func_slow=SMA, band=0,
+              func_fast=SMA_, func_slow=SMA_, band=0,
               price=&#39;close&#39;, prevday=False):
     &#34;&#34;&#34;
     This indicator is used to represent regime direction and duration.
@@ -907,13 +968,15 @@ It gives you the previous day's CrossOver (default is False).</dd>
         The timeperiod for the fast moving average (default is 50).
     timeperiod_slow : int, optional
         The timeperiod for the slow moving average (default is 200).
-    func_fast : ta_lib.Function, optional
-        {SMA, DEMA, EMA, KAMA, T3, TEMA, TRIMA, WMA}
-        The talib function for fast moving average (default is SMA).
+    func_fast : Function, optional
+        {SMA_, EMA_} (pinkfish functions) or
+        {SMA, DEMA, EMA, KAMA, T3, TEMA, TRIMA, WMA} (ta-lib functions)
+        The function for fast moving average (default is SMA_).
         MAMA not compatible.
-    func_slow : ta_lib.Function, optional
-        {SMA, DEMA, EMA, KAMA, T3, TEMA, TRIMA, WMA}
-        The talib function for slow moving average. (default is SMA).
+    func_slow : Function, optional
+         {SMA_, EMA_} (pinkfish functions) or
+        {SMA, DEMA, EMA, KAMA, T3, TEMA, TRIMA, WMA} (ta-lib functions)
+        The function for fast moving average (default is SMA_).
         MAMA not compatible.
     band : float, {0-100}, optional
         Percent band around the slow moving average.
@@ -956,6 +1019,55 @@ It gives you the previous day's CrossOver (default is False).</dd>
         s = s.shift()
     ts.drop([&#39;__sma_fast__&#39;, &#39;__sma_slow__&#39;], axis=1, inplace=True)
     return s</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.indicator.EMA_"><code class="name flex">
+<span>def <span class="ident">EMA_</span></span>(<span>ts, timeperiod=30, price='close')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This indicator computes an exponential moving average.</p>
+<p>Can be used in place of talib EMA.</p>
+<p>ts : pd.DateFrame
+A dataframe with 'open', 'high', 'low', 'close', 'volume'.
+timeperiod: int, optional
+The timeperiod for the moving average (default is 30).
+price : str, optional {'close', 'open', 'high', 'low'}
+Input_array column to use for price (default is 'close').</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>pd.Series</code></dt>
+<dd>Series that contains the simple moving average.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<pre><code class="language-python-repl">&gt;&gt;&gt; ts['ema50'] = EMA_(ts, timeperiod=50)
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def EMA_(ts, timeperiod=30, price=&#39;close&#39;):
+    &#34;&#34;&#34;
+    This indicator computes an exponential moving average.
+
+    Can be used in place of talib EMA.
+
+    ts : pd.DateFrame
+        A dataframe with &#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;, &#39;volume&#39;.
+    timeperiod: int, optional
+        The timeperiod for the moving average (default is 30).
+    price : str, optional {&#39;close&#39;, &#39;open&#39;, &#39;high&#39;, &#39;low&#39;}
+        Input_array column to use for price (default is &#39;close&#39;).
+
+    Returns
+    -------
+    pd.Series
+        Series that contains the simple moving average.
+
+    Examples
+    --------
+    &gt;&gt;&gt; ts[&#39;ema50&#39;] = EMA_(ts, timeperiod=50)
+    &#34;&#34;&#34;
+    return ts[price].ewm(span=timeperiod, min_periods=timeperiod, adjust=False).mean()</code></pre>
 </details>
 </dd>
 <dt id="pinkfish.indicator.MOMENTUM"><code class="name flex">
@@ -1059,6 +1171,55 @@ It gives you the previous day's Momentum (default is False).</dd>
         s = s.shift()
 
     return s</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.indicator.SMA_"><code class="name flex">
+<span>def <span class="ident">SMA_</span></span>(<span>ts, timeperiod=30, price='close')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This indicator computes a simple moving average.</p>
+<p>Can be used in place of talib SMA.</p>
+<p>ts : pd.DateFrame
+A dataframe with 'open', 'high', 'low', 'close', 'volume'.
+timeperiod: int, optional
+The timeperiod for the moving average (default is 30).
+price : str, optional {'close', 'open', 'high', 'low'}
+Input_array column to use for price (default is 'close').</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>pd.Series</code></dt>
+<dd>Series that contains the simple moving average.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<pre><code class="language-python-repl">&gt;&gt;&gt; ts['sma50'] = SMA_(ts, timeperiod=50)
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def SMA_(ts, timeperiod=30, price=&#39;close&#39;):
+    &#34;&#34;&#34;
+    This indicator computes a simple moving average.
+
+    Can be used in place of talib SMA.
+
+    ts : pd.DateFrame
+        A dataframe with &#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;, &#39;volume&#39;.
+    timeperiod: int, optional
+        The timeperiod for the moving average (default is 30).
+    price : str, optional {&#39;close&#39;, &#39;open&#39;, &#39;high&#39;, &#39;low&#39;}
+        Input_array column to use for price (default is &#39;close&#39;).
+
+    Returns
+    -------
+    pd.Series
+        Series that contains the simple moving average.
+
+    Examples
+    --------
+    &gt;&gt;&gt; ts[&#39;sma50&#39;] = SMA_(ts, timeperiod=50)
+    &#34;&#34;&#34;
+    return ts[price].rolling(timeperiod).mean()</code></pre>
 </details>
 </dd>
 <dt id="pinkfish.indicator.VOLATILITY"><code class="name flex">
@@ -1204,7 +1365,8 @@ It gives you the previous day's Volatility (default is False).</dd>
 <pre><code class="python">class IndicatorError(Exception):
     &#34;&#34;&#34;
     Base indicator exception.
-    &#34;&#34;&#34;</code></pre>
+    &#34;&#34;&#34;
+    pass</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1229,7 +1391,8 @@ It gives you the previous day's Volatility (default is False).</dd>
 <pre><code class="python">class TradeCrossOverError(IndicatorError):
     &#34;&#34;&#34;
     Invalid timeperiod specified.
-    &#34;&#34;&#34;</code></pre>
+    &#34;&#34;&#34;
+    pass</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1258,7 +1421,9 @@ It gives you the previous day's Volatility (default is False).</dd>
 <li><code><a title="pinkfish.indicator.ANNUALIZED_SHARPE_RATIO" href="#pinkfish.indicator.ANNUALIZED_SHARPE_RATIO">ANNUALIZED_SHARPE_RATIO</a></code></li>
 <li><code><a title="pinkfish.indicator.ANNUALIZED_STANDARD_DEVIATION" href="#pinkfish.indicator.ANNUALIZED_STANDARD_DEVIATION">ANNUALIZED_STANDARD_DEVIATION</a></code></li>
 <li><code><a title="pinkfish.indicator.CROSSOVER" href="#pinkfish.indicator.CROSSOVER">CROSSOVER</a></code></li>
+<li><code><a title="pinkfish.indicator.EMA_" href="#pinkfish.indicator.EMA_">EMA_</a></code></li>
 <li><code><a title="pinkfish.indicator.MOMENTUM" href="#pinkfish.indicator.MOMENTUM">MOMENTUM</a></code></li>
+<li><code><a title="pinkfish.indicator.SMA_" href="#pinkfish.indicator.SMA_">SMA_</a></code></li>
 <li><code><a title="pinkfish.indicator.VOLATILITY" href="#pinkfish.indicator.VOLATILITY">VOLATILITY</a></code></li>
 </ul>
 </li>
