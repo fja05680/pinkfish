@@ -5,7 +5,7 @@ ANNOUNCEMENT: 2021-11-04 Exciting news - I've removed the pinkfish API dependenc
 `git clone https://github.com/fja05680/pinkfish.git`  
 `cd pinkfish`  
 `sudo python setup.py install`  
-This should make it easier for everyone to get started with pinkfish.  I still recommend that later you get ta-lib installed so that you can run all the examples, some of which depend on pinkfish.  Also, this opens up the likelyhood that I can soon release a pinkfish version that can be installed with pip.  I believe that the relative difficulty installing pinkfish has limited it's popularity.  So, I'm excited to take the next step.
+This should make it easier for everyone to get started with pinkfish.  I still recommend that later you get ta-lib installed so that you can run all the examples, some of which depend on ta-lib.  Also, this opens up the likelihood that I can soon release a pinkfish version that can be installed with pip.  I believe that the relative difficulty of installing pinkfish has limited it's popularity.  So, I'm excited to take the next step.
 
 A backtester and spreadsheet library for security analysis.
 
