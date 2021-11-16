@@ -25,7 +25,7 @@ import pinkfish as pf
 def SMA_ROC(ts, mom_lookback=1, sma_timeperiod=20, price='close'):
     """ Returns a series which is an SMA with of a daily MOM. """
     mom = pf.MOMENTUM(ts, lookback=mom_lookback, time_frame='daily', price=price)
-    sma_mom = SMA(mom, timeperiod=sma_timeperiod)
+    sma_mom = pf.SMA(mom, timeperiod=sma_timeperiod)
     return sma_mom
 
 

@@ -150,7 +150,7 @@ class Benchmark:
         self.portfolio = pf.Portfolio()
         self.ts = self.portfolio.fetch_timeseries(
             self.symbols, self.start, self.end,
-            dir_name=self.dir_name, use_adj=self.use_adj,
+            fields=['close'], dir_name=self.dir_name, use_adj=self.use_adj,
             use_continuous_calendar=self.use_continuous_calendar,
             force_stock_market_calendar=self.force_stock_market_calendar)
         # Add calendar columns

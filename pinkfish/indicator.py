@@ -20,20 +20,22 @@ class IndicatorError(Exception):
 
 
 ########################################################################
-# SMA_
+# SMA
 
-def SMA_(ts, timeperiod=30, price='close'):
+def SMA(ts, timeperiod=30, price='close'):
     """
     This indicator computes a simple moving average.
 
     Can be used in place of talib SMA.
 
-    ts : pd.DateFrame
-        A dataframe with 'open', 'high', 'low', 'close', 'volume'.
+    ts : pd.DateFrame or pd.Series
+        A dataframe with 'open', 'high', 'low', 'close', 'volume' or
+        a series of price data.
     timeperiod: int, optional
         The timeperiod for the moving average (default is 30).
     price : str, optional {'close', 'open', 'high', 'low'}
         Input_array column to use for price (default is 'close').
+        Not used if `ts` is a series.
 
     Returns
     -------
@@ -42,26 +44,29 @@ def SMA_(ts, timeperiod=30, price='close'):
 
     Examples
     --------
-    >>> ts['sma50'] = SMA_(ts, timeperiod=50)
+    >>> ts['sma50'] = pf.SMA(ts, timeperiod=50)
     """
-    return ts[price].rolling(timeperiod).mean()
+    s = ts[price] if isinstance(ts, pd.DataFrame) else ts
+    return s.rolling(timeperiod).mean()
 
 
 ########################################################################
-# EMA_
+# EMA
 
-def EMA_(ts, timeperiod=30, price='close'):
+def EMA(ts, timeperiod=30, price='close'):
     """
     This indicator computes an exponential moving average.
 
     Can be used in place of talib EMA.
 
-    ts : pd.DateFrame
-        A dataframe with 'open', 'high', 'low', 'close', 'volume'.
+    ts : pd.DateFrame or pd.Series
+        A dataframe with 'open', 'high', 'low', 'close', 'volume' or
+        a series of price data.
     timeperiod: int, optional
         The timeperiod for the moving average (default is 30).
     price : str, optional {'close', 'open', 'high', 'low'}
         Input_array column to use for price (default is 'close').
+        Not used if `ts` is a series.
 
     Returns
     -------
@@ -70,9 +75,10 @@ def EMA_(ts, timeperiod=30, price='close'):
 
     Examples
     --------
-    >>> ts['ema50'] = EMA_(ts, timeperiod=50)
+    >>> ts['ema50'] = pf.EMA(ts, timeperiod=50)
     """
-    return ts[price].ewm(span=timeperiod, min_periods=timeperiod, adjust=False).mean()
+    s = ts[price] if isinstance(ts, pd.DataFrame) else ts
+    return s.ewm(span=timeperiod, min_periods=timeperiod, adjust=False).mean()
 
 
 ########################################################################
@@ -142,7 +148,7 @@ class _CrossOver:
 
 
 def CROSSOVER(ts, timeperiod_fast=50, timeperiod_slow=200,
-              func_fast=SMA_, func_slow=SMA_, band=0,
+              func_fast=SMA, func_slow=SMA, band=0,
               price='close', prevday=False):
     """
     This indicator is used to represent regime direction and duration.
@@ -165,14 +171,14 @@ def CROSSOVER(ts, timeperiod_fast=50, timeperiod_slow=200,
     timeperiod_slow : int, optional
         The timeperiod for the slow moving average (default is 200).
     func_fast : Function, optional
-        {SMA_, EMA_} (pinkfish functions) or
+        {pf.SMA, pf.EMA} (pinkfish functions) or
         {SMA, DEMA, EMA, KAMA, T3, TEMA, TRIMA, WMA} (ta-lib functions)
-        The function for fast moving average (default is SMA_).
+        The function for fast moving average (default is pf.SMA).
         MAMA not compatible.
     func_slow : Function, optional
-         {SMA_, EMA_} (pinkfish functions) or
+         {pf.SMA, pf.EMA} (pinkfish functions) or
         {SMA, DEMA, EMA, KAMA, T3, TEMA, TRIMA, WMA} (ta-lib functions)
-        The function for fast moving average (default is SMA_).
+        The function for fast moving average (default is pf.SMA).
         MAMA not compatible.
     band : float, {0-100}, optional
         Percent band around the slow moving average.

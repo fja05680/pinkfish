@@ -9,7 +9,6 @@ import datetime
 
 import matplotlib.pyplot as plt
 import pandas as pd
-from talib.abstract import *
 
 import pinkfish as pf
 
@@ -42,7 +41,7 @@ class Strategy:
         for i, row in enumerate(self.ts.itertuples()):
 
             date = row.Index.to_pydatetime()
-            high = row.high; low = row.low; close = row.close; 
+            close = row.close; 
             end_flag = pf.is_last_row(self.ts, i)
 
             # Buy
@@ -58,7 +57,7 @@ class Strategy:
                     self.tlog.sell(date, close)
 
             # Record daily balance
-            self.dbal.append(date, high, low, close)
+            self.dbal.append(date, close)
 
     def run(self):
 
@@ -72,7 +71,8 @@ class Strategy:
             pf.CROSSOVER(self.ts, timeperiod_fast=50, timeperiod_slow=200)
 
         # Finalize timeseries
-        self.ts, self.start = pf.finalize_timeseries(self.ts, self.start)
+        self.ts, self.start = pf.finalize_timeseries(self.ts, self.start,
+                                                     dropna=True, drop_columns=['open', 'high', 'low'])
 
         
         self.tlog = pf.TradeLog(self.symbol)

@@ -208,7 +208,8 @@ class Portfolio:
             The desired end date for the strategy.
         fields : list, optional
             The list of fields to use for each symbol (default is
-            [&#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;]).
+            [&#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;]).  List must include 
+            &#39;close&#39; - will be added if not already in list.
         dir_name : str, optional
             The leaf data dir name (default is &#39;data&#39;).
         use_cache: bool, optional
@@ -239,6 +240,8 @@ class Portfolio:
         pd.DataFrame
             The timeseries of the symbols.
         &#34;&#34;&#34;
+        if &#39;close&#39; not in fields:
+            fields.append(&#39;close&#39;)
         symbols = list(set(symbols))
         for i, symbol in enumerate(symbols):
 
@@ -835,7 +838,7 @@ class Portfolio:
             in the portfolio.
         &#34;&#34;&#34;
 
-        # Filter coloumn names for &#39;&#39;_close&#39;&#39;; drop &#39;_close&#39; suffix.
+        # Filter coloumn names for &#39;&#39;_close&#39;&#39;; remove &#39;_close&#39; suffix.
         df = ts.filter(regex=&#39;_close&#39;)
         df.columns = df.columns.str.strip(&#39;_close&#39;)
 
@@ -1170,7 +1173,8 @@ Show correlation map between symbols.</p>
             The desired end date for the strategy.
         fields : list, optional
             The list of fields to use for each symbol (default is
-            [&#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;]).
+            [&#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;]).  List must include 
+            &#39;close&#39; - will be added if not already in list.
         dir_name : str, optional
             The leaf data dir name (default is &#39;data&#39;).
         use_cache: bool, optional
@@ -1201,6 +1205,8 @@ Show correlation map between symbols.</p>
         pd.DataFrame
             The timeseries of the symbols.
         &#34;&#34;&#34;
+        if &#39;close&#39; not in fields:
+            fields.append(&#39;close&#39;)
         symbols = list(set(symbols))
         for i, symbol in enumerate(symbols):
 
@@ -1797,7 +1803,7 @@ Show correlation map between symbols.</p>
             in the portfolio.
         &#34;&#34;&#34;
 
-        # Filter coloumn names for &#39;&#39;_close&#39;&#39;; drop &#39;_close&#39; suffix.
+        # Filter coloumn names for &#39;&#39;_close&#39;&#39;; remove &#39;_close&#39; suffix.
         df = ts.filter(regex=&#39;_close&#39;)
         df.columns = df.columns.str.strip(&#39;_close&#39;)
 
@@ -2212,7 +2218,7 @@ in the portfolio.</dd>
         in the portfolio.
     &#34;&#34;&#34;
 
-    # Filter coloumn names for &#39;&#39;_close&#39;&#39;; drop &#39;_close&#39; suffix.
+    # Filter coloumn names for &#39;&#39;_close&#39;&#39;; remove &#39;_close&#39; suffix.
     df = ts.filter(regex=&#39;_close&#39;)
     df.columns = df.columns.str.strip(&#39;_close&#39;)
 
@@ -2257,7 +2263,9 @@ in the portfolio.</dd>
 <dd>The desired end date for the strategy.</dd>
 <dt><strong><code>fields</code></strong> :&ensp;<code>list</code>, optional</dt>
 <dd>The list of fields to use for each symbol (default is
-['open', 'high', 'low', 'close']).</dd>
+['open', 'high', 'low', 'close']).
+List must include
+'close' - will be added if not already in list.</dd>
 <dt><strong><code>dir_name</code></strong> :&ensp;<code>str</code>, optional</dt>
 <dd>The leaf data dir name (default is 'data').</dd>
 <dt><strong><code>use_cache</code></strong> :&ensp;<code>bool</code>, optional</dt>
@@ -2315,7 +2323,8 @@ for one of these fields, that row is dropped
         The desired end date for the strategy.
     fields : list, optional
         The list of fields to use for each symbol (default is
-        [&#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;]).
+        [&#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;]).  List must include 
+        &#39;close&#39; - will be added if not already in list.
     dir_name : str, optional
         The leaf data dir name (default is &#39;data&#39;).
     use_cache: bool, optional
@@ -2346,6 +2355,8 @@ for one of these fields, that row is dropped
     pd.DataFrame
         The timeseries of the symbols.
     &#34;&#34;&#34;
+    if &#39;close&#39; not in fields:
+        fields.append(&#39;close&#39;)
     symbols = list(set(symbols))
     for i, symbol in enumerate(symbols):
 

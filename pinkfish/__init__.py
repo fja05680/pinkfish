@@ -18,6 +18,7 @@ from .trade import (
 from .statistics import (
     ALPHA_BEGIN,
     SP500_BEGIN,
+    get_trading_days,
     currency_metrics,
     stats,
     currency,
@@ -43,8 +44,8 @@ from .portfolio import (
 )
 
 from .indicator import (
-    SMA_,
-    EMA_,
+    SMA,
+    EMA,
     CROSSOVER,
     MOMENTUM,
     VOLATILITY,

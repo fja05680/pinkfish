@@ -19,7 +19,6 @@ import datetime
 
 import matplotlib.pyplot as plt
 import pandas as pd
-from talib.abstract import *
 
 import pinkfish as pf
 
@@ -113,8 +112,9 @@ class Strategy:
         
         self.portfolio = pf.Portfolio()
         self.ts = self.portfolio.fetch_timeseries(self.symbols, self.start, self.end,
-            fields=['close'], use_cache=self.options['use_cache'],
-            use_adj=self.options['use_adj'])
+                    fields=['close'],
+                    use_cache=self.options['use_cache'],
+                    use_adj=self.options['use_adj'])
         
         # Fetch symbol time series
         ts = pf.fetch_timeseries(self.symbol, use_cache=self.options['use_cache'])
@@ -124,7 +124,7 @@ class Strategy:
         self.ts['regime'] = pf.CROSSOVER(ts, timeperiod_fast=1, timeperiod_slow=200)
 
         # Add technical indicator: X day sma.
-        self.ts['sma'] = SMA(ts, timeperiod=self.options['sma'])
+        self.ts['sma'] = pf.SMA(ts, timeperiod=self.options['sma'])
 
         # Add technical indicator: X day high, and X day low.
         for period in periods:

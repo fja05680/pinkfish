@@ -360,7 +360,7 @@ tuple : Use with `select_timeseries`, date the S&P500 began.
 
 
 ########################################################################
-# SELECT TRADING DAYS
+# TRADING DAYS
 
 def select_trading_days(use_stock_market_calendar):
     """
@@ -387,6 +387,15 @@ def select_trading_days(use_stock_market_calendar):
         __m.TRADING_DAYS_PER_YEAR = 365
         __m.TRADING_DAYS_PER_MONTH = 30
         __m.TRADING_DAYS_PER_WEEK = 7
+
+
+def get_trading_days():
+    """
+    Returns the number of trading days per year, month, and week.
+    """
+    return (__m.TRADING_DAYS_PER_YEAR,
+            __m.TRADING_DAYS_PER_MONTH,
+            __m.TRADING_DAYS_PER_WEEK)
 
 
 ########################################################################

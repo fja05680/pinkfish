@@ -735,7 +735,7 @@ class DailyBal:
         """
         self._l = []
 
-    def append(self, date, high, low, close):
+    def append(self, date, close, high=None, low=None):
         """
         Append a new entry to the daily balance log.
 
@@ -743,17 +743,23 @@ class DailyBal:
         ----------
         date : str
             The current date.
-        high : float
-            The balance high value of the day.
-        low : float
-            The balance low value of the day.
         close : float
             The balance close value of the day.
+        high : float, optional
+            The balance high value of the day (default is None,
+            which implies that the 'high' is the 'close'.  In other
+            words, we are not using intra-day prices).
+        low : float, optional
+            The balance low value of the day (default is None,
+            which implies that the 'low' is the 'close'.  In other
+            words, we are not using intra-day prices).
 
         Returns
         -------
         None
         """
+        if high is None:  high = close
+        if low  is None:  low  = close
 
         # calculate daily balance values:
         # date, high, low, close, shares, cash, leverage

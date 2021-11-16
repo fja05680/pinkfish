@@ -226,7 +226,7 @@ def select_tradeperiod(ts, start, end, use_adj=False,
     return ts
 
 
-def finalize_timeseries(ts, start, dropna=False):
+def finalize_timeseries(ts, start, dropna=False, drop_columns=None):
     """
     Finalize timeseries.
 
@@ -241,7 +241,10 @@ def finalize_timeseries(ts, start, dropna=False):
         The start date for backtest.
     dropna : bool, optional
         Drop rows that have a NaN value in one of it's columns
-        (default is True).
+        (default is False).
+    drop_columns : list of str, optional
+        List of columns to drop from `ts` (default is None, which
+        implies that no columns should be dropped).
 
     Returns
     -------
@@ -250,6 +253,8 @@ def finalize_timeseries(ts, start, dropna=False):
     pd.DataFrame
         The timeseries of a symbol.
     """
+    if drop_columns:
+        ts.drop(columns=drop_columns, inplace=True)
     if dropna:
         ts.dropna(inplace=True)
     elif ts.isnull().values.any(): 

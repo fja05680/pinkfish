@@ -34,7 +34,6 @@ import random
 
 import matplotlib.pyplot as plt
 import pandas as pd
-from talib.abstract import *
 
 import pinkfish as pf
 
@@ -138,7 +137,9 @@ class Strategy:
     def run(self):
         self.portfolio = pf.Portfolio()
         self.ts = self.portfolio.fetch_timeseries(self.symbols.values(), self.start, self.end,
-            use_cache=self.options['use_cache'], use_adj=self.options['use_adj'])
+                    fields=['close'],
+                    use_cache=self.options['use_cache'],
+                    use_adj=self.options['use_adj'])
 
         # Add calendar columns
         self.ts = self.portfolio.calendar(self.ts)

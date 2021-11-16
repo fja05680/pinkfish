@@ -19,7 +19,6 @@ import datetime
 
 import matplotlib.pyplot as plt
 import pandas as pd
-from talib.abstract import *
 
 import pinkfish as pf
 
@@ -60,7 +59,7 @@ class Strategy:
         for i, row in enumerate(self.ts.itertuples()):
 
             date = row.Index.to_pydatetime()
-            high = row.high; low = row.low; close = row.close 
+            close = row.close 
             end_flag = pf.is_last_row(self.ts, i)
             
             # Sell Logic
@@ -70,7 +69,7 @@ class Strategy:
             #  - Sell if end of data.
 
             if self.tlog.shares > 0:
-                if close == row.period_high or low < stop_loss or end_flag:
+                if close == row.period_high or close < stop_loss or end_flag:
                     if close < stop_loss: print('STOP LOSS!!!')
                     self.tlog.sell(date, close)
             
@@ -86,7 +85,7 @@ class Strategy:
                     stop_loss = (1-self.options['stop_loss_pct'])*close
 
             # Record daily balance.
-            self.dbal.append(date, high, low, close)
+            self.dbal.append(date, close)
 
     def run(self):
         
@@ -98,14 +97,14 @@ class Strategy:
         self.ts['regime'] = pf.CROSSOVER(self.ts, timeperiod_fast=1, timeperiod_slow=200)
 
         # Add technical indicator: X day sma.
-        self.ts['sma'] = SMA(self.ts, timeperiod=self.options['sma'])
+        self.ts['sma'] = pf.SMA(self.ts, timeperiod=self.options['sma'])
 
         # Add technical indicator: X day high, and X day low.
         self.ts['period_high'] = pd.Series(self.ts.close).rolling(self.options['period']).max()
         self.ts['period_low'] =  pd.Series(self.ts.close).rolling(self.options['period']).min()
         
         # Finalize timeseries.
-        self.ts, self.start = pf.finalize_timeseries(self.ts, self.start, dropna=True)
+        self.ts, self.start = pf.finalize_timeseries(self.ts, self.start, dropna=True, drop_columns=['open', 'high', 'low'])
         
         # Create tlog and dbal objects.
         self.tlog = pf.TradeLog(self.symbol)

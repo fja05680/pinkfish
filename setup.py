@@ -5,7 +5,7 @@ with open('requirements.txt') as f:
 
 setup(
     name='pinkfish',
-    version='1.14.0',
+    version='1.15.0',
     description='A backtester and spreadsheet library for security analysis.',
     author='Farrell Aultman',
     author_email='fja0568@gmail.com',
@@ -19,9 +19,7 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3',
         'Operating System :: OS Independent',
         'Intended Audience :: Science/Research',
         'Topic :: Office/Business :: Financial',
@@ -30,5 +28,7 @@ setup(
     ],
     extras_require={
         'talib':  ["talib"],
-    }
+    },
+    data_files=[('', ['requirements.txt'])],
+    python_requires=">=3.7",
 )

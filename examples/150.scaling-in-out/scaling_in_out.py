@@ -17,7 +17,6 @@ import datetime
 
 import matplotlib.pyplot as plt
 import pandas as pd
-from talib.abstract import *
 
 import pinkfish as pf
 
@@ -43,7 +42,7 @@ class Strategy:
         self.capital = capital
         self.start = start
         self.end = end
-        self.options = options,copy()
+        self.options = options.copy()
 
         self.ts = None
         self.rlog = None
@@ -60,7 +59,7 @@ class Strategy:
         for i, row in enumerate(self.ts.itertuples()):
 
             date = row.Index.to_pydatetime()
-            high = row.high; low = row.low; close = row.close; 
+            close = row.close; 
             end_flag = pf.is_last_row(self.ts, i)
             shares = 0
 
@@ -100,9 +99,9 @@ class Strategy:
             #  - Sell if end of data.
 
             elif (num_open_trades > 0 
-                  and (close == row.period_high or low < stop_loss or end_flag)):
+                  and (close == row.period_high or close < stop_loss or end_flag)):
 
-                if not enable_scale_out or low < stop_loss or end_flag:
+                if not enable_scale_out or close < stop_loss or end_flag:
                     # Exit all positions.
                     shares = None
                 elif enable_scale_in:
@@ -128,7 +127,7 @@ class Strategy:
                        date, -shares, self.symbol, close))
 
             # Record daily balance.
-            self.dbal.append(date, high, low, close)
+            self.dbal.append(date, close)
 
     def run(self):
 
@@ -144,7 +143,8 @@ class Strategy:
         self.ts['period_low'] =  pd.Series(self.ts.close).rolling(self.options['period']).min()
 
         # Finalize timeseries.
-        self.ts, self.start = pf.finalize_timeseries(self.ts, self.start)
+        self.ts, self.start = pf.finalize_timeseries(self.ts, self.start,
+                                                    dropna=True, drop_columns=['open', 'high', 'low'])
 
         # Create tlog and dbal objects.
         self.tlog = pf.TradeLog(self.symbol)

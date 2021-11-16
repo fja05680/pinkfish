@@ -12,7 +12,6 @@ import random
 
 import matplotlib.pyplot as plt
 import pandas as pd
-from talib.abstract import *
 
 import pinkfish as pf
 
@@ -50,7 +49,7 @@ class Strategy:
         for i, row in enumerate(self.ts.itertuples()):
 
             date = row.Index.to_pydatetime()
-            high = row.high; low = row.low; close = row.close 
+            close = row.close 
             end_flag = pf.is_last_row(self.ts, i)
 
             # If lookback is None, then select a random lookback of
@@ -84,7 +83,7 @@ class Strategy:
                     self.tlog.buy(date, close)
 
             # Record daily balance
-            self.dbal.append(date, high, low, close)
+            self.dbal.append(date, close)
 
     def run(self):
         self.ts = pf.fetch_timeseries(self.symbol, use_cache=self.options['use_cache'])
@@ -101,7 +100,8 @@ class Strategy:
                 lookback=lookback, time_frame='monthly',
                 price='close', prevday=False)
 
-        self.ts, self.start = pf.finalize_timeseries(self.ts, self.start)
+        self.ts, self.start = pf.finalize_timeseries(self.ts, self.start,
+                                                     dropna=True, drop_columns=['open', 'high', 'low'])
 
         self.tlog = pf.TradeLog(self.symbol)
         self.dbal = pf.DailyBal()

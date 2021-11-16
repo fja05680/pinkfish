@@ -13,7 +13,6 @@ import datetime
 
 import matplotlib.pyplot as plt
 import pandas as pd
-from talib.abstract import *
 
 import pinkfish as pf
 
@@ -48,7 +47,7 @@ class Strategy:
         for i, row in enumerate(self.ts.itertuples()):
 
             date = row.Index.to_pydatetime()
-            high = row.high; low = row.low; close = row.close; 
+            close = row.close; 
             end_flag = pf.is_last_row(self.ts, i)
             upper_band = row.sma * (1 + self.options['percent_band'] / 100)
             lower_band = row.sma * (1 - self.options['percent_band'] / 100)
@@ -79,7 +78,7 @@ class Strategy:
                     self.tlog.buy(date, close)
 
             # Record daily balance
-            self.dbal.append(date, high, low, close) 
+            self.dbal.append(date, close) 
 
     def run(self):
         self.ts = pf.fetch_timeseries(self.symbol, use_cache=self.options['use_cache'])
@@ -87,7 +86,7 @@ class Strategy:
                                         self.end, self.options['use_adj'])
 
         # Add technical indicator:  day sma
-        self.ts['sma'] = SMA(self.ts, timeperiod=self.options['sma_period'])
+        self.ts['sma'] = pf.SMA(self.ts, timeperiod=self.options['sma_period'])
         
         # add S&P500 200 sma regime filter
         ts = pf.fetch_timeseries('^GSPC')
@@ -95,7 +94,8 @@ class Strategy:
         self.ts['regime'] = \
             pf.CROSSOVER(ts, timeperiod_fast=1, timeperiod_slow=200)
         
-        self.ts, self.start = pf.finalize_timeseries(self.ts, self.start)
+        self.ts, self.start = pf.finalize_timeseries(self.ts, self.start,
+                                                     dropna=True, drop_columns=['open', 'high', 'low'])
         
         self.tlog = pf.TradeLog(self.symbol)
         self.dbal = pf.DailyBal()

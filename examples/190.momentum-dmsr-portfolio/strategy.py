@@ -25,7 +25,6 @@ import random
 
 import matplotlib.pyplot as plt
 import pandas as pd
-from talib.abstract import *
 
 import pinkfish as pf
 
@@ -135,7 +134,9 @@ class Strategy:
     def run(self):
         self.portfolio = pf.Portfolio()
         self.ts = self.portfolio.fetch_timeseries(self.symbols, self.start, self.end,
-            use_cache=self.options['use_cache'], use_adj=self.options['use_adj'])
+                    fields=['close'],
+                    use_cache=self.options['use_cache'],
+                    use_adj=self.options['use_adj'])
 
         # Add S&P500 200 sma regime filter
         ts = pf.fetch_timeseries('^GSPC')

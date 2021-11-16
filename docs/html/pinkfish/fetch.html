@@ -255,7 +255,7 @@ def select_tradeperiod(ts, start, end, use_adj=False,
     return ts
 
 
-def finalize_timeseries(ts, start, dropna=False):
+def finalize_timeseries(ts, start, dropna=False, drop_columns=None):
     &#34;&#34;&#34;
     Finalize timeseries.
 
@@ -270,7 +270,10 @@ def finalize_timeseries(ts, start, dropna=False):
         The start date for backtest.
     dropna : bool, optional
         Drop rows that have a NaN value in one of it&#39;s columns
-        (default is True).
+        (default is False).
+    drop_columns : list of str, optional
+        List of columns to drop from `ts` (default is None, which
+        implies that no columns should be dropped).
 
     Returns
     -------
@@ -279,6 +282,8 @@ def finalize_timeseries(ts, start, dropna=False):
     pd.DataFrame
         The timeseries of a symbol.
     &#34;&#34;&#34;
+    if drop_columns:
+        ts.drop(columns=drop_columns, inplace=True)
     if dropna:
         ts.dropna(inplace=True)
     elif ts.isnull().values.any(): 
@@ -555,7 +560,7 @@ which implies that all the available data is retrieved).</dd>
 </details>
 </dd>
 <dt id="pinkfish.fetch.finalize_timeseries"><code class="name flex">
-<span>def <span class="ident">finalize_timeseries</span></span>(<span>ts, start, dropna=False)</span>
+<span>def <span class="ident">finalize_timeseries</span></span>(<span>ts, start, dropna=False, drop_columns=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Finalize timeseries.</p>
@@ -570,7 +575,10 @@ at start.</p>
 <dd>The start date for backtest.</dd>
 <dt><strong><code>dropna</code></strong> :&ensp;<code>bool</code>, optional</dt>
 <dd>Drop rows that have a NaN value in one of it's columns
-(default is True).</dd>
+(default is False).</dd>
+<dt><strong><code>drop_columns</code></strong> :&ensp;<code>list</code> of <code>str</code>, optional</dt>
+<dd>List of columns to drop from <code>ts</code> (default is None, which
+implies that no columns should be dropped).</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
@@ -583,7 +591,7 @@ at start.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def finalize_timeseries(ts, start, dropna=False):
+<pre><code class="python">def finalize_timeseries(ts, start, dropna=False, drop_columns=None):
     &#34;&#34;&#34;
     Finalize timeseries.
 
@@ -598,7 +606,10 @@ at start.</p>
         The start date for backtest.
     dropna : bool, optional
         Drop rows that have a NaN value in one of it&#39;s columns
-        (default is True).
+        (default is False).
+    drop_columns : list of str, optional
+        List of columns to drop from `ts` (default is None, which
+        implies that no columns should be dropped).
 
     Returns
     -------
@@ -607,6 +618,8 @@ at start.</p>
     pd.DataFrame
         The timeseries of a symbol.
     &#34;&#34;&#34;
+    if drop_columns:
+        ts.drop(columns=drop_columns, inplace=True)
     if dropna:
         ts.dropna(inplace=True)
     elif ts.isnull().values.any(): 

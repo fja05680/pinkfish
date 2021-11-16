@@ -731,7 +731,8 @@ retrive, cache, then read.
 >     def finalize_timeseries(
 >         ts,
 >         start,
->         dropna=False
+>         dropna=False,
+>         drop_columns=None
 >     )
 
 
@@ -752,7 +753,12 @@ at start.
 
 **```dropna```** :&ensp;<code>bool</code>, optional
 :   Drop rows that have a NaN value in one of it's columns
-    (default is True).
+    (default is False).
+
+
+**```drop_columns```** :&ensp;<code>list</code> of <code>str</code>, optional
+:   List of columns to drop from <code>ts</code> (default is None, which
+    implies that no columns should be dropped).
 
 ###### Returns
 
@@ -1159,8 +1165,8 @@ Calculate the rolling annualized standard deviation.
 >         ts,
 >         timeperiod_fast=50,
 >         timeperiod_slow=200,
->         func_fast=<function SMA_>,
->         func_slow=<function SMA_>,
+>         func_fast=<function SMA>,
+>         func_slow=<function SMA>,
 >         band=0,
 >         price='close',
 >         prevday=False
@@ -1193,16 +1199,16 @@ moving average is below the slow moving average.
 
 
 **```func_fast```** :&ensp;<code>Function</code>, optional
-:   {SMA_, EMA_} (pinkfish functions) or
+:   {pf.SMA, pf.EMA} (pinkfish functions) or
     {SMA, DEMA, EMA, KAMA, T3, TEMA, TRIMA, WMA} (ta-lib functions)
-    The function for fast moving average (default is SMA_).
+    The function for fast moving average (default is pf.SMA).
     MAMA not compatible.
 
 
 **```func_slow```** :&ensp;<code>Function</code>, optional
-:   {SMA_, EMA_} (pinkfish functions) or
+:   {pf.SMA, pf.EMA} (pinkfish functions) or
     {SMA, DEMA, EMA, KAMA, T3, TEMA, TRIMA, WMA} (ta-lib functions)
-    The function for fast moving average (default is SMA_).
+    The function for fast moving average (default is pf.SMA).
     MAMA not compatible.
 
 
@@ -1239,12 +1245,12 @@ moving average is below the slow moving average.
 
 
     
-### Function `EMA_` {#pinkfish.indicator.EMA_}
+### Function `EMA` {#pinkfish.indicator.EMA}
 
 
 
 
->     def EMA_(
+>     def EMA(
 >         ts,
 >         timeperiod=30,
 >         price='close'
@@ -1255,12 +1261,14 @@ This indicator computes an exponential moving average.
 
 Can be used in place of talib EMA.
 
-ts : pd.DateFrame
-    A dataframe with 'open', 'high', 'low', 'close', 'volume'.
+ts : pd.DateFrame or pd.Series
+    A dataframe with 'open', 'high', 'low', 'close', 'volume' or
+    a series of price data.
 timeperiod: int, optional
     The timeperiod for the moving average (default is 30).
 price : str, optional {'close', 'open', 'high', 'low'}
     Input_array column to use for price (default is 'close').
+    Not used if <code>ts</code> is a series.
 
 ###### Returns
 
@@ -1270,7 +1278,7 @@ price : str, optional {'close', 'open', 'high', 'low'}
 ###### Examples
 
 ```python-repl
->>> ts['ema50'] = EMA_(ts, timeperiod=50)
+>>> ts['ema50'] = pf.EMA(ts, timeperiod=50)
 ```
 
 
@@ -1339,12 +1347,12 @@ asset prices for comparison.
 
 
     
-### Function `SMA_` {#pinkfish.indicator.SMA_}
+### Function `SMA` {#pinkfish.indicator.SMA}
 
 
 
 
->     def SMA_(
+>     def SMA(
 >         ts,
 >         timeperiod=30,
 >         price='close'
@@ -1355,12 +1363,14 @@ This indicator computes a simple moving average.
 
 Can be used in place of talib SMA.
 
-ts : pd.DateFrame
-    A dataframe with 'open', 'high', 'low', 'close', 'volume'.
+ts : pd.DateFrame or pd.Series
+    A dataframe with 'open', 'high', 'low', 'close', 'volume' or
+    a series of price data.
 timeperiod: int, optional
     The timeperiod for the moving average (default is 30).
 price : str, optional {'close', 'open', 'high', 'low'}
     Input_array column to use for price (default is 'close').
+    Not used if <code>ts</code> is a series.
 
 ###### Returns
 
@@ -1370,7 +1380,7 @@ price : str, optional {'close', 'open', 'high', 'low'}
 ###### Examples
 
 ```python-repl
->>> ts['sma50'] = SMA_(ts, timeperiod=50)
+>>> ts['sma50'] = pf.SMA(ts, timeperiod=50)
 ```
 
 
@@ -2667,7 +2677,8 @@ Fetch time series data for symbols.
 
 **```fields```** :&ensp;<code>list</code>, optional
 :   The list of fields to use for each symbol (default is
-    ['open', 'high', 'low', 'close']).
+    ['open', 'high', 'low', 'close']).  List must include 
+    'close' - will be added if not already in list.
 
 
 **```dir_name```** :&ensp;<code>str</code>, optional
@@ -3476,6 +3487,17 @@ Returns the dollar amount in US currency format.
 
 
     
+### Function `get_trading_days` {#pinkfish.statistics.get_trading_days}
+
+
+
+
+>     def get_trading_days()
+
+
+Returns the number of trading days per year, month, and week.
+
+    
 ### Function `optimizer_summary` {#pinkfish.statistics.optimizer_summary}
 
 
@@ -3691,9 +3713,9 @@ Initialize instance variables.
 >     def append(
 >         self,
 >         date,
->         high,
->         low,
->         close
+>         close,
+>         high=None,
+>         low=None
 >     )
 
 
@@ -3705,16 +3727,20 @@ Append a new entry to the daily balance log.
 :   The current date.
 
 
-**```high```** :&ensp;<code>float</code>
-:   The balance high value of the day.
-
-
-**```low```** :&ensp;<code>float</code>
-:   The balance low value of the day.
-
-
 **```close```** :&ensp;<code>float</code>
 :   The balance close value of the day.
+
+
+**```high```** :&ensp;<code>float</code>, optional
+:   The balance high value of the day (default is None,
+    which implies that the 'high' is the 'close'.  In other
+    words, we are not using intra-day prices).
+
+
+**```low```** :&ensp;<code>float</code>, optional
+:   The balance low value of the day (default is None,
+    which implies that the 'low' is the 'close'.  In other
+    words, we are not using intra-day prices).
 
 ###### Returns
 

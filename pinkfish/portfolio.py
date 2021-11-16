@@ -179,7 +179,8 @@ class Portfolio:
             The desired end date for the strategy.
         fields : list, optional
             The list of fields to use for each symbol (default is
-            ['open', 'high', 'low', 'close']).
+            ['open', 'high', 'low', 'close']).  List must include 
+            'close' - will be added if not already in list.
         dir_name : str, optional
             The leaf data dir name (default is 'data').
         use_cache: bool, optional
@@ -210,6 +211,8 @@ class Portfolio:
         pd.DataFrame
             The timeseries of the symbols.
         """
+        if 'close' not in fields:
+            fields.append('close')
         symbols = list(set(symbols))
         for i, symbol in enumerate(symbols):
 
@@ -806,7 +809,7 @@ class Portfolio:
             in the portfolio.
         """
 
-        # Filter coloumn names for ''_close''; drop '_close' suffix.
+        # Filter coloumn names for ''_close''; remove '_close' suffix.
         df = ts.filter(regex='_close')
         df.columns = df.columns.str.strip('_close')
 
