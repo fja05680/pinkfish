@@ -1,5 +1,6 @@
 pinkfish
 ======     
+NOTE: 2021-11-16 I removed the ta-lib import from almost all of the examples.  Also, I changed the API for DailyBal.append() from append(date, high, low, close) to append(date, close, high=None, low=None).  You only need specify the close price if you don't care about intraday values in the Daily Balance.  You'll need to change your code though, because this change isn't backward compatible.
 
 ANNOUNCEMENT: 2021-11-04 Exciting news - I've removed the pinkfish API dependency on ta-lib.  You no longer need to have ta-lib installed to use pinkfish.  This effectively means you need only clone pinkfish and run the setup.py, i.e.  
 `git clone https://github.com/fja05680/pinkfish.git`  
