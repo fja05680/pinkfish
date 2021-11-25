@@ -38,5 +38,8 @@ Many more examples in `examples` folder.  They are roughly ordered by complexity
 The pinkfish API documentation:
 https://fja05680.github.io/pinkfish/docs/html/pinkfish/index.html
 
+Note: I changed the API for DailyBal.append() from append(date, high, low, close) to append(date, close, high=None, low=None).  You only need specify the close price if you don't care about intraday values in the Daily Balance.  I will remove this note once I have the documentation updated.
+
+
 ## Pinkfish on youtube
 https://www.youtube.com/channel/UCsPHH2UBn8Fz0g0MGrZ2Ihw
