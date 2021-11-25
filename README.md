@@ -1,13 +1,5 @@
 pinkfish
 ======     
-NOTE: 2021-11-16 I removed the ta-lib import from almost all of the examples.  Also, I changed the API for DailyBal.append() from append(date, high, low, close) to append(date, close, high=None, low=None).  You only need specify the close price if you don't care about intraday values in the Daily Balance.  You'll need to change your code though, because this change isn't backward compatible.
-
-ANNOUNCEMENT: 2021-11-04 Exciting news - I've removed the pinkfish API dependency on ta-lib.  You no longer need to have ta-lib installed to use pinkfish.  This effectively means you need only clone pinkfish and run the setup.py, i.e.  
-`git clone https://github.com/fja05680/pinkfish.git`  
-`cd pinkfish`  
-`sudo python setup.py install`  
-This should make it easier for everyone to get started with pinkfish.  I still recommend that later you get ta-lib installed so that you can run all the examples, some of which depend on ta-lib.  Also, this opens up the likelihood that I can soon release a pinkfish version that can be installed with pip.  I believe that the relative difficulty of installing pinkfish has limited it's popularity.  So, I'm excited to take the next step.
-
 A backtester and spreadsheet library for security analysis.
 
 Why another python backtesting library?  How is pinkfish different?
@@ -26,8 +18,14 @@ Some of the key features of pinkfish:
  - create spreadsheets within Jupyter Notebook by utilizing pandas dataframes and itable formatting
 
 ## Installation
-Follow the installation instructions located at:
-https://fja05680.github.io/pinkfish/
+For basic installation (not including ta-lib):  
+pip install wheel  
+pip install pinkfish  
+
+--OR--  
+
+For developer installation with ta-lib, follow the instructions located at:  
+https://fja05680.github.io/pinkfish/  
 
 ## Examples
  - [buy-and-hold](https://fja05680.github.io/pinkfish/examples/buy-and-hold.html) - basic buy and hold strategy
