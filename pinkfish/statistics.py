@@ -441,7 +441,7 @@ def _annual_return_rate(end_balance, capital, start, end):
 
 def _trading_period(start, end):
     diff = relativedelta(end, start)
-    return '{} years {} months {} days'.format(diff.years, diff.months, diff.days)
+    return f'{diff.years} years {diff.months} months {diff.days} days'
 
 def _total_days_in_market(dbal):
     n = (dbal['shares'] > 0).sum()
@@ -968,9 +968,9 @@ def currency(amount):
         the dollar amount in US currency format.
     """
     if amount >= 0:
-        return '${:,.2f}'.format(amount)
+        return f'${amount:,.2f}'
     else:
-        return '-${:,.2f}'.format(-amount)
+        return f'-${-amount:,.2f}'
 
 default_metrics = (
     'annual_return_rate',

@@ -329,7 +329,7 @@ def remove_cache_symbols(symbols=None, dir_name='data'):
         if os.path.exists(filepath):
             os.remove(filepath)
         else:
-            print('\n({} not found)'.format(f))
+            print(f'\n({f} not found)')
     print()
 
 
@@ -377,9 +377,9 @@ def update_cache_symbols(symbols=None, dir_name='data', from_year=None):
             fetch_timeseries(symbol, dir_name=dir_name, use_cache=False,
                              from_year=from_year)
         except RemoteDataError as e:
-            print('\n({})'.format(e))
+            print(f'\n({e})')
         except Exception as e:
-            print('\n({})'.format(e))
+            print(f'\n({e})')
     print()
 
 
@@ -432,7 +432,7 @@ def get_symbol_metadata(symbols=None, dir_name='data', from_year=None):
             t = (symbol, start, end, num_years)
             l.append(t)
         except RemoteDataError as e:
-            print('\n({})'.format(e))
+            print(f'\n({e})')
         except Exception as e:
             print('\n({})'.format(e))
     columns = ['symbol', 'start_date', 'end_date', 'num_years']

@@ -274,7 +274,7 @@ def MOMENTUM(ts, lookback=1, time_frame='monthly', price='close', prevday=False)
     elif time_frame =='monthly': factor = pf.statistics.TRADING_DAYS_PER_MONTH
     elif time_frame =='yearly':  factor = pf.statistics.TRADING_DAYS_PER_YEAR
     else:
-        raise ValueError('invalid time_frame "{}"'.format(time_frame))
+        raise ValueError(f'invalid time_frame "{time_frame}"')
 
     s = ts[price].pct_change(periods=lookback*factor)
     if prevday:
@@ -342,7 +342,7 @@ def VOLATILITY(ts, lookback=20, time_frame='yearly', downside=False,
     elif time_frame == 'monthly': factor = pf.statistics.TRADING_DAYS_PER_MONTH
     elif time_frame == 'yearly':  factor = pf.statistics.TRADING_DAYS_PER_YEAR
     else:
-        raise ValueError('invalid time_frame "{}"'.format(time_frame))
+        raise ValueError(f'invalid time_frame "{time_frame}"')
 
     s = ts[price].pct_change()
     if downside:

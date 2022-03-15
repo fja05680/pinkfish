@@ -364,7 +364,7 @@ class PrettyTable(object):
                     html += "</tr>"
         html += "</table>"
         if self.center:
-            return "<center>{0}</center>".format(html)
+            return "<center>{html}</center>"
         else:
             return html
 

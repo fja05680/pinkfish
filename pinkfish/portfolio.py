@@ -631,18 +631,18 @@ class Portfolio:
             for symbol, tlog in pf.TradeLog.instance.items():
                 pct = self.share_percent(row, symbol)
                 total += pct
-                print('{}:{:4,.1f}'.format(symbol, pct), end=' ')
+                print(f'{symbol}:{pct:4,.1f}', end=' ')
             pct = pf.TradeLog.cash / self._equity(row) * 100
             total += abs(pct)
-            print('cash: {:4,.1f}'.format(pct), end=' ')
-            print('total: {:4,.1f}'.format(total))
+            print(f'cash: {pct:4,.1f}', end=' ')
+            print(f'total: {total:4,.1f}')
         else:
             # 2010-02-01 SPY: 54 TLT: 59 GLD:  9 cash:    84.20 total:  9,872.30
             print(date.strftime('%Y-%m-%d'), end=' ')
             for symbol, tlog in pf.TradeLog.instance.items():
-                print('{}:{:3}'.format(symbol, tlog.shares), end=' ')
-            print('cash: {:8,.2f}'.format(pf.TradeLog.cash), end=' ')
-            print('total: {:9,.2f}'.format(self._equity(row)))
+                print(f'{symbol}:{tlog.shares:3}', end=' ')
+            print(f'cash: {pf.TradeLog.cash:8,.2f}', end=' ')
+            print(f'total: {self._equity(row):9,.2f}')
 
     ####################################################################
     # LOGS (init_trade_logs, record_daily_balance, get_logs)
