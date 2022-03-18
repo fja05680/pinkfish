@@ -660,18 +660,18 @@ class Portfolio:
             for symbol, tlog in pf.TradeLog.instance.items():
                 pct = self.share_percent(row, symbol)
                 total += pct
-                print(&#39;{}:{:4,.1f}&#39;.format(symbol, pct), end=&#39; &#39;)
+                print(f&#39;{symbol}:{pct:4,.1f}&#39;, end=&#39; &#39;)
             pct = pf.TradeLog.cash / self._equity(row) * 100
             total += abs(pct)
-            print(&#39;cash: {:4,.1f}&#39;.format(pct), end=&#39; &#39;)
-            print(&#39;total: {:4,.1f}&#39;.format(total))
+            print(f&#39;cash: {pct:4,.1f}&#39;, end=&#39; &#39;)
+            print(f&#39;total: {total:4,.1f}&#39;)
         else:
             # 2010-02-01 SPY: 54 TLT: 59 GLD:  9 cash:    84.20 total:  9,872.30
             print(date.strftime(&#39;%Y-%m-%d&#39;), end=&#39; &#39;)
             for symbol, tlog in pf.TradeLog.instance.items():
-                print(&#39;{}:{:3}&#39;.format(symbol, tlog.shares), end=&#39; &#39;)
-            print(&#39;cash: {:8,.2f}&#39;.format(pf.TradeLog.cash), end=&#39; &#39;)
-            print(&#39;total: {:9,.2f}&#39;.format(self._equity(row)))
+                print(f&#39;{symbol}:{tlog.shares:3}&#39;, end=&#39; &#39;)
+            print(f&#39;cash: {pf.TradeLog.cash:8,.2f}&#39;, end=&#39; &#39;)
+            print(f&#39;total: {self._equity(row):9,.2f}&#39;)
 
     ####################################################################
     # LOGS (init_trade_logs, record_daily_balance, get_logs)
@@ -1625,18 +1625,18 @@ Show correlation map between symbols.</p>
             for symbol, tlog in pf.TradeLog.instance.items():
                 pct = self.share_percent(row, symbol)
                 total += pct
-                print(&#39;{}:{:4,.1f}&#39;.format(symbol, pct), end=&#39; &#39;)
+                print(f&#39;{symbol}:{pct:4,.1f}&#39;, end=&#39; &#39;)
             pct = pf.TradeLog.cash / self._equity(row) * 100
             total += abs(pct)
-            print(&#39;cash: {:4,.1f}&#39;.format(pct), end=&#39; &#39;)
-            print(&#39;total: {:4,.1f}&#39;.format(total))
+            print(f&#39;cash: {pct:4,.1f}&#39;, end=&#39; &#39;)
+            print(f&#39;total: {total:4,.1f}&#39;)
         else:
             # 2010-02-01 SPY: 54 TLT: 59 GLD:  9 cash:    84.20 total:  9,872.30
             print(date.strftime(&#39;%Y-%m-%d&#39;), end=&#39; &#39;)
             for symbol, tlog in pf.TradeLog.instance.items():
-                print(&#39;{}:{:3}&#39;.format(symbol, tlog.shares), end=&#39; &#39;)
-            print(&#39;cash: {:8,.2f}&#39;.format(pf.TradeLog.cash), end=&#39; &#39;)
-            print(&#39;total: {:9,.2f}&#39;.format(self._equity(row)))
+                print(f&#39;{symbol}:{tlog.shares:3}&#39;, end=&#39; &#39;)
+            print(f&#39;cash: {pf.TradeLog.cash:8,.2f}&#39;, end=&#39; &#39;)
+            print(f&#39;total: {self._equity(row):9,.2f}&#39;)
 
     ####################################################################
     # LOGS (init_trade_logs, record_daily_balance, get_logs)
@@ -2767,18 +2767,18 @@ currently allocated to it.</p>
         for symbol, tlog in pf.TradeLog.instance.items():
             pct = self.share_percent(row, symbol)
             total += pct
-            print(&#39;{}:{:4,.1f}&#39;.format(symbol, pct), end=&#39; &#39;)
+            print(f&#39;{symbol}:{pct:4,.1f}&#39;, end=&#39; &#39;)
         pct = pf.TradeLog.cash / self._equity(row) * 100
         total += abs(pct)
-        print(&#39;cash: {:4,.1f}&#39;.format(pct), end=&#39; &#39;)
-        print(&#39;total: {:4,.1f}&#39;.format(total))
+        print(f&#39;cash: {pct:4,.1f}&#39;, end=&#39; &#39;)
+        print(f&#39;total: {total:4,.1f}&#39;)
     else:
         # 2010-02-01 SPY: 54 TLT: 59 GLD:  9 cash:    84.20 total:  9,872.30
         print(date.strftime(&#39;%Y-%m-%d&#39;), end=&#39; &#39;)
         for symbol, tlog in pf.TradeLog.instance.items():
-            print(&#39;{}:{:3}&#39;.format(symbol, tlog.shares), end=&#39; &#39;)
-        print(&#39;cash: {:8,.2f}&#39;.format(pf.TradeLog.cash), end=&#39; &#39;)
-        print(&#39;total: {:9,.2f}&#39;.format(self._equity(row)))</code></pre>
+            print(f&#39;{symbol}:{tlog.shares:3}&#39;, end=&#39; &#39;)
+        print(f&#39;cash: {pf.TradeLog.cash:8,.2f}&#39;, end=&#39; &#39;)
+        print(f&#39;total: {self._equity(row):9,.2f}&#39;)</code></pre>
 </details>
 </dd>
 <dt id="pinkfish.portfolio.Portfolio.record_daily_balance"><code class="name flex">

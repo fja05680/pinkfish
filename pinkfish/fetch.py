@@ -198,7 +198,10 @@ def select_tradeperiod(ts, start, end, use_adj=False,
     You should set neither of these to True if your timeseries is based
     on the stock market.
     """
-    columns = ['high', 'low', 'open', 'close', 'adj_close']
+    columns = ['high', 'low', 'open', 'close']
+    if use_adj:
+        columns.append('adj_close')
+
     # Replace 0 value columns with NaN.
     ts[columns] = ts[ts[columns] > 0][columns]
 
