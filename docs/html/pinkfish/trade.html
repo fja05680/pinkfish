@@ -764,7 +764,7 @@ class DailyBal:
         &#34;&#34;&#34;
         self._l = []
 
-    def append(self, date, high, low, close):
+    def append(self, date, close, high=None, low=None):
         &#34;&#34;&#34;
         Append a new entry to the daily balance log.
 
@@ -772,17 +772,23 @@ class DailyBal:
         ----------
         date : str
             The current date.
-        high : float
-            The balance high value of the day.
-        low : float
-            The balance low value of the day.
         close : float
             The balance close value of the day.
+        high : float, optional
+            The balance high value of the day (default is None,
+            which implies that the &#39;high&#39; is the &#39;close&#39;.  In other
+            words, we are not using intra-day prices).
+        low : float, optional
+            The balance low value of the day (default is None,
+            which implies that the &#39;low&#39; is the &#39;close&#39;.  In other
+            words, we are not using intra-day prices).
 
         Returns
         -------
         None
         &#34;&#34;&#34;
+        if high is None:  high = close
+        if low  is None:  low  = close
 
         # calculate daily balance values:
         # date, high, low, close, shares, cash, leverage
@@ -884,7 +890,7 @@ class DailyBal:
         &#34;&#34;&#34;
         self._l = []
 
-    def append(self, date, high, low, close):
+    def append(self, date, close, high=None, low=None):
         &#34;&#34;&#34;
         Append a new entry to the daily balance log.
 
@@ -892,17 +898,23 @@ class DailyBal:
         ----------
         date : str
             The current date.
-        high : float
-            The balance high value of the day.
-        low : float
-            The balance low value of the day.
         close : float
             The balance close value of the day.
+        high : float, optional
+            The balance high value of the day (default is None,
+            which implies that the &#39;high&#39; is the &#39;close&#39;.  In other
+            words, we are not using intra-day prices).
+        low : float, optional
+            The balance low value of the day (default is None,
+            which implies that the &#39;low&#39; is the &#39;close&#39;.  In other
+            words, we are not using intra-day prices).
 
         Returns
         -------
         None
         &#34;&#34;&#34;
+        if high is None:  high = close
+        if low  is None:  low  = close
 
         # calculate daily balance values:
         # date, high, low, close, shares, cash, leverage
@@ -966,7 +978,7 @@ class DailyBal:
 <h3>Methods</h3>
 <dl>
 <dt id="pinkfish.trade.DailyBal.append"><code class="name flex">
-<span>def <span class="ident">append</span></span>(<span>self, date, high, low, close)</span>
+<span>def <span class="ident">append</span></span>(<span>self, date, close, high=None, low=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Append a new entry to the daily balance log.</p>
@@ -974,12 +986,18 @@ class DailyBal:
 <dl>
 <dt><strong><code>date</code></strong> :&ensp;<code>str</code></dt>
 <dd>The current date.</dd>
-<dt><strong><code>high</code></strong> :&ensp;<code>float</code></dt>
-<dd>The balance high value of the day.</dd>
-<dt><strong><code>low</code></strong> :&ensp;<code>float</code></dt>
-<dd>The balance low value of the day.</dd>
 <dt><strong><code>close</code></strong> :&ensp;<code>float</code></dt>
 <dd>The balance close value of the day.</dd>
+<dt><strong><code>high</code></strong> :&ensp;<code>float</code>, optional</dt>
+<dd>The balance high value of the day (default is None,
+which implies that the 'high' is the 'close'.
+In other
+words, we are not using intra-day prices).</dd>
+<dt><strong><code>low</code></strong> :&ensp;<code>float</code>, optional</dt>
+<dd>The balance low value of the day (default is None,
+which implies that the 'low' is the 'close'.
+In other
+words, we are not using intra-day prices).</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
@@ -990,7 +1008,7 @@ class DailyBal:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def append(self, date, high, low, close):
+<pre><code class="python">def append(self, date, close, high=None, low=None):
     &#34;&#34;&#34;
     Append a new entry to the daily balance log.
 
@@ -998,17 +1016,23 @@ class DailyBal:
     ----------
     date : str
         The current date.
-    high : float
-        The balance high value of the day.
-    low : float
-        The balance low value of the day.
     close : float
         The balance close value of the day.
+    high : float, optional
+        The balance high value of the day (default is None,
+        which implies that the &#39;high&#39; is the &#39;close&#39;.  In other
+        words, we are not using intra-day prices).
+    low : float, optional
+        The balance low value of the day (default is None,
+        which implies that the &#39;low&#39; is the &#39;close&#39;.  In other
+        words, we are not using intra-day prices).
 
     Returns
     -------
     None
     &#34;&#34;&#34;
+    if high is None:  high = close
+    if low  is None:  low  = close
 
     # calculate daily balance values:
     # date, high, low, close, shares, cash, leverage

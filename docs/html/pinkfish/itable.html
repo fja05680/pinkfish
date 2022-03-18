@@ -410,7 +410,7 @@ class PrettyTable(object):
                     html += &#34;&lt;/tr&gt;&#34;
         html += &#34;&lt;/table&gt;&#34;
         if self.center:
-            return &#34;&lt;center&gt;{0}&lt;/center&gt;&#34;.format(html)
+            return &#34;&lt;center&gt;{html}&lt;/center&gt;&#34;
         else:
             return html
 
@@ -831,7 +831,7 @@ header_col: include column headers</p></div>
                     html += &#34;&lt;/tr&gt;&#34;
         html += &#34;&lt;/table&gt;&#34;
         if self.center:
-            return &#34;&lt;center&gt;{0}&lt;/center&gt;&#34;.format(html)
+            return &#34;&lt;center&gt;{html}&lt;/center&gt;&#34;
         else:
             return html
 

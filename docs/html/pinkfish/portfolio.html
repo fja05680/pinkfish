@@ -40,6 +40,11 @@ import seaborn
 
 import pinkfish as pf
 
+# TODO: The following will ignore a new Performance Warning from Pandas.
+# Will try to find a better solution later.
+from warnings import simplefilter
+simplefilter(action=&#34;ignore&#34;, category=pd.errors.PerformanceWarning)
+
 
 def technical_indicator(symbols, output_column_suffix,
                         input_column_suffix=&#39;close&#39;):
@@ -203,7 +208,8 @@ class Portfolio:
             The desired end date for the strategy.
         fields : list, optional
             The list of fields to use for each symbol (default is
-            [&#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;]).
+            [&#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;]).  List must include 
+            &#39;close&#39; - will be added if not already in list.
         dir_name : str, optional
             The leaf data dir name (default is &#39;data&#39;).
         use_cache: bool, optional
@@ -234,6 +240,8 @@ class Portfolio:
         pd.DataFrame
             The timeseries of the symbols.
         &#34;&#34;&#34;
+        if &#39;close&#39; not in fields:
+            fields.append(&#39;close&#39;)
         symbols = list(set(symbols))
         for i, symbol in enumerate(symbols):
 
@@ -652,18 +660,18 @@ class Portfolio:
             for symbol, tlog in pf.TradeLog.instance.items():
                 pct = self.share_percent(row, symbol)
                 total += pct
-                print(&#39;{}:{:4,.1f}&#39;.format(symbol, pct), end=&#39; &#39;)
+                print(f&#39;{symbol}:{pct:4,.1f}&#39;, end=&#39; &#39;)
             pct = pf.TradeLog.cash / self._equity(row) * 100
             total += abs(pct)
-            print(&#39;cash: {:4,.1f}&#39;.format(pct), end=&#39; &#39;)
-            print(&#39;total: {:4,.1f}&#39;.format(total))
+            print(f&#39;cash: {pct:4,.1f}&#39;, end=&#39; &#39;)
+            print(f&#39;total: {total:4,.1f}&#39;)
         else:
             # 2010-02-01 SPY: 54 TLT: 59 GLD:  9 cash:    84.20 total:  9,872.30
             print(date.strftime(&#39;%Y-%m-%d&#39;), end=&#39; &#39;)
             for symbol, tlog in pf.TradeLog.instance.items():
-                print(&#39;{}:{:3}&#39;.format(symbol, tlog.shares), end=&#39; &#39;)
-            print(&#39;cash: {:8,.2f}&#39;.format(pf.TradeLog.cash), end=&#39; &#39;)
-            print(&#39;total: {:9,.2f}&#39;.format(self._equity(row)))
+                print(f&#39;{symbol}:{tlog.shares:3}&#39;, end=&#39; &#39;)
+            print(f&#39;cash: {pf.TradeLog.cash:8,.2f}&#39;, end=&#39; &#39;)
+            print(f&#39;total: {self._equity(row):9,.2f}&#39;)
 
     ####################################################################
     # LOGS (init_trade_logs, record_daily_balance, get_logs)
@@ -830,7 +838,7 @@ class Portfolio:
             in the portfolio.
         &#34;&#34;&#34;
 
-        # Filter coloumn names for &#39;&#39;_close&#39;&#39;; drop &#39;_close&#39; suffix.
+        # Filter coloumn names for &#39;&#39;_close&#39;&#39;; remove &#39;_close&#39; suffix.
         df = ts.filter(regex=&#39;_close&#39;)
         df.columns = df.columns.str.strip(&#39;_close&#39;)
 
@@ -1165,7 +1173,8 @@ Show correlation map between symbols.</p>
             The desired end date for the strategy.
         fields : list, optional
             The list of fields to use for each symbol (default is
-            [&#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;]).
+            [&#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;]).  List must include 
+            &#39;close&#39; - will be added if not already in list.
         dir_name : str, optional
             The leaf data dir name (default is &#39;data&#39;).
         use_cache: bool, optional
@@ -1196,6 +1205,8 @@ Show correlation map between symbols.</p>
         pd.DataFrame
             The timeseries of the symbols.
         &#34;&#34;&#34;
+        if &#39;close&#39; not in fields:
+            fields.append(&#39;close&#39;)
         symbols = list(set(symbols))
         for i, symbol in enumerate(symbols):
 
@@ -1614,18 +1625,18 @@ Show correlation map between symbols.</p>
             for symbol, tlog in pf.TradeLog.instance.items():
                 pct = self.share_percent(row, symbol)
                 total += pct
-                print(&#39;{}:{:4,.1f}&#39;.format(symbol, pct), end=&#39; &#39;)
+                print(f&#39;{symbol}:{pct:4,.1f}&#39;, end=&#39; &#39;)
             pct = pf.TradeLog.cash / self._equity(row) * 100
             total += abs(pct)
-            print(&#39;cash: {:4,.1f}&#39;.format(pct), end=&#39; &#39;)
-            print(&#39;total: {:4,.1f}&#39;.format(total))
+            print(f&#39;cash: {pct:4,.1f}&#39;, end=&#39; &#39;)
+            print(f&#39;total: {total:4,.1f}&#39;)
         else:
             # 2010-02-01 SPY: 54 TLT: 59 GLD:  9 cash:    84.20 total:  9,872.30
             print(date.strftime(&#39;%Y-%m-%d&#39;), end=&#39; &#39;)
             for symbol, tlog in pf.TradeLog.instance.items():
-                print(&#39;{}:{:3}&#39;.format(symbol, tlog.shares), end=&#39; &#39;)
-            print(&#39;cash: {:8,.2f}&#39;.format(pf.TradeLog.cash), end=&#39; &#39;)
-            print(&#39;total: {:9,.2f}&#39;.format(self._equity(row)))
+                print(f&#39;{symbol}:{tlog.shares:3}&#39;, end=&#39; &#39;)
+            print(f&#39;cash: {pf.TradeLog.cash:8,.2f}&#39;, end=&#39; &#39;)
+            print(f&#39;total: {self._equity(row):9,.2f}&#39;)
 
     ####################################################################
     # LOGS (init_trade_logs, record_daily_balance, get_logs)
@@ -1792,7 +1803,7 @@ Show correlation map between symbols.</p>
             in the portfolio.
         &#34;&#34;&#34;
 
-        # Filter coloumn names for &#39;&#39;_close&#39;&#39;; drop &#39;_close&#39; suffix.
+        # Filter coloumn names for &#39;&#39;_close&#39;&#39;; remove &#39;_close&#39; suffix.
         df = ts.filter(regex=&#39;_close&#39;)
         df.columns = df.columns.str.strip(&#39;_close&#39;)
 
@@ -2207,7 +2218,7 @@ in the portfolio.</dd>
         in the portfolio.
     &#34;&#34;&#34;
 
-    # Filter coloumn names for &#39;&#39;_close&#39;&#39;; drop &#39;_close&#39; suffix.
+    # Filter coloumn names for &#39;&#39;_close&#39;&#39;; remove &#39;_close&#39; suffix.
     df = ts.filter(regex=&#39;_close&#39;)
     df.columns = df.columns.str.strip(&#39;_close&#39;)
 
@@ -2252,7 +2263,9 @@ in the portfolio.</dd>
 <dd>The desired end date for the strategy.</dd>
 <dt><strong><code>fields</code></strong> :&ensp;<code>list</code>, optional</dt>
 <dd>The list of fields to use for each symbol (default is
-['open', 'high', 'low', 'close']).</dd>
+['open', 'high', 'low', 'close']).
+List must include
+'close' - will be added if not already in list.</dd>
 <dt><strong><code>dir_name</code></strong> :&ensp;<code>str</code>, optional</dt>
 <dd>The leaf data dir name (default is 'data').</dd>
 <dt><strong><code>use_cache</code></strong> :&ensp;<code>bool</code>, optional</dt>
@@ -2310,7 +2323,8 @@ for one of these fields, that row is dropped
         The desired end date for the strategy.
     fields : list, optional
         The list of fields to use for each symbol (default is
-        [&#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;]).
+        [&#39;open&#39;, &#39;high&#39;, &#39;low&#39;, &#39;close&#39;]).  List must include 
+        &#39;close&#39; - will be added if not already in list.
     dir_name : str, optional
         The leaf data dir name (default is &#39;data&#39;).
     use_cache: bool, optional
@@ -2341,6 +2355,8 @@ for one of these fields, that row is dropped
     pd.DataFrame
         The timeseries of the symbols.
     &#34;&#34;&#34;
+    if &#39;close&#39; not in fields:
+        fields.append(&#39;close&#39;)
     symbols = list(set(symbols))
     for i, symbol in enumerate(symbols):
 
@@ -2751,18 +2767,18 @@ currently allocated to it.</p>
         for symbol, tlog in pf.TradeLog.instance.items():
             pct = self.share_percent(row, symbol)
             total += pct
-            print(&#39;{}:{:4,.1f}&#39;.format(symbol, pct), end=&#39; &#39;)
+            print(f&#39;{symbol}:{pct:4,.1f}&#39;, end=&#39; &#39;)
         pct = pf.TradeLog.cash / self._equity(row) * 100
         total += abs(pct)
-        print(&#39;cash: {:4,.1f}&#39;.format(pct), end=&#39; &#39;)
-        print(&#39;total: {:4,.1f}&#39;.format(total))
+        print(f&#39;cash: {pct:4,.1f}&#39;, end=&#39; &#39;)
+        print(f&#39;total: {total:4,.1f}&#39;)
     else:
         # 2010-02-01 SPY: 54 TLT: 59 GLD:  9 cash:    84.20 total:  9,872.30
         print(date.strftime(&#39;%Y-%m-%d&#39;), end=&#39; &#39;)
         for symbol, tlog in pf.TradeLog.instance.items():
-            print(&#39;{}:{:3}&#39;.format(symbol, tlog.shares), end=&#39; &#39;)
-        print(&#39;cash: {:8,.2f}&#39;.format(pf.TradeLog.cash), end=&#39; &#39;)
-        print(&#39;total: {:9,.2f}&#39;.format(self._equity(row)))</code></pre>
+            print(f&#39;{symbol}:{tlog.shares:3}&#39;, end=&#39; &#39;)
+        print(f&#39;cash: {pf.TradeLog.cash:8,.2f}&#39;, end=&#39; &#39;)
+        print(f&#39;total: {self._equity(row):9,.2f}&#39;)</code></pre>
 </details>
 </dd>
 <dt id="pinkfish.portfolio.Portfolio.record_daily_balance"><code class="name flex">

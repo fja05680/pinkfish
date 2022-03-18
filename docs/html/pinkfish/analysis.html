@@ -115,8 +115,8 @@ def monthly_returns_map(dbal):
     1990   -8.5     0.9     2.4    -2.7     9.2    -0.9    -0.5    -8.2
     1991    4.2     6.7     2.2     0.0     3.9    -4.8     4.5    26.3
     &#34;&#34;&#34;
-    monthly_data = em.aggregate_returns(dbal.pct_change(),&#39;monthly&#39;)
-    yearly_data = em.aggregate_returns(dbal.pct_change(),&#39;yearly&#39;)
+    monthly_data = em.aggregate_returns(dbal.pct_change(), &#39;monthly&#39;)
+    yearly_data = em.aggregate_returns(dbal.pct_change(), &#39;yearly&#39;)
 
     table_header = &#34;&#34;&#34;
     &lt;table class=&#39;table table-hover table-condensed table-striped&#39;&gt;
@@ -154,7 +154,7 @@ def monthly_returns_map(dbal):
         if first_month:
             if year_count % 15 == 0:
                 table += table_header
-            table += &#34;&lt;td align=&#39;right&#39;&gt;&lt;b&gt;{}&lt;/b&gt;&lt;/td&gt;\n&#34;.format(year)
+            table += f&#34;&lt;td align=&#39;right&#39;&gt;&lt;b&gt;{year}&lt;/b&gt;&lt;/td&gt;\n&#34;
             first_month = False
 
         # Pad empty months for first year if sim doesn&#39;t start in Jan.
@@ -229,14 +229,14 @@ def holding_period_map(dbal):
     table += &#34;&lt;/tr&gt;&#34;
 
     for the_year, value in year.iteritems(): # Iterates years
-        table += &#34;&lt;tr&gt;&lt;th&gt;{}&lt;/th&gt;&#34;.format(the_year) # New table row
+        table += f&#34;&lt;tr&gt;&lt;th&gt;{the_year}&lt;/th&gt;&#34;  # New table row
 
         for years_held in (range(1, len(year)+1)): # Iterates years held
             if years_held &lt;= len(year[year_start:year_start + years_held]):
                 ret = em.annual_return(year[year_start:year_start + years_held], &#39;yearly&#39;)
                 table += &#34;&lt;td&gt;{:.0f}&lt;/td&gt;&#34;.format(ret * 100)
         table += &#34;&lt;/tr&gt;&#34;
-        year_start+=1
+        year_start +=1
     display(HTML(table))
 
 
@@ -304,7 +304,7 @@ def prettier_graphs(dbal, benchmark_dbal, dbal_label=&#39;Strategy&#39;,
                         points_to_plot=5000)
     &#34;&#34;&#34;
     if points_to_plot is None:
-        points_to_plot = 0;
+        points_to_plot = 0
 
     data = pd.DataFrame(dbal)
     data[&#39;benchmark_dbal&#39;] = pd.DataFrame(benchmark_dbal)
@@ -344,14 +344,14 @@ def prettier_graphs(dbal, benchmark_dbal, dbal_label=&#39;Strategy&#39;,
 
     # Second sub plot.
     ax = fig.add_subplot(312)
-    label=&#39;Relative Strength, {} to {}&#39;.format(dbal_label, benchmark_label)
+    label = f&#39;Relative Strength, {dbal_label} to {benchmark_label}&#39;
     ax.plot(plot_data[&#39;relative_strength&#39;], label=label, linestyle=&#39;:&#39;, linewidth=3.0)
     ax.legend()
     ax.grid(True)
 
     # Third subplot.
     ax = fig.add_subplot(313)
-    label=&#39;Correlation between {} and {}&#39;.format(dbal_label, benchmark_label)
+    label = f&#39;Correlation between {dbal_label} and {benchmark_label}&#39;
     ax.plot(plot_data[&#39;corr&#39;], label=label, linestyle=&#39;-.&#39;, linewidth=3.0)
     ax.legend()
     ax.grid(True)
@@ -410,7 +410,7 @@ def volatility_graphs(dbals, labels, points_to_plot=None):
         plt.legend(loc=&#39;best&#39;)
 
     if points_to_plot is None:
-        points_to_plot = 0;
+        points_to_plot = 0
 
     # Get volatility for each dbal set.
     volas = []
@@ -425,12 +425,12 @@ def volatility_graphs(dbals, labels, points_to_plot=None):
     metrics = [&#39;avg&#39;, &#39;median&#39;, &#39;min&#39;, &#39;max&#39;, &#39;std&#39;, &#39;last&#39;]
     for metric in metrics:
         index.append(metric)
-        if   metric == &#39;avg&#39;: data.append(vola.mean() for vola in volas)
+        if   metric == &#39;avg&#39;:    data.append(vola.mean() for vola in volas)
         elif metric == &#39;median&#39;: data.append(vola.median() for vola in volas)
-        elif metric == &#39;min&#39;: data.append(vola.min() for vola in volas)
-        elif metric == &#39;max&#39;: data.append(vola.max() for vola in volas)
-        elif metric == &#39;std&#39;: data.append(vola.std() for vola in volas)
-        elif metric == &#39;last&#39;: data.append(vola[-1] for vola in volas)
+        elif metric == &#39;min&#39;:    data.append(vola.min() for vola in volas)
+        elif metric == &#39;max&#39;:    data.append(vola.max() for vola in volas)
+        elif metric == &#39;std&#39;:    data.append(vola.std() for vola in volas)
+        elif metric == &#39;last&#39;:   data.append(vola[-1] for vola in volas)
 
     df = pd.DataFrame(data, columns=columns, index=index)
     _boxplot(volas, labels)
@@ -439,13 +439,13 @@ def volatility_graphs(dbals, labels, points_to_plot=None):
 
 
 ########################################################################
-# KELLY CRITERIAN
+# KELLY CRITERION
 
-def kelly_criterian(stats, benchmark_stats=None):
+def kelly_criterion(stats, benchmark_stats=None):
     &#34;&#34;&#34;
     Use this function to help with sizing of leverage.
     
-    This function uses ideas based on the Kelly Criterian.
+    This function uses ideas based on the Kelly Criterion.
 
     Parameters
     ----------
@@ -474,13 +474,13 @@ def kelly_criterian(stats, benchmark_stats=None):
             standard deviation of returns.
 
          - `optimal target risk` is equal to the expected sharpe ratio,
-            according to the Kelly criterian.  Target risk is the amount
+            according to the Kelly criterion.  Target risk is the amount
             of risk you expect to see when trading, calculated as an
             annual standard deviation of returns.
 
-         - `half kelly criterian` is equal to half the expected
+         - `half kelly criterion` is equal to half the expected
             sharpe ratio.  It uses a conservative version of the
-            Kelly criterian known as half Kelly.
+            Kelly criterion known as half Kelly.
 
          - `aggressive leverage` is the optimal target risk divided by
             the instrument risk.  This is an aggressive form of the
@@ -495,17 +495,17 @@ def kelly_criterian(stats, benchmark_stats=None):
     &#34;&#34;&#34;
     s = pd.Series(dtype=&#39;object&#39;)
 
-    s[&#39;sharpe_ratio&#39;] = stats[&#39;sharpe_ratio&#39;]
-    s[&#39;sharpe_ratio_max&#39;] = stats[&#39;sharpe_ratio_max&#39;]
-    s[&#39;sharpe_ratio_min&#39;] = stats[&#39;sharpe_ratio_min&#39;]
-    s[&#39;strategy risk&#39;] = stats[&#39;annual_std&#39;] / 100
+    s[&#39;sharpe_ratio&#39;]           = stats[&#39;sharpe_ratio&#39;]
+    s[&#39;sharpe_ratio_max&#39;]       = stats[&#39;sharpe_ratio_max&#39;]
+    s[&#39;sharpe_ratio_min&#39;]       = stats[&#39;sharpe_ratio_min&#39;]
+    s[&#39;strategy risk&#39;]          = stats[&#39;annual_std&#39;] / 100
     if benchmark_stats is not None:
-        s[&#39;instrument risk&#39;] = benchmark_stats[&#39;annual_std&#39;] / 100
-    s[&#39;optimal target risk&#39;] = s[&#39;sharpe_ratio&#39;]
-    s[&#39;half kelly criterian&#39;] = s[&#39;sharpe_ratio&#39;] / 2
-    s[&#39;aggressive leverage&#39;] = s[&#39;optimal target risk&#39;] / s[&#39;instrument risk&#39;]
-    s[&#39;moderate leverage&#39;] = s[&#39;half kelly criterian&#39;] / s[&#39;instrument risk&#39;]
-    s[&#39;conservative leverage&#39;] = (s[&#39;sharpe_ratio_min&#39;] / 2) / s[&#39;instrument risk&#39;]
+        s[&#39;instrument risk&#39;]    = benchmark_stats[&#39;annual_std&#39;] / 100
+    s[&#39;optimal target risk&#39;]    = s[&#39;sharpe_ratio&#39;]
+    s[&#39;half kelly criterion&#39;]   = s[&#39;sharpe_ratio&#39;] / 2
+    s[&#39;aggressive leverage&#39;]    = s[&#39;optimal target risk&#39;] / s[&#39;instrument risk&#39;]
+    s[&#39;moderate leverage&#39;]      = s[&#39;half kelly criterion&#39;] / s[&#39;instrument risk&#39;]
+    s[&#39;conservative leverage&#39;]  = (s[&#39;sharpe_ratio_min&#39;] / 2) / s[&#39;instrument risk&#39;]
     return s</code></pre>
 </details>
 </section>
@@ -589,23 +589,23 @@ Years    1   2   3   4   5   6   7   8
     table += &#34;&lt;/tr&gt;&#34;
 
     for the_year, value in year.iteritems(): # Iterates years
-        table += &#34;&lt;tr&gt;&lt;th&gt;{}&lt;/th&gt;&#34;.format(the_year) # New table row
+        table += f&#34;&lt;tr&gt;&lt;th&gt;{the_year}&lt;/th&gt;&#34;  # New table row
 
         for years_held in (range(1, len(year)+1)): # Iterates years held
             if years_held &lt;= len(year[year_start:year_start + years_held]):
                 ret = em.annual_return(year[year_start:year_start + years_held], &#39;yearly&#39;)
                 table += &#34;&lt;td&gt;{:.0f}&lt;/td&gt;&#34;.format(ret * 100)
         table += &#34;&lt;/tr&gt;&#34;
-        year_start+=1
+        year_start +=1
     display(HTML(table))</code></pre>
 </details>
 </dd>
-<dt id="pinkfish.analysis.kelly_criterian"><code class="name flex">
-<span>def <span class="ident">kelly_criterian</span></span>(<span>stats, benchmark_stats=None)</span>
+<dt id="pinkfish.analysis.kelly_criterion"><code class="name flex">
+<span>def <span class="ident">kelly_criterion</span></span>(<span>stats, benchmark_stats=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Use this function to help with sizing of leverage.</p>
-<p>This function uses ideas based on the Kelly Criterian.</p>
+<p>This function uses ideas based on the Kelly Criterion.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>stats</code></strong> :&ensp;<code>pd.Series</code></dt>
@@ -640,16 +640,16 @@ standard deviation of returns.</p>
 </li>
 <li>
 <p><code>optimal target risk</code> is equal to the expected sharpe ratio,
-according to the Kelly criterian.
+according to the Kelly criterion.
 Target risk is the amount
 of risk you expect to see when trading, calculated as an
 annual standard deviation of returns.</p>
 </li>
 <li>
-<p><code>half kelly criterian</code> is equal to half the expected
+<p><code>half kelly criterion</code> is equal to half the expected
 sharpe ratio.
 It uses a conservative version of the
-Kelly criterian known as half Kelly.</p>
+Kelly criterion known as half Kelly.</p>
 </li>
 <li>
 <p><code>aggressive leverage</code> is the optimal target risk divided by
@@ -673,11 +673,11 @@ using half of the minimum sharpe ratio divided by 2.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def kelly_criterian(stats, benchmark_stats=None):
+<pre><code class="python">def kelly_criterion(stats, benchmark_stats=None):
     &#34;&#34;&#34;
     Use this function to help with sizing of leverage.
     
-    This function uses ideas based on the Kelly Criterian.
+    This function uses ideas based on the Kelly Criterion.
 
     Parameters
     ----------
@@ -706,13 +706,13 @@ using half of the minimum sharpe ratio divided by 2.</p>
             standard deviation of returns.
 
          - `optimal target risk` is equal to the expected sharpe ratio,
-            according to the Kelly criterian.  Target risk is the amount
+            according to the Kelly criterion.  Target risk is the amount
             of risk you expect to see when trading, calculated as an
             annual standard deviation of returns.
 
-         - `half kelly criterian` is equal to half the expected
+         - `half kelly criterion` is equal to half the expected
             sharpe ratio.  It uses a conservative version of the
-            Kelly criterian known as half Kelly.
+            Kelly criterion known as half Kelly.
 
          - `aggressive leverage` is the optimal target risk divided by
             the instrument risk.  This is an aggressive form of the
@@ -727,17 +727,17 @@ using half of the minimum sharpe ratio divided by 2.</p>
     &#34;&#34;&#34;
     s = pd.Series(dtype=&#39;object&#39;)
 
-    s[&#39;sharpe_ratio&#39;] = stats[&#39;sharpe_ratio&#39;]
-    s[&#39;sharpe_ratio_max&#39;] = stats[&#39;sharpe_ratio_max&#39;]
-    s[&#39;sharpe_ratio_min&#39;] = stats[&#39;sharpe_ratio_min&#39;]
-    s[&#39;strategy risk&#39;] = stats[&#39;annual_std&#39;] / 100
+    s[&#39;sharpe_ratio&#39;]           = stats[&#39;sharpe_ratio&#39;]
+    s[&#39;sharpe_ratio_max&#39;]       = stats[&#39;sharpe_ratio_max&#39;]
+    s[&#39;sharpe_ratio_min&#39;]       = stats[&#39;sharpe_ratio_min&#39;]
+    s[&#39;strategy risk&#39;]          = stats[&#39;annual_std&#39;] / 100
     if benchmark_stats is not None:
-        s[&#39;instrument risk&#39;] = benchmark_stats[&#39;annual_std&#39;] / 100
-    s[&#39;optimal target risk&#39;] = s[&#39;sharpe_ratio&#39;]
-    s[&#39;half kelly criterian&#39;] = s[&#39;sharpe_ratio&#39;] / 2
-    s[&#39;aggressive leverage&#39;] = s[&#39;optimal target risk&#39;] / s[&#39;instrument risk&#39;]
-    s[&#39;moderate leverage&#39;] = s[&#39;half kelly criterian&#39;] / s[&#39;instrument risk&#39;]
-    s[&#39;conservative leverage&#39;] = (s[&#39;sharpe_ratio_min&#39;] / 2) / s[&#39;instrument risk&#39;]
+        s[&#39;instrument risk&#39;]    = benchmark_stats[&#39;annual_std&#39;] / 100
+    s[&#39;optimal target risk&#39;]    = s[&#39;sharpe_ratio&#39;]
+    s[&#39;half kelly criterion&#39;]   = s[&#39;sharpe_ratio&#39;] / 2
+    s[&#39;aggressive leverage&#39;]    = s[&#39;optimal target risk&#39;] / s[&#39;instrument risk&#39;]
+    s[&#39;moderate leverage&#39;]      = s[&#39;half kelly criterion&#39;] / s[&#39;instrument risk&#39;]
+    s[&#39;conservative leverage&#39;]  = (s[&#39;sharpe_ratio_min&#39;] / 2) / s[&#39;instrument risk&#39;]
     return s</code></pre>
 </details>
 </dd>
@@ -786,8 +786,8 @@ Year    Jan     Feb     Mar     Apr     May     Jun     Jul ... Year
     1990   -8.5     0.9     2.4    -2.7     9.2    -0.9    -0.5    -8.2
     1991    4.2     6.7     2.2     0.0     3.9    -4.8     4.5    26.3
     &#34;&#34;&#34;
-    monthly_data = em.aggregate_returns(dbal.pct_change(),&#39;monthly&#39;)
-    yearly_data = em.aggregate_returns(dbal.pct_change(),&#39;yearly&#39;)
+    monthly_data = em.aggregate_returns(dbal.pct_change(), &#39;monthly&#39;)
+    yearly_data = em.aggregate_returns(dbal.pct_change(), &#39;yearly&#39;)
 
     table_header = &#34;&#34;&#34;
     &lt;table class=&#39;table table-hover table-condensed table-striped&#39;&gt;
@@ -825,7 +825,7 @@ Year    Jan     Feb     Mar     Apr     May     Jun     Jul ... Year
         if first_month:
             if year_count % 15 == 0:
                 table += table_header
-            table += &#34;&lt;td align=&#39;right&#39;&gt;&lt;b&gt;{}&lt;/b&gt;&lt;/td&gt;\n&#34;.format(year)
+            table += f&#34;&lt;td align=&#39;right&#39;&gt;&lt;b&gt;{year}&lt;/b&gt;&lt;/td&gt;\n&#34;
             first_month = False
 
         # Pad empty months for first year if sim doesn&#39;t start in Jan.
@@ -931,7 +931,7 @@ returns, and the third the correlation between the two.</p>
                         points_to_plot=5000)
     &#34;&#34;&#34;
     if points_to_plot is None:
-        points_to_plot = 0;
+        points_to_plot = 0
 
     data = pd.DataFrame(dbal)
     data[&#39;benchmark_dbal&#39;] = pd.DataFrame(benchmark_dbal)
@@ -971,14 +971,14 @@ returns, and the third the correlation between the two.</p>
 
     # Second sub plot.
     ax = fig.add_subplot(312)
-    label=&#39;Relative Strength, {} to {}&#39;.format(dbal_label, benchmark_label)
+    label = f&#39;Relative Strength, {dbal_label} to {benchmark_label}&#39;
     ax.plot(plot_data[&#39;relative_strength&#39;], label=label, linestyle=&#39;:&#39;, linewidth=3.0)
     ax.legend()
     ax.grid(True)
 
     # Third subplot.
     ax = fig.add_subplot(313)
-    label=&#39;Correlation between {} and {}&#39;.format(dbal_label, benchmark_label)
+    label = f&#39;Correlation between {dbal_label} and {benchmark_label}&#39;
     ax.plot(plot_data[&#39;corr&#39;], label=label, linestyle=&#39;-.&#39;, linewidth=3.0)
     ax.legend()
     ax.grid(True)</code></pre>
@@ -1068,7 +1068,7 @@ prices) indexed by date.</dd>
         plt.legend(loc=&#39;best&#39;)
 
     if points_to_plot is None:
-        points_to_plot = 0;
+        points_to_plot = 0
 
     # Get volatility for each dbal set.
     volas = []
@@ -1083,12 +1083,12 @@ prices) indexed by date.</dd>
     metrics = [&#39;avg&#39;, &#39;median&#39;, &#39;min&#39;, &#39;max&#39;, &#39;std&#39;, &#39;last&#39;]
     for metric in metrics:
         index.append(metric)
-        if   metric == &#39;avg&#39;: data.append(vola.mean() for vola in volas)
+        if   metric == &#39;avg&#39;:    data.append(vola.mean() for vola in volas)
         elif metric == &#39;median&#39;: data.append(vola.median() for vola in volas)
-        elif metric == &#39;min&#39;: data.append(vola.min() for vola in volas)
-        elif metric == &#39;max&#39;: data.append(vola.max() for vola in volas)
-        elif metric == &#39;std&#39;: data.append(vola.std() for vola in volas)
-        elif metric == &#39;last&#39;: data.append(vola[-1] for vola in volas)
+        elif metric == &#39;min&#39;:    data.append(vola.min() for vola in volas)
+        elif metric == &#39;max&#39;:    data.append(vola.max() for vola in volas)
+        elif metric == &#39;std&#39;:    data.append(vola.std() for vola in volas)
+        elif metric == &#39;last&#39;:   data.append(vola[-1] for vola in volas)
 
     df = pd.DataFrame(data, columns=columns, index=index)
     _boxplot(volas, labels)
@@ -1118,7 +1118,7 @@ prices) indexed by date.</dd>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
 <li><code><a title="pinkfish.analysis.holding_period_map" href="#pinkfish.analysis.holding_period_map">holding_period_map</a></code></li>
-<li><code><a title="pinkfish.analysis.kelly_criterian" href="#pinkfish.analysis.kelly_criterian">kelly_criterian</a></code></li>
+<li><code><a title="pinkfish.analysis.kelly_criterion" href="#pinkfish.analysis.kelly_criterion">kelly_criterion</a></code></li>
 <li><code><a title="pinkfish.analysis.monthly_returns_map" href="#pinkfish.analysis.monthly_returns_map">monthly_returns_map</a></code></li>
 <li><code><a title="pinkfish.analysis.prettier_graphs" href="#pinkfish.analysis.prettier_graphs">prettier_graphs</a></code></li>
 <li><code><a title="pinkfish.analysis.volatility_graphs" href="#pinkfish.analysis.volatility_graphs">volatility_graphs</a></code></li>
