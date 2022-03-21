@@ -596,9 +596,8 @@ class Portfolio:
         w.update(weights)
         
         # Call adjust_percents() for each symbol.
-        for symbol in self.symbols:
+        for symbol, weight in w.items():
             price = prices[symbol]
-            weight = w[symbol]
             direction = directions[symbol]
             self.adjust_percent(date, price, weight, symbol, row, direction)
         return w

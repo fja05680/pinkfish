@@ -70,7 +70,7 @@ class Strategy:
         # each symbol in portfolio
         prices = {}; mom = {}; weights = {}
 
-        # These variables are assigned to the actual EFT
+        # These variables are assigned to the actual ETFs
         US_STOCKS   = self.symbols['US STOCKS']
         US_BONDS    = self.symbols['US BONDS']
         EXUS_STOCKS = self.symbols['EX-US STOCKS']
@@ -99,7 +99,7 @@ class Strategy:
 
                 month_count -= 1
                 
-                  # Get prices for current row
+                # Get prices for current row
                 mom_field = 'mom' + str(lookback)
                 p = self.portfolio.get_prices(row, fields=['close', mom_field])
 
@@ -111,8 +111,9 @@ class Strategy:
                     weights[symbol] = 0
 
                 # Rebalance logic:
-                #   Assign weights using relative momentum
-                #   Then assign using absolute momentum if enabled
+                #   Check absolute momenteum first, i.e. US_STOCKS > TBILL.
+                #   Check relative momentrum, i.e. US_STOCKS > EXUS_STOCKS.
+                #   (see complete description at top of this file)
                 #   Finally rebalance
 
                 # GEM strategy
