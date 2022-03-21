@@ -306,7 +306,7 @@ def MOMENTUM(ts, lookback=1, time_frame=&#39;monthly&#39;, price=&#39;close&#39;
     elif time_frame ==&#39;monthly&#39;: factor = pf.statistics.TRADING_DAYS_PER_MONTH
     elif time_frame ==&#39;yearly&#39;:  factor = pf.statistics.TRADING_DAYS_PER_YEAR
     else:
-        raise ValueError(&#39;invalid time_frame &#34;{}&#34;&#39;.format(time_frame))
+        raise ValueError(f&#39;invalid time_frame &#34;{time_frame}&#34;&#39;)
 
     s = ts[price].pct_change(periods=lookback*factor)
     if prevday:
@@ -374,7 +374,7 @@ def VOLATILITY(ts, lookback=20, time_frame=&#39;yearly&#39;, downside=False,
     elif time_frame == &#39;monthly&#39;: factor = pf.statistics.TRADING_DAYS_PER_MONTH
     elif time_frame == &#39;yearly&#39;:  factor = pf.statistics.TRADING_DAYS_PER_YEAR
     else:
-        raise ValueError(&#39;invalid time_frame &#34;{}&#34;&#39;.format(time_frame))
+        raise ValueError(f&#39;invalid time_frame &#34;{time_frame}&#34;&#39;)
 
     s = ts[price].pct_change()
     if downside:
@@ -1175,7 +1175,7 @@ It gives you the previous day's Momentum (default is False).</dd>
     elif time_frame ==&#39;monthly&#39;: factor = pf.statistics.TRADING_DAYS_PER_MONTH
     elif time_frame ==&#39;yearly&#39;:  factor = pf.statistics.TRADING_DAYS_PER_YEAR
     else:
-        raise ValueError(&#39;invalid time_frame &#34;{}&#34;&#39;.format(time_frame))
+        raise ValueError(f&#39;invalid time_frame &#34;{time_frame}&#34;&#39;)
 
     s = ts[price].pct_change(periods=lookback*factor)
     if prevday:
@@ -1350,7 +1350,7 @@ It gives you the previous day's Volatility (default is False).</dd>
     elif time_frame == &#39;monthly&#39;: factor = pf.statistics.TRADING_DAYS_PER_MONTH
     elif time_frame == &#39;yearly&#39;:  factor = pf.statistics.TRADING_DAYS_PER_YEAR
     else:
-        raise ValueError(&#39;invalid time_frame &#34;{}&#34;&#39;.format(time_frame))
+        raise ValueError(f&#39;invalid time_frame &#34;{time_frame}&#34;&#39;)
 
     s = ts[price].pct_change()
     if downside:

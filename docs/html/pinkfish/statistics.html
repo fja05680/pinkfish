@@ -897,7 +897,7 @@ def _annual_return_rate(end_balance, capital, start, end):
 
 def _trading_period(start, end):
     diff = relativedelta(end, start)
-    return &#39;{} years {} months {} days&#39;.format(diff.years, diff.months, diff.days)
+    return f&#39;{diff.years} years {diff.months} months {diff.days} days&#39;
 
 def _total_days_in_market(dbal):
     n = (dbal[&#39;shares&#39;] &gt; 0).sum()
@@ -1424,9 +1424,9 @@ def currency(amount):
         the dollar amount in US currency format.
     &#34;&#34;&#34;
     if amount &gt;= 0:
-        return &#39;${:,.2f}&#39;.format(amount)
+        return f&#39;${amount:,.2f}&#39;
     else:
-        return &#39;-${:,.2f}&#39;.format(-amount)
+        return f&#39;-${-amount:,.2f}&#39;
 
 default_metrics = (
     &#39;annual_return_rate&#39;,
@@ -1649,9 +1649,9 @@ def optimizer_summary(strategies, metrics):
         the dollar amount in US currency format.
     &#34;&#34;&#34;
     if amount &gt;= 0:
-        return &#39;${:,.2f}&#39;.format(amount)
+        return f&#39;${amount:,.2f}&#39;
     else:
-        return &#39;-${:,.2f}&#39;.format(-amount)</code></pre>
+        return f&#39;-${-amount:,.2f}&#39;</code></pre>
 </details>
 </dd>
 <dt id="pinkfish.statistics.get_trading_days"><code class="name flex">

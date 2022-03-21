@@ -227,7 +227,10 @@ def select_tradeperiod(ts, start, end, use_adj=False,
     You should set neither of these to True if your timeseries is based
     on the stock market.
     &#34;&#34;&#34;
-    columns = [&#39;high&#39;, &#39;low&#39;, &#39;open&#39;, &#39;close&#39;, &#39;adj_close&#39;]
+    columns = [&#39;high&#39;, &#39;low&#39;, &#39;open&#39;, &#39;close&#39;]
+    if use_adj:
+        columns.append(&#39;adj_close&#39;)
+
     # Replace 0 value columns with NaN.
     ts[columns] = ts[ts[columns] &gt; 0][columns]
 
@@ -358,7 +361,7 @@ def remove_cache_symbols(symbols=None, dir_name=&#39;data&#39;):
         if os.path.exists(filepath):
             os.remove(filepath)
         else:
-            print(&#39;\n({} not found)&#39;.format(f))
+            print(f&#39;\n({f} not found)&#39;)
     print()
 
 
@@ -406,9 +409,9 @@ def update_cache_symbols(symbols=None, dir_name=&#39;data&#39;, from_year=None):
             fetch_timeseries(symbol, dir_name=dir_name, use_cache=False,
                              from_year=from_year)
         except RemoteDataError as e:
-            print(&#39;\n({})&#39;.format(e))
+            print(f&#39;\n({e})&#39;)
         except Exception as e:
-            print(&#39;\n({})&#39;.format(e))
+            print(f&#39;\n({e})&#39;)
     print()
 
 
@@ -461,7 +464,7 @@ def get_symbol_metadata(symbols=None, dir_name=&#39;data&#39;, from_year=None):
             t = (symbol, start, end, num_years)
             l.append(t)
         except RemoteDataError as e:
-            print(&#39;\n({})&#39;.format(e))
+            print(f&#39;\n({e})&#39;)
         except Exception as e:
             print(&#39;\n({})&#39;.format(e))
     columns = [&#39;symbol&#39;, &#39;start_date&#39;, &#39;end_date&#39;, &#39;num_years&#39;]
@@ -704,7 +707,7 @@ which implies that all the available data is retrieved).</dd>
             t = (symbol, start, end, num_years)
             l.append(t)
         except RemoteDataError as e:
-            print(&#39;\n({})&#39;.format(e))
+            print(f&#39;\n({e})&#39;)
         except Exception as e:
             print(&#39;\n({})&#39;.format(e))
     columns = [&#39;symbol&#39;, &#39;start_date&#39;, &#39;end_date&#39;, &#39;num_years&#39;]
@@ -776,7 +779,7 @@ is None, which imples remove timeseries for all symbols).</dd>
         if os.path.exists(filepath):
             os.remove(filepath)
         else:
-            print(&#39;\n({} not found)&#39;.format(f))
+            print(f&#39;\n({f} not found)&#39;)
     print()</code></pre>
 </details>
 </dd>
@@ -886,7 +889,10 @@ on the stock market.</p></div>
     You should set neither of these to True if your timeseries is based
     on the stock market.
     &#34;&#34;&#34;
-    columns = [&#39;high&#39;, &#39;low&#39;, &#39;open&#39;, &#39;close&#39;, &#39;adj_close&#39;]
+    columns = [&#39;high&#39;, &#39;low&#39;, &#39;open&#39;, &#39;close&#39;]
+    if use_adj:
+        columns.append(&#39;adj_close&#39;)
+
     # Replace 0 value columns with NaN.
     ts[columns] = ts[ts[columns] &gt; 0][columns]
 
@@ -984,9 +990,9 @@ which implies that all the available data is retrieved).</dd>
             fetch_timeseries(symbol, dir_name=dir_name, use_cache=False,
                              from_year=from_year)
         except RemoteDataError as e:
-            print(&#39;\n({})&#39;.format(e))
+            print(f&#39;\n({e})&#39;)
         except Exception as e:
-            print(&#39;\n({})&#39;.format(e))
+            print(f&#39;\n({e})&#39;)
     print()</code></pre>
 </details>
 </dd>
