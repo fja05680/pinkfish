@@ -89,5 +89,7 @@ def DBG(s):
     """
     Debug print.  Enable by setting pf.DEBUG=True.
     """
-    if DEBUG: print(s)
-    else:     pass
+    if DEBUG:
+        print(s)
+    else:
+        pass

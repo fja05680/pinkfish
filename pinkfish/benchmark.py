@@ -72,12 +72,16 @@ class Benchmark:
             to False.
         ts : pd.DataFrame
             The timeseries of the symbol used in backtest.
+        rlog : pd.DataFrame
+            The raw trade log.
         tlog : pd.DataFrame
             The trade log.
         dbal : pd.DataFrame
             The daily balance.
         stats : pd.Series
             The statistics for the benchmark.
+        portfolio : pf.Portfolio
+            The portfolio.
         """
 
         # If symbols is not a list, cast it to a list.
@@ -96,9 +100,11 @@ class Benchmark:
         self.force_stock_market_calendar = force_stock_market_calendar
 
         self.ts = None
+        self.rlog = None
         self.tlog = None
         self.dbal = None
         self.stats = None
+        self.portfolio = None
 
     def _algo(self):
         """
@@ -112,7 +118,8 @@ class Benchmark:
 
         # These dicts are used to track close and weights for
         # each symbol in portfolio
-        prices = {}; weights = {}
+        prices = {}
+        weights = {}
 
         weight = 1 / len(self.portfolio.symbols)
         weights = {symbol:weight for symbol in self.portfolio.symbols}
@@ -123,7 +130,7 @@ class Benchmark:
             date = row.Index.to_pydatetime()
             end_flag = pf.is_last_row(self.ts, i)
             start_flag = (i==0)
-            
+
             # Buy on first trading day
             # Rebalance on the first trading day of each year
             # Close all positions on last trading day
@@ -136,7 +143,7 @@ class Benchmark:
                 # Get closing prices for all symbols
                 p = self.portfolio.get_prices(row, fields=['close'])
                 prices = {symbol:p[symbol]['close'] for symbol in self.portfolio.symbols}
-                
+
                 # Adjust weights of all symbols in portfolio
                 self.portfolio.adjust_percents(date, prices, weights, row)
 

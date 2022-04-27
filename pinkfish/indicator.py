@@ -539,4 +539,3 @@ def ANNUALIZED_SHARPE_RATIO(ts, lookback=5, price='close', prevday=False,
         s = s.shift()
 
     return s
-

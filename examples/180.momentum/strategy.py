@@ -7,11 +7,7 @@ A basic price based momentum strategy.
 A lookback of None means a random lookback = {6-12} months.
 """
 
-import datetime
 import random
-
-import matplotlib.pyplot as plt
-import pandas as pd
 
 import pinkfish as pf
 
@@ -68,12 +64,11 @@ class Strategy:
             #  - if first_dotw
             #            sell if mom < 0
             #            sell if end_flag
-
-            
+  
             if self.tlog.shares > 0:
                 if ((row.first_dotw and mom < 0) or end_flag):
                     self.tlog.sell(date, close)
-            
+
             # Buy Logic
             #  - if first_dotw
             #            buy if mom > 0
@@ -92,7 +87,7 @@ class Strategy:
 
         # Add calendar columns
         self.ts = pf.calendar(self.ts)
-        
+
         # Add momentum indicator for 3...18 months
         lookbacks = range(3, 18+1)
         for lookback in lookbacks:
@@ -101,7 +96,7 @@ class Strategy:
                 price='close', prevday=False)
 
         self.ts, self.start = pf.finalize_timeseries(self.ts, self.start,
-                                                     dropna=True, drop_columns=['open', 'high', 'low'])
+                                dropna=True, drop_columns=['open', 'high', 'low'])
 
         self.tlog = pf.TradeLog(self.symbol)
         self.dbal = pf.DailyBal()

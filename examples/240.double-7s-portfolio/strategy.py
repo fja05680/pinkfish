@@ -15,9 +15,6 @@ portfolio and allocate based on either equal weight or volatility
 parity weight (inverse volatility).
 """
 
-import datetime
-
-import matplotlib.pyplot as plt
 import pandas as pd
 
 import pinkfish as pf
@@ -70,7 +67,7 @@ class Strategy:
 
             date = row.Index.to_pydatetime()
             end_flag = pf.is_last_row(self.ts, i)
-            
+
             # Get the prices for this row, put in dict p.
             p = self.portfolio.get_prices(row,
                 fields=['close', 'regime', period_high_field, period_low_field, 'vola'])
@@ -89,7 +86,7 @@ class Strategy:
                 period_high = p[symbol][period_high_field]
                 period_low = p[symbol][period_low_field]
                 inverse_vola = 1 / p[symbol]['vola']
-                
+
                 # Sell Logic
                 # First we check if an existing position in symbol should be sold
                 #  - sell if price closes at X day high
@@ -98,15 +95,17 @@ class Strategy:
 
                 if symbol in self.portfolio.positions:
                     if close == period_high or close < stop_loss[symbol] or end_flag:
-                        if close < stop_loss[symbol]: print('STOP LOSS!!!')
+                        if close < stop_loss[symbol]:
+                            print('STOP LOSS!!!')
                         self.portfolio.adjust_percent(date, close, 0, symbol, row)
-                        
+
                 # Buy Logic
                 # First we check to see if there is an existing position, if so do nothing
                 #  - Buy if (regime > 0 or not use_regime_filter) and price closes at X day low
 
                 else:
-                    if (regime > 0 or not self.options['use_regime_filter']) and close == period_low:
+                    if ((regime > 0 or not self.options['use_regime_filter'])
+                            and close == period_low):
                         # Use volatility weight.
                         if self.options['use_vola_weight']:
                             weight = inverse_vola / inverse_vola_sum

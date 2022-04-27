@@ -32,10 +32,6 @@ Adds calendar columns to a timeseries.
     Last trading day of the year.
 """
 
-import pandas as pd
-
-import pinkfish as pf
-
 
 def _first_day(row):
     """
@@ -49,7 +45,7 @@ def _first_day(row):
 
 
 def calendar(ts):
-    """ 
+    """
     Add calendar columns to a timeseries.
 
     Parameters

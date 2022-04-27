@@ -29,11 +29,7 @@ performance is below the BIL ETF, then the investor places all funds
 in AGG, the aggregate bond index.
 """
 
-import datetime
 import random
-
-import matplotlib.pyplot as plt
-import pandas as pd
 
 import pinkfish as pf
 
@@ -68,7 +64,9 @@ class Strategy:
 
         # These dicts are used to track close, mom, and weights for
         # each symbol in portfolio
-        prices = {}; mom = {}; weights = {}
+        prices = {}
+        mom = {}
+        weights = {}
 
         # These variables are assigned to the actual ETFs
         US_STOCKS   = self.symbols['US STOCKS']
@@ -98,7 +96,7 @@ class Strategy:
             if row.first_dotm or end_flag:
 
                 month_count -= 1
-                
+
                 # Get prices for current row
                 mom_field = 'mom' + str(lookback)
                 p = self.portfolio.get_prices(row, fields=['close', mom_field])
@@ -166,4 +164,3 @@ class Strategy:
 
     def _get_stats(self):
         self.stats = pf.stats(self.ts, self.tlog, self.dbal, self.capital)
-

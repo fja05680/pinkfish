@@ -7,12 +7,6 @@ Rebalance is yearly, monthly, weekly, or daily.  Option to sell
 all shares of an investment is regime turns negative.
 """
 
-import datetime
-import random
-
-import matplotlib.pyplot as plt
-import pandas as pd
-
 import pinkfish as pf
 
 
@@ -46,19 +40,19 @@ class Strategy:
 
         pf.TradeLog.cash = self.capital
         pf.TradeLog.margin = self.options['margin']
-        
+
         weight_by = self.options['weight_by']
         rebalance = self.options['rebalance']
         weights = self.options['weights']
-        
+
         for symbol, weight in weights.items():
             if weight and weight > 1:
                 weights[symbol] = weight / 100
-        
+
         symbols_no_weights = [k for k,v in weights.items() if v is None]
         symbols_weights    = {k:v for k,v in weights.items() if v is not None}
         remaining_weight   = 1 - sum(symbols_weights.values())
-        
+
         # Price fields
         fields = ['close', 'regime', 'sharpe', 'ret', 'sd', 'vola', 'ds_vola']
 
@@ -67,7 +61,7 @@ class Strategy:
 
             date = row.Index.to_pydatetime()
             end_flag = pf.is_last_row(self.ts, i)
-            
+
             # Get the prices for this row, put in dict p.
             p = self.portfolio.get_prices(row, fields=fields)
 
@@ -76,7 +70,7 @@ class Strategy:
                             (rebalance == 'monthly' and row.first_dotm) or
                             (rebalance == 'weekly'  and row.first_dotw) or
                             (rebalance == 'daily') or
-                            (i == 0) or 
+                            (i == 0) or
                             (end_flag))
 
             # Sums and inverse sums for each row.
@@ -90,7 +84,7 @@ class Strategy:
 
             # Loop though each symbol in portfolio.
             for symbol in self.portfolio.symbols:
-                
+
                 # Use variables to make code cleaner.
                 close    =      p[symbol]['close']
                 regime   =      p[symbol]['regime']
@@ -99,7 +93,7 @@ class Strategy:
                 sd       =  1 / p[symbol]['sd']
                 vola     =  1 / p[symbol]['vola']
                 ds_vola  =  1 / p[symbol]['ds_vola']
-                
+
                 # Assign weight.
                 weight = 0
                 if is_rebalance:
@@ -134,7 +128,7 @@ class Strategy:
         self.portfolio = pf.Portfolio()
         self.ts = self.portfolio.fetch_timeseries(self.symbols, self.start, self.end,
             fields=['close'], use_cache=self.options['use_cache'],
-             use_adj=self.options['use_adj'])
+            use_adj=self.options['use_adj'])
 
         # Check weight_by for valid value.
         weight_by = self.options['weight_by']
@@ -181,7 +175,7 @@ class Strategy:
         @pf.technical_indicator(self.symbols, 'ds_vola', 'close')
         def _downside_volatility(ts, input_column=None):
             """ Technical indicator: downside volatility (20 day annualized). """
-            return pf.VOLATILITY(ts, lookback=20, downside=True, price=input_column)      
+            return pf.VOLATILITY(ts, lookback=20, downside=True, price=input_column)
 
         # Add technical indicators.
         self.ts = _crossover(self.ts)

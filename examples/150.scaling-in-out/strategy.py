@@ -8,9 +8,6 @@ Scaling in and out of using the double-7s strategy.
    highs, sell some more, etc...
 """
 
-import datetime
-
-import matplotlib.pyplot as plt
 import pandas as pd
 
 import pinkfish as pf
@@ -58,7 +55,7 @@ class Strategy:
         for i, row in enumerate(self.ts.itertuples()):
 
             date = row.Index.to_pydatetime()
-            close = row.close; 
+            close = row.close
             end_flag = pf.is_last_row(self.ts, i)
 
             max_open_trades = self.options['max_open_trades']
@@ -101,7 +98,8 @@ class Strategy:
 
         # Fetch and select timeseries.
         self.ts = pf.fetch_timeseries(self.symbol, use_cache=self.options['use_cache'])
-        self.ts = pf.select_tradeperiod(self.ts, self.start, self.end, use_adj=self.options['use_adj'])
+        self.ts = pf.select_tradeperiod(self.ts, self.start, self.end,
+                                        use_adj=self.options['use_adj'])
 
         # Add technical indicator: 200 day sma regime filter.
         self.ts['regime'] = pf.CROSSOVER(self.ts, timeperiod_fast=1, timeperiod_slow=200)
@@ -112,7 +110,7 @@ class Strategy:
 
         # Finalize timeseries.
         self.ts, self.start = pf.finalize_timeseries(self.ts, self.start,
-                                                     dropna=True, drop_columns=['open', 'high', 'low'])
+                                dropna=True, drop_columns=['open', 'high', 'low'])
 
         # Create tlog and dbal objects.
         self.tlog = pf.TradeLog(self.symbol)

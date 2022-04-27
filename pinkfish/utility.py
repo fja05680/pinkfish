@@ -27,7 +27,7 @@ def import_strategy(strategy_name, top_level_dir='examples', module_name='strate
     strategy_name : str
         The leaf dir name that contains the strategy to import.
     top_level_dir : str, optional
-        The top level dir name for the strategies 
+        The top level dir name for the strategies
         (default is 'examples').
     module_name: str, optional
         The name of the python module (default is 'strategy').
@@ -46,7 +46,7 @@ def import_strategy(strategy_name, top_level_dir='examples', module_name='strate
                                     / Path(strategy_name)
                                     / Path(module_name + '.py'))
     print(strategy_location)
-    spec = importlib.util.spec_from_file_location(module_name, strategy_location) 
+    spec = importlib.util.spec_from_file_location(module_name, strategy_location)
     strategy = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(strategy)
     return strategy
@@ -78,17 +78,20 @@ def is_last_row(ts, index):
     """
     return True if (index == len(ts) - 1) else False
 
+
 def sort_dict(d, reverse=False):
     """
     Return sorted dict; optionally reverse sort.
     """
     return dict(sorted(d.items(), key=lambda x: x[1], reverse=reverse))
 
+
 def set_dict_values(d, value):
     """
     Return dict with same keys as `d` and all values equal to `value'.
     """
     return dict.fromkeys(d, value)
+
 
 def find_nan_rows(ts):
     """

@@ -20,11 +20,7 @@ top tier (three) and buy the sectors that move into the top tier
 (two or three).
 """
 
-import datetime
 import random
-
-import matplotlib.pyplot as plt
-import pandas as pd
 
 import pinkfish as pf
 
@@ -54,7 +50,7 @@ class Strategy:
         self.tlog = None
         self.dbal = None
         self.stats = None
-        
+
     def _algo(self):
 
         pf.TradeLog.cash = self.capital
@@ -86,7 +82,7 @@ class Strategy:
             if row.first_dotm or end_flag:
 
                 month_count -= 1
-                
+
                 # Get prices for current row
                 mom_field = 'mom' + str(lookback)
                 p = self.portfolio.get_prices(row, fields=['close', mom_field])
@@ -115,8 +111,8 @@ class Strategy:
 
                     # Get the top tier momentum symbols; assign
                     # equal weight to top tier symbols
-                    for i in range(self.options['top_tier']):
-                        symbol = list(mom.keys())[i]
+                    for j in range(self.options['top_tier']):
+                        symbol = list(mom.keys())[j]
                         weights[symbol] = 1 / self.options['top_tier']
 
                 # Absolute momentum: Set weight to zero if percent
@@ -146,7 +142,7 @@ class Strategy:
 
         # Add calendar columns
         self.ts = self.portfolio.calendar(self.ts)
-        
+
         # Add technical indicator Momenteum for all symbols in portfolio.
         lookbacks = range(3, 18+1)
         for lookback in lookbacks:
@@ -168,4 +164,3 @@ class Strategy:
 
     def _get_stats(self):
         self.stats = pf.stats(self.ts, self.tlog, self.dbal, self.capital)
-

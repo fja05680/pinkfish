@@ -15,9 +15,6 @@ compare the periods as if we were comparing different stocks in a
 portfolio.
 """
 
-import datetime
-
-import matplotlib.pyplot as plt
 import pandas as pd
 
 import pinkfish as pf
@@ -63,14 +60,9 @@ class Strategy:
             # Get the prices for this row, put in dict p.
             p = self.portfolio.get_prices(row, fields=['close'])
 
-            # Get row values
-            regime = row.regime
-            sma = row.sma
-
             # Loop though each symbol in portfolio.
             for symbol in self.portfolio.symbols:
 
-                period = str(symbol.split('_')[1])
                 period_high_field = 'period_high' + str(symbol.split('_')[1])
                 period_low_field  = 'period_low'  + str(symbol.split('_')[1])
                 period_high = getattr(row, period_high_field)
@@ -87,7 +79,7 @@ class Strategy:
                 if symbol in self.portfolio.positions:
                     if close == period_high or end_flag:
                         self.portfolio.adjust_percent(date, close, 0, symbol, row)
-                        
+
                 # Buy Logic
                 # First we check to see if there is an existing position, if so do nothing
                 #  - Buy if (regime > 0 or not use_regime_filter) and price closes at X day low
@@ -109,17 +101,17 @@ class Strategy:
         for period in periods:
             symbol = self.symbol + '_' + str(period)
             self.symbols.append(symbol)
-        
+
         self.portfolio = pf.Portfolio()
         self.ts = self.portfolio.fetch_timeseries(self.symbols, self.start, self.end,
                     fields=['close'],
                     use_cache=self.options['use_cache'],
                     use_adj=self.options['use_adj'])
-        
-        # Fetch symbol time series
+
+        # Fetch symbol time series.
         ts = pf.fetch_timeseries(self.symbol, use_cache=self.options['use_cache'])
         ts = pf.select_tradeperiod(ts, self.start, self.end, use_adj=self.options['use_adj']) 
-        
+
         # Add technical indicator: 200 sma regime filter.
         self.ts['regime'] = pf.CROSSOVER(ts, timeperiod_fast=1, timeperiod_slow=200)
 
@@ -130,7 +122,7 @@ class Strategy:
         for period in periods:
             self.ts['period_high'+str(period)] = pd.Series(ts.close).rolling(period).max()
             self.ts['period_low'+str(period)]  = pd.Series(ts.close).rolling(period).min()
-        
+
         # Finalize timeseries.
         self.ts, self.start = pf.finalize_timeseries(self.ts, self.start, dropna=True)
 
@@ -146,4 +138,3 @@ class Strategy:
 
     def _get_stats(self):
         self.stats = pf.stats(self.ts, self.tlog, self.dbal, self.capital)
-

@@ -180,7 +180,8 @@ def plot_bar_graph(stats, benchmark_stats=None, metrics=default_metrics,
     pd.DataFrame
         Summary metrics.
     """
-    if extras is None: extras = ()
+    if extras is None:
+        extras = ()
     metrics += extras
 
     df = pf.summary(stats, benchmark_stats, metrics)

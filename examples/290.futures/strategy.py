@@ -6,11 +6,6 @@ Futures Trend Following portfolio stategy.
 
 """
 
-import datetime
-
-import matplotlib.pyplot as plt
-import pandas as pd
-
 import pinkfish as pf
 
 
@@ -29,13 +24,13 @@ default_options = {
 class Strategy:
 
     def __init__(self, symbols, capital, start, end, options=default_options):
-    
+
         self.symbols = symbols
         self.capital = capital
         self.start = start
         self.end = end
         self.options = options.copy()
-        
+
         self.ts = None
         self.rlog = None
         self.tlog = None
@@ -46,13 +41,13 @@ class Strategy:
 
         pf.TradeLog.cash = self.capital
         pf.TradeLog.margin = self.options['margin']
-        
+
         # Loop though timeseries.
         for i, row in enumerate(self.ts.itertuples()):
 
             date = row.Index.to_pydatetime()
             end_flag = pf.is_last_row(self.ts, i)
-            
+
             # Get the prices for this row, put in dict p.
             p = self.portfolio.get_prices(row,
                 fields=['close', 'regime', 'vola'])
@@ -69,18 +64,17 @@ class Strategy:
                 close = p[symbol]['close']
                 regime = p[symbol]['regime']
                 inverse_vola = 1 / p[symbol]['vola']
-                
+
                 # Use volatility weight.
                 if self.options['use_vola_weight']:
                     weight = inverse_vola / inverse_vola_sum
                 # Use equal weight.
                 else:
                     weight = 1 / len(self.portfolio.symbols)
-                
 
                 if end_flag:
                     self.portfolio.adjust_percent(date, close, 0, symbol, row)
-                
+
                 # Sell Logic
                 #  - sell regime == -1
 
@@ -90,7 +84,6 @@ class Strategy:
                     if self.options['sell_short']:
                         self.portfolio.adjust_percent(date, close, weight, symbol, row,
                                                       direction=pf.Direction.SHORT)
-                        
                 # Buy Logic
                 #  - Buy if regime == 1
 
@@ -144,4 +137,3 @@ class Strategy:
 
     def _get_stats(self):
         self.stats = pf.stats(self.ts, self.tlog, self.dbal, self.capital)
-

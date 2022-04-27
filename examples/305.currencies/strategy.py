@@ -12,10 +12,6 @@ portfolio and allocate based on either equal weight or volatility
 parity weight (inverse volatility).
 """
 
-import datetime
-
-import matplotlib.pyplot as plt
-import pandas as pd
 from talib.abstract import *
 
 import pinkfish as pf
@@ -46,13 +42,13 @@ default_options = {
 class Strategy:
 
     def __init__(self, symbols, capital, start, end, options=default_options):
-    
+
         self.symbols = symbols
         self.capital = capital
         self.start = start
         self.end = end
         self.options = options.copy()
-        
+
         self.ts = None
         self.rlog = None
         self.tlog = None
@@ -66,7 +62,7 @@ class Strategy:
 
         # Create a stop_loss dict for each symbol.
         stop_loss = {symbol:0 for symbol in self.portfolio.symbols}
-        
+
         # stop loss pct should range between 0 and 1, user may have
         # expressed this as a percentage 0-100
         if self.options['stop_loss_pct'] > 1:
@@ -74,13 +70,13 @@ class Strategy:
 
         upper_band = self.options['sma_pct_band']/1000
         lower_band = -self.options['sma_pct_band']/1000
-        
+
         # Loop though timeseries.
         for i, row in enumerate(self.ts.itertuples()):
 
             date = row.Index.to_pydatetime()
             end_flag = pf.is_last_row(self.ts, i)
-            
+
             # Get the prices for this row, put in dict p.
             p = self.portfolio.get_prices(row,
                 fields=['close', 'regime', 'sma_roc', 'vola'])
@@ -98,7 +94,7 @@ class Strategy:
                 regime = p[symbol]['regime']
                 sma_roc = p[symbol]['sma_roc']
                 inverse_vola = 1 / p[symbol]['vola']
-                
+
                 # Sell Logic
                 # First we check if an existing position in symbol should be sold
                 #  - sell sma_roc < 0
@@ -109,13 +105,14 @@ class Strategy:
                     if sma_roc < lower_band or close < stop_loss[symbol] or end_flag:
                         if close < stop_loss[symbol]: print('STOP LOSS!!!')
                         self.portfolio.adjust_percent(date, close, 0, symbol, row)
-                        
+
                 # Buy Logic
                 # First we check to see if there is an existing position, if so do nothing
                 #  - Buy if (regime > 0 or not use_regime_filter) and sma_roc > 0
 
                 else:
-                    if (regime > 0 or not self.options['use_regime_filter']) and sma_roc > upper_band:
+                    if ((regime > 0 or not self.options['use_regime_filter'])
+                            and sma_roc > upper_band):
                         # Use volatility weight.
                         if self.options['use_vola_weight']:
                             weight = inverse_vola / inverse_vola_sum
@@ -143,12 +140,12 @@ class Strategy:
             """ Technical indicator: 200 sma regime filter for each symbol. """
             return pf.CROSSOVER(ts, timeperiod_fast=1, timeperiod_slow=200,
                                 price=input_column, prevday=False)
-        
+
         @pf.technical_indicator(self.symbols, 'vola', 'close')
         def _volatility(ts, input_column=None):
             """ Technical indicator: volatility. """
             return pf.VOLATILITY(ts, price=input_column)
-        
+
         @pf.technical_indicator(self.symbols, 'sma_roc', 'close')
         def _sma_roc(ts, input_column=None):
             """ Techincal indicator: X day SMA_ROC. """
@@ -176,4 +173,3 @@ class Strategy:
 
     def _get_stats(self):
         self.stats = pf.stats(self.ts, self.tlog, self.dbal, self.capital)
-

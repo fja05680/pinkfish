@@ -13,8 +13,6 @@ Scaling in and out of using the double-7s strategy.
     is given in strategy.py.
 """
 
-import datetime
-
 import matplotlib.pyplot as plt
 import pandas as pd
 
@@ -121,10 +119,10 @@ class Strategy:
 
             if shares > 0:
                 pf.DBG("{0} BUY  {1} {2} @ {3:.2f}".format(
-                       date, shares, self.symbol, close))
+                    date, shares, self.symbol, close))
             elif shares < 0:
                 pf.DBG("{0} SELL {1} {2} @ {3:.2f}".format(
-                       date, -shares, self.symbol, close))
+                    date, -shares, self.symbol, close))
 
             # Record daily balance.
             self.dbal.append(date, close)
@@ -133,7 +131,8 @@ class Strategy:
 
         # Fetch and select timeseries.
         self.ts = pf.fetch_timeseries(self.symbol, use_cache=self.options['use_cache'])
-        self.ts = pf.select_tradeperiod(self.ts, self.start, self.end, use_adj=self.options['use_adj'])
+        self.ts = pf.select_tradeperiod(self.ts, self.start, self.end,
+                                        use_adj=self.options['use_adj'])
 
         # Add technical indicator: 200 day sma regime filter.
         self.ts['regime'] = pf.CROSSOVER(self.ts, timeperiod_fast=1, timeperiod_slow=200)
@@ -144,7 +143,7 @@ class Strategy:
 
         # Finalize timeseries.
         self.ts, self.start = pf.finalize_timeseries(self.ts, self.start,
-                                                    dropna=True, drop_columns=['open', 'high', 'low'])
+                                dropna=True, drop_columns=['open', 'high', 'low'])
 
         # Create tlog and dbal objects.
         self.tlog = pf.TradeLog(self.symbol)
@@ -163,6 +162,7 @@ class Strategy:
     def _get_stats(self):
         self.stats = pf.stats(self.ts, self.tlog, self.dbal, self.capital)
 
+
 def summary(strategies, metrics):
     """
     Stores stats summary in a DataFrame.
@@ -179,6 +179,7 @@ def summary(strategies, metrics):
 
     df = pd.DataFrame(data, columns=columns, index=index)
     return df
+
 
 def plot_bar_graph(df, metric):
     """

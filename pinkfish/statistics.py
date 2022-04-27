@@ -3,315 +3,315 @@ Calculate trading statistics.
 
 The stats() function returns the following metrics in a pd.Series.
 
- - `start` : str  
+ - `start` : str
    The date when trading begins formatted as YY-MM-DD.
 
- - `end` : str  
+ - `end` : str
    The date when trading ends formatted as YY-MM-DD.
 
- - `beginning_balance` : int  
+ - `beginning_balance` : int
     The initial capital.
 
- - `ending_balance` : float  
+ - `ending_balance` : float
     The ending capital.
 
- - `total_net_profit` : float  
+ - `total_net_profit` : float
     Total value of all profitable trades minus all losing trades.
 
- - `gross_profit` : float  
+ - `gross_profit` : float
     Total value of all profitable trades.
 
- - `gross_loss` : float  
+ - `gross_loss` : float
     Total value of all losing trades.
 
- - `profit_factor` : float  
+ - `profit_factor` : float
     The Ratio of the total profits from profitable trades divided by
     the total loses from losing trades.  A break-even system has a
     profit factor of 1.
 
- - `return_on_initial_capital` : float  
+ - `return_on_initial_capital` : float
     The ratio of gross profit divided by the initial capital and
     multiplied by 100.
 
- - `annual_return_rate` : float  
+ - `annual_return_rate` : float
     The compound annual growth rate of the strategy.
 
- - `trading_period` : str  
+ - `trading_period` : str
     The trading time frame expressed as years, monthe, and days.
 
- - `pct_time_in_market` : float  
+ - `pct_time_in_market` : float
     The percentage of days in which the strategy is not completely
     holding cash.
 
- - `margin` : float  
+ - `margin` : float
     The buying power in dollars divided by the capital.  For example,
     if the margin is 2 and the capital is $10,000, then the buying
     power is $20,000.
 
- - `avg_leverage` : float  
+ - `avg_leverage` : float
     Leverage is the total value of securities held plus any cash,
     divided by the total value of securities held plus cash minus
     loans.  The average leverage is just the average daily leverage
     over the life of the strategy.
 
- - `max_leverage` : float  
+ - `max_leverage` : float
     The maximum daily leverage over the life of the strategy.
 
- - `min_leverage` : float  
+ - `min_leverage` : floatpppppppppppppppppppppppppp
     The minimum daily leverage over the life of the strategy.
 
- - `total_num_trades` : int  
+ - `total_num_trades` : int
     The number of closed trades.
 
- - `trades_per_year` : float  
+ - `trades_per_year` : float
     The average number of closed trades per year.
 
- - `num_winning_trades` : int  
+ - `num_winning_trades` : int
     The number of profitable trades.
 
- - `num_losing_trades` : int  
+ - `num_losing_trades` : int
     The number of losing trades.
 
- - `num_even_trades` : int  
+ - `num_even_trades` : int
     The number of break even trades.
 
- - `pct_profitable_trades` : float  
+ - `pct_profitable_trades` : float
     The number of winning trades divided by the total number of closed
     trades and multiplied by 100.
 
- - `avg_profit_per_trade` : float  
+ - `avg_profit_per_trade` : float
     The total net profit divided by the total number of closed trades
     and multiplied by 100.
 
- - `avg_profit_per_winning_trade` : float  
+ - `avg_profit_per_winning_trade` : float
     The gross profit divided by the number of winning trades.
 
- - `avg_loss_per_losing_trade` : float  
+ - `avg_loss_per_losing_trade` : float
     The gross loss divided by the number of losing trades.  This
     quantity is negative.
 
- - `ratio_avg_profit_win_loss` : float  
+ - `ratio_avg_profit_win_loss` : float
     The absolute value of the average profit per winning trade divided
     by the average loss per losing trade.
 
- - `largest_profit_winning_trade` : float  
+ - `largest_profit_winning_trade` : float
     The single largest profit for all winning trades.
 
- - `largest_loss_losing_trade` : float  
+ - `largest_loss_losing_trade` : float
     The single largest loss for all losing trades.
 
- - `num_winning_points` : float  
+ - `num_winning_points` : float
     The sum of the increase in points from all winning trades.
 
- - `num_losing_points` : float  
+ - `num_losing_points` : float
     The sum of the decrease in points from all losing trades.  This
     quantity is negative.
 
- - `total_net_points` : float  
+ - `total_net_points` : float
     The mathematical difference between winning points and
     losing points.
 
- - `avg_points` : float  
+ - `avg_points` : float
     The total net points divided by the total number of trades.
 
- - `largest_points_winning_trade` : float  
+ - `largest_points_winning_trade` : float
     The single largest point increase for all winning trades.
 
- - `largest_points_losing_trade` : float  
+ - `largest_points_losing_trade` : float
     The single largest point decrease for all losing trades.
 
- - `avg_pct_gain_per_trade` : float  
+ - `avg_pct_gain_per_trade` : float
     The average percentage gain for all trades.
 
- - `largest_pct_winning_trade` : float  
+ - `largest_pct_winning_trade` : float
     The single largest percent increase for all winning trades.
 
- - `largest_pct_losing_trade` : float  
+ - `largest_pct_losing_trade` : float
     The single largest percent decrease for all losing trades.
 
- - `expected_shortfall` : float  
+ - `expected_shortfall` : float
     The expected shortfall is calculated by taking the average of
     returns in the worst 5% of cases.  In other words, it is the
     average percent loss of the worst 5% of losing trades.
 
- - `max_consecutive_winning_trades` : int  
+ - `max_consecutive_winning_trades` : int
     The longest winning streak in trades.
 
- - `max_consecutive_losing_trades` : int  
+ - `max_consecutive_losing_trades` : int
     The longest losing streak in trades.
 
- - `avg_bars_winning_trades` : float  
+ - `avg_bars_winning_trades` : float
     On average, how long a winning trade takes in market days.
 
- - `avg_bars_losing_trades` : float  
+ - `avg_bars_losing_trades` : float
     On average, how long a losing trade takes in market days.
 
- - `max_closed_out_drawdown` : float  
+ - `max_closed_out_drawdown` : float
     Worst peak minus trough balance based on closing prices.
 
- - `max_closed_out_drawdown_peak_date` : str  
+ - `max_closed_out_drawdown_peak_date` : str
     The beginning and peak date of the largest drawdown formatted
     as YY-MM-DD.  The balance hit it's highest point on this date.
 
- - `max_closed_out_drawdown_trough_date` : str  
+ - `max_closed_out_drawdown_trough_date` : str
     The trough date of the largest drawdown.  The balance hit it's
     lowest point on this date.
 
- - `max_closed_out_drawdown_recovery_date` : str  
+ - `max_closed_out_drawdown_recovery_date` : str
     The end date of the largest drawdown.  The date in which the
     balance has equaled the peak value again.
 
- - `drawdown_loss_period` : int  
+ - `drawdown_loss_period` : int
     The number of calendar days from peak to trough.
 
- - `drawdown_recovery_period` : int  
+ - `drawdown_recovery_period` : int
     The number of calendar days from trough to recovery.
 
- - `annualized_return_over_max_drawdown` : float  
+ - `annualized_return_over_max_drawdown` : float
     Annual return rate divided by the max drawdown.
 
- - `max_intra_day_drawdown` : float  
+ - `max_intra_day_drawdown` : float
     Worst peak minus trough balance based on intraday values.
 
- - `avg_yearly_closed_out_drawdown` :float  
+ - `avg_yearly_closed_out_drawdown` :float
     The average yearly drawdown calculated using every available
     market year period.  In other words, every rollowing window of 252
     market days is taken as a different year in the calculation.
 
- - `max_yearly_closed_out_drawdown` : float  
+ - `max_yearly_closed_out_drawdown` : float
     Worst peak minus trough balance based on closing prices during any
     252 market day period.
 
- - `avg_monthly_closed_out_drawdown` : float  
+ - `avg_monthly_closed_out_drawdown` : float
     The average monthly drawdown calculated using every available
     market month period.  In other words, every rollowing window of 20
     market days is taken as a different month in the calculation.
 
- - `max_monthly_closed_out_drawdown` : float  
+ - `max_monthly_closed_out_drawdown` : float
     Worst peak minus trough balance based on closing prices during any
     20 market day period.
 
- - `avg_weekly_closed_out_drawdown` : float  
+ - `avg_weekly_closed_out_drawdown` : float
     The average weekly drawdown calculated using every available
     market week period.  In other words, every rollowing window of 5
     market days is taken as a different week in the calculation.
 
- - `max_weekly_closed_out_drawdown` : float  
+ - `max_weekly_closed_out_drawdown` : float
     Worst peak minus trough balance based on closing prices during any
     5 market day period.
 
- - `avg_yearly_closed_out_runup` : float  
+ - `avg_yearly_closed_out_runup` : float
     The average yearly runup calculated using every available
     market year period.  In other words, every rollowing window of 252
     market days is taken as a different year in the calculation.
 
- - `max_yearly_closed_out_runup` : float  
+ - `max_yearly_closed_out_runup` : float
     Best peak minus trough balance based on closing prices during any
     252 market day period.
 
- - `avg_monthly_closed_out_runup` : float  
+ - `avg_monthly_closed_out_runup` : float
     The average monthly runup calculated using every available
     market month period.  In other words, every rollowing window of 20
     market days is taken as a different month in the calculation.
 
- - `max_monthly_closed_out_runup` : float  
+ - `max_monthly_closed_out_runup` : float
     Best peak minus trough balance based on closing prices during any
     20 market day period.
 
- - `avg_weekly_closed_out_runup` : float  
+ - `avg_weekly_closed_out_runup` : float
     The average weekly runup calculated using every available
     market week period.  In other words, every rollowing window of 5
     market days is taken as a different week in the calculation.
 
- - `max_weekly_closed_out_runup` : float  
+ - `max_weekly_closed_out_runup` : float
     Best peak minus trough balance based on closing prices during any
     5 market day period.
 
- - `pct_profitable_years` : float  
+ - `pct_profitable_years` : float
     The percentage of all years that were profitable.  In other words,
     the percentage of 252 market day periods that were profitable.
 
- - `best_year` : float  
+ - `best_year` : float
     The percentage increase in balance of the best year.
 
- - `worst_year` : float  
+ - `worst_year` : float
     The percentage decrease in balance of the worst year.
 
- - `avg_year` : float  
+ - `avg_year` : float
     The percentage change per year on average.
 
- - `annual_std` : float  
+ - `annual_std` : float
     The yearly standard deviation over the entire trading period.
 
- - `pct_profitable_months` : float  
+ - `pct_profitable_months` : float
     The percentage of all months that were profitable.  In other words,
     the percentage of 20 market day periods that were profitable.
 
- - `best_month` : float  
+ - `best_month` : float
     The percentage increase in balance of the best month.
 
- - `worst_month` : float  
+ - `worst_month` : float
     The percentage decrease in balance of the worst month.
 
- - `avg_month` : float  
+ - `avg_month` : float
     The percentage change per month on average.
 
- - `monthly_std` : float  
+ - `monthly_std` : float
     The monthly standard deviation over the entire trading period.
 
- - `pct_profitable_weeks` : float  
+ - `pct_profitable_weeks` : float
     The percentage of all weeks that were profitable.  In other words,
     the percentage of 5 market day periods that were profitable.
 
- - `best_week` : float  
+ - `best_week` : float
     The percentage increase in balance of the best week.
 
- - `worst_week` : float  
+ - `worst_week` : float
     The percentage decrease in balance of the worst week.
 
- - `avg_week` : float  
+ - `avg_week` : float
     The percentage change per week on average.
 
- - `weekly_std` : float  
+ - `weekly_std` : float
     The weekly standard deviation over the entire trading period.
 
- - `pct_profitable_weeks` : float  
+ - `pct_profitable_weeks` : float
     The percentage of all weeks that were profitable.  In other words,
     the percentage of 5 market day periods that were profitable.
 
- - `weekly_std` : float  
+ - `weekly_std` : float
     The weekly standard deviation over the entire trading period.
 
- - `pct_profitable_days` : float  
+ - `pct_profitable_days` : float
     The percentage of all days that were profitable.
 
- - `best_day` : float  
+ - `best_day` : float
     The percentage increase in balance of the best day.
 
- - `worst_day` : float  
+ - `worst_day` : float
     The percentage decrease in balance of the worst day.
 
- - `avg_day` : float  
+ - `avg_day` : float
     The percentage change per day on average.
 
- - `daily_std` : float  
+ - `daily_std` : float
     The daily standard deviation over the entire trading period.
 
- - `sharpe_ratio` : float  
+ - `sharpe_ratio` : float
     A measure of risk adjusted return.  The ratio is the average return
     per unit of volatility, i.e. standard deviation.
 
- - `sharpe_ratio_max` : float  
+ - `sharpe_ratio_max` : float
     The maximum expected sharpe ratio. It is the sharpe ratio plus
     3 standard deviations of the sharpe ratio.  99.73% of sharpe ratios
     are theoretically below this value.
 
- - `sharpe_ratio_min` : float  
+ - `sharpe_ratio_min` : float
     The mimimum expected sharpe ratio. It is the sharpe ratio minus
     3 standard deviations of the sharpe ratio.  99.73% of sharpe ratios
     are theoretically above this value.
 
- - `sortino_ratio` : float  
+ - `sortino_ratio` : float
     A variation of the Sharpe ratio that differentiates harmful
     volatility from overall volatility by using the asset's standard
     deviation of negative portfolio returns (downside deviation)
@@ -330,7 +330,7 @@ import pandas as pd
 
 import pinkfish as pf
 
-# this is a pointer to the module object instance itself.
+# This is a reference to the module object instance itself.
 __m = sys.modules[__name__]
 
 
@@ -1050,7 +1050,8 @@ def summary(stats, benchmark_stats=None, metrics=default_metrics, extras=None):
         The extra metrics to be used in the summary (default is None,
         which imples that no extra metrics are being used).
     """
-    if extras is None: extras = ()
+    if extras is None:
+        extras = ()
     metrics += extras
 
     # Columns.
@@ -1059,7 +1060,8 @@ def summary(stats, benchmark_stats=None, metrics=default_metrics, extras=None):
         columns.append('benchmark')
 
     # Index & data.
-    index = []; data = []
+    index = []
+    data = []
     for metric in metrics:
         index.append(metric)
         if benchmark_stats is not None:

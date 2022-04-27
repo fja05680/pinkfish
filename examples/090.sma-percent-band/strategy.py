@@ -8,11 +8,6 @@ closes above the upper band and sell if the price closes below the
 lower band.
 """
 
-import datetime
-
-import matplotlib.pyplot as plt
-import pandas as pd
-
 import pinkfish as pf
 
 
@@ -75,9 +70,8 @@ class Strategy:
 
         # Finalize timeseries
         self.ts, self.start = pf.finalize_timeseries(self.ts, self.start,
-                                                     dropna=True, drop_columns=['open', 'high', 'low'])
+                                dropna=True, drop_columns=['open', 'high', 'low'])
 
-        
         self.tlog = pf.TradeLog(self.symbol)
         self.dbal = pf.DailyBal()
 
@@ -92,4 +86,3 @@ class Strategy:
 
     def _get_stats(self):
         self.stats = pf.stats(self.ts, self.tlog, self.dbal, self.capital)
-

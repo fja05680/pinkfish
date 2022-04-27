@@ -9,11 +9,6 @@ securities.
 4. The stock closes below its lower band, sell your long position.
 """
 
-import datetime
-
-import matplotlib.pyplot as plt
-import pandas as pd
-
 import pinkfish as pf
 
 
@@ -36,6 +31,7 @@ class Strategy:
         self.options = options.copy()
 
         self.ts = None
+        self.rlog = None
         self.tlog = None
         self.dbal = None
         self.stats = None
@@ -47,7 +43,7 @@ class Strategy:
         for i, row in enumerate(self.ts.itertuples()):
 
             date = row.Index.to_pydatetime()
-            close = row.close; 
+            close = row.close
             end_flag = pf.is_last_row(self.ts, i)
             upper_band = row.sma * (1 + self.options['percent_band'] / 100)
             lower_band = row.sma * (1 - self.options['percent_band'] / 100)
@@ -60,9 +56,9 @@ class Strategy:
             #  - Sell if end of data
 
             if self.tlog.shares > 0:
-                 if ((self.options['use_regime_filter'] and row.regime < 0)
-                     or close < lower_band 
-                     or end_flag):
+                if ((self.options['use_regime_filter'] and row.regime < 0)
+                        or close < lower_band
+                        or end_flag):
                     self.tlog.sell(date, close)
 
             # Buy Logic
@@ -71,10 +67,10 @@ class Strategy:
             #  - Buy if (regime > 0 or not use_regime_filter)
             #            and price closes above upper_band
             #            and (use_regime_filter and regime > 0)
-            
+
             else:
                 if ((row.regime > 0 or not self.options['use_regime_filter'])
-                    and close > upper_band):
+                        and close > upper_band):
                     self.tlog.buy(date, close)
 
             # Record daily balance
@@ -87,23 +83,23 @@ class Strategy:
 
         # Add technical indicator:  day sma
         self.ts['sma'] = pf.SMA(self.ts, timeperiod=self.options['sma_period'])
-        
+
         # add S&P500 200 sma regime filter
         ts = pf.fetch_timeseries('^GSPC')
         ts = pf.select_tradeperiod(ts, self.start, self.end, use_adj=False) 
         self.ts['regime'] = \
             pf.CROSSOVER(ts, timeperiod_fast=1, timeperiod_slow=200)
-        
+
         self.ts, self.start = pf.finalize_timeseries(self.ts, self.start,
-                                                     dropna=True, drop_columns=['open', 'high', 'low'])
-        
+                                dropna=True, drop_columns=['open', 'high', 'low'])
+
         self.tlog = pf.TradeLog(self.symbol)
         self.dbal = pf.DailyBal()
 
         self._algo()
         self._get_logs()
         self._get_stats()
-        
+
 
     def _get_logs(self):
         self.rlog = self.tlog.get_log_raw()
@@ -112,4 +108,3 @@ class Strategy:
 
     def _get_stats(self):
         self.stats = pf.stats(self.ts, self.tlog, self.dbal, self.capital)
-

@@ -15,9 +15,6 @@ that then security has bottomed and there are some opportunities for
 good trades before the regime filter would allow us to trade again.
 """
 
-import datetime
-
-import matplotlib.pyplot as plt
 import pandas as pd
 
 import pinkfish as pf
@@ -44,12 +41,12 @@ class Strategy:
         self.start = start
         self.end = end
         self.options = options.copy()
-        
+
         self.ts = None
         self.tlog = None
         self.dbal = None
         self.stats = None
-        
+
     def _algo(self):
 
         pf.TradeLog.cash = self.capital
@@ -61,7 +58,7 @@ class Strategy:
             date = row.Index.to_pydatetime()
             close = row.close 
             end_flag = pf.is_last_row(self.ts, i)
-            
+
             # Sell Logic
             # First we check if we have any shares, then
             #  - Sell if price closes at X day high.
@@ -70,16 +67,17 @@ class Strategy:
 
             if self.tlog.shares > 0:
                 if close == row.period_high or close < stop_loss or end_flag:
-                    if close < stop_loss: print('STOP LOSS!!!')
+                    if close < stop_loss:
+                        print('STOP LOSS!!!')
                     self.tlog.sell(date, close)
-            
+
             # Buy Logic
             #  - Buy if (regime > 0 or close > row.sma) or not using regime filter)
             #            and price closes at X day low.
 
             else:
                 if (((row.regime > 0 or close > row.sma) or not self.options['use_regime_filter'])
-                      and close == row.period_low):
+                        and close == row.period_low):
                     self.tlog.buy(date, close)
                     # Set stop loss.
                     stop_loss = (1-self.options['stop_loss_pct'])*close
@@ -101,7 +99,7 @@ class Strategy:
 
         # Add technical indicator: X day high, and X day low.
         self.ts['period_high'] = pd.Series(self.ts.close).rolling(self.options['period']).max()
-        self.ts['period_low'] =  pd.Series(self.ts.close).rolling(self.options['period']).min()
+        self.ts['period_low']  = pd.Series(self.ts.close).rolling(self.options['period']).min()
         
         # Finalize timeseries.
         self.ts, self.start = pf.finalize_timeseries(self.ts, self.start, dropna=True, drop_columns=['open', 'high', 'low'])
@@ -121,4 +119,3 @@ class Strategy:
 
     def _get_stats(self):
         self.stats = pf.stats(self.ts, self.tlog, self.dbal, self.capital)
-

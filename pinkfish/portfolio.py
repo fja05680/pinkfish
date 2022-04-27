@@ -4,17 +4,17 @@ Portfolio backtesting.
 
 from functools import wraps
 
+# TODO: The following will ignore a new Performance Warning from Pandas.
+# Will try to find a better solution later.
+from warnings import simplefilter
+simplefilter(action="ignore", category=pd.errors.PerformanceWarning)
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn
 
 import pinkfish as pf
-
-# TODO: The following will ignore a new Performance Warning from Pandas.
-# Will try to find a better solution later.
-from warnings import simplefilter
-simplefilter(action="ignore", category=pd.errors.PerformanceWarning)
 
 
 def technical_indicator(symbols, output_column_suffix,
@@ -81,7 +81,7 @@ class Portfolio:
 
     Methods
     -------
-     - fetch_timeseries()  
+     - fetch_timeseries()
        Get time series data for symbols.
 
      - add_technical_indicator()  
@@ -102,19 +102,19 @@ class Portfolio:
      - shares()  
        Return number of shares for given symbol in portfolio.
 
-     - positions  
+     - positions
        Gets the active symbols in portfolio as a list.
 
-     - share_percent()  
+     - share_percent()
        Return share value of symbol as a percentage of `total_funds`.
 
-     - adjust_percent()  
+     - adjust_percent()
        Adjust symbol to a specified weight (percent) of portfolio.
 
-     - print_holdings()  
+     - print_holdings()
        Print snapshot of portfolio holding and values.
 
-     - init_trade_logs()  
+     - init_trade_logs()
        Add a trade log for each symbol.
 
      - record_daily_balance()  
@@ -454,7 +454,7 @@ class Portfolio:
     def positions(self):
         """
         Return the active symbols in portfolio as a list.
-        
+   
         This returns only those symbols that currently have shares
         allocated to them, either long or short.
 
@@ -671,7 +671,7 @@ class Portfolio:
         Append to daily balance list.
 
         The portfolio version of this function uses closing values
-        for the daily high, low, and close. 
+        for the daily high, low, and close.
 
         Parameters
         ----------

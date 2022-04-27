@@ -183,7 +183,7 @@ class TradeLog:
         Calculate buying power.
         """
         buying_power = (TradeLog.cash * TradeLog.margin
-                      + self.share_value(price) * (TradeLog.margin -1))
+                        + self.share_value(price) * (TradeLog.margin -1))
         return buying_power
 
     def calc_shares(self, price, cash=None):
@@ -334,7 +334,8 @@ class TradeLog:
         """
         Qty of an open trade by index.
         """
-        if index >= self.num_open_trades: return 0
+        if index >= self.num_open_trades:
+            return 0
         return self._open_trades[index]['qty']
 
     def _exit_trade(self, exit_date, exit_price, shares=None, direction=Direction.LONG):
@@ -401,7 +402,7 @@ class TradeLog:
 
             # Update open_trades list.
             if shares == qty:
-                del self._open_trades[0];
+                del self._open_trades[0]
                 break
             elif shares < qty:
                 self._open_trades[0]['qty'] -= shares
@@ -472,7 +473,7 @@ class TradeLog:
 
     ####################################################################
     # GET PRICES (get_price, get_prices)
-    
+
     def get_price(self, row, field='close'):
         """
         Return price given row and field.
@@ -663,7 +664,7 @@ class TradeLog:
     def get_log(self, merge_trades=False):
         """
         Return the trade log.
-        
+
         The trade log consists of the following columns:
         'entry_date', 'entry_price', 'exit_date', 'exit_price',
         'pl_points', 'pl_cash', 'qty', 'cumul_total',
@@ -713,7 +714,7 @@ class TradeLog:
 class TradeState:
     """
     The trade state of OPEN, HOLD, or CLOSE.
-    
+
     In the Daily Balance log, trade state is given by these
     characters: OPEN='O', HOLD='-', and CLOSE='X'
     """
@@ -803,7 +804,7 @@ class DailyBal:
         def trade_state(row):
             """
             Apply function for adding the `state` column to dbal.
-            
+
             Convert pandas.timestamp to numpy.datetime64.
             See if there was a entry or exit in tlog on date.
             """

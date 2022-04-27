@@ -33,10 +33,11 @@ ac
 ------------------------------------------------------------------------
 """
 
-import empyrical as em
 from IPython.core.display import display, HTML
 import matplotlib.pyplot as plt
 import pandas as pd
+
+import empyrical as em
 
 import pinkfish as pf
 
@@ -177,10 +178,10 @@ def holding_period_map(dbal):
         table += "<th>{}</th>".format(i+1)
     table += "</tr>"
 
-    for the_year, value in year.iteritems(): # Iterates years
+    for the_year, _ in year.iteritems(): # Iterates years
         table += f"<tr><th>{the_year}</th>"  # New table row
 
-        for years_held in (range(1, len(year)+1)): # Iterates years held
+        for years_held in range(1, len(year)+1): # Iterates years held
             if years_held <= len(year[year_start:year_start + years_held]):
                 ret = em.annual_return(year[year_start:year_start + years_held], 'yearly')
                 table += "<td>{:.0f}</td>".format(ret * 100)
@@ -312,7 +313,7 @@ def prettier_graphs(dbal, benchmark_dbal, dbal_label='Strategy',
 def volatility_graphs(dbals, labels, points_to_plot=None):
     """
     Plot volatility graphs.
-    
+
     The first graph is a boxplot showing the differences between
     2 or more returns.  The second graph shows the volatility plotted
     for 2 or more returns.
@@ -344,9 +345,10 @@ def volatility_graphs(dbals, labels, points_to_plot=None):
         Plot a volatility boxplot.
         """
         fig = plt.figure(figsize=(12, 8))
-        axes = fig.add_subplot(111, ylabel='Volatility')
+        fig.add_subplot(111, ylabel='Volatility')
         plt.ylim(0, 1)
         plt.boxplot(volas, labels=labels)
+
 
     def _volas_plot(volas, labels):
         """

@@ -40,7 +40,7 @@ def _get_cache_dir(dir_name):
     try:
         conf = pf.read_config()
         base_dir = conf['base_dir']
-    except:
+    except Exception as e:
         pass
     finally:
         dir_name = os.path.join(base_dir, dir_name)
@@ -286,7 +286,7 @@ def _difference_in_years(start, end):
     float
         The difference in years between start and end dates.
     """
-    diff  = end - start
+    diff = end - start
     diff_in_years = (diff.days + diff.seconds/86400)/365.2425
     return diff_in_years
 
@@ -365,7 +365,7 @@ def update_cache_symbols(symbols=None, dir_name='data', from_year=None):
             symbols = [symbols]
     else:
         filenames = ([f for f in os.listdir(cache_dir)
-                     if f.endswith('.csv') and not f.startswith('__')])
+                      if f.endswith('.csv') and not f.startswith('__')])
         symbols = [os.path.splitext(filename)[0] for filename in filenames]
 
     # Make symbol names uppercase.
@@ -374,7 +374,8 @@ def update_cache_symbols(symbols=None, dir_name='data', from_year=None):
     print('updating symbols:')
     for i, symbol in enumerate(symbols):
         print(symbol + ' ', end='')
-        if i % 10 == 0 and i != 0: print()
+        if i % 10 == 0 and i != 0:
+            print()
 
         try:
             fetch_timeseries(symbol, dir_name=dir_name, use_cache=False,

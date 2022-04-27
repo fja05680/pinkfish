@@ -24,9 +24,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 '''
 
-import pandas
-import numpy
-
 
 class TableStyle(object):
 
@@ -98,7 +95,8 @@ class PrettyTable(object):
     Formatted tables for display in IPython notebooks
     """
 
-    def __init__(self, df, tstyle=None, header_row=False, header_col=True, center=False, rpt_header=0):
+    def __init__(self, df, tstyle=None, header_row=False, header_col=True,
+                 center=False, rpt_header=0):
         """
         df: pandas.DataFrame
         style: TableStyle
@@ -135,7 +133,8 @@ class PrettyTable(object):
                                 for j in range(self.num_rows)]
 
     # functions to set styles
-    def set_cell_style(self, style=None, tuples=None, rows=None, cols=None, format_function=None, **kwargs):
+    def set_cell_style(self, style=None, tuples=None, rows=None, cols=None,
+                       format_function=None, **kwargs):
         """
         Apply cell style to rows and columns specified
         """
@@ -288,7 +287,7 @@ class PrettyTable(object):
         """
         Reset corner style to defaults
         """
-        style = self.corner_style
+        self.corner_style
         self.set_corner_style(style=CellStyle())
 
     def _repr_html_(self):
