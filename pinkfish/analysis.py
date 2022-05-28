@@ -354,7 +354,7 @@ def volatility_graphs(dbals, labels, points_to_plot=None):
         """
         Plot volatility.
         """
-        fig = plt.figure(figsize=(14,10))
+        fig = plt.figure(figsize=(14, 10))
         axes = fig.add_subplot(111, ylabel='Volatility')
         for i, vola in enumerate(volas):
             axes.plot(vola, label=labels[i])
@@ -395,7 +395,7 @@ def volatility_graphs(dbals, labels, points_to_plot=None):
 def kelly_criterion(stats, benchmark_stats=None):
     """
     Use this function to help with sizing of leverage.
-    
+
     This function uses ideas based on the Kelly Criterion.
 
     Parameters

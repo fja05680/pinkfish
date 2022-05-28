@@ -222,8 +222,10 @@ def select_tradeperiod(ts, start, end, use_adj=False,
     if use_adj:
         _adj_prices(ts)
 
-    if start < ts.index[0]: start = ts.index[0]
-    if end > ts.index[-1]: end = ts.index[-1]
+    if start < ts.index[0]:
+        start = ts.index[0]
+    if end > ts.index[-1]:
+        end = ts.index[-1]
     ts = ts[start - datetime.timedelta(365):end]
 
     return ts
@@ -260,7 +262,7 @@ def finalize_timeseries(ts, start, dropna=False, drop_columns=None):
         ts.drop(columns=drop_columns, inplace=True)
     if dropna:
         ts.dropna(inplace=True)
-    elif ts.isnull().values.any(): 
+    elif ts.isnull().values.any():
         warnings.warn("NaN value(s) detected in timeseries")
     ts = ts[start:]
     start = ts.index[0]
@@ -407,7 +409,7 @@ def get_symbol_metadata(symbols=None, dir_name='data', from_year=None):
     Returns
     -------
     pd.DataFrame
-        Each row contains metadata for a symbol. 
+        Each row contains metadata for a symbol.
     """
     cache_dir = _get_cache_dir(dir_name)
 

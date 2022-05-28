@@ -287,7 +287,6 @@ class PrettyTable(object):
         """
         Reset corner style to defaults
         """
-        self.corner_style
         self.set_corner_style(style=CellStyle())
 
     def _repr_html_(self):

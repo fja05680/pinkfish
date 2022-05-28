@@ -155,7 +155,7 @@ class TradeLog:
         Return the leverage factor of the position given current price.
         """
         return self.total_value(price) / self.equity(price)
-        
+
     def total_funds(self, price):
         """
         Return the total account funds for trading given current price.
@@ -389,16 +389,6 @@ class TradeLog:
             # Update shares and cash.
             self.shares -= exit_shares
             TradeLog.cash += self.ave_entry_price*exit_shares + pl_cash
-            #TODO: This code used with futures at some point.
-            #      I don't know if it's still needed or not.
-            '''
-            if direction == Direction.LONG:
-                TradeLog.cash += exit_price * exit_shares * TradeLog.multiplier
-            else:
-                TradeLog.cash += ((2*self.ave_entry_price-exit_price)
-                                  * exit_shares
-                                  * TradeLog.multiplier)
-           '''
 
             # Update open_trades list.
             if shares == qty:
@@ -487,19 +477,11 @@ class TradeLog:
 
         Returns
         -------
-        price : float
+        float
             The current price.
 
         """
-        try:
-            price = getattr(row, field)
-        except AttributeError:
-            # This method is slower, but handles column names that
-            # don't conform to variable name rules, and thus aren't
-            # attributes.
-            date = row.Index.to_pydatetime()
-            price = self._ts.loc[date, field]
-        return price
+        return getattr(row, field)
 
     def get_prices(self, row, fields=['open', 'high', 'low', 'close']):
         """
@@ -694,7 +676,7 @@ class TradeLog:
     def get_log_raw(self):
         """
         Return the raw trade log.
-        
+
         The trade log consists of the following columns:
         'date', 'seq_num', 'price', 'shares', 'entry_exit',
         'direction', 'symbol'.

@@ -4,17 +4,17 @@ Portfolio backtesting.
 
 from functools import wraps
 
-# TODO: The following will ignore a new Performance Warning from Pandas.
-# Will try to find a better solution later.
-from warnings import simplefilter
-simplefilter(action="ignore", category=pd.errors.PerformanceWarning)
-
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn
 
 import pinkfish as pf
+
+# TODO: The following will ignore a new Performance Warning from Pandas.
+# Will try to find a better solution later.
+from warnings import simplefilter
+simplefilter(action="ignore", category=pd.errors.PerformanceWarning)
 
 
 def technical_indicator(symbols, output_column_suffix,
@@ -40,7 +40,7 @@ def technical_indicator(symbols, output_column_suffix,
     symbols : list
         The symbols that constitute the portfolio.
     output_column_suffix : str
-        Output column suffix to use for technical indicator. 
+        Output column suffix to use for technical indicator.
     input_column_suffix : str, {'close', 'open', 'high', 'low'}
         Input column suffix to use for price (default is 'close').
 
@@ -53,11 +53,10 @@ def technical_indicator(symbols, output_column_suffix,
     Examples
     --------
     >>> # Technical indicator: volatility.
-    >>> @pf.technical_indicator(symbols, 'vola', 'close') 
+    >>> @pf.technical_indicator(symbols, 'vola', 'close')
     >>> def _volatility(ts, input_column=None):
     ...     return pf.VOLATILITY(ts, price=input_column)
     >>> ts = _volatility(ts)
-            
     """
     def decorator(func):
         @wraps(func)
@@ -84,22 +83,22 @@ class Portfolio:
      - fetch_timeseries()
        Get time series data for symbols.
 
-     - add_technical_indicator()  
+     - add_technical_indicator()
        Add a technical indicator for each symbol in the portfolio.
 
-     - calendar()  
+     - calendar()
        Add calendar columns.
 
-     - finalize_timeseries()  
+     - finalize_timeseries()
        Finalize timeseries.
 
-     - get_price()  
+     - get_price()
        Return price given row, symbol, and field.
 
-     - get_prices()  
+     - get_prices()
        Return dict of prices for all symbols given row and fields.
 
-     - shares()  
+     - shares()
        Return number of shares for given symbol in portfolio.
 
      - positions
@@ -117,16 +116,16 @@ class Portfolio:
      - init_trade_logs()
        Add a trade log for each symbol.
 
-     - record_daily_balance()  
+     - record_daily_balance()
        Append to daily balance list.
 
-     - get_logs()  
+     - get_logs()
        Return raw tradelog, tradelog, and daily balance log.
 
-     - performance_per_symbol()  
+     - performance_per_symbol()
        Returns performance per symbol data, also plots performance.
 
-     - correlation_map()  
+     - correlation_map()
        Show correlation map between symbols.
     """
 
@@ -265,7 +264,7 @@ class Portfolio:
         ta_param : object
             The parameter for `ta_func` (typically an int).
         output_column_suffix : str
-            Output column suffix to use for technical indicator. 
+            Output column suffix to use for technical indicator.
         input_column_suffix : str, {'close', 'open', 'high', 'low'}
             Input column suffix to use for price (default is 'close').
 
@@ -292,7 +291,7 @@ class Portfolio:
         return ts
 
     def calendar(self, ts):
-        """ 
+        """
         Add calendar columns to a timeseries.
 
         Parameters
@@ -454,7 +453,7 @@ class Portfolio:
     def positions(self):
         """
         Return the active symbols in portfolio as a list.
-   
+
         This returns only those symbols that currently have shares
         allocated to them, either long or short.
 
@@ -582,7 +581,7 @@ class Portfolio:
         # Get current weights
         for symbol in self.symbols:
             w[symbol] = self.share_percent(row, symbol)
-        
+
         # If direction is None, this set all to pf.Direction.LONG
         if directions is None:
             directions = {symbol:pf.Direction.LONG for symbol in self.symbols}
@@ -594,7 +593,7 @@ class Portfolio:
 
         # Update weights with new values.
         w.update(weights)
-        
+
         # Call adjust_percents() for each symbol.
         for symbol, weight in w.items():
             price = prices[symbol]
@@ -814,7 +813,7 @@ class Portfolio:
 
         # Default is all days.
         if days is None:
-            days = 0;
+            days = 0
         df = df[-days:]
 
         if method == 'price':
@@ -831,8 +830,8 @@ class Portfolio:
         mask = np.zeros_like(df)
         mask[np.triu_indices_from(mask)] = True
         # Generate plot.
-        seaborn.heatmap(df, cmap='RdYlGn', vmax=1.0, vmin=-1.0 ,
-                        mask = mask, linewidths=2.5)
+        seaborn.heatmap(df, cmap='RdYlGn', vmax=1.0, vmin=-1.0,
+                        mask=mask, linewidths=2.5)
         plt.yticks(rotation=0)
         plt.xticks(rotation=90)
         return df

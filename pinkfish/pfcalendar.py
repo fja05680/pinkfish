@@ -1,34 +1,34 @@
 """
 Adds calendar columns to a timeseries.
 
- - `dotw` : int, {0-6}  
+ - `dotw` : int, {0-6}
     Day of the week with Monday=0, Sunday=6.
 
- - `dotm` : int, {1,2,...}  
+ - `dotm` : int, {1,2,...}
     Day of the month as 1,2,...
 
- - `doty` : int, {1,2,...}  
+ - `doty` : int, {1,2,...}
     Day of the year as 1,2,...
 
- - `month` : int, {1-12}  
+ - `month` : int, {1-12}
     Month as January=1,...,December=12
 
- - `first_dotw` : bool  
+ - `first_dotw` : bool
     First trading day of the week.
 
- - `last_dotw` : bool  
+ - `last_dotw` : bool
     Last trading day of the week.
 
- - `first_dotm` : bool  
+ - `first_dotm` : bool
     First trading day of the month.
 
- - `last_dotm` : bool  
+ - `last_dotm` : bool
     Last trading day of the month.
 
- - `first_doty` : bool  
+ - `first_doty` : bool
     First trading day of the year.
 
- - `last_doty` : bool  
+ - `last_doty` : bool
     Last trading day of the year.
 """
 
