@@ -1018,14 +1018,7 @@ def _get_metric_value(s, metric):
     """
     Returns a metric in either currency or raw format.
     """
-    metrics = (
-        'beginning_balance',
-        'ending_balance',
-        'ending_balance',
-        'total_net_profit',
-        'gross_profit',
-        'gross_loss')
-    if metric in metrics:
+    if metric in currency_metrics:
         return currency(s[metric])
     else:
         return s[metric]
