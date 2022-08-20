@@ -3,7 +3,9 @@ Utility functions.
 """
 
 from configparser import ConfigParser
+from functools import wraps
 import importlib.util
+import inspect
 import os
 from pathlib import Path
 
@@ -111,3 +113,50 @@ def find_nan_rows(ts):
     row_has_NaN = is_NaN.any(axis=1)
     rows_with_NaN = ts[row_has_NaN]
     return rows_with_NaN
+
+
+def no_empty_container(container_name, default_ret_value):
+    """
+    Check if container is empty.  If so, return `default_ret_value`.
+
+    Parameters
+    ----------
+    container_name : str
+        The name of the container parameter to check.
+    default_ret_value : int
+        The return value the wrapped function if the container is empty.
+        (default is 'examples').
+    module_name: str, optional
+        The name of the python module (default is 'strategy').
+
+    Returns
+    -------
+    `default_ret_value` or `func` return value : type of return value
+        If the container is empty, `default_ret_value` is returned,
+        otherwise the return value of `func`.
+
+    Examples
+    --------
+    >>> @no_empty_container('my_list', 0)
+    >>> def my_func(my_list):
+    >>>     return 5
+    >>> my_func([])
+    0
+    """
+
+    def decorator(func):
+    
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            try:
+                container_obj = kwargs[container_name]
+            except KeyError:
+                container_arg_index = inspect.getfullargspec(func).args.index(container_name)
+                container_obj = args[container_arg_index]
+
+            if len(container_obj) == 0:
+                return default_ret_value
+
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator

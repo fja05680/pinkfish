@@ -329,6 +329,9 @@ from numpy.lib.stride_tricks import as_strided
 import pandas as pd
 
 import pinkfish as pf
+from pinkfish.utility import (
+    no_empty_container
+)
 
 # This is a reference to the module object instance itself.
 __m = sys.modules[__name__]
@@ -407,12 +410,15 @@ def _beginning_balance(capital):
 def _ending_balance(dbal):
     return dbal.iloc[-1]['close']
 
+@no_empty_container('tlog', 0)
 def _total_net_profit(tlog):
     return tlog.iloc[-1]['cumul_total']
 
+@no_empty_container('tlog', 0)
 def _gross_profit(tlog):
     return tlog[tlog['pl_cash'] > 0]['pl_cash'].sum()
 
+@no_empty_container('tlog', 0)
 def _gross_loss(tlog):
     return tlog[tlog['pl_cash'] < 0]['pl_cash'].sum()
 
@@ -480,12 +486,15 @@ def _trades_per_year(tlog, start, end):
     years = diff.years + diff.months/12 + diff.days/365
     return _total_num_trades(tlog) / years
 
+@no_empty_container('tlog', 0)
 def _num_winning_trades(tlog):
     return (tlog['pl_cash'] > 0).sum()
 
+@no_empty_container('tlog', 0)
 def _num_losing_trades(tlog):
     return (tlog['pl_cash'] < 0).sum()
 
+@no_empty_container('tlog', 0)
 def _num_even_trades(tlog):
     return (tlog['pl_cash'] == 0).sum()
 
@@ -538,8 +547,8 @@ def _num_losing_points(tlog):
 def _total_net_points(tlog):
     return _num_winning_points(tlog) + _num_losing_points(tlog)
 
+@no_empty_container('tlog', 0)
 def _avg_points(tlog):
-    if _total_num_trades(tlog) == 0: return 0
     return tlog['pl_points'].sum() / len(tlog.index)
 
 def _largest_points_winning_trade(tlog):
@@ -550,8 +559,8 @@ def _largest_points_losing_trade(tlog):
     if _num_losing_trades(tlog) == 0: return 0
     return tlog[tlog['pl_points'] < 0].min()['pl_points']
 
+@no_empty_container('tlog', 0)
 def _avg_pct_gain_per_trade(tlog):
-    if _total_num_trades(tlog) == 0: return 0
     s = tlog['pl_points'] / tlog['entry_price']
     return np.average(s) * 100
 
@@ -567,8 +576,8 @@ def _largest_pct_losing_trade(tlog):
     s = df['pl_points'] / df['entry_price']
     return s.min() * 100
 
+@no_empty_container('tlog', 0)
 def _expected_shortfall(tlog):
-    if _total_num_trades(tlog) == 0: return 0
     df = tlog[tlog['pl_points'] < 0]
     s = df['pl_points'] / df['entry_price']
     l = sorted(s)
@@ -612,6 +621,7 @@ def _max_consecutive_losing_trades(tlog):
     if _num_losing_trades(tlog) == 0: return 0
     return _subsequence(tlog['pl_cash'] > 0, False)
 
+@no_empty_container('tlog', [])
 def _get_trade_bars(ts, tlog, op):
     l = []
     for row in tlog.itertuples():
@@ -772,14 +782,20 @@ def _pct_change(close, period):
 def _sharpe_ratio(rets, risk_free=0.00, period=TRADING_DAYS_PER_YEAR):
     dev = np.std(rets, axis=0)
     mean = np.mean(rets, axis=0)
-    sharpe = (mean*period - risk_free) / (dev * np.sqrt(period))
+    if math.isclose(dev, 0):
+        sharpe = 0
+    else:
+        sharpe = (mean*period - risk_free) / (dev * np.sqrt(period))
     return sharpe
 
 def _sortino_ratio(rets, risk_free=0.00, period=TRADING_DAYS_PER_YEAR):
     mean = np.mean(rets, axis=0)
     negative_rets = rets[rets < 0]
-    dev = np.std(negative_rets, axis=0)
-    if dev == 0:
+    if len(negative_rets) == 0:
+        dev = 0
+    else:
+        dev = np.std(negative_rets, axis=0)
+    if math.isclose(dev, 0):
         sortino = 0
     else:
         sortino = (mean*period - risk_free) / (dev * np.sqrt(period))
