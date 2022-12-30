@@ -2,7 +2,10 @@
 Benchmark for comparision to a strategy.
 """
 
-import pinkfish as pf
+import pinkfish.portfolio as portfolio
+import pinkfish.pfstatistics as pfstatistics
+import pinkfish.trade as trade
+import pinkfish.utility as utility
 
 
 class Benchmark:
@@ -113,8 +116,8 @@ class Benchmark:
         Invest an equal percent in each investment option and
         rebalance every year.
         """
-        pf.TradeLog.cash = self.capital
-        pf.TradeLog.margin = pf.Margin.CASH
+        trade.TradeLog.cash = self.capital
+        trade.TradeLog.margin = trade.Margin.CASH
 
         # These dicts are used to track close and weights for
         # each symbol in portfolio
@@ -128,7 +131,7 @@ class Benchmark:
         for i, row in enumerate(self.ts.itertuples()):
 
             date = row.Index.to_pydatetime()
-            end_flag = pf.is_last_row(self.ts, i)
+            end_flag = utility.is_last_row(self.ts, i)
             start_flag = (i==0)
 
             # Buy on first trading day
@@ -138,7 +141,7 @@ class Benchmark:
 
                 # If last row, then zero out all weights.
                 if end_flag:
-                    weights = pf.set_dict_values(weights, 0)
+                    weights = utility.set_dict_values(weights, 0)
 
                 # Get closing prices for all symbols
                 p = self.portfolio.get_prices(row, fields=['close'])
@@ -154,7 +157,7 @@ class Benchmark:
         """
         Run the strategy.
         """
-        self.portfolio = pf.Portfolio()
+        self.portfolio = portfolio.Portfolio()
         self.ts = self.portfolio.fetch_timeseries(
             self.symbols, self.start, self.end,
             fields=['close'], dir_name=self.dir_name, use_adj=self.use_adj,
@@ -180,7 +183,7 @@ class Benchmark:
         """
         Get the stats.
         """
-        self.stats = pf.stats(self.ts, self.tlog, self.dbal, self.capital)
+        self.stats = pfstatistics.stats(self.ts, self.tlog, self.dbal, self.capital)
 
 Strategy = Benchmark
 """

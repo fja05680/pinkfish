@@ -15,7 +15,7 @@ from .trade import (
     DailyBal
 )
 
-from .statistics import (
+from .pfstatistics import (
     ALPHA_BEGIN,
     SP500_BEGIN,
     get_trading_days,

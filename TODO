@@ -2,7 +2,5 @@
 (2) What percent of time, if high/low price is closest to the open, then high/low price came first.
 Need minute data for this.
 (3) Integrate with Norgate Data.
-(4) Install via pip.
-(5) Update Documentation.
-(6) Provide example that doesn't use jupyter notebook, just straight Python.
-(7) Youtube video for portfolio.
+(4) Provide example that doesn't use jupyter notebook, just straight Python.
+(5) Youtube video for portfolio.

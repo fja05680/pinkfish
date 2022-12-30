@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.2" />
+<meta name="generator" content="pdoc 0.10.0" />
 <title>pinkfish.benchmark API documentation</title>
 <meta name="description" content="Benchmark for comparision to a strategy." />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -31,7 +31,10 @@
 Benchmark for comparision to a strategy.
 &#34;&#34;&#34;
 
-import pinkfish as pf
+import pinkfish.portfolio as portfolio
+import pinkfish.pfstatistics as pfstatistics
+import pinkfish.trade as trade
+import pinkfish.utility as utility
 
 
 class Benchmark:
@@ -101,12 +104,16 @@ class Benchmark:
             to False.
         ts : pd.DataFrame
             The timeseries of the symbol used in backtest.
+        rlog : pd.DataFrame
+            The raw trade log.
         tlog : pd.DataFrame
             The trade log.
         dbal : pd.DataFrame
             The daily balance.
         stats : pd.Series
             The statistics for the benchmark.
+        portfolio : pf.Portfolio
+            The portfolio.
         &#34;&#34;&#34;
 
         # If symbols is not a list, cast it to a list.
@@ -125,9 +132,11 @@ class Benchmark:
         self.force_stock_market_calendar = force_stock_market_calendar
 
         self.ts = None
+        self.rlog = None
         self.tlog = None
         self.dbal = None
         self.stats = None
+        self.portfolio = None
 
     def _algo(self):
         &#34;&#34;&#34;
@@ -136,12 +145,13 @@ class Benchmark:
         Invest an equal percent in each investment option and
         rebalance every year.
         &#34;&#34;&#34;
-        pf.TradeLog.cash = self.capital
-        pf.TradeLog.margin = pf.Margin.CASH
+        trade.TradeLog.cash = self.capital
+        trade.TradeLog.margin = trade.Margin.CASH
 
         # These dicts are used to track close and weights for
         # each symbol in portfolio
-        prices = {}; weights = {}
+        prices = {}
+        weights = {}
 
         weight = 1 / len(self.portfolio.symbols)
         weights = {symbol:weight for symbol in self.portfolio.symbols}
@@ -150,9 +160,9 @@ class Benchmark:
         for i, row in enumerate(self.ts.itertuples()):
 
             date = row.Index.to_pydatetime()
-            end_flag = pf.is_last_row(self.ts, i)
+            end_flag = utility.is_last_row(self.ts, i)
             start_flag = (i==0)
-            
+
             # Buy on first trading day
             # Rebalance on the first trading day of each year
             # Close all positions on last trading day
@@ -160,12 +170,12 @@ class Benchmark:
 
                 # If last row, then zero out all weights.
                 if end_flag:
-                    weights = pf.set_dict_values(weights, 0)
+                    weights = utility.set_dict_values(weights, 0)
 
                 # Get closing prices for all symbols
                 p = self.portfolio.get_prices(row, fields=[&#39;close&#39;])
                 prices = {symbol:p[symbol][&#39;close&#39;] for symbol in self.portfolio.symbols}
-                
+
                 # Adjust weights of all symbols in portfolio
                 self.portfolio.adjust_percents(date, prices, weights, row)
 
@@ -176,7 +186,7 @@ class Benchmark:
         &#34;&#34;&#34;
         Run the strategy.
         &#34;&#34;&#34;
-        self.portfolio = pf.Portfolio()
+        self.portfolio = portfolio.Portfolio()
         self.ts = self.portfolio.fetch_timeseries(
             self.symbols, self.start, self.end,
             fields=[&#39;close&#39;], dir_name=self.dir_name, use_adj=self.use_adj,
@@ -202,7 +212,7 @@ class Benchmark:
         &#34;&#34;&#34;
         Get the stats.
         &#34;&#34;&#34;
-        self.stats = pf.stats(self.ts, self.tlog, self.dbal, self.capital)
+        self.stats = pfstatistics.stats(self.ts, self.tlog, self.dbal, self.capital)
 
 Strategy = Benchmark
 &#34;&#34;&#34;
@@ -282,12 +292,16 @@ If this value is True, then <code>use_continuous_calendar</code> is set
 to False.</dd>
 <dt><strong><code>ts</code></strong> :&ensp;<code>pd.DataFrame</code></dt>
 <dd>The timeseries of the symbol used in backtest.</dd>
+<dt><strong><code>rlog</code></strong> :&ensp;<code>pd.DataFrame</code></dt>
+<dd>The raw trade log.</dd>
 <dt><strong><code>tlog</code></strong> :&ensp;<code>pd.DataFrame</code></dt>
 <dd>The trade log.</dd>
 <dt><strong><code>dbal</code></strong> :&ensp;<code>pd.DataFrame</code></dt>
 <dd>The daily balance.</dd>
 <dt><strong><code>stats</code></strong> :&ensp;<code>pd.Series</code></dt>
 <dd>The statistics for the benchmark.</dd>
+<dt><strong><code>portfolio</code></strong> :&ensp;<code>pf.Portfolio</code></dt>
+<dd>The portfolio.</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -360,12 +374,16 @@ to False.</dd>
             to False.
         ts : pd.DataFrame
             The timeseries of the symbol used in backtest.
+        rlog : pd.DataFrame
+            The raw trade log.
         tlog : pd.DataFrame
             The trade log.
         dbal : pd.DataFrame
             The daily balance.
         stats : pd.Series
             The statistics for the benchmark.
+        portfolio : pf.Portfolio
+            The portfolio.
         &#34;&#34;&#34;
 
         # If symbols is not a list, cast it to a list.
@@ -384,9 +402,11 @@ to False.</dd>
         self.force_stock_market_calendar = force_stock_market_calendar
 
         self.ts = None
+        self.rlog = None
         self.tlog = None
         self.dbal = None
         self.stats = None
+        self.portfolio = None
 
     def _algo(self):
         &#34;&#34;&#34;
@@ -395,12 +415,13 @@ to False.</dd>
         Invest an equal percent in each investment option and
         rebalance every year.
         &#34;&#34;&#34;
-        pf.TradeLog.cash = self.capital
-        pf.TradeLog.margin = pf.Margin.CASH
+        trade.TradeLog.cash = self.capital
+        trade.TradeLog.margin = trade.Margin.CASH
 
         # These dicts are used to track close and weights for
         # each symbol in portfolio
-        prices = {}; weights = {}
+        prices = {}
+        weights = {}
 
         weight = 1 / len(self.portfolio.symbols)
         weights = {symbol:weight for symbol in self.portfolio.symbols}
@@ -409,9 +430,9 @@ to False.</dd>
         for i, row in enumerate(self.ts.itertuples()):
 
             date = row.Index.to_pydatetime()
-            end_flag = pf.is_last_row(self.ts, i)
+            end_flag = utility.is_last_row(self.ts, i)
             start_flag = (i==0)
-            
+
             # Buy on first trading day
             # Rebalance on the first trading day of each year
             # Close all positions on last trading day
@@ -419,12 +440,12 @@ to False.</dd>
 
                 # If last row, then zero out all weights.
                 if end_flag:
-                    weights = pf.set_dict_values(weights, 0)
+                    weights = utility.set_dict_values(weights, 0)
 
                 # Get closing prices for all symbols
                 p = self.portfolio.get_prices(row, fields=[&#39;close&#39;])
                 prices = {symbol:p[symbol][&#39;close&#39;] for symbol in self.portfolio.symbols}
-                
+
                 # Adjust weights of all symbols in portfolio
                 self.portfolio.adjust_percents(date, prices, weights, row)
 
@@ -435,7 +456,7 @@ to False.</dd>
         &#34;&#34;&#34;
         Run the strategy.
         &#34;&#34;&#34;
-        self.portfolio = pf.Portfolio()
+        self.portfolio = portfolio.Portfolio()
         self.ts = self.portfolio.fetch_timeseries(
             self.symbols, self.start, self.end,
             fields=[&#39;close&#39;], dir_name=self.dir_name, use_adj=self.use_adj,
@@ -461,7 +482,7 @@ to False.</dd>
         &#34;&#34;&#34;
         Get the stats.
         &#34;&#34;&#34;
-        self.stats = pf.stats(self.ts, self.tlog, self.dbal, self.capital)</code></pre>
+        self.stats = pfstatistics.stats(self.ts, self.tlog, self.dbal, self.capital)</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
@@ -478,7 +499,7 @@ to False.</dd>
     &#34;&#34;&#34;
     Run the strategy.
     &#34;&#34;&#34;
-    self.portfolio = pf.Portfolio()
+    self.portfolio = portfolio.Portfolio()
     self.ts = self.portfolio.fetch_timeseries(
         self.symbols, self.start, self.end,
         fields=[&#39;close&#39;], dir_name=self.dir_name, use_adj=self.use_adj,
@@ -560,12 +581,16 @@ If this value is True, then <code>use_continuous_calendar</code> is set
 to False.</dd>
 <dt><strong><code>ts</code></strong> :&ensp;<code>pd.DataFrame</code></dt>
 <dd>The timeseries of the symbol used in backtest.</dd>
+<dt><strong><code>rlog</code></strong> :&ensp;<code>pd.DataFrame</code></dt>
+<dd>The raw trade log.</dd>
 <dt><strong><code>tlog</code></strong> :&ensp;<code>pd.DataFrame</code></dt>
 <dd>The trade log.</dd>
 <dt><strong><code>dbal</code></strong> :&ensp;<code>pd.DataFrame</code></dt>
 <dd>The daily balance.</dd>
 <dt><strong><code>stats</code></strong> :&ensp;<code>pd.Series</code></dt>
 <dd>The statistics for the benchmark.</dd>
+<dt><strong><code>portfolio</code></strong> :&ensp;<code>pf.Portfolio</code></dt>
+<dd>The portfolio.</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -638,12 +663,16 @@ to False.</dd>
             to False.
         ts : pd.DataFrame
             The timeseries of the symbol used in backtest.
+        rlog : pd.DataFrame
+            The raw trade log.
         tlog : pd.DataFrame
             The trade log.
         dbal : pd.DataFrame
             The daily balance.
         stats : pd.Series
             The statistics for the benchmark.
+        portfolio : pf.Portfolio
+            The portfolio.
         &#34;&#34;&#34;
 
         # If symbols is not a list, cast it to a list.
@@ -662,9 +691,11 @@ to False.</dd>
         self.force_stock_market_calendar = force_stock_market_calendar
 
         self.ts = None
+        self.rlog = None
         self.tlog = None
         self.dbal = None
         self.stats = None
+        self.portfolio = None
 
     def _algo(self):
         &#34;&#34;&#34;
@@ -673,12 +704,13 @@ to False.</dd>
         Invest an equal percent in each investment option and
         rebalance every year.
         &#34;&#34;&#34;
-        pf.TradeLog.cash = self.capital
-        pf.TradeLog.margin = pf.Margin.CASH
+        trade.TradeLog.cash = self.capital
+        trade.TradeLog.margin = trade.Margin.CASH
 
         # These dicts are used to track close and weights for
         # each symbol in portfolio
-        prices = {}; weights = {}
+        prices = {}
+        weights = {}
 
         weight = 1 / len(self.portfolio.symbols)
         weights = {symbol:weight for symbol in self.portfolio.symbols}
@@ -687,9 +719,9 @@ to False.</dd>
         for i, row in enumerate(self.ts.itertuples()):
 
             date = row.Index.to_pydatetime()
-            end_flag = pf.is_last_row(self.ts, i)
+            end_flag = utility.is_last_row(self.ts, i)
             start_flag = (i==0)
-            
+
             # Buy on first trading day
             # Rebalance on the first trading day of each year
             # Close all positions on last trading day
@@ -697,12 +729,12 @@ to False.</dd>
 
                 # If last row, then zero out all weights.
                 if end_flag:
-                    weights = pf.set_dict_values(weights, 0)
+                    weights = utility.set_dict_values(weights, 0)
 
                 # Get closing prices for all symbols
                 p = self.portfolio.get_prices(row, fields=[&#39;close&#39;])
                 prices = {symbol:p[symbol][&#39;close&#39;] for symbol in self.portfolio.symbols}
-                
+
                 # Adjust weights of all symbols in portfolio
                 self.portfolio.adjust_percents(date, prices, weights, row)
 
@@ -713,7 +745,7 @@ to False.</dd>
         &#34;&#34;&#34;
         Run the strategy.
         &#34;&#34;&#34;
-        self.portfolio = pf.Portfolio()
+        self.portfolio = portfolio.Portfolio()
         self.ts = self.portfolio.fetch_timeseries(
             self.symbols, self.start, self.end,
             fields=[&#39;close&#39;], dir_name=self.dir_name, use_adj=self.use_adj,
@@ -739,7 +771,7 @@ to False.</dd>
         &#34;&#34;&#34;
         Get the stats.
         &#34;&#34;&#34;
-        self.stats = pf.stats(self.ts, self.tlog, self.dbal, self.capital)</code></pre>
+        self.stats = pfstatistics.stats(self.ts, self.tlog, self.dbal, self.capital)</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
@@ -756,7 +788,7 @@ to False.</dd>
     &#34;&#34;&#34;
     Run the strategy.
     &#34;&#34;&#34;
-    self.portfolio = pf.Portfolio()
+    self.portfolio = portfolio.Portfolio()
     self.ts = self.portfolio.fetch_timeseries(
         self.symbols, self.start, self.end,
         fields=[&#39;close&#39;], dir_name=self.dir_name, use_adj=self.use_adj,
@@ -809,7 +841,7 @@ to False.</dd>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
 </footer>
 </body>
 </html>

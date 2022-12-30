@@ -328,10 +328,9 @@ import numpy as np
 from numpy.lib.stride_tricks import as_strided
 import pandas as pd
 
-import pinkfish as pf
-from pinkfish.utility import (
-    no_empty_container
-)
+import pinkfish.trade as trade
+import pinkfish.utility as utility
+
 
 # This is a reference to the module object instance itself.
 __m = sys.modules[__name__]
@@ -410,15 +409,15 @@ def _beginning_balance(capital):
 def _ending_balance(dbal):
     return dbal.iloc[-1]['close']
 
-@no_empty_container('tlog', 0)
+@utility.no_empty_container('tlog', 0)
 def _total_net_profit(tlog):
     return tlog.iloc[-1]['cumul_total']
 
-@no_empty_container('tlog', 0)
+@utility.no_empty_container('tlog', 0)
 def _gross_profit(tlog):
     return tlog[tlog['pl_cash'] > 0]['pl_cash'].sum()
 
-@no_empty_container('tlog', 0)
+@utility.no_empty_container('tlog', 0)
 def _gross_loss(tlog):
     return tlog[tlog['pl_cash'] < 0]['pl_cash'].sum()
 
@@ -463,7 +462,7 @@ def _pct_time_in_market(dbal):
 # LEVERAGE
 
 def _margin():
-    return pf.TradeLog.margin
+    return trade.TradeLog.margin
 
 def _avg_leverage(dbal):
     return dbal['leverage'].mean()
@@ -486,15 +485,15 @@ def _trades_per_year(tlog, start, end):
     years = diff.years + diff.months/12 + diff.days/365
     return _total_num_trades(tlog) / years
 
-@no_empty_container('tlog', 0)
+@utility.no_empty_container('tlog', 0)
 def _num_winning_trades(tlog):
     return (tlog['pl_cash'] > 0).sum()
 
-@no_empty_container('tlog', 0)
+@utility.no_empty_container('tlog', 0)
 def _num_losing_trades(tlog):
     return (tlog['pl_cash'] < 0).sum()
 
-@no_empty_container('tlog', 0)
+@utility.no_empty_container('tlog', 0)
 def _num_even_trades(tlog):
     return (tlog['pl_cash'] == 0).sum()
 
@@ -547,7 +546,7 @@ def _num_losing_points(tlog):
 def _total_net_points(tlog):
     return _num_winning_points(tlog) + _num_losing_points(tlog)
 
-@no_empty_container('tlog', 0)
+@utility.no_empty_container('tlog', 0)
 def _avg_points(tlog):
     return tlog['pl_points'].sum() / len(tlog.index)
 
@@ -559,7 +558,7 @@ def _largest_points_losing_trade(tlog):
     if _num_losing_trades(tlog) == 0: return 0
     return tlog[tlog['pl_points'] < 0].min()['pl_points']
 
-@no_empty_container('tlog', 0)
+@utility.no_empty_container('tlog', 0)
 def _avg_pct_gain_per_trade(tlog):
     s = tlog['pl_points'] / tlog['entry_price']
     return np.average(s) * 100
@@ -576,7 +575,7 @@ def _largest_pct_losing_trade(tlog):
     s = df['pl_points'] / df['entry_price']
     return s.min() * 100
 
-@no_empty_container('tlog', 0)
+@utility.no_empty_container('tlog', 0)
 def _expected_shortfall(tlog):
     df = tlog[tlog['pl_points'] < 0]
     s = df['pl_points'] / df['entry_price']
@@ -621,7 +620,7 @@ def _max_consecutive_losing_trades(tlog):
     if _num_losing_trades(tlog) == 0: return 0
     return _subsequence(tlog['pl_cash'] > 0, False)
 
-@no_empty_container('tlog', [])
+@utility.no_empty_container('tlog', [])
 def _get_trade_bars(ts, tlog, op):
     l = []
     for row in tlog.itertuples():

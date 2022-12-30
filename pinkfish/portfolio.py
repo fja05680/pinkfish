@@ -9,7 +9,15 @@ import numpy as np
 import pandas as pd
 import seaborn
 
-import pinkfish as pf
+from pinkfish.pfcalendar import calendar
+from pinkfish.fetch import (
+    fetch_timeseries,
+    select_tradeperiod,
+    finalize_timeseries
+)
+import pinkfish.pfstatistics as pfstatistics
+import pinkfish.trade as trade
+import pinkfish.utility as utility
 
 # TODO: The following will ignore a new Performance Warning from Pandas.
 # Will try to find a better solution later.
@@ -216,21 +224,21 @@ class Portfolio:
         for i, symbol in enumerate(symbols):
 
             if i == 0:
-                ts = pf.fetch_timeseries(symbol, dir_name=dir_name, use_cache=use_cache)
-                ts = pf.select_tradeperiod(ts, start, end, use_adj=use_adj,
-                                           use_continuous_calendar=use_continuous_calendar,
-                                           force_stock_market_calendar=force_stock_market_calendar,
-                                           check_fields=check_fields)
+                ts = fetch_timeseries(symbol, dir_name=dir_name, use_cache=use_cache)
+                ts = select_tradeperiod(ts, start, end, use_adj=use_adj,
+                                        use_continuous_calendar=use_continuous_calendar,
+                                        force_stock_market_calendar=force_stock_market_calendar,
+                                        check_fields=check_fields)
                 self._add_symbol_columns(ts, symbol, ts, fields)
                 ts.drop(columns=['open', 'high', 'low', 'close', 'volume', 'adj_close'],
                         inplace=True)
             else:
                 # Add another symbol.
-                _ts = pf.fetch_timeseries(symbol, dir_name=dir_name, use_cache=use_cache)
-                _ts = pf.select_tradeperiod(_ts, start, end, use_adj=use_adj,
-                                            use_continuous_calendar=use_continuous_calendar,
-                                            force_stock_market_calendar=force_stock_market_calendar,
-                                            check_fields=check_fields)
+                _ts = fetch_timeseries(symbol, dir_name=dir_name, use_cache=use_cache)
+                _ts = select_tradeperiod(_ts, start, end, use_adj=use_adj,
+                                         use_continuous_calendar=use_continuous_calendar,
+                                         force_stock_market_calendar=force_stock_market_calendar,
+                                         check_fields=check_fields)
                 self._add_symbol_columns(ts, symbol, _ts, fields)
 
         ts.dropna(inplace=True)
@@ -304,7 +312,7 @@ class Portfolio:
         pd.DataFrame
             The timeseries with calendar columns added.
         """
-        return pf.calendar(ts)
+        return calendar(ts)
 
     def finalize_timeseries(self, ts, start, dropna=True):
         """
@@ -330,7 +338,7 @@ class Portfolio:
         pd.DataFrame
             The timeseries of a symbol.
         """
-        return pf.finalize_timeseries(ts, start, dropna=dropna)
+        return finalize_timeseries(ts, start, dropna=dropna)
 
     ####################################################################
     # GET PRICES (get_price, get_prices)
@@ -397,7 +405,7 @@ class Portfolio:
         Return total share value in portfolio.
         """
         value = 0
-        for symbol, tlog in pf.TradeLog.instance.items():
+        for symbol, tlog in trade.TradeLog.instance.items():
             close = self.get_price(row, symbol)
             value += tlog.share_value(close)
         return value
@@ -407,8 +415,8 @@ class Portfolio:
         Return total_value = share_value + cash (if cash > 0).
         """
         total_value = self._share_value(row)
-        if pf.TradeLog.cash > 0:
-            total_value += pf.TradeLog.cash
+        if trade.TradeLog.cash > 0:
+            total_value += trade.TradeLog.cash
         return total_value
 
     def _equity(self, row):
@@ -416,8 +424,8 @@ class Portfolio:
         Return equity = total_value - loan (loan is negative cash)
         """
         equity = self._total_value(row)
-        if pf.TradeLog.cash < 0:
-            equity += pf.TradeLog.cash
+        if trade.TradeLog.cash < 0:
+            equity += trade.TradeLog.cash
         return equity
 
     def _leverage(self, row):
@@ -430,7 +438,7 @@ class Portfolio:
         """
         Return total account funds for trading.
         """
-        return self._equity(row) * pf.TradeLog.margin
+        return self._equity(row) * trade.TradeLog.margin
 
     def shares(self, symbol):
         """
@@ -446,7 +454,7 @@ class Portfolio:
         tlog.shares : int
             The number of shares for a given symbol.
         """
-        tlog = pf.TradeLog.instance[symbol]
+        tlog = trade.TradeLog.instance[symbol]
         return tlog.shares
 
     @property
@@ -485,7 +493,7 @@ class Portfolio:
             The share value as a percent.
         """
         close = self.get_price(row, symbol)
-        tlog = pf.TradeLog.instance[symbol]
+        tlog = trade.TradeLog.instance[symbol]
         value = tlog.share_value(close)
         return value / self._total_funds(row) * 100
 
@@ -493,18 +501,18 @@ class Portfolio:
         """
         Return the buying power.
         """
-        buying_power = (pf.TradeLog.cash * pf.TradeLog.margin
-                      + self._share_value(row) * (pf.TradeLog.margin -1))
+        buying_power = (trade.TradeLog.cash * trade.TradeLog.margin
+                      + self._share_value(row) * (trade.TradeLog.margin -1))
         return buying_power
 
     def _adjust_shares(self, date, price, shares, symbol, row, direction):
         """
         Adjust shares.
         """
-        tlog = pf.TradeLog.instance[symbol]
-        pf.TradeLog.buying_power = self._calc_buying_power(row)
+        tlog = trade.TradeLog.instance[symbol]
+        trade.TradeLog.buying_power = self._calc_buying_power(row)
         shares = tlog.adjust_shares(date, price, shares, direction)
-        pf.TradeLog.buying_power = None
+        trade.TradeLog.buying_power = None
         return shares
 
     def _adjust_value(self, date, price, value, symbol, row, direction):
@@ -517,7 +525,7 @@ class Portfolio:
         return shares
 
     def adjust_percent(self, date, price, weight, symbol, row,
-                       direction=pf.Direction.LONG):
+                       direction=trade.Direction.LONG):
         """
         Adjust symbol to a specified weight (percent) of portfolio.
 
@@ -584,12 +592,12 @@ class Portfolio:
 
         # If direction is None, this set all to pf.Direction.LONG
         if directions is None:
-            directions = {symbol:pf.Direction.LONG for symbol in self.symbols}
+            directions = {symbol:trade.Direction.LONG for symbol in self.symbols}
 
         # Reverse sort by weights.  We want current positions first so that
         # if they need to reduced or closed out, then cash is freed for
         # other symbols.
-        w = pf.sort_dict(w, reverse=True)
+        w = utility.sort_dict(w, reverse=True)
 
         # Update weights with new values.
         w.update(weights)
@@ -626,20 +634,20 @@ class Portfolio:
             # 2007-11-20 SPY:24.1 TLT:24.9 GLD:24.6 QQQ:24.7 cash:  1.6 total: 100.0
             print(date.strftime('%Y-%m-%d'), end=' ')
             total = 0
-            for symbol, tlog in pf.TradeLog.instance.items():
+            for symbol, tlog in trade.TradeLog.instance.items():
                 pct = self.share_percent(row, symbol)
                 total += pct
                 print(f'{symbol}:{pct:4,.1f}', end=' ')
-            pct = pf.TradeLog.cash / self._equity(row) * 100
+            pct = trade.TradeLog.cash / self._equity(row) * 100
             total += abs(pct)
             print(f'cash: {pct:4,.1f}', end=' ')
             print(f'total: {total:4,.1f}')
         else:
             # 2010-02-01 SPY: 54 TLT: 59 GLD:  9 cash:    84.20 total:  9,872.30
             print(date.strftime('%Y-%m-%d'), end=' ')
-            for symbol, tlog in pf.TradeLog.instance.items():
+            for symbol, tlog in trade.TradeLog.instance.items():
                 print(f'{symbol}:{tlog.shares:3}', end=' ')
-            print(f'cash: {pf.TradeLog.cash:8,.2f}', end=' ')
+            print(f'cash: {trade.TradeLog.cash:8,.2f}', end=' ')
             print(f'total: {self._equity(row):9,.2f}')
 
     ####################################################################
@@ -658,12 +666,12 @@ class Portfolio:
         -------
         None
         """
-        pf.TradeLog.seq_num = 0
-        pf.TradeLog.instance.clear()
+        trade.TradeLog.seq_num = 0
+        trade.TradeLog.instance.clear()
 
         self._ts = ts
         for symbol in self.symbols:
-            pf.TradeLog(symbol, False)
+            trade.TradeLog(symbol, False)
 
     def record_daily_balance(self, date, row):
         """
@@ -689,10 +697,10 @@ class Portfolio:
         equity = self._equity(row)
         leverage = self._leverage(row)
         shares = 0
-        for tlog in pf.TradeLog.instance.values():
+        for tlog in trade.TradeLog.instance.values():
             shares += tlog.shares
         t = (date, equity, equity, equity, shares,
-             pf.TradeLog.cash, leverage)
+             trade.TradeLog.cash, leverage)
         self._l.append(t)
 
     def get_logs(self):
@@ -713,7 +721,7 @@ class Portfolio:
             The daily balance log.
         """
         tlogs = []; rlogs = []
-        for tlog in pf.TradeLog.instance.values():
+        for tlog in trade.TradeLog.instance.values():
             rlogs.append(tlog.get_log_raw())
             tlogs.append(tlog.get_log(merge_trades=False))
         rlog = pd.concat([r for r in rlogs]).sort_values(['seq_num'],
@@ -722,7 +730,7 @@ class Portfolio:
                          ignore_index=True)
         tlog['cumul_total'] = tlog['pl_cash'].cumsum()
 
-        dbal = pf.DailyBal()
+        dbal = trade.DailyBal()
         dbal._l = self._l
         dbal = dbal.get_log(tlog)
         return rlog, tlog, dbal
@@ -750,7 +758,7 @@ class Portfolio:
             return weights[row.name]
 
         def _currency(row):
-            return pf.currency(row['cumul_total'])
+            return pfstatistics.currency(row['cumul_total'])
 
         def _plot(df):
             df = df[:-1]
@@ -764,7 +772,7 @@ class Portfolio:
 
         # Convert dict to series.
         s = pd.Series(dtype='object')
-        for symbol, tlog in pf.TradeLog.instance.items():
+        for symbol, tlog in trade.TradeLog.instance.items():
             s[symbol] = tlog.cumul_total
         # Convert series to dataframe.
         df = pd.DataFrame(s.values, index=s.index, columns=['cumul_total'])
@@ -775,11 +783,12 @@ class Portfolio:
         # Add relative preformance.
         df['relative_performance'] = df['pct_cumul_total'] / df['weight']
         # Add TOTAL row.
-        new_row = pd.Series(name='TOTAL',
-            data={'cumul_total':df['cumul_total'].sum(),
-                  'pct_cumul_total': 1.00, 'weight': 1.00,
-                  'relative_performance': 1.00})
-        df = df.append(new_row, ignore_index=False)
+        data = {'cumul_total':df['cumul_total'].sum(),
+                'pct_cumul_total': 1.00, 'weight': 1.00,
+                'relative_performance': 1.00}
+        index = ['TOTAL']
+        new_row = pd.DataFrame(data=data, index=index)
+        df = pd.concat([df, new_row])
         # Format as currency.
         df['cumul_total'] = df.apply(_currency, axis=1)
         # Plot bar graph of performance.

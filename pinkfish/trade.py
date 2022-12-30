@@ -4,8 +4,6 @@ Trading agent.
 
 import pandas as pd
 
-import pinkfish as pf
-
 
 class Direction:
     """
@@ -636,9 +634,11 @@ class TradeLog:
             tlog['cumul_total'] = tlog['cumul_total'].tail(1)
             return tlog
 
-        tlog = tlog.groupby('entry_date').apply(_merge, merge_type='entry') \
+        tlog = tlog.groupby('entry_date', group_keys=False) \
+                                         .apply(_merge, merge_type='entry') \
                                          .dropna().reset_index(drop=True)
-        tlog = tlog.groupby('exit_date').apply(_merge, merge_type='exit') \
+        tlog = tlog.groupby('exit_date', group_keys=False) \
+                                        .apply(_merge, merge_type='exit') \
                                         .dropna().reset_index(drop=True)
         return tlog
 

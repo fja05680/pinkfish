@@ -9,7 +9,7 @@ import math
 import numpy as np
 import pandas as pd
 
-import pinkfish as pf
+import pinkfish.pfstatistics as pfstatistics
 
 
 class IndicatorError(Exception):
@@ -270,9 +270,9 @@ def MOMENTUM(ts, lookback=1, time_frame='monthly', price='close', prevday=False)
         raise ValueError('lookback must be positive')
 
     if   time_frame =='daily':   factor = 1
-    elif time_frame =='weekly':  factor = pf.statistics.TRADING_DAYS_PER_WEEK
-    elif time_frame =='monthly': factor = pf.statistics.TRADING_DAYS_PER_MONTH
-    elif time_frame =='yearly':  factor = pf.statistics.TRADING_DAYS_PER_YEAR
+    elif time_frame =='weekly':  factor = pfstatistics.TRADING_DAYS_PER_WEEK
+    elif time_frame =='monthly': factor = pfstatistics.TRADING_DAYS_PER_MONTH
+    elif time_frame =='yearly':  factor = pfstatistics.TRADING_DAYS_PER_YEAR
     else:
         raise ValueError(f'invalid time_frame "{time_frame}"')
 
@@ -338,9 +338,9 @@ def VOLATILITY(ts, lookback=20, time_frame='yearly', downside=False,
         raise ValueError('lookback must be positive')
 
     if   time_frame == 'daily':   factor = 1
-    elif time_frame == 'weekly':  factor = pf.statistics.TRADING_DAYS_PER_WEEK
-    elif time_frame == 'monthly': factor = pf.statistics.TRADING_DAYS_PER_MONTH
-    elif time_frame == 'yearly':  factor = pf.statistics.TRADING_DAYS_PER_YEAR
+    elif time_frame == 'weekly':  factor = pfstatistics.TRADING_DAYS_PER_WEEK
+    elif time_frame == 'monthly': factor = pfstatistics.TRADING_DAYS_PER_MONTH
+    elif time_frame == 'yearly':  factor = pfstatistics.TRADING_DAYS_PER_YEAR
     else:
         raise ValueError(f'invalid time_frame "{time_frame}"')
 
@@ -410,7 +410,7 @@ def ANNUALIZED_RETURNS(ts, lookback=5, price='close', prevday=False):
     if lookback <= 0:
         raise ValueError('lookback must be positive')
 
-    window = int(lookback * pf.statistics.TRADING_DAYS_PER_YEAR)
+    window = int(lookback * pfstatistics.TRADING_DAYS_PER_YEAR)
     s = pd.Series(ts[price]).rolling(window).apply(_cagr)
     if prevday:
         s = s.shift()
@@ -462,12 +462,12 @@ def ANNUALIZED_STANDARD_DEVIATION(ts, lookback=3, price='close', prevday=False):
         """
         Calculate the annualized standard deviation.
         """
-        return np.std(s, axis=0) * math.sqrt(pf.statistics.TRADING_DAYS_PER_YEAR)
+        return np.std(s, axis=0) * math.sqrt(pfstatistics.TRADING_DAYS_PER_YEAR)
 
     if lookback <= 0:
         raise ValueError('lookback must be positive')
 
-    window = int(lookback * pf.statistics.TRADING_DAYS_PER_YEAR)
+    window = int(lookback * pfstatistics.TRADING_DAYS_PER_YEAR)
     pc = ts[price].pct_change()
     s = pd.Series(pc).rolling(window).apply(_std_dev)
     if prevday:
@@ -532,7 +532,7 @@ def ANNUALIZED_SHARPE_RATIO(ts, lookback=5, price='close', prevday=False,
     if lookback <= 0:
         raise ValueError('lookback must be positive')
 
-    window = int(lookback * pf.statistics.TRADING_DAYS_PER_YEAR)
+    window = int(lookback * pfstatistics.TRADING_DAYS_PER_YEAR)
     pc = ts[price].pct_change()
     s = pd.Series(pc).rolling(window).apply(_sharpe_ratio)
     if prevday:

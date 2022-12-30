@@ -39,7 +39,7 @@ import pandas as pd
 
 import empyrical as em
 
-import pinkfish as pf
+import pinkfish.indicator as indicator
 
 
 ########################################################################
@@ -97,7 +97,7 @@ def monthly_returns_map(dbal):
     month = 0
     year_count = 0
     table = ''
-    for m, val in monthly_data.iteritems():
+    for m, val in monthly_data.items():
         year = m[0]
         month = m[1]
 
@@ -178,12 +178,12 @@ def holding_period_map(dbal):
         table += "<th>{}</th>".format(i+1)
     table += "</tr>"
 
-    for the_year, _ in year.iteritems(): # Iterates years
+    for the_year, _ in year.items(): # Iterates years
         table += f"<tr><th>{the_year}</th>"  # New table row
 
         for years_held in range(1, len(year)+1): # Iterates years held
-            if years_held <= len(year[year_start:year_start + years_held]):
-                ret = em.annual_return(year[year_start:year_start + years_held], 'yearly')
+            if years_held <= len(year.iloc[year_start:year_start + years_held]):
+                ret = em.annual_return(year.iloc[year_start:year_start + years_held], 'yearly')
                 table += "<td>{:.0f}</td>".format(ret * 100)
         table += "</tr>"
         year_start +=1
@@ -366,7 +366,7 @@ def volatility_graphs(dbals, labels, points_to_plot=None):
     # Get volatility for each dbal set.
     volas = []
     for dbal in dbals:
-        volas.append(pf.VOLATILITY(dbal[-points_to_plot:]).dropna())
+        volas.append(indicator.VOLATILITY(dbal[-points_to_plot:]).dropna())
 
     # Build metrics dataframe.
     index = []

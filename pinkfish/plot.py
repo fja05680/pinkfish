@@ -7,7 +7,8 @@ from pandas.plotting import register_matplotlib_converters
 # Register matplotlib converters.
 register_matplotlib_converters()
 
-import pinkfish as pf
+import pinkfish.pfstatistics as pfstatistics
+import pinkfish.trade as trade
 
 
 def plot_equity_curve(strategy, benchmark=None, yscale='linear', fname=None):
@@ -110,14 +111,14 @@ def plot_trades(strategy, benchmark=None, yscale='linear', fname=None):
     axes.set_yscale(yscale)
 
     # Buy trades.
-    s = strategy['state'] == pf.TradeState.OPEN
+    s = strategy['state'] == trade.TradeState.OPEN
     s = s.reindex_like(benchmark)
     buy = benchmark[s]
     axes.plot(buy.index, buy['close'], '^', markersize=10, color='k')
     axes.set_yscale(yscale)
 
     # Sell trades.
-    s = strategy['state'] == pf.TradeState.CLOSE
+    s = strategy['state'] == trade.TradeState.CLOSE
     s = s.reindex_like(benchmark)
     sell = benchmark[s]
     axes.plot(sell.index, sell['close'], 'v', markersize=10, color='r')
@@ -184,7 +185,7 @@ def plot_bar_graph(stats, benchmark_stats=None, metrics=default_metrics,
         extras = ()
     metrics += extras
 
-    df = pf.summary(stats, benchmark_stats, metrics)
+    df = pfstatistics.summary(stats, benchmark_stats, metrics)
     fig = plt.figure()
     axes = fig.add_subplot(111, ylabel='Trading Metrix')
     df.plot(kind='bar', ax=axes, color=['g', 'r'])
@@ -205,7 +206,7 @@ def optimizer_plot_bar_graph(df, metric):
 
     Parameters
     ----------
-    df : pf.DataFrame
+    df : pd.DataFrame
         Summary of strategies vs metrics.
     metric : str
         The metric to be used in the summary.

@@ -11,8 +11,6 @@ from pathlib import Path
 
 import pandas as pd
 
-import pinkfish as pf
-
 
 ROOT = str(Path(os.getcwd().split('pinkfish')[0] + '/pinkfish'))
 """

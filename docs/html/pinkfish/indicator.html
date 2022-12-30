@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.2" />
+<meta name="generator" content="pdoc 0.10.0" />
 <title>pinkfish.indicator API documentation</title>
 <meta name="description" content="Custom indicators …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -41,7 +41,7 @@ import math
 import numpy as np
 import pandas as pd
 
-import pinkfish as pf
+import pinkfish.pfstatistics as pfstatistics
 
 
 class IndicatorError(Exception):
@@ -302,9 +302,9 @@ def MOMENTUM(ts, lookback=1, time_frame=&#39;monthly&#39;, price=&#39;close&#39;
         raise ValueError(&#39;lookback must be positive&#39;)
 
     if   time_frame ==&#39;daily&#39;:   factor = 1
-    elif time_frame ==&#39;weekly&#39;:  factor = pf.statistics.TRADING_DAYS_PER_WEEK
-    elif time_frame ==&#39;monthly&#39;: factor = pf.statistics.TRADING_DAYS_PER_MONTH
-    elif time_frame ==&#39;yearly&#39;:  factor = pf.statistics.TRADING_DAYS_PER_YEAR
+    elif time_frame ==&#39;weekly&#39;:  factor = pfstatistics.TRADING_DAYS_PER_WEEK
+    elif time_frame ==&#39;monthly&#39;: factor = pfstatistics.TRADING_DAYS_PER_MONTH
+    elif time_frame ==&#39;yearly&#39;:  factor = pfstatistics.TRADING_DAYS_PER_YEAR
     else:
         raise ValueError(f&#39;invalid time_frame &#34;{time_frame}&#34;&#39;)
 
@@ -370,9 +370,9 @@ def VOLATILITY(ts, lookback=20, time_frame=&#39;yearly&#39;, downside=False,
         raise ValueError(&#39;lookback must be positive&#39;)
 
     if   time_frame == &#39;daily&#39;:   factor = 1
-    elif time_frame == &#39;weekly&#39;:  factor = pf.statistics.TRADING_DAYS_PER_WEEK
-    elif time_frame == &#39;monthly&#39;: factor = pf.statistics.TRADING_DAYS_PER_MONTH
-    elif time_frame == &#39;yearly&#39;:  factor = pf.statistics.TRADING_DAYS_PER_YEAR
+    elif time_frame == &#39;weekly&#39;:  factor = pfstatistics.TRADING_DAYS_PER_WEEK
+    elif time_frame == &#39;monthly&#39;: factor = pfstatistics.TRADING_DAYS_PER_MONTH
+    elif time_frame == &#39;yearly&#39;:  factor = pfstatistics.TRADING_DAYS_PER_YEAR
     else:
         raise ValueError(f&#39;invalid time_frame &#34;{time_frame}&#34;&#39;)
 
@@ -442,7 +442,7 @@ def ANNUALIZED_RETURNS(ts, lookback=5, price=&#39;close&#39;, prevday=False):
     if lookback &lt;= 0:
         raise ValueError(&#39;lookback must be positive&#39;)
 
-    window = int(lookback * pf.statistics.TRADING_DAYS_PER_YEAR)
+    window = int(lookback * pfstatistics.TRADING_DAYS_PER_YEAR)
     s = pd.Series(ts[price]).rolling(window).apply(_cagr)
     if prevday:
         s = s.shift()
@@ -494,12 +494,12 @@ def ANNUALIZED_STANDARD_DEVIATION(ts, lookback=3, price=&#39;close&#39;, prevday
         &#34;&#34;&#34;
         Calculate the annualized standard deviation.
         &#34;&#34;&#34;
-        return np.std(s, axis=0) * math.sqrt(pf.statistics.TRADING_DAYS_PER_YEAR)
+        return np.std(s, axis=0) * math.sqrt(pfstatistics.TRADING_DAYS_PER_YEAR)
 
     if lookback &lt;= 0:
         raise ValueError(&#39;lookback must be positive&#39;)
 
-    window = int(lookback * pf.statistics.TRADING_DAYS_PER_YEAR)
+    window = int(lookback * pfstatistics.TRADING_DAYS_PER_YEAR)
     pc = ts[price].pct_change()
     s = pd.Series(pc).rolling(window).apply(_std_dev)
     if prevday:
@@ -564,7 +564,7 @@ def ANNUALIZED_SHARPE_RATIO(ts, lookback=5, price=&#39;close&#39;, prevday=False
     if lookback &lt;= 0:
         raise ValueError(&#39;lookback must be positive&#39;)
 
-    window = int(lookback * pf.statistics.TRADING_DAYS_PER_YEAR)
+    window = int(lookback * pfstatistics.TRADING_DAYS_PER_YEAR)
     pc = ts[price].pct_change()
     s = pd.Series(pc).rolling(window).apply(_sharpe_ratio)
     if prevday:
@@ -676,7 +676,7 @@ It gives you the previous day's Volatility (default is False).</dd>
     if lookback &lt;= 0:
         raise ValueError(&#39;lookback must be positive&#39;)
 
-    window = int(lookback * pf.statistics.TRADING_DAYS_PER_YEAR)
+    window = int(lookback * pfstatistics.TRADING_DAYS_PER_YEAR)
     s = pd.Series(ts[price]).rolling(window).apply(_cagr)
     if prevday:
         s = s.shift()
@@ -783,7 +783,7 @@ It gives you the previous day's Volatility (default is False).</dd>
     if lookback &lt;= 0:
         raise ValueError(&#39;lookback must be positive&#39;)
 
-    window = int(lookback * pf.statistics.TRADING_DAYS_PER_YEAR)
+    window = int(lookback * pfstatistics.TRADING_DAYS_PER_YEAR)
     pc = ts[price].pct_change()
     s = pd.Series(pc).rolling(window).apply(_sharpe_ratio)
     if prevday:
@@ -877,12 +877,12 @@ It gives you the previous day's Volatility (default is False).</dd>
         &#34;&#34;&#34;
         Calculate the annualized standard deviation.
         &#34;&#34;&#34;
-        return np.std(s, axis=0) * math.sqrt(pf.statistics.TRADING_DAYS_PER_YEAR)
+        return np.std(s, axis=0) * math.sqrt(pfstatistics.TRADING_DAYS_PER_YEAR)
 
     if lookback &lt;= 0:
         raise ValueError(&#39;lookback must be positive&#39;)
 
-    window = int(lookback * pf.statistics.TRADING_DAYS_PER_YEAR)
+    window = int(lookback * pfstatistics.TRADING_DAYS_PER_YEAR)
     pc = ts[price].pct_change()
     s = pd.Series(pc).rolling(window).apply(_std_dev)
     if prevday:
@@ -1171,9 +1171,9 @@ It gives you the previous day's Momentum (default is False).</dd>
         raise ValueError(&#39;lookback must be positive&#39;)
 
     if   time_frame ==&#39;daily&#39;:   factor = 1
-    elif time_frame ==&#39;weekly&#39;:  factor = pf.statistics.TRADING_DAYS_PER_WEEK
-    elif time_frame ==&#39;monthly&#39;: factor = pf.statistics.TRADING_DAYS_PER_MONTH
-    elif time_frame ==&#39;yearly&#39;:  factor = pf.statistics.TRADING_DAYS_PER_YEAR
+    elif time_frame ==&#39;weekly&#39;:  factor = pfstatistics.TRADING_DAYS_PER_WEEK
+    elif time_frame ==&#39;monthly&#39;: factor = pfstatistics.TRADING_DAYS_PER_MONTH
+    elif time_frame ==&#39;yearly&#39;:  factor = pfstatistics.TRADING_DAYS_PER_YEAR
     else:
         raise ValueError(f&#39;invalid time_frame &#34;{time_frame}&#34;&#39;)
 
@@ -1346,9 +1346,9 @@ It gives you the previous day's Volatility (default is False).</dd>
         raise ValueError(&#39;lookback must be positive&#39;)
 
     if   time_frame == &#39;daily&#39;:   factor = 1
-    elif time_frame == &#39;weekly&#39;:  factor = pf.statistics.TRADING_DAYS_PER_WEEK
-    elif time_frame == &#39;monthly&#39;: factor = pf.statistics.TRADING_DAYS_PER_MONTH
-    elif time_frame == &#39;yearly&#39;:  factor = pf.statistics.TRADING_DAYS_PER_YEAR
+    elif time_frame == &#39;weekly&#39;:  factor = pfstatistics.TRADING_DAYS_PER_WEEK
+    elif time_frame == &#39;monthly&#39;: factor = pfstatistics.TRADING_DAYS_PER_MONTH
+    elif time_frame == &#39;yearly&#39;:  factor = pfstatistics.TRADING_DAYS_PER_YEAR
     else:
         raise ValueError(f&#39;invalid time_frame &#34;{time_frame}&#34;&#39;)
 
@@ -1457,7 +1457,7 @@ It gives you the previous day's Volatility (default is False).</dd>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
 </footer>
 </body>
 </html>

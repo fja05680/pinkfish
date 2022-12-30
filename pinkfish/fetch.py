@@ -12,7 +12,13 @@ from pandas_datareader._utils import RemoteDataError
 import pandas_datareader.data as pdr
 import yfinance as yf
 
-import pinkfish as pf
+from pinkfish.pfstatistics import (
+    select_trading_days
+)
+from pinkfish.stock_market_calendar import (
+    stock_market_calendar
+)
+import pinkfish.utility as utility
 
 
 # Override pandas_datareader with yfinance
@@ -38,7 +44,7 @@ def _get_cache_dir(dir_name):
     """
     base_dir = ''
     try:
-        conf = pf.read_config()
+        conf = utility.read_config()
         base_dir = conf['base_dir']
     except Exception as e:
         pass
@@ -211,10 +217,10 @@ def select_tradeperiod(ts, start, end, use_adj=False,
         use_continuous_calendar = False
 
     if use_continuous_calendar:
-        pf.statistics.select_trading_days(use_stock_market_calendar=False)
+        select_trading_days(use_stock_market_calendar=False)
 
     if force_stock_market_calendar:
-        index = pd.to_datetime(pf.stock_market_calendar)
+        index = pd.to_datetime(stock_market_calendar)
         ts = ts.reindex(index=index)
 
     ts.dropna(subset=check_fields, inplace=True)
@@ -428,8 +434,8 @@ def get_symbol_metadata(symbols=None, dir_name='data', from_year=None):
     l = []
     for i, symbol in enumerate(symbols):
         try:
-            ts = pf.fetch_timeseries(symbol, dir_name=dir_name, use_cache=True,
-                                     from_year=from_year) 
+            ts = fetch_timeseries(symbol, dir_name=dir_name, use_cache=True,
+                                  from_year=from_year) 
             start = ts.index[0].to_pydatetime()
             end = ts.index[-1].to_pydatetime()
             num_years = _difference_in_years(start, end)
