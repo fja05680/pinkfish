@@ -18,9 +18,13 @@ Some of the key features of pinkfish:
  - create spreadsheets within Jupyter Notebook by utilizing pandas dataframes and itable formatting
 
 ## Installation
-For basic installation (not including ta-lib):  
+For basic installation of the pinkfish library (not including ta-lib):  
+```
 pip install wheel  
-pip install pinkfish  
+pip install pinkfish
+```
+
+Then `git clone` to get the `examples` directory, or just download the compressed source files.
 
 --OR--  
 
