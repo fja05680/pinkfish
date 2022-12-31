@@ -495,7 +495,7 @@ class Portfolio:
         close = self.get_price(row, symbol)
         tlog = trade.TradeLog.instance[symbol]
         value = tlog.share_value(close)
-        return value / self._total_funds(row) * 100
+        return value / self._total_funds(row)
 
     def _calc_buying_power(self, row):
         """
@@ -536,7 +536,7 @@ class Portfolio:
         price : float
             The current price of the security.
         weight : float
-            The requested weight for the symbol.
+            The requested weight for the symbol, where 0 <= weight <=1.
         symbol : str
             The symbol for a security.
         row : pd.Series
@@ -549,7 +549,9 @@ class Portfolio:
         int
             The number of shares bought or sold.
         """
-        weight = weight if weight <= 1 else weight/100
+        if not (0 <= weight <= 1):
+            raise ValueError('weight should be between 0 and 1 (inclusive).')
+
         total_funds = self._total_funds(row)
         value = total_funds * weight
         shares = self._adjust_value(date, price, value, symbol, row, direction)
@@ -571,7 +573,7 @@ class Portfolio:
         prices : dict of floats
             Dict of key value pair of symbol:price.
         weights : dict of floats
-            Dict of key value pair of symbol:weight.
+            Dict of key value pair of symbol:weight, where 0 <= weight <=1.
         row : pd.Series
             A row of data from the timeseries of the portfolio.
         directions : dict of pf.Direction, optional
@@ -582,8 +584,12 @@ class Portfolio:
         Returns
         -------
         w : dict of floats
-            Dict of key value pair of symbol:weight.
+            Dict of key value pair of symbol:weight, where 0 <= weight <=1.
         """
+        for weight in weights.values():
+            if not (0 <= weight <= 1):
+                raise ValueError('weights should be between 0 and 1 (inclusive).')
+
         w = {}
 
         # Get current weights
@@ -638,7 +644,7 @@ class Portfolio:
                 pct = self.share_percent(row, symbol)
                 total += pct
                 print(f'{symbol}:{pct:4,.1f}', end=' ')
-            pct = trade.TradeLog.cash / self._equity(row) * 100
+            pct = trade.TradeLog.cash / self._equity(row)
             total += abs(pct)
             print(f'cash: {pct:4,.1f}', end=' ')
             print(f'total: {total:4,.1f}')
@@ -745,7 +751,7 @@ class Portfolio:
         Parameters
         ----------
         weights : dict of floats
-            A dictionary of weights with symbol as key.
+            A dictionary of weights with symbol as key, where 0 <= weight <=1.
 
         Returns
         -------
@@ -769,6 +775,10 @@ class Portfolio:
             df.plot(kind='bar', ax=axes)
             axes.set_xticklabels(df.index, rotation=60)
             plt.legend(loc='best')
+
+        for weight in weights.values():
+            if not (0 <= weight <= 1):
+                raise ValueError('weights should be between 0 and 1 (inclusive).')
 
         # Convert dict to series.
         s = pd.Series(dtype='object')

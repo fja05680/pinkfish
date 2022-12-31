@@ -16,7 +16,6 @@ import pinkfish as pf
 default_options = {
     'use_adj' : False,
     'use_cache' : False,
-    'stop_loss_pct' : 1.0,
     'margin' : 1,
     'period' : 7,
     'max_open_trades' : 4,
@@ -25,9 +24,9 @@ default_options = {
 }
 
 def _round_weight(weight):
-    if    weight > 99: weight = 100
-    elif  weight < 5: weight = 0
-    else: weight = round(weight)
+    if    weight > 99/100: weight = 1
+    elif  weight < 5/100: weight = 0
+    else: weight = round(int(weight*100)) / 100
     return weight
 
 class Strategy:
@@ -50,7 +49,6 @@ class Strategy:
 
         pf.TradeLog.cash = self.capital
         pf.TradeLog.margin = self.options['margin']
-        stop_loss = 0
 
         for i, row in enumerate(self.ts.itertuples()):
 
@@ -73,21 +71,20 @@ class Strategy:
             if (row.regime > 0 and close == row.period_low and not end_flag):
                 # Get current, then set new weight
                 weight = self.tlog.share_percent(close)
-                weight += 1 / max_open_trades_buy * 100
+                weight += 1 / max_open_trades_buy
                 weight = _round_weight(weight)
                 self.tlog.adjust_percent(date, close, weight)
 
             # Sell Logic
             # First we check if we have any open trades, then
             #  - Sell if price closes at X day high.
-            #  - Sell if price closes below stop loss.
             #  - Sell if end of data.
 
             elif (self.tlog.shares > 0 
-                  and (close == row.period_high or close < stop_loss or end_flag)):
+                  and (close == row.period_high or end_flag)):
                 # Get current, then set new weight
                 weight = self.tlog.share_percent(close)
-                weight -= 1 / max_open_trades_sell * 100
+                weight -= 1 / max_open_trades_sell
                 weight = _round_weight(weight)
                 self.tlog.adjust_percent(date, close, weight)
 

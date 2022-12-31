@@ -24,7 +24,6 @@ pf.DEBUG = False
 default_options = {
     'use_adj' : False,
     'use_cache' : False,
-    'stop_loss_pct' : 1.0,
     'margin' : 1,
     'period' : 7,
     'max_open_trades' : 4,
@@ -52,7 +51,6 @@ class Strategy:
 
         pf.TradeLog.cash = self.capital
         pf.TradeLog.margin = self.options['margin']
-        stop_loss = 0
 
         for i, row in enumerate(self.ts.itertuples()):
 
@@ -85,21 +83,18 @@ class Strategy:
                 if shares > 0:
                     # Enter buy in trade log
                     self.tlog.buy(date, close, shares)
-                    # Set stop loss
-                    stop_loss = (1-self.options['stop_loss_pct'])*close
                     # set sell_parts to max_open_trades
                     num_out_trades = max_open_trades
 
             # Sell Logic
             # First we check if we have any open trades, then
             #  - Sell if price closes at X day high.
-            #  - Sell if price closes below stop loss.
             #  - Sell if end of data.
 
             elif (num_open_trades > 0 
-                  and (close == row.period_high or close < stop_loss or end_flag)):
+                  and (close == row.period_high or end_flag)):
 
-                if not enable_scale_out or close < stop_loss or end_flag:
+                if not enable_scale_out or end_flag:
                     # Exit all positions.
                     shares = None
                 elif enable_scale_in:
