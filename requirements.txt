@@ -68,7 +68,6 @@ pathlib==1.0.1
 pexpect==4.8.0
 pickleshare==0.7.5
 Pillow==9.3.0
--e git+https://github.com/fja05680/pinkfish.git@b48eb677230b31c491ed5d798a421ad2954dbd07#egg=pinkfish
 pkgutil-resolve-name==1.3.10
 platformdirs==2.6.2
 prometheus-client==0.15.0
