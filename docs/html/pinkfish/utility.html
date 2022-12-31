@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.2" />
+<meta name="generator" content="pdoc 0.10.0" />
 <title>pinkfish.utility API documentation</title>
 <meta name="description" content="Utility functions." />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -32,13 +32,13 @@ Utility functions.
 &#34;&#34;&#34;
 
 from configparser import ConfigParser
+from functools import wraps
 import importlib.util
+import inspect
 import os
 from pathlib import Path
 
 import pandas as pd
-
-import pinkfish as pf
 
 
 ROOT = str(Path(os.getcwd().split(&#39;pinkfish&#39;)[0] + &#39;/pinkfish&#39;))
@@ -56,7 +56,7 @@ def import_strategy(strategy_name, top_level_dir=&#39;examples&#39;, module_name
     strategy_name : str
         The leaf dir name that contains the strategy to import.
     top_level_dir : str, optional
-        The top level dir name for the strategies 
+        The top level dir name for the strategies
         (default is &#39;examples&#39;).
     module_name: str, optional
         The name of the python module (default is &#39;strategy&#39;).
@@ -75,7 +75,7 @@ def import_strategy(strategy_name, top_level_dir=&#39;examples&#39;, module_name
                                     / Path(strategy_name)
                                     / Path(module_name + &#39;.py&#39;))
     print(strategy_location)
-    spec = importlib.util.spec_from_file_location(module_name, strategy_location) 
+    spec = importlib.util.spec_from_file_location(module_name, strategy_location)
     strategy = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(strategy)
     return strategy
@@ -107,17 +107,20 @@ def is_last_row(ts, index):
     &#34;&#34;&#34;
     return True if (index == len(ts) - 1) else False
 
+
 def sort_dict(d, reverse=False):
     &#34;&#34;&#34;
     Return sorted dict; optionally reverse sort.
     &#34;&#34;&#34;
     return dict(sorted(d.items(), key=lambda x: x[1], reverse=reverse))
 
+
 def set_dict_values(d, value):
     &#34;&#34;&#34;
     Return dict with same keys as `d` and all values equal to `value&#39;.
     &#34;&#34;&#34;
     return dict.fromkeys(d, value)
+
 
 def find_nan_rows(ts):
     &#34;&#34;&#34;
@@ -136,7 +139,54 @@ def find_nan_rows(ts):
     is_NaN = ts.isnull()
     row_has_NaN = is_NaN.any(axis=1)
     rows_with_NaN = ts[row_has_NaN]
-    return rows_with_NaN</code></pre>
+    return rows_with_NaN
+
+
+def no_empty_container(container_name, default_ret_value):
+    &#34;&#34;&#34;
+    Check if container is empty.  If so, return `default_ret_value`.
+
+    Parameters
+    ----------
+    container_name : str
+        The name of the container parameter to check.
+    default_ret_value : int
+        The return value the wrapped function if the container is empty.
+        (default is &#39;examples&#39;).
+    module_name: str, optional
+        The name of the python module (default is &#39;strategy&#39;).
+
+    Returns
+    -------
+    `default_ret_value` or `func` return value : type of return value
+        If the container is empty, `default_ret_value` is returned,
+        otherwise the return value of `func`.
+
+    Examples
+    --------
+    &gt;&gt;&gt; @no_empty_container(&#39;my_list&#39;, 0)
+    &gt;&gt;&gt; def my_func(my_list):
+    &gt;&gt;&gt;     return 5
+    &gt;&gt;&gt; my_func([])
+    0
+    &#34;&#34;&#34;
+
+    def decorator(func):
+    
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            try:
+                container_obj = kwargs[container_name]
+            except KeyError:
+                container_arg_index = inspect.getfullargspec(func).args.index(container_name)
+                container_obj = args[container_arg_index]
+
+            if len(container_obj) == 0:
+                return default_ret_value
+
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator</code></pre>
 </details>
 </section>
 <section>
@@ -226,7 +276,7 @@ at the top of your notebook to display all columns.</p>
     strategy_name : str
         The leaf dir name that contains the strategy to import.
     top_level_dir : str, optional
-        The top level dir name for the strategies 
+        The top level dir name for the strategies
         (default is &#39;examples&#39;).
     module_name: str, optional
         The name of the python module (default is &#39;strategy&#39;).
@@ -245,7 +295,7 @@ at the top of your notebook to display all columns.</p>
                                     / Path(strategy_name)
                                     / Path(module_name + &#39;.py&#39;))
     print(strategy_location)
-    spec = importlib.util.spec_from_file_location(module_name, strategy_location) 
+    spec = importlib.util.spec_from_file_location(module_name, strategy_location)
     strategy = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(strategy)
     return strategy</code></pre>
@@ -265,6 +315,84 @@ at the top of your notebook to display all columns.</p>
     Return True for last row, False otherwise.
     &#34;&#34;&#34;
     return True if (index == len(ts) - 1) else False</code></pre>
+</details>
+</dd>
+<dt id="pinkfish.utility.no_empty_container"><code class="name flex">
+<span>def <span class="ident">no_empty_container</span></span>(<span>container_name, default_ret_value)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Check if container is empty.
+If so, return <code>default_ret_value</code>.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>container_name</code></strong> :&ensp;<code>str</code></dt>
+<dd>The name of the container parameter to check.</dd>
+<dt><strong><code>default_ret_value</code></strong> :&ensp;<code>int</code></dt>
+<dd>The return value the wrapped function if the container is empty.
+(default is 'examples').</dd>
+<dt><strong><code>module_name</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>The name of the python module (default is 'strategy').</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p><code>default_ret_value</code> or <code>func</code> return value : type of return value
+If the container is empty, <code>default_ret_value</code> is returned,
+otherwise the return value of <code>func</code>.</p>
+<h2 id="examples">Examples</h2>
+<pre><code class="language-python-repl">&gt;&gt;&gt; @no_empty_container('my_list', 0)
+&gt;&gt;&gt; def my_func(my_list):
+&gt;&gt;&gt;     return 5
+&gt;&gt;&gt; my_func([])
+0
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def no_empty_container(container_name, default_ret_value):
+    &#34;&#34;&#34;
+    Check if container is empty.  If so, return `default_ret_value`.
+
+    Parameters
+    ----------
+    container_name : str
+        The name of the container parameter to check.
+    default_ret_value : int
+        The return value the wrapped function if the container is empty.
+        (default is &#39;examples&#39;).
+    module_name: str, optional
+        The name of the python module (default is &#39;strategy&#39;).
+
+    Returns
+    -------
+    `default_ret_value` or `func` return value : type of return value
+        If the container is empty, `default_ret_value` is returned,
+        otherwise the return value of `func`.
+
+    Examples
+    --------
+    &gt;&gt;&gt; @no_empty_container(&#39;my_list&#39;, 0)
+    &gt;&gt;&gt; def my_func(my_list):
+    &gt;&gt;&gt;     return 5
+    &gt;&gt;&gt; my_func([])
+    0
+    &#34;&#34;&#34;
+
+    def decorator(func):
+    
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            try:
+                container_obj = kwargs[container_name]
+            except KeyError:
+                container_arg_index = inspect.getfullargspec(func).args.index(container_name)
+                container_obj = args[container_arg_index]
+
+            if len(container_obj) == 0:
+                return default_ret_value
+
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator</code></pre>
 </details>
 </dd>
 <dt id="pinkfish.utility.print_full"><code class="name flex">
@@ -363,6 +491,7 @@ at the top of your notebook to display all columns.</p>
 <li><code><a title="pinkfish.utility.find_nan_rows" href="#pinkfish.utility.find_nan_rows">find_nan_rows</a></code></li>
 <li><code><a title="pinkfish.utility.import_strategy" href="#pinkfish.utility.import_strategy">import_strategy</a></code></li>
 <li><code><a title="pinkfish.utility.is_last_row" href="#pinkfish.utility.is_last_row">is_last_row</a></code></li>
+<li><code><a title="pinkfish.utility.no_empty_container" href="#pinkfish.utility.no_empty_container">no_empty_container</a></code></li>
 <li><code><a title="pinkfish.utility.print_full" href="#pinkfish.utility.print_full">print_full</a></code></li>
 <li><code><a title="pinkfish.utility.read_config" href="#pinkfish.utility.read_config">read_config</a></code></li>
 <li><code><a title="pinkfish.utility.set_dict_values" href="#pinkfish.utility.set_dict_values">set_dict_values</a></code></li>
@@ -373,7 +502,7 @@ at the top of your notebook to display all columns.</p>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
 </footer>
 </body>
 </html>

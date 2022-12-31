@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.2" />
+<meta name="generator" content="pdoc 0.10.0" />
 <title>pinkfish.fetch API documentation</title>
 <meta name="description" content="Fetch time series data." />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -41,7 +41,13 @@ from pandas_datareader._utils import RemoteDataError
 import pandas_datareader.data as pdr
 import yfinance as yf
 
-import pinkfish as pf
+from pinkfish.pfstatistics import (
+    select_trading_days
+)
+from pinkfish.stock_market_calendar import (
+    stock_market_calendar
+)
+import pinkfish.utility as utility
 
 
 # Override pandas_datareader with yfinance
@@ -67,9 +73,9 @@ def _get_cache_dir(dir_name):
     &#34;&#34;&#34;
     base_dir = &#39;&#39;
     try:
-        conf = pf.read_config()
+        conf = utility.read_config()
         base_dir = conf[&#39;base_dir&#39;]
-    except:
+    except Exception as e:
         pass
     finally:
         dir_name = os.path.join(base_dir, dir_name)
@@ -240,10 +246,10 @@ def select_tradeperiod(ts, start, end, use_adj=False,
         use_continuous_calendar = False
 
     if use_continuous_calendar:
-        pf.statistics.select_trading_days(use_stock_market_calendar=False)
+        select_trading_days(use_stock_market_calendar=False)
 
     if force_stock_market_calendar:
-        index = pd.to_datetime(pf.stock_market_calendar)
+        index = pd.to_datetime(stock_market_calendar)
         ts = ts.reindex(index=index)
 
     ts.dropna(subset=check_fields, inplace=True)
@@ -251,8 +257,10 @@ def select_tradeperiod(ts, start, end, use_adj=False,
     if use_adj:
         _adj_prices(ts)
 
-    if start &lt; ts.index[0]: start = ts.index[0]
-    if end &gt; ts.index[-1]: end = ts.index[-1]
+    if start &lt; ts.index[0]:
+        start = ts.index[0]
+    if end &gt; ts.index[-1]:
+        end = ts.index[-1]
     ts = ts[start - datetime.timedelta(365):end]
 
     return ts
@@ -289,7 +297,7 @@ def finalize_timeseries(ts, start, dropna=False, drop_columns=None):
         ts.drop(columns=drop_columns, inplace=True)
     if dropna:
         ts.dropna(inplace=True)
-    elif ts.isnull().values.any(): 
+    elif ts.isnull().values.any():
         warnings.warn(&#34;NaN value(s) detected in timeseries&#34;)
     ts = ts[start:]
     start = ts.index[0]
@@ -315,7 +323,7 @@ def _difference_in_years(start, end):
     float
         The difference in years between start and end dates.
     &#34;&#34;&#34;
-    diff  = end - start
+    diff = end - start
     diff_in_years = (diff.days + diff.seconds/86400)/365.2425
     return diff_in_years
 
@@ -394,7 +402,7 @@ def update_cache_symbols(symbols=None, dir_name=&#39;data&#39;, from_year=None):
             symbols = [symbols]
     else:
         filenames = ([f for f in os.listdir(cache_dir)
-                     if f.endswith(&#39;.csv&#39;) and not f.startswith(&#39;__&#39;)])
+                      if f.endswith(&#39;.csv&#39;) and not f.startswith(&#39;__&#39;)])
         symbols = [os.path.splitext(filename)[0] for filename in filenames]
 
     # Make symbol names uppercase.
@@ -403,7 +411,8 @@ def update_cache_symbols(symbols=None, dir_name=&#39;data&#39;, from_year=None):
     print(&#39;updating symbols:&#39;)
     for i, symbol in enumerate(symbols):
         print(symbol + &#39; &#39;, end=&#39;&#39;)
-        if i % 10 == 0 and i != 0: print()
+        if i % 10 == 0 and i != 0:
+            print()
 
         try:
             fetch_timeseries(symbol, dir_name=dir_name, use_cache=False,
@@ -435,7 +444,7 @@ def get_symbol_metadata(symbols=None, dir_name=&#39;data&#39;, from_year=None):
     Returns
     -------
     pd.DataFrame
-        Each row contains metadata for a symbol. 
+        Each row contains metadata for a symbol.
     &#34;&#34;&#34;
     cache_dir = _get_cache_dir(dir_name)
 
@@ -454,8 +463,8 @@ def get_symbol_metadata(symbols=None, dir_name=&#39;data&#39;, from_year=None):
     l = []
     for i, symbol in enumerate(symbols):
         try:
-            ts = pf.fetch_timeseries(symbol, dir_name=dir_name, use_cache=True,
-                                     from_year=from_year) 
+            ts = fetch_timeseries(symbol, dir_name=dir_name, use_cache=True,
+                                  from_year=from_year) 
             start = ts.index[0].to_pydatetime()
             end = ts.index[-1].to_pydatetime()
             num_years = _difference_in_years(start, end)
@@ -625,7 +634,7 @@ implies that no columns should be dropped).</dd>
         ts.drop(columns=drop_columns, inplace=True)
     if dropna:
         ts.dropna(inplace=True)
-    elif ts.isnull().values.any(): 
+    elif ts.isnull().values.any():
         warnings.warn(&#34;NaN value(s) detected in timeseries&#34;)
     ts = ts[start:]
     start = ts.index[0]
@@ -678,7 +687,7 @@ which implies that all the available data is retrieved).</dd>
     Returns
     -------
     pd.DataFrame
-        Each row contains metadata for a symbol. 
+        Each row contains metadata for a symbol.
     &#34;&#34;&#34;
     cache_dir = _get_cache_dir(dir_name)
 
@@ -697,8 +706,8 @@ which implies that all the available data is retrieved).</dd>
     l = []
     for i, symbol in enumerate(symbols):
         try:
-            ts = pf.fetch_timeseries(symbol, dir_name=dir_name, use_cache=True,
-                                     from_year=from_year) 
+            ts = fetch_timeseries(symbol, dir_name=dir_name, use_cache=True,
+                                  from_year=from_year) 
             start = ts.index[0].to_pydatetime()
             end = ts.index[-1].to_pydatetime()
             num_years = _difference_in_years(start, end)
@@ -902,10 +911,10 @@ on the stock market.</p></div>
         use_continuous_calendar = False
 
     if use_continuous_calendar:
-        pf.statistics.select_trading_days(use_stock_market_calendar=False)
+        select_trading_days(use_stock_market_calendar=False)
 
     if force_stock_market_calendar:
-        index = pd.to_datetime(pf.stock_market_calendar)
+        index = pd.to_datetime(stock_market_calendar)
         ts = ts.reindex(index=index)
 
     ts.dropna(subset=check_fields, inplace=True)
@@ -913,8 +922,10 @@ on the stock market.</p></div>
     if use_adj:
         _adj_prices(ts)
 
-    if start &lt; ts.index[0]: start = ts.index[0]
-    if end &gt; ts.index[-1]: end = ts.index[-1]
+    if start &lt; ts.index[0]:
+        start = ts.index[0]
+    if end &gt; ts.index[-1]:
+        end = ts.index[-1]
     ts = ts[start - datetime.timedelta(365):end]
 
     return ts</code></pre>
@@ -975,7 +986,7 @@ which implies that all the available data is retrieved).</dd>
             symbols = [symbols]
     else:
         filenames = ([f for f in os.listdir(cache_dir)
-                     if f.endswith(&#39;.csv&#39;) and not f.startswith(&#39;__&#39;)])
+                      if f.endswith(&#39;.csv&#39;) and not f.startswith(&#39;__&#39;)])
         symbols = [os.path.splitext(filename)[0] for filename in filenames]
 
     # Make symbol names uppercase.
@@ -984,7 +995,8 @@ which implies that all the available data is retrieved).</dd>
     print(&#39;updating symbols:&#39;)
     for i, symbol in enumerate(symbols):
         print(symbol + &#39; &#39;, end=&#39;&#39;)
-        if i % 10 == 0 and i != 0: print()
+        if i % 10 == 0 and i != 0:
+            print()
 
         try:
             fetch_timeseries(symbol, dir_name=dir_name, use_cache=False,
@@ -1026,7 +1038,7 @@ which implies that all the available data is retrieved).</dd>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
 </footer>
 </body>
 </html>

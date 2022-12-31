@@ -70,11 +70,18 @@ sudo apt install python3-pip
 sudo ln -s /usr/bin/pip3 /usr/bin/pip
 sudo apt install libfreetype6-dev
 
-# install pinkfish from Github
+# Clone pinkfish repo from Github
 
 git clone https://github.com/fja05680/pinkfish.git
 cd pinkfish
-sudo python setup.py install
+
+# Create virtual Python environment
+
+python -m venv venv
+source venv/bin/activate
+
+# Install pinkfish
+python setup.py install
 
 # Install TA-LIB (see: <a href="https://mrjbq7.github.io/ta-lib/install.html">https://mrjbq7.github.io/ta-lib/install.html</a>)
 
@@ -85,7 +92,7 @@ cd ta-lib
 ./configure --prefix=/usr
 make
 sudo make install
-sudo pip install TA-Lib
+pip install TA-Lib
 
 # Create shared data cache directory (optional)
 mkdir $HOME/data

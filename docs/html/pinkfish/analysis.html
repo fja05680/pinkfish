@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.2" />
+<meta name="generator" content="pdoc 0.10.0" />
 <title>pinkfish.analysis API documentation</title>
 <meta name="description" content="Analysis of results …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -84,12 +84,13 @@ ac
 ------------------------------------------------------------------------
 &#34;&#34;&#34;
 
-import empyrical as em
 from IPython.core.display import display, HTML
 import matplotlib.pyplot as plt
 import pandas as pd
 
-import pinkfish as pf
+import empyrical as em
+
+import pinkfish.indicator as indicator
 
 
 ########################################################################
@@ -147,7 +148,7 @@ def monthly_returns_map(dbal):
     month = 0
     year_count = 0
     table = &#39;&#39;
-    for m, val in monthly_data.iteritems():
+    for m, val in monthly_data.items():
         year = m[0]
         month = m[1]
 
@@ -228,12 +229,12 @@ def holding_period_map(dbal):
         table += &#34;&lt;th&gt;{}&lt;/th&gt;&#34;.format(i+1)
     table += &#34;&lt;/tr&gt;&#34;
 
-    for the_year, value in year.iteritems(): # Iterates years
+    for the_year, _ in year.items(): # Iterates years
         table += f&#34;&lt;tr&gt;&lt;th&gt;{the_year}&lt;/th&gt;&#34;  # New table row
 
-        for years_held in (range(1, len(year)+1)): # Iterates years held
-            if years_held &lt;= len(year[year_start:year_start + years_held]):
-                ret = em.annual_return(year[year_start:year_start + years_held], &#39;yearly&#39;)
+        for years_held in range(1, len(year)+1): # Iterates years held
+            if years_held &lt;= len(year.iloc[year_start:year_start + years_held]):
+                ret = em.annual_return(year.iloc[year_start:year_start + years_held], &#39;yearly&#39;)
                 table += &#34;&lt;td&gt;{:.0f}&lt;/td&gt;&#34;.format(ret * 100)
         table += &#34;&lt;/tr&gt;&#34;
         year_start +=1
@@ -363,7 +364,7 @@ def prettier_graphs(dbal, benchmark_dbal, dbal_label=&#39;Strategy&#39;,
 def volatility_graphs(dbals, labels, points_to_plot=None):
     &#34;&#34;&#34;
     Plot volatility graphs.
-    
+
     The first graph is a boxplot showing the differences between
     2 or more returns.  The second graph shows the volatility plotted
     for 2 or more returns.
@@ -395,15 +396,16 @@ def volatility_graphs(dbals, labels, points_to_plot=None):
         Plot a volatility boxplot.
         &#34;&#34;&#34;
         fig = plt.figure(figsize=(12, 8))
-        axes = fig.add_subplot(111, ylabel=&#39;Volatility&#39;)
+        fig.add_subplot(111, ylabel=&#39;Volatility&#39;)
         plt.ylim(0, 1)
         plt.boxplot(volas, labels=labels)
+
 
     def _volas_plot(volas, labels):
         &#34;&#34;&#34;
         Plot volatility.
         &#34;&#34;&#34;
-        fig = plt.figure(figsize=(14,10))
+        fig = plt.figure(figsize=(14, 10))
         axes = fig.add_subplot(111, ylabel=&#39;Volatility&#39;)
         for i, vola in enumerate(volas):
             axes.plot(vola, label=labels[i])
@@ -415,7 +417,7 @@ def volatility_graphs(dbals, labels, points_to_plot=None):
     # Get volatility for each dbal set.
     volas = []
     for dbal in dbals:
-        volas.append(pf.VOLATILITY(dbal[-points_to_plot:]).dropna())
+        volas.append(indicator.VOLATILITY(dbal[-points_to_plot:]).dropna())
 
     # Build metrics dataframe.
     index = []
@@ -444,7 +446,7 @@ def volatility_graphs(dbals, labels, points_to_plot=None):
 def kelly_criterion(stats, benchmark_stats=None):
     &#34;&#34;&#34;
     Use this function to help with sizing of leverage.
-    
+
     This function uses ideas based on the Kelly Criterion.
 
     Parameters
@@ -588,12 +590,12 @@ Years    1   2   3   4   5   6   7   8
         table += &#34;&lt;th&gt;{}&lt;/th&gt;&#34;.format(i+1)
     table += &#34;&lt;/tr&gt;&#34;
 
-    for the_year, value in year.iteritems(): # Iterates years
+    for the_year, _ in year.items(): # Iterates years
         table += f&#34;&lt;tr&gt;&lt;th&gt;{the_year}&lt;/th&gt;&#34;  # New table row
 
-        for years_held in (range(1, len(year)+1)): # Iterates years held
-            if years_held &lt;= len(year[year_start:year_start + years_held]):
-                ret = em.annual_return(year[year_start:year_start + years_held], &#39;yearly&#39;)
+        for years_held in range(1, len(year)+1): # Iterates years held
+            if years_held &lt;= len(year.iloc[year_start:year_start + years_held]):
+                ret = em.annual_return(year.iloc[year_start:year_start + years_held], &#39;yearly&#39;)
                 table += &#34;&lt;td&gt;{:.0f}&lt;/td&gt;&#34;.format(ret * 100)
         table += &#34;&lt;/tr&gt;&#34;
         year_start +=1
@@ -676,7 +678,7 @@ using half of the minimum sharpe ratio divided by 2.</p>
 <pre><code class="python">def kelly_criterion(stats, benchmark_stats=None):
     &#34;&#34;&#34;
     Use this function to help with sizing of leverage.
-    
+
     This function uses ideas based on the Kelly Criterion.
 
     Parameters
@@ -818,7 +820,7 @@ Year    Jan     Feb     Mar     Apr     May     Jun     Jul ... Year
     month = 0
     year_count = 0
     table = &#39;&#39;
-    for m, val in monthly_data.iteritems():
+    for m, val in monthly_data.items():
         year = m[0]
         month = m[1]
 
@@ -1021,7 +1023,7 @@ prices) indexed by date.</dd>
 <pre><code class="python">def volatility_graphs(dbals, labels, points_to_plot=None):
     &#34;&#34;&#34;
     Plot volatility graphs.
-    
+
     The first graph is a boxplot showing the differences between
     2 or more returns.  The second graph shows the volatility plotted
     for 2 or more returns.
@@ -1053,15 +1055,16 @@ prices) indexed by date.</dd>
         Plot a volatility boxplot.
         &#34;&#34;&#34;
         fig = plt.figure(figsize=(12, 8))
-        axes = fig.add_subplot(111, ylabel=&#39;Volatility&#39;)
+        fig.add_subplot(111, ylabel=&#39;Volatility&#39;)
         plt.ylim(0, 1)
         plt.boxplot(volas, labels=labels)
+
 
     def _volas_plot(volas, labels):
         &#34;&#34;&#34;
         Plot volatility.
         &#34;&#34;&#34;
-        fig = plt.figure(figsize=(14,10))
+        fig = plt.figure(figsize=(14, 10))
         axes = fig.add_subplot(111, ylabel=&#39;Volatility&#39;)
         for i, vola in enumerate(volas):
             axes.plot(vola, label=labels[i])
@@ -1073,7 +1076,7 @@ prices) indexed by date.</dd>
     # Get volatility for each dbal set.
     volas = []
     for dbal in dbals:
-        volas.append(pf.VOLATILITY(dbal[-points_to_plot:]).dropna())
+        volas.append(indicator.VOLATILITY(dbal[-points_to_plot:]).dropna())
 
     # Build metrics dataframe.
     index = []
@@ -1128,7 +1131,7 @@ prices) indexed by date.</dd>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
 </footer>
 </body>
 </html>
