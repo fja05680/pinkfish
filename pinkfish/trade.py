@@ -164,7 +164,7 @@ class TradeLog:
         """
         Return the share value as a percentage of total funds.
         """
-        return self.share_value(price) / self.total_funds(price) * 100
+        return self.share_value(price) / self.total_funds(price)
 
     @property
     def num_open_trades(self):
@@ -592,8 +592,8 @@ class TradeLog:
             The trade date.
         price : float
             The current price of the security.
-        shares : int
-            The requested target weight.
+        weight : int
+            The requested target weight, , where 0 <= weight <= 1.
         direction : pf.Direction, optional
             The direction of the trade (default is Direction.LONG).
 
@@ -602,7 +602,9 @@ class TradeLog:
         int
             The number of shares bought or sold.
         """
-        weight = weight if weight <= 1 else weight/100
+        if not (0 <= weight <= 1):
+            raise ValueError('weight should be between 0 and 1 (inclusive).')
+
         total_funds = self.total_funds(price)
         value = total_funds * weight
         shares = self.adjust_value(date, price, value, direction)
