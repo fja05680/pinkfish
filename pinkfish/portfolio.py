@@ -600,10 +600,12 @@ class Portfolio:
         if directions is None:
             directions = {symbol:trade.Direction.LONG for symbol in self.symbols}
 
-        # Reverse sort by weights.  We want current positions first so that
-        # if they need to reduced or closed out, then cash is freed for
-        # other symbols.
-        w = utility.sort_dict(w, reverse=True)
+        # We want to sell current positions first to obtain cash. We need to sort
+        # the change of the current weight of the position to the new weight of the
+        # position and order negative / sell orders first.
+        for k, v in w.items():
+            w[k] = weights[k] - v
+        w = utility.sort_dict(w)
 
         # Update weights with new values.
         w.update(weights)
