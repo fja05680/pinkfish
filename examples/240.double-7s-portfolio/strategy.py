@@ -65,11 +65,10 @@ class Strategy:
         # Loop though timeseries.
         for i, row in enumerate(self.ts.itertuples()):
 
-            date = row.Index.to_pydatetime()
             end_flag = pf.is_last_row(self.ts, i)
 
-            # Get the prices for this row, put in dict p.
-            p = self.portfolio.get_prices(row,
+            # Get the column values for this row, put in dict p.
+            p = self.portfolio.get_column_values(row,
                 fields=['close', 'regime', period_high_field, period_low_field, 'vola'])
 
             # Sum the inverse volatility for each row.
@@ -97,7 +96,7 @@ class Strategy:
                     if close == period_high or close < stop_loss[symbol] or end_flag:
                         if close < stop_loss[symbol]:
                             print('STOP LOSS!!!')
-                        self.portfolio.adjust_percent(date, close, 0, symbol, row)
+                        self.portfolio.adjust_percent(row, 0, symbol)
 
                 # Buy Logic
                 # First we check to see if there is an existing position, if so do nothing
@@ -112,12 +111,12 @@ class Strategy:
                         # Use equal weight.
                         else:
                             weight = 1 / len(self.portfolio.symbols)
-                        self.portfolio.adjust_percent(date, close, weight, symbol, row)
+                        self.portfolio.adjust_percent(row, weight, symbol)
                         # Set stop loss
                         stop_loss[symbol] = (1-self.options['stop_loss_pct'])*close
 
             # record daily balance
-            self.portfolio.record_daily_balance(date, row)
+            self.portfolio.record_daily_balance(row)
 
     def run(self):
         self.portfolio = pf.Portfolio()

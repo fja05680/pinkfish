@@ -45,12 +45,10 @@ class Strategy:
         # Loop though timeseries.
         for i, row in enumerate(self.ts.itertuples()):
 
-            date = row.Index.to_pydatetime()
             end_flag = pf.is_last_row(self.ts, i)
 
-            # Get the prices for this row, put in dict p.
-            p = self.portfolio.get_prices(row,
-                fields=['close', 'regime', 'vola'])
+            # Get the colum values for this row, put in dict p.
+            p = self.portfolio.get_prices(row, fields=['regime', 'vola'])
 
             # Sum the inverse volatility for each row.
             inverse_vola_sum = 0
@@ -61,7 +59,6 @@ class Strategy:
             for symbol in self.portfolio.symbols:
 
                 # Use variables to make code cleaner.
-                close = p[symbol]['close']
                 regime = p[symbol]['regime']
                 inverse_vola = 1 / p[symbol]['vola']
 
@@ -73,28 +70,24 @@ class Strategy:
                     weight = 1 / len(self.portfolio.symbols)
 
                 if end_flag:
-                    self.portfolio.adjust_percent(date, close, 0, symbol, row)
+                    self.portfolio.adjust_percent(row, 0, symbol)
 
                 # Sell Logic
                 #  - sell regime == -1
 
                 elif regime == -1:
-                    self.portfolio.adjust_percent(date, close, 0, symbol, row,
-                                                  direction=pf.Direction.LONG)
+                    self.portfolio.adjust_percent(row, 0, symbol, direction=pf.Direction.LONG)
                     if self.options['sell_short']:
-                        self.portfolio.adjust_percent(date, close, weight, symbol, row,
-                                                      direction=pf.Direction.SHORT)  
+                        self.portfolio.adjust_percent(row, weight, symbol, direction=pf.Direction.SHORT)  
                 # Buy Logic
                 #  - Buy if regime == 1
 
                 elif regime == 1:
                     if self.options['sell_short']:
-                        self.portfolio.adjust_percent(date, close, 0, symbol, row,
-                                                      direction=pf.Direction.SHORT)
-                    self.portfolio.adjust_percent(date, close, weight, symbol, row,
-                                                  direction=pf.Direction.LONG)
+                        self.portfolio.adjust_percent(row, 0, symbol, direction=pf.Direction.SHORT)
+                    self.portfolio.adjust_percent(row, weight, symbol, direction=pf.Direction.LONG)
             # record daily balance
-            self.portfolio.record_daily_balance(date, row)
+            self.portfolio.record_daily_balance(row)
 
     def run(self):
         self.portfolio = pf.Portfolio()
