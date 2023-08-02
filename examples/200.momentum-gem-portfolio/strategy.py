@@ -62,9 +62,8 @@ class Strategy:
         pf.TradeLog.cash = self.capital
         pf.TradeLog.margin = self.options['margin']
 
-        # These dicts are used to track close, mom, and weights for
+        # These dicts are used to track mom and weights for
         # each symbol in portfolio
-        prices = {}
         mom = {}
         weights = {}
 
@@ -80,7 +79,6 @@ class Strategy:
 
         for i, row in enumerate(self.ts.itertuples()):
 
-            date = row.Index.to_pydatetime()
             end_flag = pf.is_last_row(self.ts, i)
 
             if month_count == 0:
@@ -97,14 +95,13 @@ class Strategy:
 
                 month_count -= 1
 
-                # Get prices for current row
+                # Get mom values for current row
                 mom_field = 'mom' + str(lookback)
-                p = self.portfolio.get_prices(row, fields=['close', mom_field])
+                p = self.portfolio.get_column_values(row, fields=[mom_field])
 
-                # Copy data from `p` into prices and mom dicts for
+                # Copy data from `p` into mom dict for
                 # convenience, also zero out weights dict. 
                 for symbol in self.portfolio.symbols:
-                    prices[symbol] = p[symbol]['close']
                     mom[symbol] = p[symbol][mom_field]
                     weights[symbol] = 0
 
@@ -128,10 +125,10 @@ class Strategy:
                     weights[US_BONDS] = 1
 
                 # Rebalance portfolio
-                self.portfolio.adjust_percents(date, prices, weights, row)
+                self.portfolio.adjust_percents(row, weights)
 
             # record daily balance
-            self.portfolio.record_daily_balance(date, row)
+            self.portfolio.record_daily_balance(row)
 
     def run(self):
         self.portfolio = pf.Portfolio()

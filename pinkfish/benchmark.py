@@ -121,7 +121,6 @@ class Benchmark:
 
         # These dicts are used to track close and weights for
         # each symbol in portfolio
-        prices = {}
         weights = {}
 
         weight = 1 / len(self.portfolio.symbols)
@@ -130,7 +129,6 @@ class Benchmark:
         # Trading algorithm
         for i, row in enumerate(self.ts.itertuples()):
 
-            date = row.Index.to_pydatetime()
             end_flag = utility.is_last_row(self.ts, i)
             start_flag = (i==0)
 
@@ -143,15 +141,11 @@ class Benchmark:
                 if end_flag:
                     weights = utility.set_dict_values(weights, 0)
 
-                # Get closing prices for all symbols
-                p = self.portfolio.get_prices(row, fields=['close'])
-                prices = {symbol:p[symbol]['close'] for symbol in self.portfolio.symbols}
-
                 # Adjust weights of all symbols in portfolio
-                self.portfolio.adjust_percents(date, prices, weights, row)
+                self.portfolio.adjust_percents(row, weights, field='close')
 
             # Record daily balance.
-            self.portfolio.record_daily_balance(date, row)
+            self.portfolio.record_daily_balance(row)
 
     def run(self):
         """

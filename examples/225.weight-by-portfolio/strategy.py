@@ -59,7 +59,6 @@ class Strategy:
         # Loop though timeseries.
         for i, row in enumerate(self.ts.itertuples()):
 
-            date = row.Index.to_pydatetime()
             end_flag = pf.is_last_row(self.ts, i)
 
             # Get the prices for this row, put in dict p.
@@ -115,14 +114,21 @@ class Strategy:
                     else:
                         # User specified weight.
                         weight = weights[symbol]
-                    self.portfolio.adjust_percent(date, close, weight, symbol, row)
+                    
+                    # Weight must not be less than zero.
+                    if weight < 0: weight = 0
+                    
+                    # Weight not not be greater than 1.
+                    if weight > 1: weight = 1
+
+                    self.portfolio.adjust_percent(row, weight, symbol)
 
             if is_rebalance:
-#                 self.portfolio.print_holdings(date, row, percent=True)
-                pass
+                self.portfolio.print_holdings(row, show_percent=True)
+                #pass
 
             # Record daily balance.
-            self.portfolio.record_daily_balance(date, row)
+            self.portfolio.record_daily_balance(row)
 
     def run(self):
         self.portfolio = pf.Portfolio()
