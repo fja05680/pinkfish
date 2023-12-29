@@ -3090,11 +3090,10 @@ parameters could be passed to the technical indicator within
 
 >     def adjust_percent(
 >         self,
->         date,
->         price,
+>         row,
 >         weight,
 >         symbol,
->         row,
+>         field='close',
 >         direction='LONG'
 >     )
 
@@ -3103,24 +3102,20 @@ Adjust symbol to a specified weight (percent) of portfolio.
 
 ###### Parameters
 
-**```date```** :&ensp;<code>str</code>
-:   The current date.
-
-
-**```price```** :&ensp;<code>float</code>
-:   The current price of the security.
+**```row```** :&ensp;<code>pd.Series</code>
+:   A row of data from the timeseries of the portfolio.
 
 
 **```weight```** :&ensp;<code>float</code>
-:   The requested weight for the symbol.
+:   The requested weight for the symbol, where 0 <= weight <=1.
 
 
 **```symbol```** :&ensp;<code>str</code>
 :   The symbol for a security.
 
 
-**```row```** :&ensp;<code>pd.Series</code>
-:   A row of data from the timeseries of the portfolio.
+**```field```** :&ensp;`str, {'close', 'open', 'high', 'low'}`
+:   The price field to use.
 
 
 **```direction```** :&ensp;<code>pf.Direction</code>, optional
@@ -3141,10 +3136,9 @@ Adjust symbol to a specified weight (percent) of portfolio.
 
 >     def adjust_percents(
 >         self,
->         date,
->         prices,
->         weights,
 >         row,
+>         weights,
+>         field='close',
 >         directions=None
 >     )
 
@@ -3158,20 +3152,16 @@ They are dicts which are indexed by the symbol.
 
 ###### Parameters
 
-**```date```** :&ensp;<code>str</code>
-:   The current date.
-
-
-**```prices```** :&ensp;<code>dict</code> of <code>floats</code>
-:   Dict of key value pair of symbol:price.
+**```row```** :&ensp;<code>pd.Series</code>
+:   A row of data from the timeseries of the portfolio.
 
 
 **```weights```** :&ensp;<code>dict</code> of <code>floats</code>
-:   Dict of key value pair of symbol:weight.
+:   Dict of key value pair of symbol:weight, where 0 <= weight <=1.
 
 
-**```row```** :&ensp;<code>pd.Series</code>
-:   A row of data from the timeseries of the portfolio.
+**```field```** :&ensp;`str, {'close', 'open', 'high', 'low'}`
+:   The price field to use.
 
 
 **```directions```** :&ensp;<code>dict</code> of <code>pf.Direction</code>, optional
@@ -3182,7 +3172,7 @@ They are dicts which are indexed by the symbol.
 ###### Returns
 
 **```w```** :&ensp;<code>dict</code> of <code>floats</code>
-:   Dict of key value pair of symbol:weight.
+:   Dict of key value pair of symbol:weight, where 0 <= weight <=1.
 
 
 
@@ -3380,6 +3370,74 @@ at start.
 
 
     
+##### Method `get_column_value` {#id}
+
+
+
+
+>     def get_column_value(
+>         self,
+>         row,
+>         symbol,
+>         field='close'
+>     )
+
+
+Return column value given row, symbol, and field.
+
+###### Parameters
+
+**```row```** :&ensp;<code>pd.Series</code>
+:   The row of data from the timeseries of the portfolio.
+
+
+**```symbol```** :&ensp;<code>str</code>
+:   The symbol for a security.
+
+
+**```field```** :&ensp;<code>str</code>, optional `{'close', 'open', 'high', 'low'}`
+:   The price field to use (default is 'close').
+
+###### Returns
+
+**```price```** :&ensp;<code>float</code>
+:   The current column value.
+
+
+
+    
+##### Method `get_column_values` {#id}
+
+
+
+
+>     def get_column_values(
+>         self,
+>         row,
+>         fields=['open', 'high', 'low', 'close']
+>     )
+
+
+Return dict of column values for all symbols given row and fields.
+
+###### Parameters
+
+**```row```** :&ensp;<code>pd.Series</code>
+:   A row of data from the timeseries of the portfolio.
+
+
+**```fields```** :&ensp;<code>list</code>, optional
+:   The list of fields to use for each symbol (default is
+    ['open', 'high', 'low', 'close']).
+
+###### Returns
+
+**```d```** :&ensp;<code>dict</code> of <code>floats</code>
+:   The column value indexed by symbol and field.
+
+
+
+    
 ##### Method `get_logs` {#id}
 
 
@@ -3426,7 +3484,7 @@ Return raw tradelog, tradelog, and daily balance log.
 >     )
 
 
-Return price given row, symbol, and field.
+Return column value given row, symbol, and field.
 
 ###### Parameters
 
@@ -3439,12 +3497,12 @@ Return price given row, symbol, and field.
 
 
 **```field```** :&ensp;<code>str</code>, optional `{'close', 'open', 'high', 'low'}`
-:   The price field (default is 'close').
+:   The price field to use (default is 'close').
 
 ###### Returns
 
 **```price```** :&ensp;<code>float</code>
-:   The current price.
+:   The current column value.
 
 
 
@@ -3461,7 +3519,7 @@ Return price given row, symbol, and field.
 >     )
 
 
-Return dict of prices for all symbols given row and fields.
+Return dict of column values for all symbols given row and fields.
 
 ###### Parameters
 
@@ -3476,7 +3534,7 @@ Return dict of prices for all symbols given row and fields.
 ###### Returns
 
 **```d```** :&ensp;<code>dict</code> of <code>floats</code>
-:   The price indexed by symbol and field.
+:   The column value indexed by symbol and field.
 
 
 
@@ -3523,7 +3581,7 @@ Returns performance per symbol data, also plots performance.
 ###### Parameters
 
 **```weights```** :&ensp;<code>dict</code> of <code>floats</code>
-:   A dictionary of weights with symbol as key.
+:   A dictionary of weights with symbol as key, where 0 <= weight <=1.
 
 ###### Returns
 
@@ -3541,9 +3599,8 @@ Returns performance per symbol data, also plots performance.
 
 >     def print_holdings(
 >         self,
->         date,
 >         row,
->         percent=False
+>         show_percent=False
 >     )
 
 
@@ -3554,15 +3611,11 @@ currently allocated to it.
 
 ###### Parameters
 
-**```date```** :&ensp;<code>str</code>
-:   The current date.
-
-
 **```row```** :&ensp;<code>pd.Series</code>
 :   A row of data from the timeseries of the portfolio.
 
 
-**```percent```** :&ensp;<code>bool</code>, optional
+**```show_percent```** :&ensp;<code>bool</code>, optional
 :   Show each holding as a percent instead of shares.
     (default is False).
 
@@ -3581,7 +3634,6 @@ currently allocated to it.
 
 >     def record_daily_balance(
 >         self,
->         date,
 >         row
 >     )
 
@@ -3592,10 +3644,6 @@ The portfolio version of this function uses closing values
 for the daily high, low, and close.
 
 ###### Parameters
-
-**```date```** :&ensp;<code>str</code>
-:   The current date.
-
 
 **```row```** :&ensp;<code>pd.Series</code>
 :   A row of data from the timeseries of the portfolio.
@@ -3616,7 +3664,8 @@ for the daily high, low, and close.
 >     def share_percent(
 >         self,
 >         row,
->         symbol
+>         symbol,
+>         field
 >     )
 
 
@@ -3630,6 +3679,10 @@ Return share value of symbol as a percentage of <code>total\_funds</code>.
 
 **```symbol```** :&ensp;<code>str</code>
 :   The symbol for a security.
+
+
+**```field```** :&ensp;`str, {'close', 'open', 'high', 'low'}`
+:   The price field to use.
 
 ###### Returns
 
@@ -4046,8 +4099,8 @@ between the target percent and the current percent.
 :   The current price of the security.
 
 
-**```shares```** :&ensp;<code>int</code>
-:   The requested target weight.
+**```weight```** :&ensp;<code>int</code>
+:   The requested target weight, , where 0 <= weight <= 1.
 
 
 **```direction```** :&ensp;<code>pf.Direction</code>, optional

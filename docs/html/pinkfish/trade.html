@@ -193,7 +193,7 @@ class TradeLog:
         &#34;&#34;&#34;
         Return the share value as a percentage of total funds.
         &#34;&#34;&#34;
-        return self.share_value(price) / self.total_funds(price) * 100
+        return self.share_value(price) / self.total_funds(price)
 
     @property
     def num_open_trades(self):
@@ -621,8 +621,8 @@ class TradeLog:
             The trade date.
         price : float
             The current price of the security.
-        shares : int
-            The requested target weight.
+        weight : int
+            The requested target weight, , where 0 &lt;= weight &lt;= 1.
         direction : pf.Direction, optional
             The direction of the trade (default is Direction.LONG).
 
@@ -631,7 +631,9 @@ class TradeLog:
         int
             The number of shares bought or sold.
         &#34;&#34;&#34;
-        weight = weight if weight &lt;= 1 else weight/100
+        if not (0 &lt;= weight &lt;= 1):
+            raise ValueError(&#39;weight should be between 0 and 1 (inclusive).&#39;)
+
         total_funds = self.total_funds(price)
         value = total_funds * weight
         shares = self.adjust_value(date, price, value, direction)
@@ -1344,7 +1346,7 @@ will become the official trade log.</dd>
         &#34;&#34;&#34;
         Return the share value as a percentage of total funds.
         &#34;&#34;&#34;
-        return self.share_value(price) / self.total_funds(price) * 100
+        return self.share_value(price) / self.total_funds(price)
 
     @property
     def num_open_trades(self):
@@ -1772,8 +1774,8 @@ will become the official trade log.</dd>
             The trade date.
         price : float
             The current price of the security.
-        shares : int
-            The requested target weight.
+        weight : int
+            The requested target weight, , where 0 &lt;= weight &lt;= 1.
         direction : pf.Direction, optional
             The direction of the trade (default is Direction.LONG).
 
@@ -1782,7 +1784,9 @@ will become the official trade log.</dd>
         int
             The number of shares bought or sold.
         &#34;&#34;&#34;
-        weight = weight if weight &lt;= 1 else weight/100
+        if not (0 &lt;= weight &lt;= 1):
+            raise ValueError(&#39;weight should be between 0 and 1 (inclusive).&#39;)
+
         total_funds = self.total_funds(price)
         value = total_funds * weight
         shares = self.adjust_value(date, price, value, direction)
@@ -1935,8 +1939,8 @@ between the target percent and the current percent.</p>
 <dd>The trade date.</dd>
 <dt><strong><code>price</code></strong> :&ensp;<code>float</code></dt>
 <dd>The current price of the security.</dd>
-<dt><strong><code>shares</code></strong> :&ensp;<code>int</code></dt>
-<dd>The requested target weight.</dd>
+<dt><strong><code>weight</code></strong> :&ensp;<code>int</code></dt>
+<dd>The requested target weight, , where 0 &lt;= weight &lt;= 1.</dd>
 <dt><strong><code>direction</code></strong> :&ensp;<code>pf.Direction</code>, optional</dt>
 <dd>The direction of the trade (default is Direction.LONG).</dd>
 </dl>
@@ -1965,8 +1969,8 @@ between the target percent and the current percent.</p>
         The trade date.
     price : float
         The current price of the security.
-    shares : int
-        The requested target weight.
+    weight : int
+        The requested target weight, , where 0 &lt;= weight &lt;= 1.
     direction : pf.Direction, optional
         The direction of the trade (default is Direction.LONG).
 
@@ -1975,7 +1979,9 @@ between the target percent and the current percent.</p>
     int
         The number of shares bought or sold.
     &#34;&#34;&#34;
-    weight = weight if weight &lt;= 1 else weight/100
+    if not (0 &lt;= weight &lt;= 1):
+        raise ValueError(&#39;weight should be between 0 and 1 (inclusive).&#39;)
+
     total_funds = self.total_funds(price)
     value = total_funds * weight
     shares = self.adjust_value(date, price, value, direction)
@@ -2753,7 +2759,7 @@ possible).</dd>
     &#34;&#34;&#34;
     Return the share value as a percentage of total funds.
     &#34;&#34;&#34;
-    return self.share_value(price) / self.total_funds(price) * 100</code></pre>
+    return self.share_value(price) / self.total_funds(price)</code></pre>
 </details>
 </dd>
 <dt id="pinkfish.trade.TradeLog.share_value"><code class="name flex">

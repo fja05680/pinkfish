@@ -433,8 +433,8 @@ def ANNUALIZED_RETURNS(ts, lookback=5, price=&#39;close&#39;, prevday=False):
 
         B = end balance; A = begin balance; n = num years
         &#34;&#34;&#34;
-        A = s[0]
-        B = s[-1]
+        A = s.iloc[0]
+        B = s.iloc[-1]
         n = len(s)
         if B &lt; 0: B = 0
         return (math.pow(B / A, 1 / n) - 1) * 100
@@ -667,8 +667,8 @@ It gives you the previous day's Volatility (default is False).</dd>
 
         B = end balance; A = begin balance; n = num years
         &#34;&#34;&#34;
-        A = s[0]
-        B = s[-1]
+        A = s.iloc[0]
+        B = s.iloc[-1]
         n = len(s)
         if B &lt; 0: B = 0
         return (math.pow(B / A, 1 / n) - 1) * 100
