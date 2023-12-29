@@ -148,9 +148,14 @@ def fetch_timeseries(symbol, dir_name=&#39;data&#39;, use_cache=True, from_year=
     if os.path.isfile(timeseries_cache) and use_cache:
         pass
     else:
-        ts = pdr.get_data_yahoo(symbol, start=datetime.datetime(from_year, 1, 1))
-        #ts = pdr.DataReader(symbol, &#39;yahoo&#39;, start=datetime.datetime(from_year, 1, 1))
-        ts.to_csv(timeseries_cache, encoding=&#39;utf-8&#39;)
+        try:
+            ts = pdr.get_data_yahoo(symbol, start=datetime.datetime(from_year, 1, 1), progress=False)
+        except RemoteDataError as e:
+            print(f&#39;\n{e}&#39;)
+        except Exception as e:
+            print(f&#39;\n{e}&#39;)
+        else:
+            ts.to_csv(timeseries_cache, encoding=&#39;utf-8&#39;)
 
     ts = pd.read_csv(timeseries_cache, index_col=&#39;Date&#39;, parse_dates=True)
     ts = _adj_column_names(ts)
@@ -559,9 +564,14 @@ which implies that all the available data is retrieved).</dd>
     if os.path.isfile(timeseries_cache) and use_cache:
         pass
     else:
-        ts = pdr.get_data_yahoo(symbol, start=datetime.datetime(from_year, 1, 1))
-        #ts = pdr.DataReader(symbol, &#39;yahoo&#39;, start=datetime.datetime(from_year, 1, 1))
-        ts.to_csv(timeseries_cache, encoding=&#39;utf-8&#39;)
+        try:
+            ts = pdr.get_data_yahoo(symbol, start=datetime.datetime(from_year, 1, 1), progress=False)
+        except RemoteDataError as e:
+            print(f&#39;\n{e}&#39;)
+        except Exception as e:
+            print(f&#39;\n{e}&#39;)
+        else:
+            ts.to_csv(timeseries_cache, encoding=&#39;utf-8&#39;)
 
     ts = pd.read_csv(timeseries_cache, index_col=&#39;Date&#39;, parse_dates=True)
     ts = _adj_column_names(ts)

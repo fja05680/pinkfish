@@ -381,7 +381,7 @@ def volatility_graphs(dbals, labels, points_to_plot=None):
         elif metric == 'min':    data.append(vola.min() for vola in volas)
         elif metric == 'max':    data.append(vola.max() for vola in volas)
         elif metric == 'std':    data.append(vola.std() for vola in volas)
-        elif metric == 'last':   data.append(vola[-1] for vola in volas)
+        elif metric == 'last':   data.append(vola.iloc[-1] for vola in volas)
 
     df = pd.DataFrame(data, columns=columns, index=index)
     _boxplot(volas, labels)

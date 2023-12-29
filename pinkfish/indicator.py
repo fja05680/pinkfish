@@ -401,8 +401,8 @@ def ANNUALIZED_RETURNS(ts, lookback=5, price='close', prevday=False):
 
         B = end balance; A = begin balance; n = num years
         """
-        A = s[0]
-        B = s[-1]
+        A = s.iloc[0]
+        B = s.iloc[-1]
         n = len(s)
         if B < 0: B = 0
         return (math.pow(B / A, 1 / n) - 1) * 100
