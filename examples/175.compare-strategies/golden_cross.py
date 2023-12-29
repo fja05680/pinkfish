@@ -44,7 +44,7 @@ class Strategy:
             # We want to buy only on the day of a moving average crossover
             # i.e. yesteraday regime is negative, today it is positive
             if self.tlog.shares == 0:
-                if row.regime > 0 and self.ts['regime'][i-1] < 0:
+                if row.regime > 0 and self.ts['regime'].iloc[i-1] < 0:
                     self.tlog.buy(date, close)  
             # Sell
             else:

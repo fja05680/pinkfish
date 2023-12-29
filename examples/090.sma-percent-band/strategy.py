@@ -46,7 +46,7 @@ class Strategy:
 
             # Buy
             if self.tlog.shares == 0:
-                if row.regime > 0 and self.ts['regime'][i-1] < 0:
+                if row.regime > 0 and self.ts['regime'].iloc[i-1] < 0:
                     self.tlog.buy(date, close)
             # Sell
             else:

@@ -1300,7 +1300,7 @@ def stats(ts, tlog, dbal, capital):
     stats[&#39;gross_loss&#39;] = _gross_loss(tlog)
     stats[&#39;profit_factor&#39;] = _profit_factor(tlog)
     stats[&#39;return_on_initial_capital&#39;] = _return_on_initial_capital(tlog, capital)
-    cagr = _annual_return_rate(dbal[&#39;close&#39;][-1], capital, start, end)
+    cagr = _annual_return_rate(dbal[&#39;close&#39;].iloc[-1], capital, start, end)
     stats[&#39;annual_return_rate&#39;] = cagr
     stats[&#39;trading_period&#39;] = _trading_period(start, end)
     stats[&#39;pct_time_in_market&#39;] = _pct_time_in_market(dbal)
@@ -1857,7 +1857,7 @@ False for trading
     stats[&#39;gross_loss&#39;] = _gross_loss(tlog)
     stats[&#39;profit_factor&#39;] = _profit_factor(tlog)
     stats[&#39;return_on_initial_capital&#39;] = _return_on_initial_capital(tlog, capital)
-    cagr = _annual_return_rate(dbal[&#39;close&#39;][-1], capital, start, end)
+    cagr = _annual_return_rate(dbal[&#39;close&#39;].iloc[-1], capital, start, end)
     stats[&#39;annual_return_rate&#39;] = cagr
     stats[&#39;trading_period&#39;] = _trading_period(start, end)
     stats[&#39;pct_time_in_market&#39;] = _pct_time_in_market(dbal)

@@ -746,10 +746,13 @@ class Portfolio:
         for tlog in trade.TradeLog.instance.values():
             rlogs.append(tlog.get_log_raw())
             tlogs.append(tlog.get_log(merge_trades=False))
-        rlog = pd.concat([r for r in rlogs]).sort_values(['seq_num'],
-                         ignore_index=True)
-        tlog = pd.concat([t for t in tlogs]).sort_values(['entry_date', 'exit_date'],
-                         ignore_index=True)
+        
+        rlogs_non_empty = [r for r in rlogs if not r.empty]
+        rlog = pd.concat(rlogs_non_empty).sort_values(['seq_num'])
+        
+        tlogs_non_empty = [t for t in tlogs if not t.empty]
+        tlog = pd.concat(tlogs_non_empty).sort_values(['entry_date', 'exit_date'])
+
         tlog['cumul_total'] = tlog['pl_cash'].cumsum()
 
         dbal = trade.DailyBal()

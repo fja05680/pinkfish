@@ -844,7 +844,7 @@ def stats(ts, tlog, dbal, capital):
     stats['gross_loss'] = _gross_loss(tlog)
     stats['profit_factor'] = _profit_factor(tlog)
     stats['return_on_initial_capital'] = _return_on_initial_capital(tlog, capital)
-    cagr = _annual_return_rate(dbal['close'][-1], capital, start, end)
+    cagr = _annual_return_rate(dbal['close'].iloc[-1], capital, start, end)
     stats['annual_return_rate'] = cagr
     stats['trading_period'] = _trading_period(start, end)
     stats['pct_time_in_market'] = _pct_time_in_market(dbal)

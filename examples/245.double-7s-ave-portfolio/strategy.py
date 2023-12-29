@@ -78,7 +78,7 @@ class Strategy:
 
                 if symbol in self.portfolio.positions:
                     if close == period_high or end_flag:
-                        self.portfolio.adjust_percent(date, close, 0, symbol, row)
+                        self.portfolio.adjust_percent(row, 0, symbol)
 
                 # Buy Logic
                 # First we check to see if there is an existing position, if so do nothing
@@ -89,10 +89,10 @@ class Strategy:
                           and close == period_low):
                         # Use equal weight.
                         weight = 1 / len(self.portfolio.symbols)
-                        self.portfolio.adjust_percent(date, close, weight, symbol, row)
+                        self.portfolio.adjust_percent(row, weight, symbol)
 
             # record daily balance
-            self.portfolio.record_daily_balance(date, row)
+            self.portfolio.record_daily_balance(row)
 
     def run(self):
         # Build the list of symbols.

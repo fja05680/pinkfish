@@ -12,8 +12,6 @@ portfolio and allocate based on either equal weight or volatility
 parity weight (inverse volatility).
 """
 
-from talib.abstract import *
-
 import pinkfish as pf
 
 
