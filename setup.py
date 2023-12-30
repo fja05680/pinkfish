@@ -5,7 +5,7 @@ with open('requirements.txt') as f:
 
 setup(
     name='pinkfish',
-    version='2.1.0',
+    version='2.1.1',
     description='A backtester and spreadsheet library for security analysis.',
     author='Farrell Aultman',
     author_email='fja0568@gmail.com',
@@ -13,7 +13,7 @@ setup(
     packages=['pinkfish'],
     include_package_data=True,
     license='MIT',
-    #install_requires=requirements,
+    install_requires=requirements,
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'License :: OSI Approved :: MIT License',
