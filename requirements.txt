@@ -42,7 +42,7 @@ jsonschema-specifications==2023.11.2
 jupyter==1.0.0
 jupyter-console==6.6.3
 jupyter-events==0.9.0
-jupyter-lsp==2.2.1
+jupyter-lsp==2.2.2
 jupyter_client==8.6.0
 jupyter_core==5.5.1
 jupyter_server==2.12.1
