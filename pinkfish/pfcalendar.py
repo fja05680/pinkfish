@@ -32,6 +32,9 @@ Adds calendar columns to a timeseries.
     Last trading day of the year.
 """
 
+import pandas as pd
+pd.set_option('future.no_silent_downcasting', True)
+
 
 def _first_day(row):
     """
@@ -74,26 +77,26 @@ def calendar(ts):
     # Temporarily add __prev_dotw__, __prev_dotm__, __prev_doty__ for
     # convenience; drop them later.
     ts['__prev_dotw__'] = ts['dotw'].shift()
-    ts['__prev_dotw__'].fillna(0, inplace=True)
+    ts['__prev_dotw__'] = ts['__prev_dotw__'].fillna(0)
 
     ts['__prev_dotm__'] = ts['dotm'].shift()
-    ts['__prev_dotm__'].fillna(0, inplace=True)
+    ts['__prev_dotm__'] = ts['__prev_dotm__'].fillna(0)
 
     ts['__prev_doty__'] = ts['doty'].shift()
-    ts['__prev_doty__'].fillna(0, inplace=True)
+    ts['__prev_doty__'] = ts['__prev_doty__'].fillna(0)
 
     # First and last day of the week, month, and year.
     ts['first_dotw'], ts['first_dotm'], ts['first_doty'] = \
         zip(*ts.apply(_first_day, axis=1))
 
     ts['last_dotw'] = ts['first_dotw'].shift(-1)
-    ts['last_dotw'].fillna(False, inplace=True)
+    ts['last_dotw'] = ts['last_dotw'].fillna(False).infer_objects(copy=False)
 
     ts['last_dotm'] = ts['first_dotm'].shift(-1)
-    ts['last_dotm'].fillna(False, inplace=True)
+    ts['last_dotm'] = ts['last_dotm'].fillna(False).infer_objects(copy=False)
 
     ts['last_doty'] = ts['first_doty'].shift(-1)
-    ts['last_doty'].fillna(False, inplace=True)
+    ts['last_doty'] = ts['last_doty'].fillna(False).infer_objects(copy=False)
 
     # Drop temporary columns.
     ts.drop(columns=['__prev_dotw__', '__prev_dotm__', '__prev_doty__'],

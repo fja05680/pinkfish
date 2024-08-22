@@ -5,7 +5,7 @@ with open('requirements.txt') as f:
 
 setup(
     name='pinkfish',
-    version='2.1.2',
+    version='2.2.0',
     description='A backtester and spreadsheet library for security analysis.',
     author='Farrell Aultman',
     author_email='fja0568@gmail.com',
@@ -30,5 +30,5 @@ setup(
         'talib':  ['TA-Lib'],
     },
     data_files=[('', ['requirements.txt'])],
-    python_requires=">=3.7",
+    python_requires=">=3.10",
 )

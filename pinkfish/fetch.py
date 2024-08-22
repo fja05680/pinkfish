@@ -8,8 +8,6 @@ import sys
 import warnings
 
 import pandas as pd
-from pandas_datareader._utils import RemoteDataError
-import pandas_datareader.data as pdr
 import yfinance as yf
 
 from pinkfish.pfstatistics import (
@@ -19,10 +17,6 @@ from pinkfish.stock_market_calendar import (
     stock_market_calendar
 )
 import pinkfish.utility as utility
-
-
-# Override pandas_datareader with yfinance
-yf.pdr_override()
 
 
 ########################################################################
@@ -120,11 +114,13 @@ def fetch_timeseries(symbol, dir_name='data', use_cache=True, from_year=None):
         pass
     else:
         try:
-            ts = pdr.get_data_yahoo(symbol, start=datetime.datetime(from_year, 1, 1), progress=False)
-        except RemoteDataError as e:
-            print(f'\n{e}')
+            ts = yf.download(symbol, start=datetime.datetime(from_year, 1, 1), progress=False)
+            if ts.empty:
+                print(f'No Data for {symbol}')
+                return None
         except Exception as e:
             print(f'\n{e}')
+            return None
         else:
             ts.to_csv(timeseries_cache, encoding='utf-8')
 
@@ -393,8 +389,6 @@ def update_cache_symbols(symbols=None, dir_name='data', from_year=None):
         try:
             fetch_timeseries(symbol, dir_name=dir_name, use_cache=False,
                              from_year=from_year)
-        except RemoteDataError as e:
-            print(f'\n({e})')
         except Exception as e:
             print(f'\n({e})')
     print()
@@ -448,8 +442,6 @@ def get_symbol_metadata(symbols=None, dir_name='data', from_year=None):
             end = end.strftime('%Y-%m-%d')
             t = (symbol, start, end, num_years)
             l.append(t)
-        except RemoteDataError as e:
-            print(f'\n({e})')
         except Exception as e:
             print('\n({})'.format(e))
     columns = ['symbol', 'start_date', 'end_date', 'num_years']
