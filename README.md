@@ -21,7 +21,7 @@ Some of the key features of pinkfish:
 ## Installation
 For basic installation of the pinkfish library (not including ta-lib):  
 ```
-# Note: It's recomended to create a new python virtual environment, see:
+# Note: It's recomended to create a new python virtual environment.
 
 git clone https://github.com/fja05680/pinkfish.git
 python setup.py install
