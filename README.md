@@ -7,8 +7,9 @@ Simple, I couldn't find a python backtesting library that allowed me to backtest
 
 Some of the key features of pinkfish:
  - leverages pandas for dataframe, spreadsheet like features
+ - comes batteries included with the most common technical indicators
+ - also integrates with ta-lib or pandas_ta for more advanced indicators
  - leverages matplotlib for making financial graphs
- - uses ta-lib to easily implement technical indicators
  - uses daily data (vs minute or tick data) for intraday trading
  - uses free daily data from yahoo finance
  - simple to use python API
@@ -20,11 +21,11 @@ Some of the key features of pinkfish:
 ## Installation
 For basic installation of the pinkfish library (not including ta-lib):  
 ```
-pip install wheel  
-pip install pinkfish
-```
+# Note: It's recomended to create a new python virtual environment, see:
 
-Then `git clone` to get the `examples` directory, or just download the compressed source files.
+git clone https://github.com/fja05680/pinkfish.git
+python setup.py install
+```
 
 --OR--  
 
