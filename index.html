@@ -36,8 +36,9 @@ Simple, I couldn't find a python backtesting library that I allowed me to backte
 
 <ul>
 <li>leverages pandas for dataframe, spreadsheet like features</li>
+<li>comes batteries included with the most common technical indicators</li>
+<li>also integrates with ta-lib or pandas_ta for more advanced indicators</li>
 <li>leverages matplotlib for making financial graphs</li>
-<li>uses ta-lib to easily implement technical indicators</li>
 <li>uses daily data (vs minute or tick data) for intraday trading</li>
 <li>uses free daily data from yahoo finance</li>
 <li>simple to use python API</li>
@@ -63,12 +64,9 @@ sudo apt upgrade
 
 # Install some preliminary requirements
 
-sudo apt install python-is-python3
 sudo apt install build-essential
 sudo apt install git
 sudo apt install python3-pip
-sudo ln -s /usr/bin/pip3 /usr/bin/pip
-sudo apt install libfreetype6-dev
 
 # Clone pinkfish repo from Github
 
@@ -81,9 +79,9 @@ python -m venv venv
 source venv/bin/activate
 
 # Install pinkfish
-python setup.py install
+python setup.py develop
 
-# Install TA-LIB (Reference: <a href="https://mrjbq7.github.io/ta-lib/install.html">https://mrjbq7.github.io/ta-lib/install.html</a>)
+# Install TA-LIB (Optional)
 
 cd ~/Downloads
 sudo wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz
