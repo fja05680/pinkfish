@@ -93,6 +93,7 @@ def fetch_timeseries(symbol, dir_name='data', use_cache=True, from_year=None, sy
         which implies that all the available data is retrieved).
     symbol_as_is: bool, optional
         True to use the symbol as is
+        (default is False).
         
     Returns
     -------
