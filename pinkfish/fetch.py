@@ -101,12 +101,11 @@ def fetch_timeseries(symbol, dir_name='data', use_cache=True, from_year=None, sy
     """
     if from_year is None:
         from_year = 1900 if not sys.platform.startswith('win') else 1971
-
+    
+    if not symbol_as_is:
         # Yahoo finance uses '-' where '.' is used in symbol names.
         symbol = symbol.replace('.', '-')
         symbol = symbol.upper()
-    
-    if not symbol_as_is:
         # pinkfish allows the use of a suffix starting with a '_',
         # like SPY_SHRT, so extract the symbol.
         symbol = symbol.split('_')[0]
