@@ -72,7 +72,7 @@ def _adj_column_names(ts):
     return ts
 
 
-def fetch_timeseries(symbol, dir_name='data', use_cache=True, from_year=None):
+def fetch_timeseries(symbol, dir_name='data', use_cache=True, from_year=None, symbol_as_is=False):
     """
     Read time series data.
 
@@ -91,7 +91,9 @@ def fetch_timeseries(symbol, dir_name='data', use_cache=True, from_year=None):
     from_year: int, optional
         The start year for timeseries retrieval (default is None,
         which implies that all the available data is retrieved).
-
+    symbol_as_is: bool, optional
+        True to use the symbol as is
+        
     Returns
     -------
     pd.DataFrame
@@ -100,13 +102,14 @@ def fetch_timeseries(symbol, dir_name='data', use_cache=True, from_year=None):
     if from_year is None:
         from_year = 1900 if not sys.platform.startswith('win') else 1971
 
-    # Yahoo finance uses '-' where '.' is used in symbol names.
-    symbol = symbol.replace('.', '-')
-    symbol = symbol.upper()
-
-    # pinkfish allows the use of a suffix starting with a '_',
-    # like SPY_SHRT, so extract the symbol.
-    symbol = symbol.split('_')[0]
+        # Yahoo finance uses '-' where '.' is used in symbol names.
+        symbol = symbol.replace('.', '-')
+        symbol = symbol.upper()
+    
+    if not symbol_as_is:
+        # pinkfish allows the use of a suffix starting with a '_',
+        # like SPY_SHRT, so extract the symbol.
+        symbol = symbol.split('_')[0]
 
     timeseries_cache = os.path.join(_get_cache_dir(dir_name), symbol + '.csv')
 
