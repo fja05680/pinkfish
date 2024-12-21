@@ -17,8 +17,7 @@ class Benchmark:
                  dir_name='data',
                  use_adj=False,
                  use_continuous_calendar=False,
-                 force_stock_market_calendar=False,
-                 symbol_as_is=False):
+                 force_stock_market_calendar=False):
         """
         Initialize instance variables.
 
@@ -48,8 +47,6 @@ class Benchmark:
             to transform a continuous timeseries into a weekday timeseries.
             If this value is True, then `use_continuous_calendar` is set
             to False.
-        symbol_as_is : bool, optional
-            True if the symbol is to be used as is (default is False).
 
         Attributes
         ----------
@@ -76,8 +73,6 @@ class Benchmark:
             to transform a continuous timeseries into a weekday timeseries.
             If this value is True, then `use_continuous_calendar` is set
             to False.
-        symbol_as_is : bool, optional
-            True if the symbol is to be used as is (default is False).
         ts : pd.DataFrame
             The timeseries of the symbol used in backtest.
         rlog : pd.DataFrame
@@ -106,7 +101,6 @@ class Benchmark:
         self.use_adj = use_adj
         self.use_continuous_calendar = use_continuous_calendar
         self.force_stock_market_calendar = force_stock_market_calendar
-        self.symbol_as_is = symbol_as_is
 
         self.ts = None
         self.rlog = None
@@ -162,8 +156,7 @@ class Benchmark:
             self.symbols, self.start, self.end,
             fields=['close'], dir_name=self.dir_name, use_adj=self.use_adj,
             use_continuous_calendar=self.use_continuous_calendar,
-            force_stock_market_calendar=self.force_stock_market_calendar,
-            symbol_as_is=self.symbol_as_is)
+            force_stock_market_calendar=self.force_stock_market_calendar)
         # Add calendar columns
         self.ts = self.portfolio.calendar(self.ts)
 

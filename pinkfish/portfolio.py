@@ -171,8 +171,7 @@ class Portfolio:
                          use_cache=True, use_adj=True,
                          use_continuous_calendar=False,
                          force_stock_market_calendar=False,
-                         check_fields=['close'],
-                         symbol_as_is=False):
+                         check_fields=['close']):
         """
         Fetch time series data for symbols.
 
@@ -212,8 +211,6 @@ class Portfolio:
             Fields to check for for NaN values.  If a NaN value is found
             for one of these fields, that row is dropped
             (default is ['close']).
-        symbol_as_is : bool, optional
-            True if the symbol is to be used as is (default is False).
 
         Returns
         -------
@@ -227,7 +224,7 @@ class Portfolio:
         for i, symbol in enumerate(symbols):
 
             if i == 0:
-                ts = fetch_timeseries(symbol, dir_name=dir_name, use_cache=use_cache, symbol_as_is=symbol_as_is)
+                ts = fetch_timeseries(symbol, dir_name=dir_name, use_cache=use_cache)
                 ts = select_tradeperiod(ts, start, end, use_adj=use_adj,
                                         use_continuous_calendar=use_continuous_calendar,
                                         force_stock_market_calendar=force_stock_market_calendar,
