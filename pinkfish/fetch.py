@@ -9,6 +9,7 @@ import warnings
 
 import pandas as pd
 import yfinance as yf
+import pinkfish as pf
 
 from pinkfish.pfstatistics import (
     select_trading_days
@@ -17,8 +18,6 @@ from pinkfish.stock_market_calendar import (
     stock_market_calendar
 )
 import pinkfish.utility as utility
-
-from pinkfish import USE_YAHOO_TICKER_SYMBOL
 
 ########################################################################
 # TIMESERIES (fetch, select, finalize)
@@ -73,7 +72,7 @@ def _adj_column_names(ts):
     return ts
 
 
-def fetch_timeseries(symbol, dir_name='data', use_cache=True, from_year=None, symbol_as_is=False):
+def fetch_timeseries(symbol, dir_name='data', use_cache=True, from_year=None):
     """
     Read time series data.
 
@@ -92,10 +91,7 @@ def fetch_timeseries(symbol, dir_name='data', use_cache=True, from_year=None, sy
     from_year: int, optional
         The start year for timeseries retrieval (default is None,
         which implies that all the available data is retrieved).
-    symbol_as_is: bool, optional
-        True to use the symbol as is
-        (default is False).
-        
+
     Returns
     -------
     pd.DataFrame
@@ -104,7 +100,7 @@ def fetch_timeseries(symbol, dir_name='data', use_cache=True, from_year=None, sy
     if from_year is None:
         from_year = 1900 if not sys.platform.startswith('win') else 1971
 
-    if USE_YAHOO_TICKER_SYMBOL:
+    if pf.USE_YAHOO_TICKER_SYMBOL:
         pass
     else:
         # Yahoo finance uses '-' where '.' is used in symbol names.

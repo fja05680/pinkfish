@@ -1,12 +1,3 @@
-USE_YAHOO_TICKER_SYMBOL = False
-"""
-Use Yahoo Finance way of doing ticker symbols.
-
-Enable by setting pf.USE_YAHOO_TICKER_SYMBOL=True.
-
-Refer to https://finance.yahoo.com/lookup
-"""
-
 from .fetch import (
     fetch_timeseries,
     select_tradeperiod,
@@ -102,3 +93,13 @@ def DBG(s):
         print(s)
     else:
         pass
+
+USE_YAHOO_TICKER_SYMBOL = False
+"""
+Use Yahoo Finance way of doing ticker symbols.
+
+Enable by setting pf.USE_YAHOO_TICKER_SYMBOL=True.
+
+Refer to https://finance.yahoo.com/lookup
+"""
+
