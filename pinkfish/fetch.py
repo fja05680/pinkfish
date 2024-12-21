@@ -18,6 +18,7 @@ from pinkfish.stock_market_calendar import (
 )
 import pinkfish.utility as utility
 
+from pinkfish import USE_YAHOO_TICKER_SYMBOL
 
 ########################################################################
 # TIMESERIES (fetch, select, finalize)
@@ -103,7 +104,7 @@ def fetch_timeseries(symbol, dir_name='data', use_cache=True, from_year=None, sy
     if from_year is None:
         from_year = 1900 if not sys.platform.startswith('win') else 1971
 
-    if os.getenv("USE_YAHOO_TICKER_SYMBOL", 'False').lower() in ('true', '1', 't'):
+    if USE_YAHOO_TICKER_SYMBOL:
         pass
     else:
         # Yahoo finance uses '-' where '.' is used in symbol names.
