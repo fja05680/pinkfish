@@ -249,6 +249,8 @@ class Portfolio:
                                 input_column_suffix='close'):
         """
         Add a technical indicator for each symbol in the portfolio.
+        
+        (Deprecated - use `technical_indicator` decorator instead)
 
         A new column will be added for each symbol.  The name of the
         new column will be the symbol name, an underscore, and the
