@@ -1,6 +1,9 @@
 (1) Add RSI example
 (2) Add RSI portfolio example
-(3) Add fundamentals class to display fundamental data like Name/Description, Market Cap, etc
-(4) Update documentation
-(5) More Examples from Conner and others
-(6) Use brownbear method of calculating root
+(3) Add trend trading example
+(4) Add fundamentals class to display fundamental data like Name/Description, Market Cap, etc
+(5) Update documentation
+(6) More Examples from Conner and others
+(7) Use brownbear method of calculating root
+*(8) vola short term strategy using vola trade signal? Try RSI 30/70
+

@@ -46,7 +46,8 @@ The stats() function returns the following metrics in a pd.Series.
  - `margin` : float
     The buying power in dollars divided by the capital.  For example,
     if the margin is 2 and the capital is $10,000, then the buying
-    power is $20,000.
+    power is $20,000.  This is actually the inverse margin,
+    i.e. account leverage.
 
  - `avg_leverage` : float
     Leverage is the total value of securities held plus any cash,

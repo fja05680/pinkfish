@@ -14,6 +14,7 @@ class Direction:
 class Margin:
     """
     The type of margin.  CASH, STANDARD, or PATTERN_DAY_TRADER.
+    This is actually the inverse margin, i.e. account leverage.
     """
     CASH, STANDARD, PATTERN_DAY_TRADER = [1, 2, 4]
 
