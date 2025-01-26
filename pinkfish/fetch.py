@@ -3,7 +3,7 @@ Fetch time series data.
 """
 
 import datetime
-import os
+from pathlib import Path
 import sys
 import warnings
 
@@ -28,7 +28,7 @@ def _get_cache_dir(dir_name):
 
     Parameters
     ----------
-    dir_name : str
+    dir_name : Path
         The leaf data dir name.
 
     Returns
@@ -36,18 +36,20 @@ def _get_cache_dir(dir_name):
     str
         Path to the data dir.
     """
-    base_dir = ''
+    base_dir = utility.ROOT
     try:
         conf = utility.read_config()
         base_dir = conf['base_dir']
     except Exception as e:
         pass
     finally:
-        dir_name = os.path.join(base_dir, dir_name)
+        dir_path = Path(base_dir) / dir_name
 
-    if not os.path.exists(dir_name):
-        os.makedirs(dir_name)
-    return dir_name
+    if not dir_path.exists():
+        dir_path.mkdir(parents=True, exist_ok=True)
+
+    return dir_path
+
 
 
 def _adj_column_names(ts):
@@ -72,7 +74,7 @@ def _adj_column_names(ts):
     return ts
 
 
-def fetch_timeseries(symbol, dir_name='data', use_cache=True, from_year=None):
+def fetch_timeseries(symbol, dir_name='symbol-cache', use_cache=True, from_year=None):
     """
     Read time series data.
 
@@ -84,7 +86,7 @@ def fetch_timeseries(symbol, dir_name='data', use_cache=True, from_year=None):
     symbol : str
         The symbol for a security.
     dir_name : str, optional
-        The leaf data dir name (default is 'data').
+        The leaf data dir name (default is 'symbol-cache').
     use_cache: bool, optional
         True to use data cache.  False to retrieve from the internet 
         (default is True).
@@ -107,9 +109,9 @@ def fetch_timeseries(symbol, dir_name='data', use_cache=True, from_year=None):
     # like SPY_SHRT, so extract the symbol.
     symbol = symbol.split('_')[0]
 
-    timeseries_cache = os.path.join(_get_cache_dir(dir_name), symbol + '.csv')
+    timeseries_cache = _get_cache_dir(dir_name) / f'{symbol}.csv'
 
-    if os.path.isfile(timeseries_cache) and use_cache:
+    if timeseries_cache.is_file() and use_cache:
         pass
     else:
         try:
@@ -299,7 +301,7 @@ def _difference_in_years(start, end):
     return diff_in_years
 
 
-def remove_cache_symbols(symbols=None, dir_name='data'):
+def remove_cache_symbols(symbols=None, dir_name='symbol-cache'):
     """
     Remove cached timeseries for list of symbols.
 
@@ -309,9 +311,9 @@ def remove_cache_symbols(symbols=None, dir_name='data'):
     ----------
     symbols : str or list of str, optional
         The symbol(s) for which to remove cached timeseries (default
-        is None, which imples remove timeseries for all symbols).
+        is None, which implies remove timeseries for all symbols).
     dir_name : str, optional
-        The leaf data dir name (default is 'data').
+        The leaf data dir name (default is 'symbol-cache').
 
     Returns
     -------
@@ -325,26 +327,27 @@ def remove_cache_symbols(symbols=None, dir_name='data'):
             symbols = [symbols]
         filenames = [symbol.upper() + '.csv' for symbol in symbols]
     else:
-        filenames = [f for f in os.listdir(cache_dir) if f.endswith('.csv')]
+        filenames = [f.name for f in cache_dir.iterdir() if f.suffix == '.csv']
 
     # Filter out any filename prefixed with '__'.
     filenames = [f for f in filenames if not f.startswith('__')]
 
     print('removing symbols:')
     for i, f in enumerate(filenames):
-        symbol = os.path.splitext(f)[0]
+        symbol = Path(f).stem
         print(symbol + ' ', end='')
-        if i % 10 == 0 and i != 0: print()
+        if i % 10 == 0 and i != 0:
+            print()
 
-        filepath = os.path.join(cache_dir, f)
-        if os.path.exists(filepath):
-            os.remove(filepath)
+        filepath = cache_dir / f
+        if filepath.exists():
+            filepath.unlink()
         else:
             print(f'\n({f} not found)')
     print()
 
 
-def update_cache_symbols(symbols=None, dir_name='data', from_year=None):
+def update_cache_symbols(symbols=None, dir_name='symbol-cache', from_year=None):
     """
     Update cached timeseries for list of symbols.
 
@@ -354,9 +357,9 @@ def update_cache_symbols(symbols=None, dir_name='data', from_year=None):
     ----------
     symbols : str or list, optional
         The symbol(s) for which to update cached timeseries (default
-        is None, which imples update timeseries for all symbols).
+        is None, which implies update timeseries for all symbols).
     dir_name : str, optional
-        The leaf data dir name (default is 'data).
+        The leaf data dir name (default is 'symbol-cache').
     from_year: int, optional
         The start year for timeseries retrieval (default is None,
         which implies that all the available data is retrieved).
@@ -365,35 +368,36 @@ def update_cache_symbols(symbols=None, dir_name='data', from_year=None):
     -------
     None
     """
-    cache_dir = _get_cache_dir(dir_name)
+    cache_dir = Path(_get_cache_dir(dir_name))
 
     if symbols:
         # If symbols is not a list, cast it to a list.
         if not isinstance(symbols, list):
             symbols = [symbols]
     else:
-        filenames = ([f for f in os.listdir(cache_dir)
-                      if f.endswith('.csv') and not f.startswith('__')])
-        symbols = [os.path.splitext(filename)[0] for filename in filenames]
+        filenames = [f for f in cache_dir.iterdir() if f.suffix == '.csv' and not f.name.startswith('__')]
+        symbols = [f.stem for f in filenames]
 
     # Make symbol names uppercase.
     symbols = [symbol.upper() for symbol in symbols]
 
-    print('updating symbols:')
+    print('Updating symbols:')
     for i, symbol in enumerate(symbols):
-        print(symbol + ' ', end='')
+        print(f"{symbol} ", end='')
         if i % 10 == 0 and i != 0:
             print()
 
         try:
-            fetch_timeseries(symbol, dir_name=dir_name, use_cache=False,
-                             from_year=from_year)
+            fetch_timeseries(symbol, dir_name=dir_name, use_cache=False, from_year=from_year)
         except Exception as e:
             print(f'\n({e})')
     print()
 
 
-def get_symbol_metadata(symbols=None, dir_name='data', from_year=None):
+from pathlib import Path
+import pandas as pd
+
+def get_symbol_metadata(symbols=None, dir_name='symbol-cache', from_year=None):
     """
     Get symbol metadata for list of symbols.
 
@@ -403,9 +407,9 @@ def get_symbol_metadata(symbols=None, dir_name='data', from_year=None):
     ----------
     symbols : str or list, optional
         The symbol(s) for which to get symbol metadata (default
-        is None, which imples get symbol metadata for all symbols).
+        is None, which implies get symbol metadata for all symbols).
     dir_name : str, optional
-        The leaf data dir name (default is 'data).
+        The leaf data dir name (default is 'symbol-cache').
     from_year: int, optional
         The start year for timeseries retrieval (default is None,
         which implies that all the available data is retrieved).
@@ -415,34 +419,32 @@ def get_symbol_metadata(symbols=None, dir_name='data', from_year=None):
     pd.DataFrame
         Each row contains metadata for a symbol.
     """
-    cache_dir = _get_cache_dir(dir_name)
+    cache_dir = Path(_get_cache_dir(dir_name))
 
     if symbols:
         # If symbols is not a list, cast it to a list.
         if not isinstance(symbols, list):
             symbols = [symbols]
     else:
-        filenames = ([f for f in os.listdir(cache_dir)
-                     if f.endswith('.csv') and not f.startswith('__')])
-        symbols = [os.path.splitext(filename)[0] for filename in filenames]
+        filenames = [f for f in cache_dir.iterdir() if f.suffix == '.csv' and not f.name.startswith('__')]
+        symbols = [f.stem for f in filenames]
 
     # Make symbol names uppercase.
     symbols = [symbol.upper() for symbol in symbols]
 
-    l = []
+    metadata = []
     for i, symbol in enumerate(symbols):
         try:
-            ts = fetch_timeseries(symbol, dir_name=dir_name, use_cache=True,
-                                  from_year=from_year) 
+            ts = fetch_timeseries(symbol, dir_name=dir_name, use_cache=True, from_year=from_year)
             start = ts.index[0].to_pydatetime()
             end = ts.index[-1].to_pydatetime()
             num_years = _difference_in_years(start, end)
-            start = start.strftime('%Y-%m-%d')
-            end = end.strftime('%Y-%m-%d')
-            t = (symbol, start, end, num_years)
-            l.append(t)
+            start_str = start.strftime('%Y-%m-%d')
+            end_str = end.strftime('%Y-%m-%d')
+            metadata.append((symbol, start_str, end_str, num_years))
         except Exception as e:
-            print('\n({})'.format(e))
+            print(f"\n({e})")
+
     columns = ['symbol', 'start_date', 'end_date', 'num_years']
-    df = pd.DataFrame(l, columns=columns)
+    df = pd.DataFrame(metadata, columns=columns)
     return df

@@ -6,13 +6,26 @@ from configparser import ConfigParser
 from functools import wraps
 import importlib.util
 import inspect
-import os
 from pathlib import Path
 
 import pandas as pd
 
 
-ROOT = str(Path(os.getcwd().split('pinkfish')[0] + '/pinkfish'))
+def _get_project_top_level():
+    """
+    Returns the outermost pinkfish path.
+    """
+    current_path = Path(__file__).resolve()
+    pinkfish_path = None
+    for parent in current_path.parents:
+        if parent.name == "pinkfish":
+            pinkfish_path = parent
+    if pinkfish_path:
+        return pinkfish_path
+    raise RuntimeError("Top-level pinkfish directory not found")
+
+
+ROOT = _get_project_top_level()
 """
 str: pinkfish project root dir.
 """
@@ -67,7 +80,7 @@ def read_config():
     """
     conf = {}
     parser = ConfigParser()
-    parser.read(os.path.expanduser('~/.pinkfish'))
+    parser.read(Path('~/.pinkfish').expanduser())
     conf['base_dir'] = parser.get('global', 'base_dir')
     return conf
 
