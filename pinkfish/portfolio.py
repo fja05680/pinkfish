@@ -167,7 +167,7 @@ class Portfolio:
 
     def fetch_timeseries(self, symbols, start, end,
                          fields=['open', 'high', 'low', 'close'],
-                         dir_name='data',
+                         dir_name='symbol-cache',
                          use_cache=True, use_adj=True,
                          use_continuous_calendar=False,
                          force_stock_market_calendar=False,
@@ -405,7 +405,7 @@ class Portfolio:
         for symbol in self.symbols:
             d[symbol] = {}
             for field in fields:
-                value = self.get_price(row, symbol, field)
+                value = self.get_column_value(row, symbol, field)
                 d[symbol][field] = value
         return d
         
