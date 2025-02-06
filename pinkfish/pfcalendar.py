@@ -47,7 +47,7 @@ def _first_day(row):
     return first_dotw, first_dotm, first_doty
 
 
-def calendar(ts):
+def calendar(ts, columns=None):
     """
     Add calendar columns to a timeseries.
 
@@ -55,6 +55,9 @@ def calendar(ts):
     ----------
     ts : pd.DataFrame
         The timeseries of a symbol.
+    columns: list of str, optional
+        Specify the name of the columns to keep
+        (default is None, which implies keeping all columns). 
 
     Returns
     -------
@@ -101,5 +104,16 @@ def calendar(ts):
     # Drop temporary columns.
     ts.drop(columns=['__prev_dotw__', '__prev_dotm__', '__prev_doty__'],
             inplace=True)
+    
+    # If `columns` is provided, drop any new columns not in `columns`
+    if columns is not None:
+        # Create a list of all new columns
+        new_columns = [
+            'dotw', 'dotm', 'doty', 'month',
+            'first_dotw', 'first_dotm', 'first_doty',
+            'last_dotw', 'last_dotm', 'last_doty'
+        ]
+        drop_columns = [column for column in new_columns if column not in columns]
+        ts.drop(columns=drop_columns, errors='ignore', inplace=True)
 
     return ts

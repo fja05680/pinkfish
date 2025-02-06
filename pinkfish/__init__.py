@@ -4,7 +4,8 @@ from .fetch import (
     finalize_timeseries,
     remove_cache_symbols,
     update_cache_symbols,
-    get_symbol_metadata
+    get_symbol_metadata,
+    get_quote
 )
 
 from .trade import (

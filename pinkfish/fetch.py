@@ -448,3 +448,33 @@ def get_symbol_metadata(symbols=None, dir_name='symbol-cache', from_year=None):
     columns = ['symbol', 'start_date', 'end_date', 'num_years']
     df = pd.DataFrame(metadata, columns=columns)
     return df
+
+
+#####################################################################
+# REAL TIME QUOTE
+
+def get_quote(symbols):
+    """
+    Fetch the latest stock prices for a list of symbols.
+
+    Parameters
+    ----------
+    symbols : list of str
+        A list of stock symbols to retrieve quotes for.
+
+    Returns
+    -------
+    dict
+        A dictionary where keys are stock symbols and values are the latest stock prices.
+        If a quote cannot be fetched, the value will be None.
+    """
+    d = {}
+    for symbol in symbols:
+        ticker = yf.Ticker(symbol)
+        try:
+            d[symbol] = float(ticker.fast_info['last_price'])
+        except KeyError:
+            print(f'Could not fetch quote for {symbol}')
+            d[symbol] = None
+    return d
+

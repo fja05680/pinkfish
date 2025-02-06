@@ -305,7 +305,7 @@ class Portfolio:
         ts = pd.concat([ts, pd.DataFrame(indicator_column)], axis=1)
         return ts
 
-    def calendar(self, ts):
+    def calendar(self, ts, columns=None):
         """
         Add calendar columns to a timeseries.
 
@@ -313,13 +313,16 @@ class Portfolio:
         ----------
         ts : pd.DataFrame
             The timeseries of a symbol.
+        columns: list of str, optional
+            Specify the name of the columns to keep
+            (default is None, which implies keeping all columns).
 
         Returns
         -------
         pd.DataFrame
             The timeseries with calendar columns added.
         """
-        return calendar(ts)
+        return calendar(ts, columns)
 
     def finalize_timeseries(self, ts, start, dropna=True):
         """
