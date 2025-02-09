@@ -188,7 +188,7 @@ class Portfolio:
             ['open', 'high', 'low', 'close']).  List must include 
             'close' - will be added if not already in list.
         dir_name : str, optional
-            The leaf data dir name (default is 'data').
+            The leaf data dir name (default is 'symbol-cache').
         use_cache: bool, optional
             True to use data cache.  False to retrieve from the
             internet (default is True).

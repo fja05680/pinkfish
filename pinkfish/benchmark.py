@@ -14,7 +14,7 @@ class Benchmark:
     """
 
     def __init__(self, symbols, capital, start, end,
-                 dir_name='data',
+                 dir_name='symbol-cache',
                  use_adj=False,
                  use_continuous_calendar=False,
                  force_stock_market_calendar=False):
@@ -32,7 +32,7 @@ class Benchmark:
         end : datetime.datetime
             The desired end date for the benchmark.
         dir_name : str, optional
-            The leaf data dir name (default is 'data').
+            The leaf data dir name (default is 'symbol-cache').
         use_adj : bool, optional
             True to adjust prices for dividends and splits
             (default is False).
@@ -59,7 +59,7 @@ class Benchmark:
         end : datetime.datetime
             The desired end date for the benchmark.
         dir_name : str, optional
-            The leaf data dir name (default is 'data').
+            The leaf data dir name (default is 'symbol-cache').
         use_adj : bool, optional
             True to adjust prices for dividends and splits.
         use_continuous_calendar: bool, optional
