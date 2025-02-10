@@ -1,8 +1,8 @@
 """
 A basic price based momentum strategy.
 
-1. The SPY is higher than X days ago, buy
-2. If the SPY is lower than X days ago, sell your long position.
+1. The SPY is higher than X months ago, buy
+2. If the SPY is lower than X months ago, sell your long position.
 
 A lookback of None means a random lookback = {6-12} months.
 """
