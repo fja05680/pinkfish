@@ -286,7 +286,7 @@ def MOMENTUM(ts, lookback=1, time_frame='monthly', price='close', prevday=False)
 ########################################################################
 # VOLATILITY
 
-def VOLATILITY(ts, lookback=20, time_frame='yearly', downside=False,
+def VOLATILITY(ts, lookback=20, time_frame='yearly', downside=False, upside=False,
                price='close', prevday=False):
     """
     This indicator is used to represent volatility in security prices.
@@ -313,6 +313,8 @@ def VOLATILITY(ts, lookback=20, time_frame='yearly', downside=False,
         (default is 'yearly').
     downside : bool, optional
         True to calculate the downside volatility (default is False).
+    downside : bool, optional
+        True to calculate the upside volatility (default is False).
     price : str, optional {'close', 'open', 'high', 'low'}
         Input_array column to use for price (default is 'close').
     prevday : bool, optional
@@ -347,6 +349,8 @@ def VOLATILITY(ts, lookback=20, time_frame='yearly', downside=False,
     s = ts[price].pct_change()
     if downside:
         s[s > 0] = 0
+    elif upside:
+        s[s < 0] = 0
     s = s.rolling(window=lookback).std() * np.sqrt(factor)
 
     if prevday:
