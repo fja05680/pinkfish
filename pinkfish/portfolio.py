@@ -44,7 +44,7 @@ def technical_indicator(symbols, output_column_suffix,
         The symbols that constitute the portfolio.
     output_column_suffix : str
         Output column suffix to use for technical indicator.
-    input_column_suffix : str, {'close', 'open', 'high', 'low'}
+    input_column_suffix : str, {'open', 'high', 'low', 'close'}
         Input column suffix to use for price (default is 'close').
 
     Returns
@@ -206,7 +206,7 @@ class Portfolio:
             to transform a continuous timeseries into a weekday timeseries.
             If this value is True, then `use_continuous_calendar` is set
             to False (default is False).
-        check_fields : list of str, optional {'high', 'low', 'open',
+        check_fields : list of str, optional {'open', 'high', 'low',
             'close', 'adj_close'}
             Fields to check for for NaN values.  If a NaN value is found
             for one of these fields, that row is dropped
@@ -230,7 +230,7 @@ class Portfolio:
                                         force_stock_market_calendar=force_stock_market_calendar,
                                         check_fields=check_fields)
                 self._add_symbol_columns(ts, symbol, ts, fields)
-                ts.drop(columns=['open', 'high', 'low', 'close', 'volume', 'adj_close'],
+                ts.drop(columns=['open', 'high', 'low', 'close', 'adj_close', 'volume'],
                         inplace=True)
             else:
                 # Add another symbol.
@@ -275,7 +275,7 @@ class Portfolio:
             The parameter for `ta_func` (typically an int).
         output_column_suffix : str
             Output column suffix to use for technical indicator.
-        input_column_suffix : str, {'close', 'open', 'high', 'low'}
+        input_column_suffix : str, {'open', 'high', 'low', 'close'}
             Input column suffix to use for price (default is 'close').
 
         Returns
@@ -363,7 +363,7 @@ class Portfolio:
             The row of data from the timeseries of the portfolio.
         symbol : str
             The symbol for a security.
-        field : str, optional {'close', 'open', 'high', 'low'}
+        field : str, optional {'open', 'high', 'low', 'close'}
             The price field to use (default is 'close').
 
         Returns
@@ -506,7 +506,7 @@ class Portfolio:
             A row of data from the timeseries of the portfolio.
         symbol : str
             The symbol for a security.
-        field : str, {'close', 'open', 'high', 'low'}
+        field : str, {'open', 'high', 'low', 'close'}
             The price field to use.
 
         Returns
@@ -561,7 +561,7 @@ class Portfolio:
             The requested weight for the symbol, where 0 <= weight <=1.
         symbol : str
             The symbol for a security.
-        field : str, {'close', 'open', 'high', 'low'}
+        field : str, {'open', 'high', 'low', 'close'}
             The price field to use.
         direction : pf.Direction, optional
             The direction of the trade (default is `pf.Direction.LONG`).
@@ -594,7 +594,7 @@ class Portfolio:
             A row of data from the timeseries of the portfolio.
         weights : dict of floats
             Dict of key value pair of symbol:weight, where 0 <= weight <=1.
-        field : str, {'close', 'open', 'high', 'low'}
+        field : str, {'open', 'high', 'low', 'close'}
             The price field to use.
         directions : dict of pf.Direction, optional
             Dict of key value pair of symbol:direction.  The direction

@@ -33,7 +33,7 @@ def SMA(ts, timeperiod=30, price='close'):
         a series of price data.
     timeperiod: int, optional
         The timeperiod for the moving average (default is 30).
-    price : str, optional {'close', 'open', 'high', 'low'}
+    price : str, optional {'open', 'high', 'low', 'close'}
         Input_array column to use for price (default is 'close').
         Not used if `ts` is a series.
 

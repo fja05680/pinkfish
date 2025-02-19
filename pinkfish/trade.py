@@ -471,7 +471,7 @@ class TradeLog:
         ----------
         row : pd.Series
             The timeseries of the portfolio.
-        field : str, optional {'close', 'open', 'high', 'low'}
+        field : str, optional {'open', 'high', 'low', 'close'}
             The price field (default is 'close').
 
         Returns

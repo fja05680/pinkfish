@@ -51,7 +51,6 @@ def _get_cache_dir(dir_name):
     return dir_path
 
 
-
 def _adj_column_names(ts):
     """
     Make all column names lower case.
@@ -116,7 +115,7 @@ def fetch_timeseries(symbol, dir_name='symbol-cache', use_cache=True, from_year=
     else:
         try:
             ts = yf.download(symbol, start=datetime.datetime(from_year, 1, 1),
-            		     progress=False, auto_adjust=False, multi_level_index=False)
+            		         progress=False, auto_adjust=False, multi_level_index=False)
             if ts.empty:
                 print(f'No Data for {symbol}')
                 return None
@@ -124,6 +123,9 @@ def fetch_timeseries(symbol, dir_name='symbol-cache', use_cache=True, from_year=
             print(f'\n{e}')
             return None
         else:
+            # Reorder columns, then write to csv.
+            column_order = ['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']
+            ts = ts[column_order]
             ts.to_csv(timeseries_cache, encoding='utf-8')
 
     ts = pd.read_csv(timeseries_cache, index_col='Date', parse_dates=True)
@@ -188,7 +190,7 @@ def select_tradeperiod(ts, start, end, use_adj=False,
         to transform a continuous timeseries into a weekday timeseries.
         If this value is True, then `use_continuous_calendar` is set
         to False (default is False).
-    check_fields : list of str, optional {'high', 'low', 'open',
+    check_fields : list of str, optional {'open', 'high', 'low',
         'close', 'adj_close'}
         Fields to check for for NaN values.  If a NaN value is found
         for one of these fields, that row is dropped
@@ -207,7 +209,7 @@ def select_tradeperiod(ts, start, end, use_adj=False,
     You should set neither of these to True if your timeseries is based
     on the stock market.
     """
-    columns = ['high', 'low', 'open', 'close']
+    columns = ['open', 'high', 'low', 'close']
     if use_adj:
         columns.append('adj_close')
 
