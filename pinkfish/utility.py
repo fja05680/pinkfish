@@ -92,6 +92,15 @@ def is_last_row(ts, index):
     return True if (index == len(ts) - 1) else False
 
 
+def get_previous_row(ts, bars=1):
+    """
+    Returns the row from 'bars' bars ago (default: previous row).
+    """
+    if bars < 1 or bars >= len(ts):
+        return None  
+    return ts.iloc[-bars]
+
+
 def sort_dict(d, reverse=False):
     """
     Return sorted dict; optionally reverse sort.

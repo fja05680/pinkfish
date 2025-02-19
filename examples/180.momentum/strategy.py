@@ -67,6 +67,7 @@ class Strategy:
   
             if self.tlog.shares > 0:
                 if ((row.first_dotw and mom < 0) or end_flag):
+#                 if ((row.last_dotm and mom < 0) or end_flag):
                     self.tlog.sell(date, close)
 
             # Buy Logic
@@ -75,6 +76,7 @@ class Strategy:
 
             else:
                 if (row.first_dotw and mom > 0):
+#                 if (row.last_dotm and mom > 0):
                     self.tlog.buy(date, close)
 
             # Record daily balance

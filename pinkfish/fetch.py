@@ -115,7 +115,8 @@ def fetch_timeseries(symbol, dir_name='symbol-cache', use_cache=True, from_year=
         pass
     else:
         try:
-            ts = yf.download(symbol, start=datetime.datetime(from_year, 1, 1), progress=False)
+            ts = yf.download(symbol, start=datetime.datetime(from_year, 1, 1),
+            		     progress=False, auto_adjust=False, multi_level_index=False)
             if ts.empty:
                 print(f'No Data for {symbol}')
                 return None

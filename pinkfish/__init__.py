@@ -77,6 +77,7 @@ from .utility import (
     print_full,
     read_config,
     is_last_row,
+    get_previous_row,
     sort_dict,
     set_dict_values,
     find_nan_rows
