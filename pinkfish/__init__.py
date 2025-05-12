@@ -64,8 +64,6 @@ from .stock_market_calendar import (
 )
 
 from .analysis import (
-    monthly_returns_map,
-    holding_period_map,
     prettier_graphs,
     volatility_graphs,
     kelly_criterion
