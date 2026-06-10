@@ -1,3 +1,5 @@
+![pinkfish](./images/pink-fish-icon.png)
+
 pinkfish
 ========
 A lightweight backtester and spreadsheet library for security analysis.
@@ -104,14 +106,29 @@ Examples in the [`examples/`](examples/) folder are ordered roughly by complexit
 
 ## Documentation
 
-API reference: [`docs/html/pinkfish/index.html`](docs/html/pinkfish/index.html)
+API reference: https://fja05680.github.io/pinkfish/html/pinkfish/index.html
 
-Generate the docs with:
+Docs are generated with [pdoc](https://pdoc.dev/) into [`docs/html/`](docs/html/) and published with [GitHub Pages](https://pages.github.com/) from the [`docs/`](docs/) folder on `main`.
+
+Regenerate and commit after API changes:
 
 ```bash
 cd docs
 ./generate-docs.sh
+git add html/ index.html
+git commit -m "Update API documentation"
+git push
 ```
+
+To view locally:
+
+```bash
+xdg-open docs/html/pinkfish/index.html    # Linux
+# open docs/html/pinkfish/index.html      # macOS
+# start docs/html/pinkfish/index.html     # Windows
+```
+
+Source modules with docstrings are in [`pinkfish/`](pinkfish/).
 
 ## Pinkfish on YouTube
 
