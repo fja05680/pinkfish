@@ -35,7 +35,9 @@ I specifically wanted to backtest simple strategies from Larry Connors and other
 
 ## Installation
 
-Basic installation (without TA-Lib):
+I recommend using pinkfish on Linux or in a Linux VM. It should also work on Windows and macOS.
+
+### Basic (without TA-Lib)
 
 ```bash
 # Recommended: create a new Python virtual environment first.
@@ -48,24 +50,68 @@ pip install setuptools
 python setup.py install    # or: python setup.py develop
 ```
 
-For developer installation with TA-Lib, see:
-https://fja05680.github.io/pinkfish/
+### Developer (with TA-Lib)
+
+This is how I got pinkfish working on Xubuntu 22.04:
+
+```bash
+# Make sure your system is up to date
+sudo apt update
+sudo apt upgrade
+
+# Install some preliminary requirements
+sudo apt install build-essential
+sudo apt install git
+sudo apt install python3-pip
+
+# Clone pinkfish repo from GitHub
+git clone https://github.com/fja05680/pinkfish.git
+cd pinkfish
+
+# Create virtual Python environment
+python -m venv venv
+source venv/bin/activate
+
+# Install pinkfish
+python setup.py develop
+
+# Install TA-Lib (optional)
+cd ~/Downloads
+sudo wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz
+tar -xzvf ta-lib-0.4.0-src.tar.gz
+cd ta-lib
+./configure --prefix=/usr
+make
+sudo make install
+pip install TA-Lib
+
+# Create shared data cache directory (optional)
+mkdir $HOME/data
+echo [global] > $HOME/.pinkfish
+echo base_dir = $HOME >> $HOME/.pinkfish
+```
 
 ## Examples
 
-Examples in the `examples/` folder are ordered roughly by complexity.
+Examples in the [`examples/`](examples/) folder are ordered roughly by complexity.
 
-- [buy-and-hold](https://fja05680.github.io/pinkfish/examples/buy-and-hold.html) — minimal strategy
-- [buy-open-sell-close](https://fja05680.github.io/pinkfish/examples/buy-open-sell-close.html) — buy at the open, sell at the close on the same day
-- [double-7s](https://fja05680.github.io/pinkfish/examples/double-7s.html) — Connors/Alvarez mean-reversion strategy on ETFs
-- [golden-cross](http://fja05680.github.io/pinkfish/examples/golden-cross.html) — classic moving-average crossover
-- [asset-allocation-portfolio](https://fja05680.github.io/pinkfish/examples/asset-allocation-portfolio.html) — multi-ETF portfolio with monthly rebalance
-- [spreadsheet](https://fja05680.github.io/pinkfish/examples/spreadsheet.html) — trading signal sheet in Jupyter
+- [buy-and-hold](examples/010.buy-and-hold/strategy.ipynb) — minimal strategy
+- [buy-open-sell-close](examples/030.buy-open-sell-close/strategy.ipynb) — buy at the open, sell at the close on the same day
+- [double-7s](examples/080.double-7s/strategy.ipynb) — Connors/Alvarez mean-reversion strategy on ETFs
+- [golden-cross](examples/050.golden-cross/strategy.ipynb) — classic moving-average crossover
+- [asset-allocation-portfolio](examples/220.asset-allocation-portfolio/strategy.ipynb) — multi-ETF portfolio with monthly rebalance
+- [spreadsheet](examples/100.spreadsheet/spreadsheet.ipynb) — trading signal sheet in Jupyter
 
 ## Documentation
 
-API reference:
-https://fja05680.github.io/pinkfish/docs/html/pinkfish/index.html
+API reference: [`docs/html/pinkfish/index.html`](docs/html/pinkfish/index.html)
+
+Generate the docs with:
+
+```bash
+cd docs
+./generate-docs.sh
+```
 
 ## Pinkfish on YouTube
 
