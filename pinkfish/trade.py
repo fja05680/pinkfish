@@ -619,14 +619,16 @@ class TradeLog:
         Merge like trades that occur on the same day.
         """
 
-        def _merge(tlog, merge_type):
+        def _merge(group, merge_type):
             """
-             Merge entry trades that occur on the same date.
-             """
+            Merge entry or exit trades that occur on the same date.
+            """
+            tlog = group.copy()
+            group_key = group.name
             if merge_type == 'entry':
-                tlog['exit_date'] = tlog['exit_date']
+                tlog['entry_date'] = group_key
             else:
-                tlog['entry_date'] = tlog['entry_date']
+                tlog['exit_date'] = group_key
             tlog['entry_price'] = \
                 (tlog['entry_price'] * tlog['qty']).sum() / tlog['qty'].sum()
             tlog['exit_price'] = \
@@ -634,15 +636,18 @@ class TradeLog:
             tlog['pl_points'] = tlog['pl_points'].sum()
             tlog['pl_cash'] = tlog['pl_cash'].sum()
             tlog['qty'] = tlog['qty'].sum()
-            tlog['cumul_total'] = tlog['cumul_total'].tail(1)
+            tlog['cumul_total'] = tlog['cumul_total'].iloc[-1]
             return tlog
 
+        apply_kwargs = {}
+        if 'include_groups' in pd.core.groupby.DataFrameGroupBy.apply.__kwdefaults__:
+            apply_kwargs['include_groups'] = False
         tlog = tlog.groupby('entry_date', group_keys=False) \
-                                         .apply(_merge, merge_type='entry') \
-                                         .dropna().reset_index(drop=True)
+                   .apply(lambda g: _merge(g, 'entry'), **apply_kwargs) \
+                   .dropna().reset_index(drop=True)
         tlog = tlog.groupby('exit_date', group_keys=False) \
-                                        .apply(_merge, merge_type='exit') \
-                                        .dropna().reset_index(drop=True)
+                   .apply(lambda g: _merge(g, 'exit'), **apply_kwargs) \
+                   .dropna().reset_index(drop=True)
         return tlog
 
 
