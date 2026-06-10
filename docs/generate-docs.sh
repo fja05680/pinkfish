@@ -3,13 +3,8 @@
 # remove old html
 rm html -fr
 
-# generate html
-pdoc --html ../../pinkfish/
-
-# generate markdown extra
-pdoc --pdf ../../pinkfish/ > pinkfish.txt
-
-# generate pdf from markdown extra
-pandoc --pdf-engine=xelatex pinkfish.txt -o pinkfish.pdf
+# generate html (repo root must be on PYTHONPATH)
+export PYTHONPATH="$(cd .. && pwd)"
+pdoc --html pinkfish
 
 echo Done.

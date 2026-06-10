@@ -21,7 +21,7 @@ default_options = {
     'max_open_trades' : 4,
     'enable_scale_in' : True,
     'enable_scale_out' : True,
-    'merged_trades' : False
+    'merge_trades' : False
 }
 
 def _round_weight(weight):
