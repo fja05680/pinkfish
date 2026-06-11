@@ -88,7 +88,7 @@ sudo make install
 pip install TA-Lib
 
 # Create shared data cache directory (optional)
-mkdir $HOME/data
+mkdir $HOME/symbol-cache
 echo [global] > $HOME/.pinkfish
 echo base_dir = $HOME >> $HOME/.pinkfish
 ```
