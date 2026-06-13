@@ -76,4 +76,4 @@ target/
 
 # private algos
 algos/
-strategies/
+/strategies/
