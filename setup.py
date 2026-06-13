@@ -1,16 +1,16 @@
-from setuptools import setup
+from setuptools import find_packages, setup
 
 with open('requirements.txt') as f:
     requirements = f.read().splitlines()
 
 setup(
     name='pinkfish',
-    version='2.2.0',
+    version='2.3.0',
     description='A backtester and spreadsheet library for security analysis.',
     author='Farrell Aultman',
     author_email='fja0568@gmail.com',
     url='https://github.com/fja05680/pinkfish',
-    packages=['pinkfish'],
+    packages=find_packages(),
     include_package_data=True,
     license='MIT',
     install_requires=requirements,
@@ -30,5 +30,5 @@ setup(
         'talib':  ['TA-Lib'],
     },
     data_files=[('', ['requirements.txt'])],
-    python_requires=">=3.10",
+    python_requires=">=3.11",
 )

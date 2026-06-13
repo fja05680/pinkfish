@@ -38,7 +38,10 @@ def import_strategy(strategy_name, top_level_dir='examples', module_name='strate
     Parameters
     ----------
     strategy_name : str
-        The leaf dir name that contains the strategy to import.
+        Path to the example folder under ``top_level_dir``, or the leaf
+        folder name when it is unique (e.g. ``'strategies/double-7s'``
+        or ``'double-7s'``).  Use ``''`` with ``top_level_dir='pinkfish'``
+        to import a module from the pinkfish package (e.g. ``benchmark``).
     top_level_dir : str, optional
         The top level dir name for the strategies
         (default is 'examples').
@@ -52,12 +55,20 @@ def import_strategy(strategy_name, top_level_dir='examples', module_name='strate
 
     Examples
     --------
-    >>> strategy = import_strategy(strategy_name='190.momentum-dmsr-portfolio')
+    >>> strategy = import_strategy(strategy_name='portfolios/momentum-gem-portfolio')
     """
 
-    strategy_location = (Path(ROOT) / Path(top_level_dir)
-                                    / Path(strategy_name)
-                                    / Path(module_name + '.py'))
+    base = Path(ROOT) / top_level_dir
+    strategy_location = base / strategy_name / f'{module_name}.py'
+    if not strategy_location.is_file() and strategy_name and '/' not in strategy_name:
+        matches = sorted(base.glob(f'*/{strategy_name}/{module_name}.py'))
+        if len(matches) == 1:
+            strategy_location = matches[0]
+        elif len(matches) > 1:
+            raise FileNotFoundError(
+                f'Ambiguous strategy name {strategy_name!r}: {matches}')
+    if not strategy_location.is_file():
+        raise FileNotFoundError(strategy_location)
     print(strategy_location)
     spec = importlib.util.spec_from_file_location(module_name, strategy_location)
     strategy = importlib.util.module_from_spec(spec)

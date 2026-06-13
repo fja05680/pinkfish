@@ -1,15 +1,17 @@
-![pinkfish](./images/pink-fish-icon.png)
-
 pinkfish
-========
-A lightweight backtester and spreadsheet library for security analysis.
+
+# pinkfish
+
+A lightweight backtester and spreadsheet library for stocks and ETFs.
 
 Pinkfish is built for a specific niche: **backtesting stocks, ETFs, portfolios, and swing-trading strategies** using free daily data. It started as a way to test simple, rule-based strategies from authors like **Larry Connors**, **Cesar Alvarez**, **Andreas Clenow**, and **Gary Antonacci** — short-term mean reversion, momentum rotation, and allocation ideas that read cleanly in a few lines of Python. It is simple, pandas-native, and stays out of your way while you test ideas.
 
+Start with the [buy-and-hold example](examples/basics/buy-and-hold/strategy.ipynb)
+
 ## What pinkfish is good at
 
-- **Single stock or ETF strategies** — Connors-style mean reversion (see `examples/080.double-7s`), golden cross, sell-in-May, and similar swing-trading ideas
-- **Stock and ETF portfolios** — asset allocation, sector rotation, and momentum across a fixed basket of symbols (see `examples/220.asset-allocation-portfolio`, `examples/200.momentum-gem-portfolio`, `examples/240.double-7s-portfolio`)
+- **Single stock or ETF strategies** — Connors-style mean reversion (see `examples/strategies/double-7s`), golden cross, sell-in-May, and similar swing-trading ideas
+- **Stock and ETF portfolios** — asset allocation, sector rotation, and momentum across a fixed basket of symbols (see `examples/portfolios/asset-allocation-portfolio`, `examples/portfolios/momentum-gem-portfolio`, `examples/portfolios/double-7s-portfolio`)
 - **Open and close execution with daily bars** — pinkfish's distinguishing feature (see below)
 - **Short selling and margin** — included in the trade log API
 - **Parameter optimization** — run a strategy with different settings and compare performance metrics side by side
@@ -93,22 +95,60 @@ echo [global] > $HOME/.pinkfish
 echo base_dir = $HOME >> $HOME/.pinkfish
 ```
 
+## Jupyter
+
+Most examples are notebooks. GitHub renders `.ipynb` files in the browser, so you can read any example without installing Jupyter. To run notebook cells locally, start a notebook server after you install pinkfish and activate your virtual environment:
+
+```bash
+cd pinkfish
+source venv/bin/activate   # Windows: venv\Scripts\activate
+jupyter nbclassic
+```
+
+Your browser should open the Jupyter file browser. From there:
+
+1. Open the `examples` folder.
+2. Open a notebook — start with [basics/buy-and-hold/strategy.ipynb](examples/basics/buy-and-hold/strategy.ipynb).
+3. Run the cells from top to bottom (`Shift+Enter` in each cell).
+
+To open a specific example directly:
+
+```bash
+jupyter nbclassic examples/basics/buy-and-hold/strategy.ipynb
+```
+
+If you prefer `jupyter notebook` or JupyterLab, install the extra packages first: `pip install notebook` or `pip install jupyterlab`.
+
+## Python (no Jupyter)
+
+Pinkfish does not require Jupyter. You can run strategies as plain Python scripts. In [double-7s](examples/strategies/double-7s/), `strategy.py` holds the shared `Strategy` class (used by the notebook and `signals.py`), but it also has a `main` function; run `python strategy.py` to backtest or `python signals.py` for daily signals.
+
 ## Examples
 
-Examples in the [`examples/`](examples/) folder are ordered roughly by complexity.
+Examples live under `[examples/](examples/)` in five namespaces: **basics**, **tutorials**, **strategies**, **portfolios**, and **patterns**. See [examples/README.md](examples/README.md) for the full curriculum and learning path.
 
-- [buy-and-hold](examples/010.buy-and-hold/strategy.ipynb) — minimal strategy
-- [buy-open-sell-close](examples/030.buy-open-sell-close/strategy.ipynb) — buy at the open, sell at the close on the same day
-- [double-7s](examples/080.double-7s/strategy.ipynb) — Connors/Alvarez mean-reversion strategy on ETFs
-- [golden-cross](examples/050.golden-cross/strategy.ipynb) — classic moving-average crossover
-- [asset-allocation-portfolio](examples/220.asset-allocation-portfolio/strategy.ipynb) — multi-ETF portfolio with monthly rebalance
-- [spreadsheet](examples/100.spreadsheet/spreadsheet.ipynb) — trading signal sheet in Jupyter
+Quick links:
+
+- [buy-and-hold](examples/basics/buy-and-hold/strategy.ipynb) — minimal strategy
+- [buy-open-sell-close](examples/basics/buy-open-sell-close/strategy.ipynb) — buy at the open, sell at the close on the same day
+- [double-7s](examples/strategies/double-7s/strategy.ipynb) — Connors/Alvarez mean-reversion strategy on ETFs; includes a [daily signals script](examples/strategies/double-7s/signals.py) with optional Pushover and email notifications
+- [golden-cross](examples/strategies/golden-cross/strategy.ipynb) — classic moving-average crossover
+- [asset-allocation-portfolio](examples/portfolios/asset-allocation-portfolio/strategy.ipynb) — multi-ETF portfolio with monthly rebalance
+- [spreadsheet](examples/tutorials/spreadsheet/spreadsheet.ipynb) — trading signal sheet in Jupyter
+
+### Daily signals
+
+The [double-7s example](examples/strategies/double-7s/) includes `signals.py` for end-of-day action after you backtest in the notebook. Shared helpers live in `pinkfish.signals`; optional Pushover and Resend delivery is in `pinkfish.signals.notify`.
+
+Actions are **BUY**, **SELL**, **HOLD** (stay long), or **PASS** (stay flat). Without notification credentials the script prints to the terminal and writes `signals.html`.
+
+See [examples/strategies/double-7s/README.md](examples/strategies/double-7s/README.md) for Pushover and email setup.
 
 ## Documentation
 
-API reference: https://fja05680.github.io/pinkfish/html/pinkfish/index.html
+API reference: [https://fja05680.github.io/pinkfish/html/pinkfish/index.html](https://fja05680.github.io/pinkfish/html/pinkfish/index.html)
 
-Docs are generated with [pdoc](https://pdoc.dev/) into [`docs/html/`](docs/html/) and published with [GitHub Pages](https://pages.github.com/) from the [`docs/`](docs/) folder on `main`.
+Docs are generated with [pdoc](https://pdoc.dev/) into `[docs/html/](docs/html/)` and published with [GitHub Pages](https://pages.github.com/) from the `[docs/](docs/)` folder on `main`.
 
 Regenerate and commit after API changes:
 
@@ -128,8 +168,8 @@ xdg-open docs/html/pinkfish/index.html    # Linux
 # start docs/html/pinkfish/index.html     # Windows
 ```
 
-Source modules with docstrings are in [`pinkfish/`](pinkfish/).
+Source modules with docstrings are in `[pinkfish/](pinkfish/)`.
 
 ## Pinkfish on YouTube
 
-https://www.youtube.com/channel/UCsPHH2UBn8Fz0g0MGrZ2Ihw
+[https://www.youtube.com/channel/UCsPHH2UBn8Fz0g0MGrZ2Ihw](https://www.youtube.com/channel/UCsPHH2UBn8Fz0g0MGrZ2Ihw)
