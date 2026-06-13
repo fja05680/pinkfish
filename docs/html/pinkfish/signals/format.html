@@ -59,7 +59,33 @@ strategy → signal → date → close → indicators → pattern → buy allowe
 <pre><code class="python">def build_signal_message(strategy_line, symbol, signal_date, latest,
                          prior_position, quote, indicator_lines,
                          stop_loss_pct):
-    &#34;&#34;&#34;Build the notification body in standard order.&#34;&#34;&#34;
+    &#34;&#34;&#34;
+    Build the notification body in standard order.
+
+    Parameters
+    ----------
+    strategy_line : str
+        Strategy name and trade routing (e.g. broker or instrument).
+    symbol : str
+        The signal symbol.
+    signal_date : datetime.date or datetime.datetime
+        The signal date.
+    latest : pd.Series
+        The latest signal row.
+    prior_position : str
+        Position at the start of the signal day (LONG or FLAT).
+    quote : str
+        The after-hours or latest quote string.
+    indicator_lines : list of str
+        Strategy-specific indicator lines to insert after close.
+    stop_loss_pct : float
+        The stop loss percent below entry (e.g. 0.15 for 15%).
+
+    Returns
+    -------
+    str
+        The full message body, one field per line.
+    &#34;&#34;&#34;
     lines = [
         strategy_line,
         f&#39;Signal: {symbol}&#39;,
@@ -83,7 +109,31 @@ strategy → signal → date → close → indicators → pattern → buy allowe
     lines.append(f&#39;Quote: {quote}&#39;)
     return &#39;\n&#39;.join(lines)</code></pre>
 </details>
-<div class="desc"><p>Build the notification body in standard order.</p></div>
+<div class="desc"><p>Build the notification body in standard order.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>strategy_line</code></strong> :&ensp;<code>str</code></dt>
+<dd>Strategy name and trade routing (e.g. broker or instrument).</dd>
+<dt><strong><code>symbol</code></strong> :&ensp;<code>str</code></dt>
+<dd>The signal symbol.</dd>
+<dt><strong><code>signal_date</code></strong> :&ensp;<code>datetime.date</code> or <code>datetime.datetime</code></dt>
+<dd>The signal date.</dd>
+<dt><strong><code>latest</code></strong> :&ensp;<code>pd.Series</code></dt>
+<dd>The latest signal row.</dd>
+<dt><strong><code>prior_position</code></strong> :&ensp;<code>str</code></dt>
+<dd>Position at the start of the signal day (LONG or FLAT).</dd>
+<dt><strong><code>quote</code></strong> :&ensp;<code>str</code></dt>
+<dd>The after-hours or latest quote string.</dd>
+<dt><strong><code>indicator_lines</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>Strategy-specific indicator lines to insert after close.</dd>
+<dt><strong><code>stop_loss_pct</code></strong> :&ensp;<code>float</code></dt>
+<dd>The stop loss percent below entry (e.g. 0.15 for 15%).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>str</code></dt>
+<dd>The full message body, one field per line.</dd>
+</dl></div>
 </dd>
 <dt id="pinkfish.signals.format.buy_allowed_text"><code class="name flex">
 <span>def <span class="ident">buy_allowed_text</span></span>(<span>latest)</span>
@@ -94,12 +144,35 @@ strategy → signal → date → close → indicators → pattern → buy allowe
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def buy_allowed_text(latest):
-    &#34;&#34;&#34;Return yes/no for whether a new buy is allowed today.&#34;&#34;&#34;
+    &#34;&#34;&#34;
+    Return yes/no for whether a new buy is allowed today.
+
+    Parameters
+    ----------
+    latest : pd.Series
+        The latest signal row.  Uses ``buy_ok`` when present.
+
+    Returns
+    -------
+    str
+        ``&#39;yes&#39;`` or ``&#39;no&#39;``.
+    &#34;&#34;&#34;
     if hasattr(latest, &#39;buy_ok&#39;):
         return &#39;yes&#39; if latest.buy_ok else &#39;no&#39;
     return &#39;yes&#39;</code></pre>
 </details>
-<div class="desc"><p>Return yes/no for whether a new buy is allowed today.</p></div>
+<div class="desc"><p>Return yes/no for whether a new buy is allowed today.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>latest</code></strong> :&ensp;<code>pd.Series</code></dt>
+<dd>The latest signal row.
+Uses <code>buy_ok</code> when present.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>str</code></dt>
+<dd><code>'yes'</code> or <code>'no'</code>.</dd>
+</dl></div>
 </dd>
 <dt id="pinkfish.signals.format.display_action"><code class="name flex">
 <span>def <span class="ident">display_action</span></span>(<span>latest)</span>
@@ -110,13 +183,36 @@ strategy → signal → date → close → indicators → pattern → buy allowe
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def display_action(latest):
-    &#34;&#34;&#34;Return BUY, SELL, HOLD (stay long), or PASS (stay flat).&#34;&#34;&#34;
+    &#34;&#34;&#34;
+    Return the action to show in signal output.
+
+    Parameters
+    ----------
+    latest : pd.Series
+        The latest signal row.  Uses ``action`` and ``position``.
+
+    Returns
+    -------
+    str
+        BUY, SELL, HOLD (stay long), or PASS (stay flat).
+    &#34;&#34;&#34;
     action = latest.action
     if action:
         return action
     return idle_action(latest.position)</code></pre>
 </details>
-<div class="desc"><p>Return BUY, SELL, HOLD (stay long), or PASS (stay flat).</p></div>
+<div class="desc"><p>Return the action to show in signal output.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>latest</code></strong> :&ensp;<code>pd.Series</code></dt>
+<dd>The latest signal row.
+Uses <code>action</code> and <code>position</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>str</code></dt>
+<dd>BUY, SELL, HOLD (stay long), or PASS (stay flat).</dd>
+</dl></div>
 </dd>
 <dt id="pinkfish.signals.format.format_action"><code class="name flex">
 <span>def <span class="ident">format_action</span></span>(<span>latest)</span>
@@ -127,13 +223,38 @@ strategy → signal → date → close → indicators → pattern → buy allowe
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def format_action(latest):
-    &#34;&#34;&#34;Return action line, with sell reason when applicable.&#34;&#34;&#34;
+    &#34;&#34;&#34;
+    Return the action line for signal output.
+
+    Parameters
+    ----------
+    latest : pd.Series
+        The latest signal row.  Uses ``action``, ``position``, and
+        optionally ``sell_reason``.
+
+    Returns
+    -------
+    str
+        Formatted action line, with sell reason when applicable.
+    &#34;&#34;&#34;
     action = display_action(latest)
     if action == &#39;SELL&#39; and getattr(latest, &#39;sell_reason&#39;, &#39;&#39;):
         return f&#39;Action: {action} ({latest.sell_reason})&#39;
     return f&#39;Action: {action}&#39;</code></pre>
 </details>
-<div class="desc"><p>Return action line, with sell reason when applicable.</p></div>
+<div class="desc"><p>Return the action line for signal output.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>latest</code></strong> :&ensp;<code>pd.Series</code></dt>
+<dd>The latest signal row.
+Uses <code>action</code>, <code>position</code>, and
+optionally <code>sell_reason</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>str</code></dt>
+<dd>Formatted action line, with sell reason when applicable.</dd>
+</dl></div>
 </dd>
 <dt id="pinkfish.signals.format.format_entry"><code class="name flex">
 <span>def <span class="ident">format_entry</span></span>(<span>latest)</span>
@@ -144,7 +265,20 @@ strategy → signal → date → close → indicators → pattern → buy allowe
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def format_entry(latest):
-    &#34;&#34;&#34;Return entry line when long or closing a trade (SELL).&#34;&#34;&#34;
+    &#34;&#34;&#34;
+    Return the entry line for signal output.
+
+    Parameters
+    ----------
+    latest : pd.Series
+        The latest signal row.  Uses ``entry_price``, ``entry_date``,
+        and ``action``.
+
+    Returns
+    -------
+    str or None
+        Formatted entry line, or None when not long and not closing.
+    &#34;&#34;&#34;
     if pd.isna(latest.entry_price):
         return None
     if latest.action not in (&#39;BUY&#39;, &#39;HOLD&#39;, &#39;SELL&#39;):
@@ -154,7 +288,19 @@ strategy → signal → date → close → indicators → pattern → buy allowe
         entry_date = entry_date.date()
     return f&#39;Entry: {entry_date} @ {latest.entry_price:.2f}&#39;</code></pre>
 </details>
-<div class="desc"><p>Return entry line when long or closing a trade (SELL).</p></div>
+<div class="desc"><p>Return the entry line for signal output.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>latest</code></strong> :&ensp;<code>pd.Series</code></dt>
+<dd>The latest signal row.
+Uses <code>entry_price</code>, <code>entry_date</code>,
+and <code>action</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>str</code> or <code>None</code></dt>
+<dd>Formatted entry line, or None when not long and not closing.</dd>
+</dl></div>
 </dd>
 <dt id="pinkfish.signals.format.format_stop_loss"><code class="name flex">
 <span>def <span class="ident">format_stop_loss</span></span>(<span>latest, stop_loss_pct)</span>
@@ -165,14 +311,41 @@ strategy → signal → date → close → indicators → pattern → buy allowe
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def format_stop_loss(latest, stop_loss_pct):
-    &#34;&#34;&#34;Return stop loss line when long or closing a trade (SELL).&#34;&#34;&#34;
+    &#34;&#34;&#34;
+    Return the stop loss line for signal output.
+
+    Parameters
+    ----------
+    latest : pd.Series
+        The latest signal row.  Uses ``stop_loss`` and ``action``.
+    stop_loss_pct : float
+        The stop loss percent below entry (e.g. 0.15 for 15%).
+
+    Returns
+    -------
+    str or None
+        Formatted stop loss line, or None when not long and not closing.
+    &#34;&#34;&#34;
     if pd.isna(latest.stop_loss):
         return None
     if latest.action not in (&#39;BUY&#39;, &#39;HOLD&#39;, &#39;SELL&#39;):
         return None
     return f&#39;Stop loss: {latest.stop_loss:.2f} ({stop_loss_pct:.0%})&#39;</code></pre>
 </details>
-<div class="desc"><p>Return stop loss line when long or closing a trade (SELL).</p></div>
+<div class="desc"><p>Return the stop loss line for signal output.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>latest</code></strong> :&ensp;<code>pd.Series</code></dt>
+<dd>The latest signal row.
+Uses <code>stop_loss</code> and <code>action</code>.</dd>
+<dt><strong><code>stop_loss_pct</code></strong> :&ensp;<code>float</code></dt>
+<dd>The stop loss percent below entry (e.g. 0.15 for 15%).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>str</code> or <code>None</code></dt>
+<dd>Formatted stop loss line, or None when not long and not closing.</dd>
+</dl></div>
 </dd>
 <dt id="pinkfish.signals.format.idle_action"><code class="name flex">
 <span>def <span class="ident">idle_action</span></span>(<span>position)</span>
@@ -183,10 +356,32 @@ strategy → signal → date → close → indicators → pattern → buy allowe
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def idle_action(position):
-    &#34;&#34;&#34;Return PASS when flat, HOLD when long.&#34;&#34;&#34;
+    &#34;&#34;&#34;
+    Return the action when no pattern fired today.
+
+    Parameters
+    ----------
+    position : str
+        Position at end of day: LONG or FLAT.
+
+    Returns
+    -------
+    str
+        HOLD when long, PASS when flat.
+    &#34;&#34;&#34;
     return &#39;HOLD&#39; if position == &#39;LONG&#39; else &#39;PASS&#39;</code></pre>
 </details>
-<div class="desc"><p>Return PASS when flat, HOLD when long.</p></div>
+<div class="desc"><p>Return the action when no pattern fired today.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>position</code></strong> :&ensp;<code>str</code></dt>
+<dd>Position at end of day: LONG or FLAT.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>str</code></dt>
+<dd>HOLD when long, PASS when flat.</dd>
+</dl></div>
 </dd>
 <dt id="pinkfish.signals.format.print_signal_summary"><code class="name flex">
 <span>def <span class="ident">print_signal_summary</span></span>(<span>symbol,<br>trade_instrument,<br>broker,<br>signal_date,<br>latest,<br>prior_position,<br>quote,<br>indicator_lines,<br>stop_loss_pct,<br>output_path)</span>
@@ -199,7 +394,36 @@ strategy → signal → date → close → indicators → pattern → buy allowe
 <pre><code class="python">def print_signal_summary(symbol, trade_instrument, broker, signal_date, latest,
                          prior_position, quote, indicator_lines, stop_loss_pct,
                          output_path):
-    &#34;&#34;&#34;Print the terminal summary in standard order.&#34;&#34;&#34;
+    &#34;&#34;&#34;
+    Print the terminal summary in standard order.
+
+    Parameters
+    ----------
+    symbol : str
+        The signal symbol.
+    trade_instrument : str
+        The instrument to trade (may differ from the signal symbol).
+    broker : str
+        The broker or account label.
+    signal_date : datetime.date or datetime.datetime
+        The signal date.
+    latest : pd.Series
+        The latest signal row.
+    prior_position : str
+        Position at the start of the signal day (LONG or FLAT).
+    quote : str
+        The after-hours or latest quote string.
+    indicator_lines : list of str
+        Strategy-specific indicator lines to print after close.
+    stop_loss_pct : float
+        The stop loss percent below entry (e.g. 0.15 for 15%).
+    output_path : pathlib.Path
+        Path to the HTML signals file (printed at end of summary).
+
+    Returns
+    -------
+    None
+    &#34;&#34;&#34;
     print(f&#39;Signal symbol: {symbol}  Trade: {trade_instrument} via {broker}&#39;)
     print(f&#39;Date: {signal_date}&#39;)
     print(f&#39;Close: {latest.close:.2f}&#39;)
@@ -219,7 +443,35 @@ strategy → signal → date → close → indicators → pattern → buy allowe
     print(f&#39;Quote: {quote}&#39;)
     print(f&#39;Signals saved to {output_path.resolve()}&#39;)</code></pre>
 </details>
-<div class="desc"><p>Print the terminal summary in standard order.</p></div>
+<div class="desc"><p>Print the terminal summary in standard order.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>symbol</code></strong> :&ensp;<code>str</code></dt>
+<dd>The signal symbol.</dd>
+<dt><strong><code>trade_instrument</code></strong> :&ensp;<code>str</code></dt>
+<dd>The instrument to trade (may differ from the signal symbol).</dd>
+<dt><strong><code>broker</code></strong> :&ensp;<code>str</code></dt>
+<dd>The broker or account label.</dd>
+<dt><strong><code>signal_date</code></strong> :&ensp;<code>datetime.date</code> or <code>datetime.datetime</code></dt>
+<dd>The signal date.</dd>
+<dt><strong><code>latest</code></strong> :&ensp;<code>pd.Series</code></dt>
+<dd>The latest signal row.</dd>
+<dt><strong><code>prior_position</code></strong> :&ensp;<code>str</code></dt>
+<dd>Position at the start of the signal day (LONG or FLAT).</dd>
+<dt><strong><code>quote</code></strong> :&ensp;<code>str</code></dt>
+<dd>The after-hours or latest quote string.</dd>
+<dt><strong><code>indicator_lines</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>Strategy-specific indicator lines to print after close.</dd>
+<dt><strong><code>stop_loss_pct</code></strong> :&ensp;<code>float</code></dt>
+<dd>The stop loss percent below entry (e.g. 0.15 for 15%).</dd>
+<dt><strong><code>output_path</code></strong> :&ensp;<code>pathlib.Path</code></dt>
+<dd>Path to the HTML signals file (printed at end of summary).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>None</code></dt>
+<dd>&nbsp;</dd>
+</dl></div>
 </dd>
 <dt id="pinkfish.signals.format.row_entry_fields"><code class="name flex">
 <span>def <span class="ident">row_entry_fields</span></span>(<span>action, entry_date, entry_price, stop_loss, sell_entry)</span>
@@ -230,14 +482,61 @@ strategy → signal → date → close → indicators → pattern → buy allowe
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def row_entry_fields(action, entry_date, entry_price, stop_loss, sell_entry):
-    &#34;&#34;&#34;Return entry columns for this row; keep entry visible on SELL.&#34;&#34;&#34;
+    &#34;&#34;&#34;
+    Return entry columns for one signal row.
+
+    Keeps entry date, price, and stop loss visible on SELL so the
+    closing notification still shows the open trade.
+
+    Parameters
+    ----------
+    action : str
+        The signal action: BUY, SELL, HOLD, or PASS.
+    entry_date : datetime.datetime or None
+        The entry date for a new or open trade.
+    entry_price : float or None
+        The entry price for a new or open trade.
+    stop_loss : float or None
+        The stop loss price for a new or open trade.
+    sell_entry : tuple
+        ``(entry_date, entry_price, stop_loss)`` to use when action
+        is SELL.
+
+    Returns
+    -------
+    tuple
+        ``(entry_date, entry_price, stop_loss)`` for the row, or
+        ``(None, None, None)`` when flat with no trade.
+    &#34;&#34;&#34;
     if action == &#39;SELL&#39;:
         return sell_entry
     if action in (&#39;BUY&#39;, &#39;HOLD&#39;):
         return entry_date, entry_price, stop_loss
     return None, None, None</code></pre>
 </details>
-<div class="desc"><p>Return entry columns for this row; keep entry visible on SELL.</p></div>
+<div class="desc"><p>Return entry columns for one signal row.</p>
+<p>Keeps entry date, price, and stop loss visible on SELL so the
+closing notification still shows the open trade.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>action</code></strong> :&ensp;<code>str</code></dt>
+<dd>The signal action: BUY, SELL, HOLD, or PASS.</dd>
+<dt><strong><code>entry_date</code></strong> :&ensp;<code>datetime.datetime</code> or <code>None</code></dt>
+<dd>The entry date for a new or open trade.</dd>
+<dt><strong><code>entry_price</code></strong> :&ensp;<code>float</code> or <code>None</code></dt>
+<dd>The entry price for a new or open trade.</dd>
+<dt><strong><code>stop_loss</code></strong> :&ensp;<code>float</code> or <code>None</code></dt>
+<dd>The stop loss price for a new or open trade.</dd>
+<dt><strong><code>sell_entry</code></strong> :&ensp;<code>tuple</code></dt>
+<dd><code>(entry_date, entry_price, stop_loss)</code> to use when action
+is SELL.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>tuple</code></dt>
+<dd><code>(entry_date, entry_price, stop_loss)</code> for the row, or
+<code>(None, None, None)</code> when flat with no trade.</dd>
+</dl></div>
 </dd>
 <dt id="pinkfish.signals.format.stop_loss_price"><code class="name flex">
 <span>def <span class="ident">stop_loss_price</span></span>(<span>entry_price, stop_loss_pct)</span>
@@ -248,10 +547,36 @@ strategy → signal → date → close → indicators → pattern → buy allowe
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def stop_loss_price(entry_price, stop_loss_pct):
-    &#34;&#34;&#34;Return the stop loss price for a given entry.&#34;&#34;&#34;
+    &#34;&#34;&#34;
+    Return the stop loss price for a given entry.
+
+    Parameters
+    ----------
+    entry_price : float
+        The entry price per share.
+    stop_loss_pct : float
+        The stop loss percent below entry (e.g. 0.15 for 15%).
+
+    Returns
+    -------
+    float
+        The stop loss price.
+    &#34;&#34;&#34;
     return (1 - stop_loss_pct) * entry_price</code></pre>
 </details>
-<div class="desc"><p>Return the stop loss price for a given entry.</p></div>
+<div class="desc"><p>Return the stop loss price for a given entry.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>entry_price</code></strong> :&ensp;<code>float</code></dt>
+<dd>The entry price per share.</dd>
+<dt><strong><code>stop_loss_pct</code></strong> :&ensp;<code>float</code></dt>
+<dd>The stop loss percent below entry (e.g. 0.15 for 15%).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>float</code></dt>
+<dd>The stop loss price.</dd>
+</dl></div>
 </dd>
 </dl>
 </section>

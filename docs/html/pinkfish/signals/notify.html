@@ -57,10 +57,22 @@ Email: RESEND_API_KEY, NOTIFY_EMAIL_FROM, NOTIFY_EMAIL_TO</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def configured():
-    &#34;&#34;&#34;Return True if any notification channel is configured.&#34;&#34;&#34;
+    &#34;&#34;&#34;
+    Return whether any notification channel is configured.
+
+    Returns
+    -------
+    bool
+        True if Pushover or email credentials are set.
+    &#34;&#34;&#34;
     return pushover_configured() or email_configured()</code></pre>
 </details>
-<div class="desc"><p>Return True if any notification channel is configured.</p></div>
+<div class="desc"><p>Return whether any notification channel is configured.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>bool</code></dt>
+<dd>True if Pushover or email credentials are set.</dd>
+</dl></div>
 </dd>
 <dt id="pinkfish.signals.notify.email_configured"><code class="name flex">
 <span>def <span class="ident">email_configured</span></span>(<span>)</span>
@@ -71,11 +83,26 @@ Email: RESEND_API_KEY, NOTIFY_EMAIL_FROM, NOTIFY_EMAIL_TO</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def email_configured():
+    &#34;&#34;&#34;
+    Return whether Resend email credentials are set.
+
+    Returns
+    -------
+    bool
+        True if ``RESEND_API_KEY``, ``NOTIFY_EMAIL_FROM``, and
+        ``NOTIFY_EMAIL_TO`` are set.
+    &#34;&#34;&#34;
     return bool(os.environ.get(&#39;RESEND_API_KEY&#39;)
                 and os.environ.get(&#39;NOTIFY_EMAIL_FROM&#39;)
                 and os.environ.get(&#39;NOTIFY_EMAIL_TO&#39;))</code></pre>
 </details>
-<div class="desc"></div>
+<div class="desc"><p>Return whether Resend email credentials are set.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>bool</code></dt>
+<dd>True if <code>RESEND_API_KEY</code>, <code>NOTIFY_EMAIL_FROM</code>, and
+<code>NOTIFY_EMAIL_TO</code> are set.</dd>
+</dl></div>
 </dd>
 <dt id="pinkfish.signals.notify.pushover_configured"><code class="name flex">
 <span>def <span class="ident">pushover_configured</span></span>(<span>)</span>
@@ -86,10 +113,23 @@ Email: RESEND_API_KEY, NOTIFY_EMAIL_FROM, NOTIFY_EMAIL_TO</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def pushover_configured():
+    &#34;&#34;&#34;
+    Return whether Pushover credentials are set.
+
+    Returns
+    -------
+    bool
+        True if ``PUSHOVER_USER_KEY`` and ``PUSHOVER_API_TOKEN`` are set.
+    &#34;&#34;&#34;
     return bool(os.environ.get(&#39;PUSHOVER_USER_KEY&#39;)
                 and os.environ.get(&#39;PUSHOVER_API_TOKEN&#39;))</code></pre>
 </details>
-<div class="desc"></div>
+<div class="desc"><p>Return whether Pushover credentials are set.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>bool</code></dt>
+<dd>True if <code>PUSHOVER_USER_KEY</code> and <code>PUSHOVER_API_TOKEN</code> are set.</dd>
+</dl></div>
 </dd>
 <dt id="pinkfish.signals.notify.pushover_priority"><code class="name flex">
 <span>def <span class="ident">pushover_priority</span></span>(<span>action)</span>
@@ -100,12 +140,34 @@ Email: RESEND_API_KEY, NOTIFY_EMAIL_FROM, NOTIFY_EMAIL_TO</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def pushover_priority(action):
-    &#34;&#34;&#34;Return Pushover priority; BUY/SELL are high, HOLD/PASS are normal.&#34;&#34;&#34;
+    &#34;&#34;&#34;
+    Return the Pushover message priority for an action.
+
+    Parameters
+    ----------
+    action : str
+        The signal action: BUY, SELL, HOLD, or PASS.
+
+    Returns
+    -------
+    str
+        ``&#39;1&#39;`` for BUY or SELL (high priority), ``&#39;0&#39;`` otherwise.
+    &#34;&#34;&#34;
     if action in (&#39;BUY&#39;, &#39;SELL&#39;):
         return &#39;1&#39;
     return &#39;0&#39;</code></pre>
 </details>
-<div class="desc"><p>Return Pushover priority; BUY/SELL are high, HOLD/PASS are normal.</p></div>
+<div class="desc"><p>Return the Pushover message priority for an action.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>action</code></strong> :&ensp;<code>str</code></dt>
+<dd>The signal action: BUY, SELL, HOLD, or PASS.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>str</code></dt>
+<dd><code>'1'</code> for BUY or SELL (high priority), <code>'0'</code> otherwise.</dd>
+</dl></div>
 </dd>
 <dt id="pinkfish.signals.notify.send"><code class="name flex">
 <span>def <span class="ident">send</span></span>(<span>title, message, action='PASS', *, notify_hold=True, email_subject=None)</span>
@@ -119,8 +181,30 @@ Email: RESEND_API_KEY, NOTIFY_EMAIL_FROM, NOTIFY_EMAIL_TO</p>
     &#34;&#34;&#34;
     Send Pushover and email notifications.
 
-    Email sends on every run. Pushover sends on BUY/SELL always; HOLD and PASS
-    too unless notify_hold is False. Returns a list of channels that succeeded.
+    Email sends on every run when configured.  Pushover sends on BUY and
+    SELL always; HOLD and PASS too unless ``notify_hold`` is False.
+    Failures are printed and do not stop other channels.
+
+    Parameters
+    ----------
+    title : str
+        The Pushover notification title.
+    message : str
+        The notification body.
+    action : str, optional
+        The signal action: BUY, SELL, HOLD, or PASS
+        (default is &#39;PASS&#39;).
+    notify_hold : bool, optional
+        When False, skip Pushover for HOLD and PASS
+        (default is True).
+    email_subject : str, optional
+        The email subject (default is None, which implies
+        ``title`` plus the current time).
+
+    Returns
+    -------
+    list of str
+        Channels that succeeded: ``&#39;pushover&#39;`` and/or ``&#39;email&#39;``.
     &#34;&#34;&#34;
     if email_subject is None:
         timestamp = datetime.datetime.now().strftime(&#39;%H:%M:%S&#39;)
@@ -146,8 +230,31 @@ Email: RESEND_API_KEY, NOTIFY_EMAIL_FROM, NOTIFY_EMAIL_TO</p>
     return sent</code></pre>
 </details>
 <div class="desc"><p>Send Pushover and email notifications.</p>
-<p>Email sends on every run. Pushover sends on BUY/SELL always; HOLD and PASS
-too unless notify_hold is False. Returns a list of channels that succeeded.</p></div>
+<p>Email sends on every run when configured.
+Pushover sends on BUY and
+SELL always; HOLD and PASS too unless <code>notify_hold</code> is False.
+Failures are printed and do not stop other channels.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>title</code></strong> :&ensp;<code>str</code></dt>
+<dd>The Pushover notification title.</dd>
+<dt><strong><code>message</code></strong> :&ensp;<code>str</code></dt>
+<dd>The notification body.</dd>
+<dt><strong><code>action</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>The signal action: BUY, SELL, HOLD, or PASS
+(default is 'PASS').</dd>
+<dt><strong><code>notify_hold</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>When False, skip Pushover for HOLD and PASS
+(default is True).</dd>
+<dt><strong><code>email_subject</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>The email subject (default is None, which implies
+<code>title</code> plus the current time).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>list</code> of <code>str</code></dt>
+<dd>Channels that succeeded: <code>'pushover'</code> and/or <code>'email'</code>.</dd>
+</dl></div>
 </dd>
 <dt id="pinkfish.signals.notify.send_email"><code class="name flex">
 <span>def <span class="ident">send_email</span></span>(<span>subject, message)</span>
@@ -158,7 +265,25 @@ too unless notify_hold is False. Returns a list of channels that succeeded.</p><
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def send_email(subject, message):
-    &#34;&#34;&#34;Send a backup email through the Resend HTTP API.&#34;&#34;&#34;
+    &#34;&#34;&#34;
+    Send a backup email through the Resend HTTP API.
+
+    Parameters
+    ----------
+    subject : str
+        The email subject.
+    message : str
+        The plain-text email body.
+
+    Returns
+    -------
+    None
+
+    Raises
+    ------
+    RuntimeError
+        If Resend returns a non-success HTTP status.
+    &#34;&#34;&#34;
     payload = json.dumps({
         &#39;from&#39;: os.environ[&#39;NOTIFY_EMAIL_FROM&#39;],
         &#39;to&#39;: os.environ[&#39;NOTIFY_EMAIL_TO&#39;],
@@ -188,7 +313,24 @@ too unless notify_hold is False. Returns a list of channels that succeeded.</p><
         raise RuntimeError(
             f&#39;Resend returned status {exc.code}: {body}&#39;) from exc</code></pre>
 </details>
-<div class="desc"><p>Send a backup email through the Resend HTTP API.</p></div>
+<div class="desc"><p>Send a backup email through the Resend HTTP API.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>subject</code></strong> :&ensp;<code>str</code></dt>
+<dd>The email subject.</dd>
+<dt><strong><code>message</code></strong> :&ensp;<code>str</code></dt>
+<dd>The plain-text email body.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>None</code></dt>
+<dd>&nbsp;</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>RuntimeError</code></dt>
+<dd>If Resend returns a non-success HTTP status.</dd>
+</dl></div>
 </dd>
 <dt id="pinkfish.signals.notify.send_pushover"><code class="name flex">
 <span>def <span class="ident">send_pushover</span></span>(<span>title, message, action)</span>
@@ -199,7 +341,27 @@ too unless notify_hold is False. Returns a list of channels that succeeded.</p><
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def send_pushover(title, message, action):
-    &#34;&#34;&#34;Send a push notification through the Pushover HTTP API.&#34;&#34;&#34;
+    &#34;&#34;&#34;
+    Send a push notification through the Pushover HTTP API.
+
+    Parameters
+    ----------
+    title : str
+        The notification title.
+    message : str
+        The notification body.
+    action : str
+        The signal action: BUY, SELL, HOLD, or PASS.
+
+    Returns
+    -------
+    None
+
+    Raises
+    ------
+    RuntimeError
+        If Pushover returns a non-success HTTP status or API error.
+    &#34;&#34;&#34;
     fields = {
         &#39;token&#39;: os.environ[&#39;PUSHOVER_API_TOKEN&#39;],
         &#39;user&#39;: os.environ[&#39;PUSHOVER_USER_KEY&#39;],
@@ -232,7 +394,26 @@ too unless notify_hold is False. Returns a list of channels that succeeded.</p><
         raise RuntimeError(
             f&#39;Pushover returned status {exc.code}: {body}&#39;) from exc</code></pre>
 </details>
-<div class="desc"><p>Send a push notification through the Pushover HTTP API.</p></div>
+<div class="desc"><p>Send a push notification through the Pushover HTTP API.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>title</code></strong> :&ensp;<code>str</code></dt>
+<dd>The notification title.</dd>
+<dt><strong><code>message</code></strong> :&ensp;<code>str</code></dt>
+<dd>The notification body.</dd>
+<dt><strong><code>action</code></strong> :&ensp;<code>str</code></dt>
+<dd>The signal action: BUY, SELL, HOLD, or PASS.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>None</code></dt>
+<dd>&nbsp;</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>RuntimeError</code></dt>
+<dd>If Pushover returns a non-success HTTP status or API error.</dd>
+</dl></div>
 </dd>
 </dl>
 </section>

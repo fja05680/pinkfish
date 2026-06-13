@@ -122,7 +122,10 @@ at the top of your notebook to display all columns.</p>
     Parameters
     ----------
     strategy_name : str
-        The leaf dir name that contains the strategy to import.
+        Path to the example folder under ``top_level_dir``, or the leaf
+        folder name when it is unique (e.g. ``&#39;strategies/double-7s&#39;``
+        or ``&#39;double-7s&#39;``).  Use ``&#39;&#39;`` with ``top_level_dir=&#39;pinkfish&#39;``
+        to import a module from the pinkfish package (e.g. ``benchmark``).
     top_level_dir : str, optional
         The top level dir name for the strategies
         (default is &#39;examples&#39;).
@@ -136,12 +139,20 @@ at the top of your notebook to display all columns.</p>
 
     Examples
     --------
-    &gt;&gt;&gt; strategy = import_strategy(strategy_name=&#39;190.momentum-dmsr-portfolio&#39;)
+    &gt;&gt;&gt; strategy = import_strategy(strategy_name=&#39;portfolios/momentum-gem-portfolio&#39;)
     &#34;&#34;&#34;
 
-    strategy_location = (Path(ROOT) / Path(top_level_dir)
-                                    / Path(strategy_name)
-                                    / Path(module_name + &#39;.py&#39;))
+    base = Path(ROOT) / top_level_dir
+    strategy_location = base / strategy_name / f&#39;{module_name}.py&#39;
+    if not strategy_location.is_file() and strategy_name and &#39;/&#39; not in strategy_name:
+        matches = sorted(base.glob(f&#39;*/{strategy_name}/{module_name}.py&#39;))
+        if len(matches) == 1:
+            strategy_location = matches[0]
+        elif len(matches) &gt; 1:
+            raise FileNotFoundError(
+                f&#39;Ambiguous strategy name {strategy_name!r}: {matches}&#39;)
+    if not strategy_location.is_file():
+        raise FileNotFoundError(strategy_location)
     print(strategy_location)
     spec = importlib.util.spec_from_file_location(module_name, strategy_location)
     strategy = importlib.util.module_from_spec(spec)
@@ -152,7 +163,11 @@ at the top of your notebook to display all columns.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>strategy_name</code></strong> :&ensp;<code>str</code></dt>
-<dd>The leaf dir name that contains the strategy to import.</dd>
+<dd>Path to the example folder under <code>top_level_dir</code>, or the leaf
+folder name when it is unique (e.g. <code>'strategies/double-7s'</code>
+or <code>'double-7s'</code>).
+Use <code>''</code> with <code>top_level_dir='pinkfish'</code>
+to import a module from the pinkfish package (e.g. <code>benchmark</code>).</dd>
 <dt><strong><code>top_level_dir</code></strong> :&ensp;<code>str</code>, optional</dt>
 <dd>The top level dir name for the strategies
 (default is 'examples').</dd>
@@ -165,7 +180,7 @@ at the top of your notebook to display all columns.</p>
 <dd>The imported module.</dd>
 </dl>
 <h2 id="examples">Examples</h2>
-<pre><code class="language-python-repl">&gt;&gt;&gt; strategy = import_strategy(strategy_name='190.momentum-dmsr-portfolio')
+<pre><code class="language-python-repl">&gt;&gt;&gt; strategy = import_strategy(strategy_name='portfolios/momentum-gem-portfolio')
 </code></pre></div>
 </dd>
 <dt id="pinkfish.utility.is_last_row"><code class="name flex">
