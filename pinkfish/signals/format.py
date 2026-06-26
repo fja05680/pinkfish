@@ -2,11 +2,14 @@
 Shared formatting for strategy signal scripts.
 
 Keeps notification and terminal output in a consistent order:
-  strategy → signal → date → close → indicators → pattern → buy allowed
-  → position in → action → position out → entry → stop loss → quote
+  strategy → contract → signal → date → close → indicators → pattern
+  → buy allowed → position in → action → position out → entry → stop loss
+  → roll → quote
 """
 
 import pandas as pd
+
+from pinkfish.signals.futures import futures_lines
 
 
 def stop_loss_price(entry_price, stop_loss_pct):
@@ -187,9 +190,23 @@ def buy_allowed_text(latest):
     return 'yes'
 
 
+def _signal_date(signal_date):
+    """Return a ``datetime.date`` from a signal timestamp."""
+    if hasattr(signal_date, 'date'):
+        return signal_date.date()
+    return signal_date
+
+
+def _append_futures_lines(lines, trade_instrument, signal_date, position):
+    if not trade_instrument:
+        return
+    lines.extend(futures_lines(
+        trade_instrument, _signal_date(signal_date), position))
+
+
 def build_signal_message(strategy_line, symbol, signal_date, latest,
                          prior_position, quote, indicator_lines,
-                         stop_loss_pct):
+                         stop_loss_pct, trade_instrument=None):
     """
     Build the notification body in standard order.
 
@@ -211,6 +228,8 @@ def build_signal_message(strategy_line, symbol, signal_date, latest,
         Strategy-specific indicator lines to insert after close.
     stop_loss_pct : float
         The stop loss percent below entry (e.g. 0.15 for 15%).
+    trade_instrument : str, optional
+        Futures root (e.g. ``/MES``) for contract and roll lines.
 
     Returns
     -------
@@ -219,10 +238,13 @@ def build_signal_message(strategy_line, symbol, signal_date, latest,
     """
     lines = [
         strategy_line,
+    ]
+    _append_futures_lines(lines, trade_instrument, signal_date, latest.position)
+    lines.extend([
         f'Signal: {symbol}',
         f'Date: {signal_date}',
         f'Close: {latest.close:.2f}',
-    ]
+    ])
     lines.extend(indicator_lines)
     lines.extend([
         f'Pattern: {latest.pattern or "none"}',
@@ -275,6 +297,10 @@ def print_signal_summary(symbol, trade_instrument, broker, signal_date, latest,
     None
     """
     print(f'Signal symbol: {symbol}  Trade: {trade_instrument} via {broker}')
+    futures = futures_lines(
+        trade_instrument, _signal_date(signal_date), latest.position)
+    for line in futures:
+        print(line)
     print(f'Date: {signal_date}')
     print(f'Close: {latest.close:.2f}')
     for line in indicator_lines:

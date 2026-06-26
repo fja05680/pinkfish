@@ -76,4 +76,5 @@ target/
 
 # private algos
 algos/
-/strategies/
+/strategies/*
+!/strategies/README.md
