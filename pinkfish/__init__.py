@@ -50,6 +50,8 @@ from .indicator import (
     CROSSOVER,
     MOMENTUM,
     VOLATILITY,
+    VOLATILITY_METRIC_FLOOR,
+    inverse_volatility_weight,
     ANNUALIZED_RETURNS,
     ANNUALIZED_STANDARD_DEVIATION,
     ANNUALIZED_SHARPE_RATIO

@@ -77,9 +77,9 @@ class Strategy:
             for symbol in symbols_no_weights:
                 sums['sharpe']  +=     p[symbol]['sharpe']
                 sums['ret']     +=     p[symbol]['ret']
-                sums['sd']      += 1 / p[symbol]['sd']
-                sums['vola']    += 1 / p[symbol]['vola']
-                sums['ds_vola'] += 1 / p[symbol]['ds_vola']
+                sums['sd']      += pf.inverse_volatility_weight(p[symbol]['sd'])
+                sums['vola']    += pf.inverse_volatility_weight(p[symbol]['vola'])
+                sums['ds_vola'] += pf.inverse_volatility_weight(p[symbol]['ds_vola'])
 
             # Loop though each symbol in portfolio.
             for symbol in self.portfolio.symbols:
@@ -89,9 +89,9 @@ class Strategy:
                 regime   =      p[symbol]['regime']
                 sharpe   =      p[symbol]['sharpe']
                 ret      =      p[symbol]['ret']
-                sd       =  1 / p[symbol]['sd']
-                vola     =  1 / p[symbol]['vola']
-                ds_vola  =  1 / p[symbol]['ds_vola']
+                sd       = pf.inverse_volatility_weight(p[symbol]['sd'])
+                vola     = pf.inverse_volatility_weight(p[symbol]['vola'])
+                ds_vola  = pf.inverse_volatility_weight(p[symbol]['ds_vola'])
 
                 # Assign weight.
                 weight = 0

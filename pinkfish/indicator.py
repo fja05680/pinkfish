@@ -359,6 +359,31 @@ def VOLATILITY(ts, lookback=20, time_frame='yearly', downside=False, upside=Fals
     return s
 
 
+# Minimum annualized volatility for inverse-vol weighting (decimal, e.g.
+# 0.10 = 10%).  Prevents near-zero vol from dominating portfolio weights.
+VOLATILITY_METRIC_FLOOR = 0.10
+
+
+def inverse_volatility_weight(vol, floor=VOLATILITY_METRIC_FLOOR):
+    """
+    Return ``1 / max(vol, floor)`` for inverse-volatility weighting.
+
+    Parameters
+    ----------
+    vol : float
+        Annualized volatility or standard deviation (decimal).
+    floor : float, optional
+        Minimum vol used in the denominator
+        (default is :data:`VOLATILITY_METRIC_FLOOR`).
+
+    Returns
+    -------
+    float
+        Inverse-volatility component before normalization across assets.
+    """
+    return 1 / max(vol, floor)
+
+
 ########################################################################
 # ANNUALIZED_RETURNS
 
