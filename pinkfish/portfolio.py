@@ -867,8 +867,6 @@ class Portfolio:
             df = df.pct_change()
 
         df = df.corr(method='pearson')
-        # Reset symbol as index (rather than 0-X).
-        df.head().reset_index()
         # Take the bottom triangle since it repeats itself.
         mask = np.zeros_like(df)
         mask[np.triu_indices_from(mask)] = True
