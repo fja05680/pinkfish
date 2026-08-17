@@ -34,7 +34,7 @@ I specifically wanted to backtest simple strategies from Larry Connors and other
 - pandas DataFrames for spreadsheet-style trading signal sheets in Jupyter
 - Common technical indicators included; optional integration with [TA-Lib](https://github.com/TA-Lib/ta-lib-python) or [pandas-ta](https://github.com/twopirllc/pandas-ta)
 - matplotlib for equity curves and charts
-- Free daily data from Yahoo Finance (cached locally)
+- Free daily data from Yahoo Finance or [Tiingo](https://www.tiingo.com/) (cached locally)
 - Simple Python API — loop over rows, call `tlog.buy()` / `tlog.sell()` at the price you choose
 
 ## Installation
@@ -94,6 +94,59 @@ mkdir $HOME/symbol-cache
 echo [global] > $HOME/.pinkfish
 echo base_dir = $HOME >> $HOME/.pinkfish
 ```
+
+## Tiingo data (optional)
+
+Yahoo Finance is the default data source and requires no setup. For more reliable daily OHLCV data, pinkfish also supports [Tiingo](https://www.tiingo.com/).
+
+### Setup
+
+1. Sign up at [tiingo.com](https://www.tiingo.com/) and copy your API token.
+2. Save it in `~/.tiingo` (one line, token only):
+
+```bash
+echo 'your-token-here' > ~/.tiingo
+chmod 600 ~/.tiingo
+```
+
+Pinkfish reads the key from `~/.tiingo` automatically. You can also pass `api_key=` directly or set the `TIINGO_API_KEY` environment variable.
+
+### Single symbol
+
+```python
+import pinkfish as pf
+
+ts = pf.fetch_timeseries('SPY', source='tiingo')
+print(ts.tail())
+```
+
+Force a fresh download from Tiingo:
+
+```python
+ts = pf.fetch_timeseries('SPY', source='tiingo', use_cache=False, from_year=2020)
+```
+
+Data is cached under `tiingo-cache/` (separate from Yahoo's `symbol-cache/`).
+
+### Portfolio
+
+Use one vendor for the whole basket with `source='tiingo'`:
+
+```python
+import datetime
+import pinkfish as pf
+
+portfolio = pf.Portfolio()
+ts = portfolio.fetch_timeseries(
+    ['SPY', 'QQQ', 'TLT'],
+    datetime.datetime(2020, 1, 1),
+    datetime.datetime(2024, 1, 1),
+    fields=['close'],
+    source='tiingo',
+)
+```
+
+Existing examples keep working unchanged — omit `source` to use Yahoo Finance.
 
 ## Jupyter
 

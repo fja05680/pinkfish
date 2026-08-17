@@ -14,10 +14,11 @@ class Benchmark:
     """
 
     def __init__(self, symbols, capital, start, end,
-                 dir_name='symbol-cache',
+                 dir_name=None,
                  use_adj=False,
                  use_continuous_calendar=False,
-                 force_stock_market_calendar=False):
+                 force_stock_market_calendar=False,
+                 source='yahoo', **kwargs):
         """
         Initialize instance variables.
 
@@ -32,7 +33,8 @@ class Benchmark:
         end : datetime.datetime
             The desired end date for the benchmark.
         dir_name : str, optional
-            The leaf data dir name (default is 'symbol-cache').
+            The leaf data dir name.  Defaults to the cache dir for
+            ``source``.
         use_adj : bool, optional
             True to adjust prices for dividends and splits
             (default is False).
@@ -47,6 +49,10 @@ class Benchmark:
             to transform a continuous timeseries into a weekday timeseries.
             If this value is True, then `use_continuous_calendar` is set
             to False.
+        source : {'yahoo', 'tiingo'}, optional
+            The data vendor to use for all symbols (default is ``'yahoo'``).
+        **kwargs
+            Additional keyword arguments passed to the vendor fetcher.
 
         Attributes
         ----------
@@ -101,6 +107,8 @@ class Benchmark:
         self.use_adj = use_adj
         self.use_continuous_calendar = use_continuous_calendar
         self.force_stock_market_calendar = force_stock_market_calendar
+        self.source = source
+        self.fetch_kwargs = kwargs
 
         self.ts = None
         self.rlog = None
@@ -156,7 +164,8 @@ class Benchmark:
             self.symbols, self.start, self.end,
             fields=['close'], dir_name=self.dir_name, use_adj=self.use_adj,
             use_continuous_calendar=self.use_continuous_calendar,
-            force_stock_market_calendar=self.force_stock_market_calendar)
+            force_stock_market_calendar=self.force_stock_market_calendar,
+            source=self.source, **self.fetch_kwargs)
         # Add calendar columns
         self.ts = self.portfolio.calendar(self.ts)
 

@@ -12,6 +12,7 @@ __pycache__/
 
 # the data cache folder
 symbol-cache/
+tiingo-cache/
 
 # Distribution / packaging
 .Python

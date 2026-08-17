@@ -1,5 +1,8 @@
 from .fetch import (
     fetch_timeseries,
+    fetch_fx_timeseries,
+    fetch_yahoo_finance_timeseries,
+    fetch_tiingo_timeseries,
     fetch_fxmacrodata_timeseries,
     select_tradeperiod,
     finalize_timeseries,

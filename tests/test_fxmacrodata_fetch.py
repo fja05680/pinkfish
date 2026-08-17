@@ -1,13 +1,34 @@
 import unittest
 import tempfile
 from pathlib import Path
+from unittest.mock import patch
 
 import pandas as pd
 
-from pinkfish.fetch import fetch_fxmacrodata_timeseries
+from pinkfish.fetch import (
+    fetch_fx_timeseries,
+    fetch_fxmacrodata_timeseries,
+)
 
 
 class TestFXMacroDataFetch(unittest.TestCase):
+
+    def test_fetch_fx_timeseries_defaults_to_fxmacrodata(self):
+        with patch('pinkfish.fetch.fetch_fxmacrodata_timeseries') as mock_fetch:
+            mock_fetch.return_value = pd.DataFrame()
+            fetch_fx_timeseries('EUR/USD', '2026-01-01', '2026-01-02')
+            mock_fetch.assert_called_once_with(
+                'EUR/USD',
+                '2026-01-01',
+                '2026-01-02',
+                dir_name='fxmacrodata-cache',
+                use_cache=True,
+            )
+
+    def test_fetch_fx_timeseries_unknown_source(self):
+        with self.assertRaises(ValueError):
+            fetch_fx_timeseries('EUR/USD', '2026-01-01', '2026-01-02',
+                                source='unknown')
 
     def test_fetch_fxmacrodata_timeseries(self):
         class MockResponse:

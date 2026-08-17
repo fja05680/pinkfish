@@ -167,11 +167,12 @@ class Portfolio:
 
     def fetch_timeseries(self, symbols, start, end,
                          fields=['open', 'high', 'low', 'close'],
-                         dir_name='symbol-cache',
+                         dir_name=None,
                          use_cache=True, use_adj=True,
                          use_continuous_calendar=False,
                          force_stock_market_calendar=False,
-                         check_fields=['close']):
+                         check_fields=['close'],
+                         source='yahoo', **kwargs):
         """
         Fetch time series data for symbols.
 
@@ -188,7 +189,8 @@ class Portfolio:
             ['open', 'high', 'low', 'close']).  List must include 
             'close' - will be added if not already in list.
         dir_name : str, optional
-            The leaf data dir name (default is 'symbol-cache').
+            The leaf data dir name.  Defaults to the cache dir for
+            ``source``.
         use_cache: bool, optional
             True to use data cache.  False to retrieve from the
             internet (default is True).
@@ -211,6 +213,10 @@ class Portfolio:
             Fields to check for for NaN values.  If a NaN value is found
             for one of these fields, that row is dropped
             (default is ['close']).
+        source : {'yahoo', 'tiingo'}, optional
+            The data vendor to use for all symbols (default is ``'yahoo'``).
+        **kwargs
+            Additional keyword arguments passed to the vendor fetcher.
 
         Returns
         -------
@@ -224,7 +230,8 @@ class Portfolio:
         for i, symbol in enumerate(symbols):
 
             if i == 0:
-                ts = fetch_timeseries(symbol, dir_name=dir_name, use_cache=use_cache)
+                ts = fetch_timeseries(symbol, dir_name=dir_name, use_cache=use_cache,
+                                      source=source, **kwargs)
                 ts = select_tradeperiod(ts, start, end, use_adj=use_adj,
                                         use_continuous_calendar=use_continuous_calendar,
                                         force_stock_market_calendar=force_stock_market_calendar,
@@ -234,7 +241,8 @@ class Portfolio:
                         inplace=True)
             else:
                 # Add another symbol.
-                _ts = fetch_timeseries(symbol, dir_name=dir_name, use_cache=use_cache)
+                _ts = fetch_timeseries(symbol, dir_name=dir_name, use_cache=use_cache,
+                                       source=source, **kwargs)
                 _ts = select_tradeperiod(_ts, start, end, use_adj=use_adj,
                                          use_continuous_calendar=use_continuous_calendar,
                                          force_stock_market_calendar=force_stock_market_calendar,
