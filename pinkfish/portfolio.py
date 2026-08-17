@@ -13,7 +13,9 @@ from pinkfish.pfcalendar import calendar
 from pinkfish.fetch import (
     fetch_timeseries,
     select_tradeperiod,
-    finalize_timeseries
+    finalize_timeseries,
+    symbol_timeseries_metadata,
+    print_symbol_timeseries_starts,
 )
 import pinkfish.pfstatistics as pfstatistics
 import pinkfish.trade as trade
@@ -172,7 +174,7 @@ class Portfolio:
                          use_continuous_calendar=False,
                          force_stock_market_calendar=False,
                          check_fields=['close'],
-                         source='yahoo', **kwargs):
+                         source='yahoo', print_starts=True, **kwargs):
         """
         Fetch time series data for symbols.
 
@@ -215,6 +217,9 @@ class Portfolio:
             (default is ['close']).
         source : {'yahoo', 'tiingo'}, optional
             The data vendor to use for all symbols (default is ``'yahoo'``).
+        print_starts : bool, optional
+            True to print each symbol's available date range and which
+            symbol limits the portfolio (default is True).
         **kwargs
             Additional keyword arguments passed to the vendor fetcher.
 
@@ -227,29 +232,32 @@ class Portfolio:
             fields.append('close')
 
         symbols = list(set(symbols))
+        symbol_ts_pairs = []
+        ts = None
         for i, symbol in enumerate(symbols):
+            symbol_ts = fetch_timeseries(symbol, dir_name=dir_name, use_cache=use_cache,
+                                         source=source, **kwargs)
+            symbol_ts_pairs.append((symbol, symbol_ts))
+            selected = select_tradeperiod(symbol_ts, start, end, use_adj=use_adj,
+                                          use_continuous_calendar=use_continuous_calendar,
+                                          force_stock_market_calendar=force_stock_market_calendar,
+                                          check_fields=check_fields)
 
             if i == 0:
-                ts = fetch_timeseries(symbol, dir_name=dir_name, use_cache=use_cache,
-                                      source=source, **kwargs)
-                ts = select_tradeperiod(ts, start, end, use_adj=use_adj,
-                                        use_continuous_calendar=use_continuous_calendar,
-                                        force_stock_market_calendar=force_stock_market_calendar,
-                                        check_fields=check_fields)
+                ts = selected
                 self._add_symbol_columns(ts, symbol, ts, fields)
                 ts.drop(columns=['open', 'high', 'low', 'close', 'adj_close', 'volume'],
                         inplace=True)
             else:
-                # Add another symbol.
-                _ts = fetch_timeseries(symbol, dir_name=dir_name, use_cache=use_cache,
-                                       source=source, **kwargs)
-                _ts = select_tradeperiod(_ts, start, end, use_adj=use_adj,
-                                         use_continuous_calendar=use_continuous_calendar,
-                                         force_stock_market_calendar=force_stock_market_calendar,
-                                         check_fields=check_fields)
-                self._add_symbol_columns(ts, symbol, _ts, fields)
+                self._add_symbol_columns(ts, symbol, selected, fields)
 
         ts.dropna(inplace=True)
+        if print_starts:
+            metadata = symbol_timeseries_metadata(symbol_ts_pairs)
+            portfolio_start = None
+            if not ts.empty:
+                portfolio_start = ts.index[0].strftime('%Y-%m-%d')
+            print_symbol_timeseries_starts(metadata, portfolio_start=portfolio_start)
         self.symbols = symbols
         return ts
 

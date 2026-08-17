@@ -9,6 +9,8 @@ from .fetch import (
     remove_cache_symbols,
     update_cache_symbols,
     get_symbol_metadata,
+    symbol_timeseries_metadata,
+    print_symbol_timeseries_starts,
     get_quote
 )
 
