@@ -668,6 +668,85 @@ def update_cache_symbols(symbols=None, dir_name='symbol-cache', from_year=None):
     print()
 
 
+def symbol_timeseries_metadata(symbol_ts_pairs):
+    """
+    Build start/end metadata for fetched symbol timeseries.
+
+    Parameters
+    ----------
+    symbol_ts_pairs : list of (str, pd.DataFrame)
+        Each tuple is a symbol and its timeseries (or None).
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: symbol, start_date, end_date, num_years.
+    """
+    metadata = []
+    for symbol, ts in symbol_ts_pairs:
+        if ts is None or ts.empty:
+            metadata.append((symbol, None, None, None))
+            continue
+        start = ts.index[0].to_pydatetime()
+        end = ts.index[-1].to_pydatetime()
+        metadata.append((
+            symbol,
+            start.strftime('%Y-%m-%d'),
+            end.strftime('%Y-%m-%d'),
+            _difference_in_years(start, end),
+        ))
+
+    columns = ['symbol', 'start_date', 'end_date', 'num_years']
+    return pd.DataFrame(metadata, columns=columns)
+
+
+def print_symbol_timeseries_starts(metadata, portfolio_start=None):
+    """
+    Print each symbol's available date range and the portfolio limiter.
+
+    Parameters
+    ----------
+    metadata : pd.DataFrame
+        Output from :func:`symbol_timeseries_metadata`.
+    portfolio_start : str, optional
+        Effective portfolio start date after aligning all symbols.
+
+    Returns
+    -------
+    pd.DataFrame
+        The metadata dataframe (for chaining).
+    """
+    if metadata.empty:
+        return metadata
+
+    print('\nSymbol timeseries availability:')
+    valid = metadata.dropna(subset=['start_date'])
+    if valid.empty:
+        print('  (no data)')
+        print()
+        return metadata
+
+    limiter = valid.loc[valid['start_date'].idxmax(), 'symbol']
+    for _, row in metadata.sort_values('start_date', na_position='last').iterrows():
+        if row['start_date'] is None:
+            print(f"  {row['symbol']:8}  (no data)")
+            continue
+        marker = ''
+        if len(valid) > 1 and row['symbol'] == limiter:
+            marker = '  <-- limits portfolio'
+        print(
+            f"  {row['symbol']:8}  {row['start_date']}  to  "
+            f"{row['end_date']}  ({row['num_years']:.1f} years){marker}"
+        )
+
+    if portfolio_start is not None:
+        print(f"\nPortfolio effective start (all symbols): {portfolio_start}")
+        if len(valid) > 1:
+            print(f"  Limited by: {limiter}")
+    print()
+    return metadata
+
+
 from pathlib import Path
 import pandas as pd
 
