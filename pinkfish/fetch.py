@@ -3,6 +3,7 @@ Fetch time series data.
 """
 
 import datetime
+import os
 from pathlib import Path
 import sys
 import warnings
@@ -24,6 +25,17 @@ import pinkfish.utility as utility
 # TIMESERIES (fetch, select, finalize)
 
 FXMACRODATA_API_ROOT = 'https://fxmacrodata.com/api/v1'
+TIINGO_API_ROOT = 'https://api.tiingo.com/tiingo/daily'
+TIINGO_API_KEY_PATH = Path('~/.tiingo').expanduser()
+
+_TIMESERIES_SOURCES = {
+    'yahoo': 'symbol-cache',
+    'tiingo': 'tiingo-cache',
+}
+
+_FX_TIMESERIES_SOURCES = {
+    'fxmacrodata': 'fxmacrodata-cache',
+}
 
 def _get_cache_dir(dir_name):
     """
@@ -52,6 +64,67 @@ def _get_cache_dir(dir_name):
         dir_path.mkdir(parents=True, exist_ok=True)
 
     return dir_path
+
+
+def _normalize_symbol(symbol):
+    """
+    Make symbol names uppercase and strip pinkfish suffixes.
+    """
+    symbol = symbol.upper()
+    # pinkfish allows the use of a suffix starting with a '_',
+    # like SPY_SHRT, so extract the symbol.
+    return symbol.split('_')[0]
+
+
+def _default_from_year():
+    """
+    Return the default start year for timeseries retrieval.
+    """
+    return 1900 if not sys.platform.startswith('win') else 1971
+
+
+def _read_tiingo_api_key(path=None):
+    """
+    Read a Tiingo API key from a file.
+
+    The file should contain the API key on the first non-empty line.
+    Lines beginning with ``#`` are ignored.
+    """
+    if path is None:
+        path = TIINGO_API_KEY_PATH
+    if not path.is_file():
+        return None
+
+    for line in path.read_text(encoding='utf-8').splitlines():
+        line = line.strip()
+        if not line or line.startswith('#'):
+            continue
+        return line
+    return None
+
+
+def _get_tiingo_api_key(api_key=None):
+    """
+    Resolve a Tiingo API key from a parameter, ``~/.tiingo``, or env var.
+    """
+    if api_key:
+        return api_key
+
+    api_key = _read_tiingo_api_key()
+    if api_key:
+        return api_key
+
+    return os.environ.get('TIINGO_API_KEY')
+
+
+def _load_timeseries_cache(timeseries_cache):
+    """
+    Read a cached timeseries CSV in pinkfish format.
+    """
+    ts = pd.read_csv(timeseries_cache, index_col='Date', parse_dates=True)
+    ts = _adj_column_names(ts)
+    ts = ts[~ts.index.duplicated(keep='first')]
+    return ts
 
 
 def _adj_column_names(ts):
@@ -132,13 +205,155 @@ def fetch_fxmacrodata_timeseries(pair, start, end, api_key=None,
         ts = ts.sort_values('Date')
         ts.to_csv(timeseries_cache, index=False, encoding='utf-8')
 
-    ts = pd.read_csv(timeseries_cache, index_col='Date', parse_dates=True)
-    ts = _adj_column_names(ts)
-    ts = ts[~ts.index.duplicated(keep='first')]
-    return ts
+    return _load_timeseries_cache(timeseries_cache)
 
 
-def fetch_timeseries(symbol, dir_name='symbol-cache', use_cache=True, from_year=None):
+def fetch_fx_timeseries(pair, start, end, dir_name=None, use_cache=True,
+                        source='fxmacrodata', **kwargs):
+    """
+    Read daily FX timeseries data.
+
+    Parameters
+    ----------
+    pair : str
+        The FX pair, e.g. ``'EUR/USD'`` or ``'EURUSD'``.
+    start : str
+        The start date (``'YYYY-MM-DD'``).
+    end : str
+        The end date (``'YYYY-MM-DD'``).
+    dir_name : str, optional
+        The leaf data dir name.  Defaults to ``fxmacrodata-cache`` for
+        FXMacroData.
+    use_cache : bool, optional
+        True to use data cache.  False to retrieve from the internet
+        (default is True).
+    source : {'fxmacrodata'}, optional
+        The data vendor to use (default is ``'fxmacrodata'``).
+    **kwargs
+        Additional keyword arguments passed to the vendor fetcher.
+
+    Returns
+    -------
+    pd.DataFrame
+        The timeseries of an FX pair.
+    """
+    try:
+        default_dir_name = _FX_TIMESERIES_SOURCES[source]
+    except KeyError as exc:
+        raise ValueError(
+            f"Unknown FX data source: {source!r}. "
+            f"Choose from {sorted(_FX_TIMESERIES_SOURCES)}."
+        ) from exc
+
+    if dir_name is None:
+        dir_name = default_dir_name
+
+    fetchers = {
+        'fxmacrodata': fetch_fxmacrodata_timeseries,
+    }
+    return fetchers[source](
+        pair,
+        start,
+        end,
+        dir_name=dir_name,
+        use_cache=use_cache,
+        **kwargs,
+    )
+
+
+def fetch_yahoo_finance_timeseries(symbol, dir_name='symbol-cache',
+                                   use_cache=True, from_year=None):
+    """
+    Read daily OHLCV data from Yahoo Finance.
+
+    Use cached version if it exists and use_cache is True, otherwise
+    retrieve, cache, then read.
+    """
+    symbol = _normalize_symbol(symbol)
+    if from_year is None:
+        from_year = _default_from_year()
+
+    timeseries_cache = _get_cache_dir(dir_name) / f'{symbol}.csv'
+
+    if not (timeseries_cache.is_file() and use_cache):
+        try:
+            ts = yf.download(symbol, start=datetime.datetime(from_year, 1, 1),
+                             progress=False, auto_adjust=False,
+                             multi_level_index=False)
+            if ts.empty:
+                print(f'No Data for {symbol}')
+                return None
+        except Exception as e:
+            print(f'\n{e}')
+            return None
+        else:
+            column_order = ['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']
+            ts = ts[column_order]
+            ts.to_csv(timeseries_cache, encoding='utf-8')
+
+    return _load_timeseries_cache(timeseries_cache)
+
+
+def fetch_tiingo_timeseries(symbol, dir_name='tiingo-cache', use_cache=True,
+                            from_year=None, api_key=None,
+                            api_root=TIINGO_API_ROOT):
+    """
+    Read daily OHLCV data from Tiingo.
+
+    Use cached version if it exists and use_cache is True, otherwise
+    retrieve, cache, then read.
+
+    The API key is read from ``api_key``, then ``~/.tiingo``, then the
+    ``TIINGO_API_KEY`` environment variable.
+    """
+    symbol = _normalize_symbol(symbol)
+    if from_year is None:
+        from_year = _default_from_year()
+
+    timeseries_cache = _get_cache_dir(dir_name) / f'{symbol}.csv'
+
+    if not (timeseries_cache.is_file() and use_cache):
+        api_key = _get_tiingo_api_key(api_key)
+        if not api_key:
+            raise ValueError(
+                'Tiingo API key required: pass api_key, create ~/.tiingo, '
+                'or set TIINGO_API_KEY'
+            )
+
+        url = f"{api_root.rstrip('/')}/{symbol}/prices"
+        params = {'startDate': f'{from_year}-01-01'}
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Token {api_key}',
+        }
+        response = requests.get(url, params=params, headers=headers, timeout=30)
+        response.raise_for_status()
+        rows = response.json()
+
+        records = []
+        for row in rows:
+            records.append({
+                'Date': row['date'][:10],
+                'Open': row['open'],
+                'High': row['high'],
+                'Low': row['low'],
+                'Close': row['close'],
+                'Adj Close': row['adjClose'],
+                'Volume': row['volume'],
+            })
+
+        ts = pd.DataFrame.from_records(records)
+        if ts.empty:
+            print(f'No Tiingo data for {symbol}')
+            return None
+        ts = ts.sort_values('Date')
+        ts.to_csv(timeseries_cache, index=False, encoding='utf-8')
+
+    return _load_timeseries_cache(timeseries_cache)
+
+
+def fetch_timeseries(symbol, dir_name=None, use_cache=True, from_year=None,
+                     source='yahoo', **kwargs):
     """
     Read time series data.
 
@@ -150,55 +365,46 @@ def fetch_timeseries(symbol, dir_name='symbol-cache', use_cache=True, from_year=
     symbol : str
         The symbol for a security.
     dir_name : str, optional
-        The leaf data dir name (default is 'symbol-cache').
+        The leaf data dir name.  Defaults to ``symbol-cache`` for Yahoo
+        Finance and ``tiingo-cache`` for Tiingo.
     use_cache: bool, optional
-        True to use data cache.  False to retrieve from the internet 
+        True to use data cache.  False to retrieve from the internet
         (default is True).
     from_year: int, optional
         The start year for timeseries retrieval (default is None,
         which implies that all the available data is retrieved).
+    source : {'yahoo', 'tiingo'}, optional
+        The data vendor to use (default is ``'yahoo'``).
+    **kwargs
+        Additional keyword arguments passed to the vendor fetcher.
 
     Returns
     -------
     pd.DataFrame
         The timeseries of a symbol.
     """
-    if from_year is None:
-        from_year = 1900 if not sys.platform.startswith('win') else 1971
+    try:
+        default_dir_name = _TIMESERIES_SOURCES[source]
+    except KeyError as exc:
+        raise ValueError(
+            f"Unknown data source: {source!r}. "
+            f"Choose from {sorted(_TIMESERIES_SOURCES)}."
+        ) from exc
 
-    # Make symbol names uppercase.
-    symbol = symbol.upper()
+    if dir_name is None:
+        dir_name = default_dir_name
 
-    # pinkfish allows the use of a suffix starting with a '_',
-    # like SPY_SHRT, so extract the symbol.
-    symbol = symbol.split('_')[0]
-
-    timeseries_cache = _get_cache_dir(dir_name) / f'{symbol}.csv'
-
-    if timeseries_cache.is_file() and use_cache:
-        pass
-    else:
-        try:
-            ts = yf.download(symbol, start=datetime.datetime(from_year, 1, 1),
-            		         progress=False, auto_adjust=False, multi_level_index=False)
-            if ts.empty:
-                print(f'No Data for {symbol}')
-                return None
-        except Exception as e:
-            print(f'\n{e}')
-            return None
-        else:
-            # Reorder columns, then write to csv.
-            column_order = ['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']
-            ts = ts[column_order]
-            ts.to_csv(timeseries_cache, encoding='utf-8')
-
-    ts = pd.read_csv(timeseries_cache, index_col='Date', parse_dates=True)
-    ts = _adj_column_names(ts)
-
-    # Remove rows that have duplicated index.
-    ts = ts[~ts.index.duplicated(keep='first')]
-    return ts
+    fetchers = {
+        'yahoo': fetch_yahoo_finance_timeseries,
+        'tiingo': fetch_tiingo_timeseries,
+    }
+    return fetchers[source](
+        symbol,
+        dir_name=dir_name,
+        use_cache=use_cache,
+        from_year=from_year,
+        **kwargs,
+    )
 
 
 def _adj_prices(ts):
