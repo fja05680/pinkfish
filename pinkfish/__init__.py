@@ -30,6 +30,7 @@ from .pfstatistics import (
     stats,
     currency,
     summary,
+    calendar_year_returns,
     optimizer_summary
 )
 
@@ -38,6 +39,7 @@ from .plot import (
     plot_equity_curves,
     plot_trades,
     plot_bar_graph,
+    plot_calendar_year_returns,
     optimizer_plot_bar_graph
 )
 

@@ -3,6 +3,7 @@ Plotting functions.
 """
 
 import matplotlib.pyplot as plt
+import pandas as pd
 from pandas.plotting import register_matplotlib_converters
 # Register matplotlib converters.
 register_matplotlib_converters()
@@ -194,6 +195,51 @@ def plot_bar_graph(stats, benchmark_stats=None, metrics=default_metrics,
     if fname:
         plt.savefig(fname, bbox_inches='tight')
     return df
+
+
+def plot_calendar_year_returns(returns, fname=None):
+    """
+    Plot calendar-year percentage returns.
+
+    Parameters
+    ----------
+    returns : pd.Series or pd.DataFrame
+        Calendar-year returns from :func:`~pinkfish.calendar_year_returns`.
+        A Series plots one bar per year. A DataFrame plots grouped bars
+        for each column (for example, strategy vs benchmark). A ``diff``
+        column, if present, is excluded from the plot.
+    fname: str or path-like or file-like, optional
+        Save the current figure to fname (default is None, which
+        implies to not output the figure to a file).
+
+    Returns
+    -------
+    pd.Series or pd.DataFrame
+        The returns that were plotted.
+    """
+    if returns.empty:
+        return returns
+
+    plot_returns = returns
+    if isinstance(returns, pd.DataFrame) and 'diff' in returns.columns:
+        plot_returns = returns.drop(columns=['diff'])
+
+    fig_width = max(8, len(plot_returns) * 0.6)
+    fig = plt.figure(figsize=(fig_width, 6))
+    axes = fig.add_subplot(111, ylabel='Return %')
+
+    if isinstance(plot_returns, pd.DataFrame):
+        plot_returns.plot(kind='bar', ax=axes, color=['g', 'r'], width=0.8)
+        axes.legend(loc='best')
+    else:
+        colors = ['g' if value >= 0 else 'r' for value in plot_returns]
+        plot_returns.plot(kind='bar', ax=axes, color=colors, legend=False, width=0.8)
+
+    axes.axhline(0, color='black', linewidth=0.8)
+    axes.set_xticklabels(plot_returns.index, rotation=45, ha='right')
+    if fname:
+        plt.savefig(fname, bbox_inches='tight')
+    return returns
 
 
 def optimizer_plot_bar_graph(df, metric):

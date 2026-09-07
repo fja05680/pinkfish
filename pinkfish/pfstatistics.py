@@ -775,6 +775,105 @@ def _pct_change(close, period):
     return diff
 
 
+def _balance_series(dbal, price='close'):
+    """
+    Extract a dated balance series from pinkfish log objects.
+    """
+    if isinstance(dbal, tuple):
+        if len(dbal) != 3:
+            raise ValueError('Log tuple must be (rlog, tlog, dbal).')
+        dbal = dbal[2]
+    elif hasattr(dbal, 'get_logs') and callable(dbal.get_logs):
+        _, _, dbal = dbal.get_logs()
+
+    if isinstance(dbal, pd.Series):
+        series = dbal.copy()
+    else:
+        if 'date' in dbal.columns:
+            dbal = dbal.set_index('date')
+        if price not in dbal.columns:
+            raise ValueError(f"Daily balance log is missing column {price!r}.")
+        series = dbal[price].copy()
+
+    if not isinstance(series.index, pd.DatetimeIndex):
+        series.index = pd.to_datetime(series.index)
+    return series.sort_index()
+
+
+def calendar_year_returns(dbal, benchmark_dbal=None, price='close'):
+    """
+    Compute calendar-year percentage returns from a daily balance log.
+
+    Works with single-symbol strategies and portfolios. The daily balance
+    log may be passed directly, as the third element of ``get_logs()``,
+    or as a portfolio object that implements ``get_logs()``.
+
+    Parameters
+    ----------
+    dbal : pd.DataFrame, pd.Series, tuple, or object with ``get_logs()``
+        Daily balance log containing a ``close`` column indexed by date,
+        the ``(rlog, tlog, dbal)`` tuple returned by ``get_logs()``, or a
+        ``Portfolio`` instance after the strategy has run.
+    benchmark_dbal : pd.DataFrame, pd.Series, tuple, or object, optional
+        Benchmark daily balance log in the same format as ``dbal``.
+    price : str, optional
+        Balance column to use (default is ``'close'``).
+
+    Returns
+    -------
+    pd.Series or pd.DataFrame
+        Calendar-year percentage returns. If ``benchmark_dbal`` is
+        provided, returns a DataFrame with ``strategy``, ``benchmark``,
+        and ``diff`` columns. ``diff`` is strategy minus benchmark in
+        percentage points, formatted with a sign (for example, ``+5.00``).
+
+    Examples
+    --------
+    Single-symbol strategy::
+
+        stats = pf.stats(ts, tlog, dbal, capital)
+        pf.calendar_year_returns(dbal)
+
+    Portfolio strategy::
+
+        rlog, tlog, dbal = portfolio.get_logs()
+        pf.calendar_year_returns(dbal)
+
+    Strategy vs benchmark::
+
+        pf.calendar_year_returns(dbal, benchmark_dbal)
+    """
+    strategy = _calendar_year_returns(_balance_series(dbal, price=price))
+    strategy.name = 'strategy'
+
+    if benchmark_dbal is None:
+        return strategy
+
+    benchmark = _calendar_year_returns(
+        _balance_series(benchmark_dbal, price=price))
+    benchmark.name = 'benchmark'
+    returns = pd.concat([strategy, benchmark], axis=1)
+    diff = returns['strategy'] - returns['benchmark']
+    returns['diff'] = diff.map(lambda value: f'{value:+.2f}')
+    return returns
+
+
+def _calendar_year_returns(balance):
+    """
+    Compute calendar-year percentage returns for a balance series.
+    """
+    if balance.empty:
+        return pd.Series(dtype=float, name=balance.name)
+
+    returns = balance.groupby(balance.index.year).apply(
+        lambda values: (values.iloc[-1] / values.iloc[0] - 1) * 100,
+        include_groups=False,
+    )
+    returns.index.name = 'year'
+    returns.name = balance.name
+    return returns
+
+
 ########################################################################
 # RATIOS
 
