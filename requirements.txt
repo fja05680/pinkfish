@@ -87,7 +87,7 @@ seaborn==0.13.2
 Send2Trash==2.1.0
 setuptools==82.0.1
 six==1.17.0
-soupsieve==2.8.4
+soupsieve==2.9
 stack-data==0.6.3
 terminado==0.18.1
 tinycss2==1.5.1
