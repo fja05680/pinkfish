@@ -24,7 +24,8 @@ import pinkfish.utility as utility
 ########################################################################
 # TIMESERIES (fetch, select, finalize)
 
-FXMACRODATA_API_ROOT = 'https://fxmacrodata.com/api/v1'
+FXMACRODATA_API_ROOT = 'https://api.fxmacrodata.com/v1'
+FXMACRODATA_PAGE_SIZE = 100
 TIINGO_API_ROOT = 'https://api.tiingo.com/tiingo/daily'
 TIINGO_API_KEY_PATH = Path('~/.tiingo').expanduser()
 
@@ -156,6 +157,59 @@ def _split_fx_pair(pair):
     return pair[:3], pair[3:]
 
 
+def _get_fxmacrodata_api_key(api_key=None):
+    """
+    Resolve an FXMacroData API key from a parameter or env var.
+
+    The key is stripped and checked here so that a stray space or newline
+    raises a plain error instead of an HTTP library error that would echo
+    the header value (and the key) back.
+    """
+    if not api_key:
+        api_key = os.environ.get('FXMACRODATA_API_KEY')
+    if not api_key:
+        return None
+    api_key = api_key.strip()
+    if not api_key or any(ch.isspace() or ord(ch) < 32 for ch in api_key):
+        raise ValueError(
+            'FXMacroData API key is empty or contains whitespace or '
+            'control characters'
+        )
+    return api_key
+
+
+def _get_fxmacrodata_page(url, params, headers):
+    """
+    Request one page and return the decoded payload.
+
+    Redirects are not followed: requests only drops ``Authorization`` on a
+    cross-host redirect, so a custom ``X-API-Key`` header would be sent on
+    to wherever the redirect points.
+    """
+    response = requests.get(url, params=params, headers=headers, timeout=30,
+                            allow_redirects=False)
+    if 300 <= response.status_code < 400:
+        raise ValueError(
+            f'FXMacroData returned an unexpected redirect '
+            f'(HTTP {response.status_code}); not following it with the '
+            f'API key attached'
+        )
+    response.raise_for_status()
+    try:
+        payload = response.json()
+    except ValueError:
+        raise ValueError(
+            'FXMacroData returned a response that is not JSON') from None
+    if (not isinstance(payload, dict)
+            or not isinstance(payload.get('data'), list)):
+        detail = payload.get('detail') if isinstance(payload, dict) else None
+        message = 'FXMacroData returned an unexpected response shape'
+        if isinstance(detail, str):
+            message += f': {detail}'
+        raise ValueError(message)
+    return payload
+
+
 def fetch_fxmacrodata_timeseries(pair, start, end, api_key=None,
                                  api_root=FXMACRODATA_API_ROOT,
                                  dir_name='fxmacrodata-cache',
@@ -166,28 +220,64 @@ def fetch_fxmacrodata_timeseries(pair, start, end, api_key=None,
     FXMacroData returns one official reference value per date. Pinkfish expects
     OHLCV-style bars, so the reference value is copied into open, high, low,
     close, and adj_close with zero volume.
+
+    The API key is read from ``api_key``, then the ``FXMACRODATA_API_KEY``
+    environment variable, and is sent in the ``X-API-Key`` header.  The
+    endpoint returns at most 100 rows per request, so the full date range
+    is read page by page.
     """
     base, quote = _split_fx_pair(pair)
     symbol = base + quote
     timeseries_cache = _get_cache_dir(dir_name) / f'{symbol}.csv'
 
     if not (timeseries_cache.is_file() and use_cache):
+        api_key = _get_fxmacrodata_api_key(api_key)
+        if not api_key:
+            raise ValueError(
+                'FXMacroData API key required for FX rates: pass api_key '
+                'or set FXMACRODATA_API_KEY'
+            )
+
+        url = f"{api_root.rstrip('/')}/forex/{base}/{quote}"
+        headers = {'X-API-Key': api_key}
         params = {
             'start_date': start,
             'end_date': end,
-            'limit': 5000,
+            'limit': FXMACRODATA_PAGE_SIZE,
+            'offset': 0,
         }
-        if api_key:
-            params['api_key'] = api_key
 
-        url = f"{api_root.rstrip('/')}/forex/{base}/{quote}"
-        response = requests.get(url, params=params, timeout=30)
-        response.raise_for_status()
-        rows = response.json().get('data', [])
+        rows = []
+        while True:
+            payload = _get_fxmacrodata_page(url, params, headers)
+            page = payload['data']
+            rows.extend(page)
+            pagination = payload.get('pagination')
+            if not isinstance(pagination, dict):
+                pagination = {}
+            if not page or not pagination.get('has_more'):
+                break
+            next_offset = pagination.get('next_offset')
+            if not isinstance(next_offset, int) or isinstance(next_offset,
+                                                              bool):
+                next_offset = params['offset'] + len(page)
+            if next_offset <= params['offset']:
+                raise ValueError('FXMacroData pagination did not advance')
+            params['offset'] = next_offset
 
         records = []
         for row in rows:
-            value = float(row['val'])
+            if not isinstance(row, dict) or not row.get('date'):
+                raise ValueError('FXMacroData returned a row without a date')
+            if row.get('val') is None:
+                continue
+            try:
+                value = float(row['val'])
+            except (TypeError, ValueError):
+                raise ValueError(
+                    f"FXMacroData returned a non-numeric value for "
+                    f"{row['date']}"
+                ) from None
             records.append({
                 'Date': row['date'],
                 'Open': value,
@@ -202,7 +292,7 @@ def fetch_fxmacrodata_timeseries(pair, start, end, api_key=None,
         if ts.empty:
             print(f'No FXMacroData data for {base}/{quote}')
             return None
-        ts = ts.sort_values('Date')
+        ts = ts.drop_duplicates('Date').sort_values('Date')
         ts.to_csv(timeseries_cache, index=False, encoding='utf-8')
 
     return _load_timeseries_cache(timeseries_cache)
