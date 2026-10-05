@@ -24,7 +24,8 @@ import pinkfish.utility as utility
 ########################################################################
 # TIMESERIES (fetch, select, finalize)
 
-FXMACRODATA_API_ROOT = 'https://fxmacrodata.com/api/v1'
+FXMACRODATA_API_ROOT = 'https://api.fxmacrodata.com/v1'
+FXMACRODATA_PAGE_SIZE = 100
 TIINGO_API_ROOT = 'https://api.tiingo.com/tiingo/daily'
 TIINGO_API_KEY_PATH = Path('~/.tiingo').expanduser()
 
@@ -156,6 +157,15 @@ def _split_fx_pair(pair):
     return pair[:3], pair[3:]
 
 
+def _get_fxmacrodata_api_key(api_key=None):
+    """
+    Resolve an FXMacroData API key from a parameter or env var.
+    """
+    if api_key:
+        return api_key
+    return os.environ.get('FXMACRODATA_API_KEY')
+
+
 def fetch_fxmacrodata_timeseries(pair, start, end, api_key=None,
                                  api_root=FXMACRODATA_API_ROOT,
                                  dir_name='fxmacrodata-cache',
@@ -166,24 +176,46 @@ def fetch_fxmacrodata_timeseries(pair, start, end, api_key=None,
     FXMacroData returns one official reference value per date. Pinkfish expects
     OHLCV-style bars, so the reference value is copied into open, high, low,
     close, and adj_close with zero volume.
+
+    The API key is read from ``api_key``, then the ``FXMACRODATA_API_KEY``
+    environment variable, and is sent in the ``X-API-Key`` header.  The
+    endpoint returns at most 100 rows per request, so the full date range
+    is read page by page.
     """
     base, quote = _split_fx_pair(pair)
     symbol = base + quote
     timeseries_cache = _get_cache_dir(dir_name) / f'{symbol}.csv'
 
     if not (timeseries_cache.is_file() and use_cache):
+        api_key = _get_fxmacrodata_api_key(api_key)
+        if not api_key:
+            raise ValueError(
+                'FXMacroData API key required for FX rates: pass api_key '
+                'or set FXMACRODATA_API_KEY'
+            )
+
+        url = f"{api_root.rstrip('/')}/forex/{base}/{quote}"
+        headers = {'X-API-Key': api_key}
         params = {
             'start_date': start,
             'end_date': end,
-            'limit': 5000,
+            'limit': FXMACRODATA_PAGE_SIZE,
+            'offset': 0,
         }
-        if api_key:
-            params['api_key'] = api_key
 
-        url = f"{api_root.rstrip('/')}/forex/{base}/{quote}"
-        response = requests.get(url, params=params, timeout=30)
-        response.raise_for_status()
-        rows = response.json().get('data', [])
+        rows = []
+        while True:
+            response = requests.get(url, params=params, headers=headers,
+                                    timeout=30)
+            response.raise_for_status()
+            payload = response.json()
+            page = payload.get('data', [])
+            rows.extend(page)
+            pagination = payload.get('pagination') or {}
+            if not page or not pagination.get('has_more'):
+                break
+            params['offset'] = pagination.get(
+                'next_offset', params['offset'] + len(page))
 
         records = []
         for row in rows:
@@ -202,7 +234,7 @@ def fetch_fxmacrodata_timeseries(pair, start, end, api_key=None,
         if ts.empty:
             print(f'No FXMacroData data for {base}/{quote}')
             return None
-        ts = ts.sort_values('Date')
+        ts = ts.drop_duplicates('Date').sort_values('Date')
         ts.to_csv(timeseries_cache, index=False, encoding='utf-8')
 
     return _load_timeseries_cache(timeseries_cache)
